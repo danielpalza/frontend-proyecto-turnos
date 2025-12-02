@@ -28,6 +28,7 @@
     <div class="turns-section">
       <h4 class="section-title">
         <i class="bi bi-clock me-2"></i>Turnos del día
+        <span class="badge bg-primary ms-2">{{ appointments.length }}</span>
       </h4>
       
       <!-- Sin turnos -->
@@ -43,54 +44,57 @@
           <div class="turn-header">
             <div class="patient-info">
               <i class="bi bi-person-fill text-primary"></i>
-              <strong>{{ a.nombreApellido }}</strong>
+              <strong>{{ a.patientName }}</strong>
             </div>
-            <button type="button" class="btn-delete" (click)="delete.emit(a.id)">
-              <i class="bi bi-trash"></i>
-            </button>
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge" [ngClass]="getStatusBadgeClass(a.estado)">
+                {{ getStatusLabel(a.estado) }}
+              </span>
+              <button type="button" class="btn-delete" (click)="delete.emit(a.id)">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
           </div>
 
           <div class="turn-details">
             <div class="detail-row">
-              <div class="detail-item">
-                <small class="text-muted">DNI</small>
-                <span>{{ a.dni }}</span>
+              <div class="detail-item" *ngIf="a.hora">
+                <small class="text-muted">Hora</small>
+                <span class="fw-bold text-primary">{{ formatTime(a.hora) }}</span>
               </div>
               <div class="detail-item">
-                <small class="text-muted">Edad</small>
-                <span>{{ a.edad }} años</span>
+                <small class="text-muted">DNI</small>
+                <span>{{ a.patientDni }}</span>
               </div>
             </div>
 
             <div class="detail-divider"></div>
 
-            <!-- Obra social -->
-            <div class="obra-social">
-              <i class="bi bi-credit-card text-secondary"></i>
-              <div class="flex-grow-1">
-                <small class="text-muted">Obra Social</small>
-                <div class="fw-semibold">{{ a.obraSocialNombre }}</div>
-                <div *ngIf="a.planCategoria" class="text-muted small">{{ a.planCategoria }}</div>
-                <small class="text-muted">N° {{ a.obraSocialNumero }}</small>
-              </div>
-            </div>
-
-            <!-- Contacto -->
-            <div class="contact-info">
-              <div class="contact-item">
-                <i class="bi bi-telephone text-secondary"></i>
-                <span>{{ a.telefono }}</span>
-              </div>
-              <div class="contact-item">
-                <i class="bi bi-envelope text-secondary"></i>
-                <span class="text-truncate">{{ a.email }}</span>
-              </div>
-            </div>
-
             <!-- Profesional -->
-            <div *ngIf="a.profesional" class="profesional-info">
-              <small class="text-muted">Profesional</small>
-              <span>{{ a.profesional }}</span>
+            <div *ngIf="a.profesionalName" class="profesional-info">
+              <i class="bi bi-person-badge text-secondary"></i>
+              <div class="flex-grow-1">
+                <small class="text-muted">Profesional</small>
+                <div class="fw-semibold">{{ a.profesionalName }}</div>
+              </div>
+            </div>
+
+            <!-- Montos -->
+            <div class="payment-info" *ngIf="a.precioBono || a.precioTratamiento">
+              <i class="bi bi-cash-coin text-secondary"></i>
+              <div class="flex-grow-1">
+                <small class="text-muted">Pago</small>
+                <div class="d-flex gap-3">
+                  <span *ngIf="a.precioBono">Bono: ${{ a.precioBono }}</span>
+                  <span *ngIf="a.precioTratamiento">Trat: ${{ a.precioTratamiento }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Observaciones -->
+            <div *ngIf="a.observaciones" class="observaciones-info">
+              <small class="text-muted d-block">Observaciones</small>
+              <span class="small">{{ a.observaciones }}</span>
             </div>
           </div>
         </div>
@@ -103,4 +107,3 @@
     </button>
   </div>
 </div>
-

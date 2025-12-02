@@ -1,254 +1,213 @@
-<!-- Modal Bootstrap -->
 <div class="modal fade show d-block" *ngIf="open">
   <div class="modal-backdrop fade show" (click)="close()"></div>
 
   <div class="modal-dialog modal-xl modal-dialog-scrollable">
     <div class="modal-content">
 
-      <!-- Header -->
       <div class="modal-header">
         <h5 class="modal-title">Nueva Cita</h5>
         <small class="text-muted ms-2">{{ formatDisplayDate(selectedDate) }}</small>
-        <button type="button" class="btn-close" (click)="close()"></button>
+        <button type="button" class="btn-close" (click)="close()" [disabled]="isLoading"></button>
       </div>
 
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
         <div class="modal-body">
 
-          <!-- Datos Personales -->
           <section class="mb-4">
             <h6 class="mb-3 text-primary">
-              <i class="bi bi-person me-2"></i>Datos Personales
+              <i class="bi bi-search me-2"></i>Buscar Paciente Existente
             </h6>
-
-            <div class="row g-3">
-              <div class="col-12">
-                <label class="form-label">Nombre y Apellido</label>
-                <app-patient-combobox
-                  [patients]="existingPatients"
-                  [value]="form.get('nombreApellido')?.value || ''"
-                  (valueChange)="form.get('nombreApellido')?.setValue($event)"
-                  (selectPatient)="handlePatientSelect($event)"
-                ></app-patient-combobox>
-                <div *ngIf="form.get('nombreApellido')?.touched && form.get('nombreApellido')?.invalid" class="text-danger small mt-1">
-                  Este campo es requerido
-                </div>
+            
+            <div class="position-relative">
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  placeholder="Buscar por nombre, DNI o email..."
+                  (input)="onSearchPatient($event)"
+                  [value]="selectedPatient?.nombreApellido || ''"
+                >
+                <button *ngIf="selectedPatient" type="button" class="btn btn-outline-secondary" (click)="clearPatientSelection()">
+                  <i class="bi bi-x-lg"></i>
+                </button>
               </div>
 
+              <div *ngIf="showPatientDropdown && filteredPatients.length > 0" 
+                class="position-absolute w-100 bg-white border rounded shadow-sm mt-1" style="z-index: 1000; max-height: 200px; overflow-y: auto;">
+                <div *ngFor="let patient of filteredPatients" class="p-2 border-bottom" style="cursor: pointer;" (click)="selectPatient(patient)">
+                  <div class="fw-semibold">{{ patient.nombreApellido }}</div>
+                  <small class="text-muted">DNI: {{ patient.dni }} | {{ patient.email }}</small>
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="selectedPatient" class="alert alert-success mt-2 py-2">
+              <i class="bi bi-check-circle me-2"></i>Paciente seleccionado: <strong>{{ selectedPatient.nombreApellido }}</strong>
+            </div>
+            
+            <div *ngIf="isNewPatient && !selectedPatient" class="alert alert-info mt-2 py-2">
+              <i class="bi bi-info-circle me-2"></i>Se creará un nuevo paciente
+            </div>
+          </section>
+
+          <section class="mb-4">
+            <h6 class="mb-3 text-primary"><i class="bi bi-person me-2"></i>Datos Personales</h6>
+            <div class="row g-3">
               <div class="col-md-6">
+                <label class="form-label">Nombre y Apellido *</label>
+                <input class="form-control" type="text" formControlName="nombreApellido" />
+              </div>
+              <div class="col-md-3">
                 <label class="form-label">Fecha de Nacimiento</label>
                 <input class="form-control" type="date" formControlName="fechaNacimiento">
               </div>
-
-              <div class="col-md-6">
+              <div class="col-md-3">
                 <label class="form-label">Edad</label>
                 <input class="form-control bg-light" type="number" formControlName="edad" readonly>
               </div>
-
-              <div class="col-md-6">
-                <label class="form-label">DNI</label>
+              <div class="col-md-4">
+                <label class="form-label">DNI *</label>
                 <input class="form-control" type="text" formControlName="dni" />
-                <div *ngIf="form.get('dni')?.touched && form.get('dni')?.invalid" class="text-danger small mt-1">
-                  Este campo es requerido
-                </div>
               </div>
-
-              <div class="col-md-6">
-                <label class="form-label">Teléfono</label>
+              <div class="col-md-4">
+                <label class="form-label">Teléfono *</label>
                 <input class="form-control" type="tel" formControlName="telefono" />
-                <div *ngIf="form.get('telefono')?.touched && form.get('telefono')?.invalid" class="text-danger small mt-1">
-                  Este campo es requerido
-                </div>
               </div>
-
-              <div class="col-md-6">
-                <label class="form-label">Email</label>
+              <div class="col-md-4">
+                <label class="form-label">Email *</label>
                 <input class="form-control" type="email" formControlName="email" />
-                <div *ngIf="form.get('email')?.touched && form.get('email')?.invalid" class="text-danger small mt-1">
-                  Email inválido
-                </div>
               </div>
-
               <div class="col-md-6">
-                <label class="form-label">Domicilio</label>
+                <label class="form-label">Domicilio *</label>
                 <input class="form-control" type="text" formControlName="domicilio" />
-                <div *ngIf="form.get('domicilio')?.touched && form.get('domicilio')?.invalid" class="text-danger small mt-1">
-                  Este campo es requerido
-                </div>
               </div>
-
               <div class="col-md-6">
-                <label class="form-label">Localidad</label>
+                <label class="form-label">Localidad *</label>
                 <input class="form-control" type="text" formControlName="localidad" />
-                <div *ngIf="form.get('localidad')?.touched && form.get('localidad')?.invalid" class="text-danger small mt-1">
-                  Este campo es requerido
-                </div>
               </div>
-
               <div class="col-md-6">
                 <label class="form-label">Contacto de Emergencia</label>
                 <input class="form-control" type="text" formControlName="contactoEmergencia" />
-                <div *ngIf="form.get('contactoEmergencia')?.touched && form.get('contactoEmergencia')?.invalid" class="text-danger small mt-1">
-                  Este campo es requerido
-                </div>
               </div>
-
-              <div class="col-12">
+              <div class="col-md-6">
                 <label class="form-label">Anamnesis</label>
                 <input class="form-control" type="text" formControlName="anamnesis" />
               </div>
             </div>
           </section>
 
-          <!-- Cobertura -->
           <section class="mb-4">
-            <h6 class="mb-3 text-primary">
-              <i class="bi bi-shield-check me-2"></i>Cobertura
-            </h6>
-
+            <h6 class="mb-3 text-primary"><i class="bi bi-shield-check me-2"></i>Cobertura</h6>
             <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label">Obra Social - Nombre</label>
+              <div class="col-md-4">
+                <label class="form-label">Obra Social *</label>
                 <select class="form-select" formControlName="obraSocialNombre">
                   <option value="">Seleccione...</option>
-                  <option *ngFor="let os of OBRAS_SOCIALES" [value]="os.value">{{ os.label }}</option>
+                  <option *ngFor="let os of OBRAS_SOCIALES" [value]="os">{{ os }}</option>
                 </select>
-                <div *ngIf="form.get('obraSocialNombre')?.touched && form.get('obraSocialNombre')?.invalid" class="text-danger small mt-1">
-                  Este campo es requerido
-                </div>
               </div>
-
-              <div class="col-md-6">
+              <div class="col-md-4">
                 <label class="form-label">Plan / Categoría</label>
                 <input class="form-control" type="text" formControlName="planCategoria" />
-                <div *ngIf="form.get('planCategoria')?.touched && form.get('planCategoria')?.invalid" class="text-danger small mt-1">
-                  Este campo es requerido
-                </div>
               </div>
-
-              <div class="col-md-6">
+              <div class="col-md-4">
                 <label class="form-label">Número de Afiliado</label>
                 <input class="form-control" type="text" formControlName="obraSocialNumero" />
-                <div *ngIf="form.get('obraSocialNumero')?.touched && form.get('obraSocialNumero')?.invalid" class="text-danger small mt-1">
-                  Este campo es requerido
-                </div>
               </div>
-
-              <div class="col-md-6">
+              <div class="col-md-3">
                 <label class="form-label">¿Es titular?</label>
                 <select class="form-select" formControlName="esTitular">
                   <option value="si">Sí</option>
                   <option value="no">No</option>
                 </select>
               </div>
-
-              <div class="col-md-6" *ngIf="form.get('esTitular')?.value === 'no'">
-                <label class="form-label">Nombre del Titular</label>
-                <input class="form-control" type="text" formControlName="nombreTitular" />
-                <div *ngIf="form.get('nombreTitular')?.touched && form.get('nombreTitular')?.invalid" class="text-danger small mt-1">
-                  Este campo es requerido
+              <ng-container *ngIf="form.get('esTitular')?.value === 'no'">
+                <div class="col-md-3">
+                  <label class="form-label">Nombre del Titular</label>
+                  <input class="form-control" type="text" formControlName="nombreTitular" />
                 </div>
-              </div>
-
-              <div class="col-md-6" *ngIf="form.get('esTitular')?.value === 'no'">
-                <label class="form-label">DNI del Titular</label>
-                <input class="form-control" type="text" formControlName="dniTitular" />
-                <div *ngIf="form.get('dniTitular')?.touched && form.get('dniTitular')?.invalid" class="text-danger small mt-1">
-                  Este campo es requerido
+                <div class="col-md-3">
+                  <label class="form-label">DNI del Titular</label>
+                  <input class="form-control" type="text" formControlName="dniTitular" />
                 </div>
-              </div>
+                <div class="col-md-3">
+                  <label class="form-label">Parentesco</label>
+                  <select class="form-select" formControlName="parentesco">
+                    <option value="">Seleccione...</option>
+                    <option value="padre">Padre</option>
+                    <option value="madre">Madre</option>
+                    <option value="conyuge">Cónyuge</option>
+                    <option value="otro">Otro</option>
+                  </select>
+                </div>
+              </ng-container>
+            </div>
+          </section>
 
-              <div class="col-md-6" *ngIf="form.get('esTitular')?.value === 'no'">
-                <label class="form-label">Parentesco</label>
-                <select class="form-select" formControlName="parentesco">
-                  <option value="">Seleccione...</option>
-                  <option value="padre">Padre</option>
-                  <option value="madre">Madre</option>
-                  <option value="tutor">Tutor</option>
-                  <option value="conyuge">Cónyuge</option>
-                  <option value="otro">Otro</option>
+          <section class="mb-4">
+            <h6 class="mb-3 text-primary"><i class="bi bi-calendar-event me-2"></i>Datos del Turno</h6>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Profesional</label>
+                <select class="form-select" formControlName="profesionalId">
+                  <option value="">Sin asignar</option>
+                  <option *ngFor="let prof of profesionales" [value]="prof.id">{{ prof.nombre }}</option>
                 </select>
-                <div *ngIf="form.get('parentesco')?.touched && form.get('parentesco')?.invalid" class="text-danger small mt-1">
-                  Este campo es requerido
-                </div>
               </div>
-            </div>
-          </section>
-
-          <!-- Profesional -->
-          <section class="mb-4">
-            <h6 class="mb-3 text-primary">
-              <i class="bi bi-person-badge me-2"></i>Profesional
-            </h6>
-            <div class="row g-3">
-              <div class="col-12">
-                <label class="form-label">Nombre del Profesional</label>
-                <input class="form-control" list="profesionales-list" formControlName="profesional" placeholder="Dr. Ejemplo" />
-                <datalist id="profesionales-list">
-                  <option>Dr. Juan Pérez</option>
-                  <option>Dra. María González</option>
-                  <option>Dr. Carlos Rodríguez</option>
-                </datalist>
-                <div *ngIf="form.get('profesional')?.touched && form.get('profesional')?.invalid" class="text-danger small mt-1">
-                  Este campo es requerido
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <!-- Detalles de Pago -->
-          <section class="mb-4">
-            <h6 class="mb-3 text-primary">
-              <i class="bi bi-cash-coin me-2"></i>Detalles de Pago
-            </h6>
-            <div class="row g-3">
               <div class="col-md-6">
+                <label class="form-label">Hora del Turno</label>
+                <input class="form-control" type="time" formControlName="hora" />
+              </div>
+            </div>
+          </section>
+
+          <section class="mb-4">
+            <h6 class="mb-3 text-primary"><i class="bi bi-cash-coin me-2"></i>Detalles de Pago</h6>
+            <div class="row g-3">
+              <div class="col-md-3">
                 <label class="form-label">Precio de Bono</label>
-                <input class="form-control" type="number" step="0.01" formControlName="precioBono" />
+                <input class="form-control" type="number" formControlName="precioBono" />
               </div>
-
-              <div class="col-md-6">
-                <label class="form-label">Precio de Tratamiento</label>
-                <input class="form-control" type="number" step="0.01" formControlName="precioTratamiento" />
+              <div class="col-md-3">
+                <label class="form-label">Precio Tratamiento</label>
+                <input class="form-control" type="number" formControlName="precioTratamiento" />
               </div>
-
-              <div class="col-md-6">
+              <div class="col-md-3">
                 <label class="form-label">Extras</label>
-                <input class="form-control" type="number" step="0.01" formControlName="extras" />
+                <input class="form-control" type="number" formControlName="extras" />
               </div>
-
-              <div class="col-md-6">
-                <label class="form-label">Monto de Pago del Cliente</label>
-                <input class="form-control" type="number" step="0.01" formControlName="montoPago" />
+              <div class="col-md-3">
+                <label class="form-label">Monto Pagado</label>
+                <input class="form-control" type="number" formControlName="montoPago" />
               </div>
-
               <div class="col-12">
                 <div class="p-3 bg-light rounded border">
                   <div class="d-flex justify-content-between">
                     <span>Resto a Pagar:</span>
-                    <strong class="text-primary">$ {{ calcularResto() }}</strong>
+                    <strong [class.text-danger]="calcularResto() > 0" [class.text-success]="calcularResto() <= 0">
+                      $ {{ calcularResto() }}
+                    </strong>
                   </div>
                 </div>
               </div>
-
               <div class="col-12">
                 <label class="form-label">Observaciones</label>
-                <textarea class="form-control" rows="3" formControlName="observaciones"></textarea>
+                <textarea class="form-control" rows="2" formControlName="observaciones"></textarea>
               </div>
             </div>
           </section>
 
         </div>
 
-        <!-- Footer -->
         <div class="modal-footer">
-          <button type="button" class="btn btn-outline-secondary" (click)="close()">Cancelar</button>
-          <button type="submit" class="btn btn-primary" [disabled]="form.invalid">
-            <i class="bi bi-check-lg me-2"></i>Guardar Cita
+          <button type="button" class="btn btn-outline-secondary" (click)="close()" [disabled]="isLoading">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="form.invalid || isLoading">
+            <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+            {{ isLoading ? 'Guardando...' : 'Guardar Cita' }}
           </button>
         </div>
       </form>
     </div>
   </div>
 </div>
-

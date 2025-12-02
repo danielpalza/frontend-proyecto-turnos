@@ -1,31 +1,134 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
-import { Appointment } from '../../features/appointments/models/appointment.model';
+import { HttpClient } from '@angular/common/http';
+import { Observable, BehaviorSubject, tap, map } from 'rxjs';
+import { Appointment, AppointmentCreateDTO, AppointmentStatus, AppointmentCountByDate } from '../models';
+import { API_CONFIG } from './api.config';
 
 @Injectable({ providedIn: 'root' })
 export class AppointmentsService {
-  private appointments$ = new BehaviorSubject<Appointment[]>([]);
+  private readonly apiUrl = `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.appointments}`;
+  
+  // Cache local de turnos
+  private appointmentsCache$ = new BehaviorSubject<Appointment[]>([]);
 
-  getAppointments() {
-    return this.appointments$.asObservable();
+  constructor(private http: HttpClient) {
+    this.loadAppointments();
   }
 
-  addAppointment(appointment: Appointment) {
-    const current = this.appointments$.value;
-    this.appointments$.next([...current, appointment]);
+  /**
+   * Cargar todos los turnos del backend
+   */
+  loadAppointments(): void {
+    this.http.get<Appointment[]>(this.apiUrl).subscribe({
+      next: (appointments) => this.appointmentsCache$.next(appointments),
+      error: (err) => console.error('Error loading appointments:', err)
+    });
   }
 
-  deleteAppointment(id: string) {
-    const updated = this.appointments$.value.filter(a => a.id !== id);
-    this.appointments$.next(updated);
+  /**
+   * Obtener turnos del cache (observable)
+   */
+  getAppointments(): Observable<Appointment[]> {
+    return this.appointmentsCache$.asObservable();
   }
 
+  /**
+   * Obtener todos los turnos del backend
+   */
+  findAll(): Observable<Appointment[]> {
+    return this.http.get<Appointment[]>(this.apiUrl).pipe(
+      tap(appointments => this.appointmentsCache$.next(appointments))
+    );
+  }
+
+  /**
+   * Obtener turno por ID
+   */
+  findById(id: number): Observable<Appointment> {
+    return this.http.get<Appointment>(`${this.apiUrl}/${id}`);
+  }
+
+  /**
+   * Obtener turnos por fecha
+   */
+  findByDate(fecha: string): Observable<Appointment[]> {
+    return this.http.get<Appointment[]>(`${this.apiUrl}/date/${fecha}`);
+  }
+
+  /**
+   * Obtener turnos de un paciente
+   */
+  findByPatient(patientId: number): Observable<Appointment[]> {
+    return this.http.get<Appointment[]>(`${this.apiUrl}/patient/${patientId}`);
+  }
+
+  /**
+   * Obtener turnos en rango de fechas
+   */
+  findByDateRange(startDate: string, endDate: string): Observable<Appointment[]> {
+    return this.http.get<Appointment[]>(`${this.apiUrl}/range`, {
+      params: { startDate, endDate }
+    });
+  }
+
+  /**
+   * Obtener conteo de turnos por fecha (para calendario)
+   */
+  getAppointmentCountByDateRange(startDate: string, endDate: string): Observable<AppointmentCountByDate> {
+    return this.http.get<AppointmentCountByDate>(`${this.apiUrl}/count`, {
+      params: { startDate, endDate }
+    });
+  }
+
+  /**
+   * Crear nuevo turno
+   */
+  create(appointment: AppointmentCreateDTO): Observable<Appointment> {
+    return this.http.post<Appointment>(this.apiUrl, appointment).pipe(
+      tap(() => this.loadAppointments())
+    );
+  }
+
+  /**
+   * Actualizar turno
+   */
+  update(id: number, appointment: Partial<AppointmentCreateDTO>): Observable<Appointment> {
+    return this.http.put<Appointment>(`${this.apiUrl}/${id}`, appointment).pipe(
+      tap(() => this.loadAppointments())
+    );
+  }
+
+  /**
+   * Eliminar turno
+   */
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+      tap(() => this.loadAppointments())
+    );
+  }
+
+  /**
+   * Cambiar estado del turno
+   */
+  updateStatus(id: number, status: AppointmentStatus): Observable<Appointment> {
+    return this.http.patch<Appointment>(`${this.apiUrl}/${id}/status`, null, {
+      params: { status }
+    }).pipe(
+      tap(() => this.loadAppointments())
+    );
+  }
+
+  /**
+   * Obtener turnos para una fecha específica (del cache)
+   */
   getAppointmentsForDate(date: string): Appointment[] {
-    return this.appointments$.value.filter(app => app.date === date);
+    return this.appointmentsCache$.value.filter(app => app.fecha === date);
   }
 
+  /**
+   * Obtener todos los turnos del cache
+   */
   getAllAppointments(): Appointment[] {
-    return this.appointments$.value;
+    return this.appointmentsCache$.value;
   }
 }
-

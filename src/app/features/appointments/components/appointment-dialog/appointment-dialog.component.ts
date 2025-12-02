@@ -1,25 +1,30 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { PatientComboboxComponent, Patient } from '../../../patients/components/patient-combobox/patient-combobox.component';
-import { Appointment } from '../../models/appointment.model';
+import { Patient, Profesional, AppointmentCreateDTO } from '../../../../core/models';
 
 @Component({
   selector: 'app-appointment-dialog',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, PatientComboboxComponent],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './appointment-dialog.component.html',
   styleUrls: ['./appointment-dialog.component.scss']
 })
-export class AppointmentDialogComponent implements OnInit {
+export class AppointmentDialogComponent implements OnInit, OnChanges {
   @Input() open = false;
   @Input() selectedDate: string | null = null;
-  @Input() existingPatients: Array<{ nombreApellido: string; dni: string; email: string }> = [];
+  @Input() existingPatients: Patient[] = [];
+  @Input() profesionales: Profesional[] = [];
+  @Input() isLoading = false;
 
   @Output() openChange = new EventEmitter<boolean>();
-  @Output() submitForm = new EventEmitter<Omit<Appointment, 'id' | 'date'>>();
+  @Output() submitForm = new EventEmitter<{ patientData: Partial<Patient>; appointmentData: AppointmentCreateDTO }>();
 
   form!: FormGroup;
+  selectedPatient: Patient | null = null;
+  isNewPatient = true;
+  filteredPatients: Patient[] = [];
+  showPatientDropdown = false;
 
   // Obras sociales
   OBRAS_SOCIALES = [
@@ -31,13 +36,23 @@ export class AppointmentDialogComponent implements OnInit {
     'Omint','Sancor Salud','Hominis','Avalian','Prevención Salud','Hospital Italiano Plan de Salud','Accord Salud',
     'Medifé','Boreal Salud','ACA Salud','AMEBPBA','Staff Médico','IOMA','OSEP','IPROSS','ISSN','IOSCOR','APROSS',
     'ISJ','SEROS','DOSEP','OSPTDF','OSEPJ','IAPOS','ISSSyP','IPS Misiones','IPS Salta'
-  ].map(os => ({ value: os, label: os }));
+  ];
 
   constructor(private fb: FormBuilder) {}
 
   ngOnInit(): void {
+    this.initForm();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['existingPatients']) {
+      this.filteredPatients = this.existingPatients;
+    }
+  }
+
+  private initForm(): void {
     this.form = this.fb.group({
-      // Datos Personales
+      // Datos Personales del Paciente
       nombreApellido: ['', Validators.required],
       fechaNacimiento: [''],
       edad: [{ value: '', disabled: true }],
@@ -46,23 +61,24 @@ export class AppointmentDialogComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       domicilio: ['', Validators.required],
       localidad: ['', Validators.required],
-      contactoEmergencia: ['', Validators.required],
+      contactoEmergencia: [''],
       anamnesis: [''],
       // Cobertura
       obraSocialNombre: ['', Validators.required],
-      planCategoria: ['', Validators.required],
-      obraSocialNumero: ['', Validators.required],
+      planCategoria: [''],
+      obraSocialNumero: [''],
       esTitular: ['si'],
       nombreTitular: [''],
       dniTitular: [''],
       parentesco: [''],
-      // Profesional
-      profesional: ['', Validators.required],
+      // Turno
+      profesionalId: [''],
+      hora: ['09:00'],
       // Pago
-      precioBono: ['0'],
-      precioTratamiento: ['0'],
-      extras: ['0'],
-      montoPago: ['0'],
+      precioBono: [0],
+      precioTratamiento: [0],
+      extras: [0],
+      montoPago: [0],
       observaciones: ['']
     });
 
@@ -77,12 +93,10 @@ export class AppointmentDialogComponent implements OnInit {
           age--;
         }
         this.form.get('edad')?.setValue(age.toString(), { emitEvent: false });
-      } else {
-        this.form.get('edad')?.setValue('', { emitEvent: false });
       }
     });
 
-    // Manejar validaciones condicionales para titular
+    // Validaciones condicionales para titular
     this.form.get('esTitular')?.valueChanges.subscribe((val: string) => {
       const nombreTitular = this.form.get('nombreTitular')!;
       const dniTitular = this.form.get('dniTitular')!;
@@ -103,56 +117,132 @@ export class AppointmentDialogComponent implements OnInit {
     });
   }
 
-  handlePatientSelect(patient: { nombreApellido: string; dni: string; email: string } | null) {
-    if (patient) {
-      this.form.patchValue({
-        nombreApellido: patient.nombreApellido,
-        dni: patient.dni,
-        email: patient.email
-      }, { emitEvent: false });
+  /**
+   * Buscar pacientes mientras escribe
+   */
+  onSearchPatient(event: Event): void {
+    const value = (event.target as HTMLInputElement).value.toLowerCase();
+    if (value.length >= 2) {
+      this.filteredPatients = this.existingPatients.filter(p =>
+        p.nombreApellido.toLowerCase().includes(value) ||
+        p.dni.includes(value) ||
+        (p.email && p.email.toLowerCase().includes(value))
+      );
+      this.showPatientDropdown = true;
+    } else {
+      this.filteredPatients = [];
+      this.showPatientDropdown = false;
     }
+    this.isNewPatient = true;
+    this.selectedPatient = null;
   }
 
-  close() {
-    this.open = false;
-    this.openChange.emit(false);
-    this.form.reset({
-      esTitular: 'si',
-      precioBono: '0',
-      precioTratamiento: '0',
-      extras: '0',
-      montoPago: '0'
+  /**
+   * Seleccionar paciente existente
+   */
+  selectPatient(patient: Patient): void {
+    this.selectedPatient = patient;
+    this.isNewPatient = false;
+    this.showPatientDropdown = false;
+    
+    // Llenar el formulario con los datos del paciente
+    this.form.patchValue({
+      nombreApellido: patient.nombreApellido,
+      fechaNacimiento: patient.fechaNacimiento || '',
+      dni: patient.dni,
+      telefono: patient.telefono || '',
+      email: patient.email || '',
+      domicilio: patient.domicilio || '',
+      localidad: patient.localidad || '',
+      contactoEmergencia: patient.contactoEmergencia || '',
+      anamnesis: patient.anamnesis || '',
+      obraSocialNombre: patient.obraSocialNombre || '',
+      planCategoria: patient.planCategoria || '',
+      obraSocialNumero: patient.obraSocialNumero || '',
+      esTitular: patient.esTitular ? 'si' : 'no',
+      nombreTitular: patient.nombreTitular || '',
+      dniTitular: patient.dniTitular || '',
+      parentesco: patient.parentesco || ''
     });
   }
 
-  calcularResto(): string {
-    const bono = parseFloat(this.form.get('precioBono')?.value || '0');
-    const tratamiento = parseFloat(this.form.get('precioTratamiento')?.value || '0');
-    const extras = parseFloat(this.form.get('extras')?.value || '0');
-    const pago = parseFloat(this.form.get('montoPago')?.value || '0');
-    const total = bono + tratamiento + extras;
-    const resto = total - pago;
-    return resto.toFixed(2);
+  /**
+   * Limpiar selección de paciente
+   */
+  clearPatientSelection(): void {
+    this.selectedPatient = null;
+    this.isNewPatient = true;
+    this.form.reset({
+      esTitular: 'si',
+      hora: '09:00',
+      precioBono: 0,
+      precioTratamiento: 0,
+      extras: 0,
+      montoPago: 0
+    });
   }
 
-  onSubmit() {
+  close(): void {
+    this.open = false;
+    this.openChange.emit(false);
+    this.clearPatientSelection();
+  }
+
+  calcularResto(): number {
+    const bono = this.form.get('precioBono')?.value || 0;
+    const tratamiento = this.form.get('precioTratamiento')?.value || 0;
+    const extras = this.form.get('extras')?.value || 0;
+    const pago = this.form.get('montoPago')?.value || 0;
+    return (bono + tratamiento + extras) - pago;
+  }
+
+  onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
 
-    const raw = { ...this.form.getRawValue() };
-    const payload: Omit<Appointment, 'id' | 'date'> = {
-      ...raw,
+    const raw = this.form.getRawValue();
+
+    // Datos del paciente
+    const patientData: Partial<Patient> = {
+      id: this.selectedPatient?.id,
+      nombreApellido: raw.nombreApellido,
+      fechaNacimiento: raw.fechaNacimiento || undefined,
+      dni: raw.dni,
+      telefono: raw.telefono,
+      email: raw.email,
+      domicilio: raw.domicilio,
+      localidad: raw.localidad,
+      contactoEmergencia: raw.contactoEmergencia || undefined,
+      anamnesis: raw.anamnesis || undefined,
+      obraSocialNombre: raw.obraSocialNombre,
+      planCategoria: raw.planCategoria || undefined,
+      obraSocialNumero: raw.obraSocialNumero || undefined,
       esTitular: raw.esTitular === 'si',
-      edad: Number(raw.edad) || 0
+      nombreTitular: raw.nombreTitular || undefined,
+      dniTitular: raw.dniTitular || undefined,
+      parentesco: raw.parentesco || undefined
     };
 
-    this.submitForm.emit(payload);
-    this.close();
+    // Datos del turno
+    const appointmentData: AppointmentCreateDTO = {
+      patientId: this.selectedPatient?.id || 0, // Se actualizará si es paciente nuevo
+      profesionalId: raw.profesionalId ? Number(raw.profesionalId) : undefined,
+      fecha: this.selectedDate || '',
+      hora: raw.hora ? `${raw.hora}:00` : undefined,
+      estado: 'PENDIENTE',
+      precioBono: raw.precioBono || 0,
+      precioTratamiento: raw.precioTratamiento || 0,
+      extras: raw.extras || 0,
+      montoPago: raw.montoPago || 0,
+      observaciones: raw.observaciones || undefined
+    };
+
+    this.submitForm.emit({ patientData, appointmentData });
   }
 
-  formatDisplayDate(dateStr: string | null) {
+  formatDisplayDate(dateStr: string | null): string {
     if (!dateStr) return '';
     const date = new Date(dateStr + 'T00:00:00');
     return date.toLocaleDateString('es-ES', {
@@ -163,4 +253,3 @@ export class AppointmentDialogComponent implements OnInit {
     });
   }
 }
-
