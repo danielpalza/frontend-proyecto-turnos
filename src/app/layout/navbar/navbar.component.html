@@ -1,0 +1,14 @@
+<nav class="navbar-container">
+  <div class="nav-tabs">
+    <a 
+      *ngFor="let item of menuItems"
+      class="nav-tab"
+      [routerLink]="item.route"
+      routerLinkActive="active"
+    >
+      <i class="bi" [ngClass]="item.icon"></i>
+      <span>{{ item.title }}</span>
+    </a>
+  </div>
+</nav>
+

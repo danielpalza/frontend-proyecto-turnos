@@ -1,0 +1,194 @@
+// Modal personalizado
+.modal {
+  &.show.d-block {
+    display: block !important;
+  }
+
+  .modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-dialog.modal-xl {
+    max-width: 95vw;
+    max-height: 95vh;
+    margin: 1.75rem auto;
+
+    @media (max-width: 992px) {
+      max-width: 100%;
+      margin: 0.5rem;
+    }
+  }
+
+  .modal-content {
+    max-height: 95vh;
+    overflow: hidden;
+    border-radius: 0.75rem;
+    border: none;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+
+  .modal-header {
+    border-bottom: 1px solid #e2e8f0;
+    padding: 1.25rem 1.5rem;
+
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #0f172a;
+    }
+  }
+
+  .modal-body {
+    padding: 1.5rem;
+    overflow: hidden;
+  }
+
+  .modal-footer {
+    border-top: 1px solid #e2e8f0;
+    padding: 1.25rem 1.5rem;
+    background-color: #f8fafc;
+    gap: 0.75rem;
+
+    .btn.flex-fill {
+      flex: 1;
+    }
+  }
+}
+
+// Secciones con scroll
+.scroll-section {
+  max-height: calc(95vh - 250px);
+  overflow-y: auto;
+  padding-right: 0.75rem;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+
+    &:hover {
+      background: #94a3b8;
+    }
+  }
+
+  @media (max-width: 992px) {
+    max-height: 50vh;
+    margin-bottom: 1rem;
+  }
+}
+
+// Fondo suave
+.bg-soft {
+  background: linear-gradient(to bottom right, #f8fafc, #eef2ff);
+}
+
+// Área de totales
+.bg-indigo-light {
+  background-color: #eef2ff !important;
+}
+
+.border-indigo {
+  border-color: #c7d2fe !important;
+}
+
+// Leyenda
+.legend-box {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 0.25rem;
+  flex-shrink: 0;
+
+  &.border {
+    border: 2px solid #334155 !important;
+    background-color: white;
+  }
+}
+
+// Botones del footer
+.modal-footer {
+  .btn-outline-secondary {
+    border-color: #cbd5e1;
+    color: #64748b;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: #f1f5f9;
+      border-color: #94a3b8;
+      color: #475569;
+    }
+  }
+
+  .btn-primary {
+    background: linear-gradient(to right, #6366f1, #a855f7);
+    border: none;
+    color: white;
+    font-weight: 500;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: linear-gradient(to right, #4f46e5, #9333ea);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
+    }
+  }
+}
+
+// Labels y forms
+.form-label {
+  color: #334155;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+textarea.form-control {
+  resize: vertical;
+  min-height: 80px;
+
+  &:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  }
+}
+
+// Animación de entrada
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal.show .modal-dialog {
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+// Responsive
+@media (max-width: 992px) {
+  .modal .modal-dialog.modal-xl .modal-content {
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+    gap: 0.5rem;
+
+    .btn {
+      width: 100%;
+    }
+  }
+}
+

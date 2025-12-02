@@ -1,0 +1,99 @@
+<div class="seguimiento-container">
+  <div class="container-fluid px-4">
+
+    <!-- Título -->
+    <div class="header-section mb-4">
+      <h1 class="fw-bold">
+        <i class="bi bi-clipboard-data me-2 text-primary"></i>Seguimiento de Pacientes
+      </h1>
+      <p class="text-muted">Historial y seguimiento de todos los pacientes</p>
+    </div>
+
+    <!-- Buscador -->
+    <div class="mb-4 position-relative search-container">
+      <i class="bi bi-search position-absolute top-50 translate-middle-y ms-3 text-muted"></i>
+      <input
+        type="text"
+        class="form-control ps-5"
+        placeholder="Buscar por nombre, DNI o email..."
+        [(ngModel)]="searchTerm"
+      />
+    </div>
+
+    <!-- Sin resultados -->
+    <div *ngIf="patientGroups.length === 0" class="card empty-state">
+      <div class="card-body text-center p-5">
+        <i class="bi bi-people fs-1 mb-3 d-block text-muted opacity-50"></i>
+        <p class="text-muted mb-0">
+          {{ searchTerm ? 'No se encontraron pacientes' : 'No hay pacientes registrados' }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Lista de pacientes -->
+    <div class="patients-list" *ngIf="patientGroups.length > 0">
+
+      <div
+        *ngFor="let group of patientGroups"
+        class="card shadow-sm patient-card mb-4"
+      >
+        <div class="card-header bg-white">
+          <div class="d-flex align-items-center gap-3">
+            <div class="avatar">
+              <i class="bi bi-person fs-4 text-primary"></i>
+            </div>
+
+            <div>
+              <h5 class="m-0 fw-semibold">{{ group.patient.nombreApellido }}</h5>
+              <small class="text-muted">DNI: {{ group.patient.dni }}</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+
+          <!-- Datos del paciente -->
+          <div class="row g-3 mb-3 pb-3 border-bottom patient-info">
+            <div class="col-md-6 d-flex align-items-center gap-2 text-muted">
+              <i class="bi bi-telephone"></i>
+              <span>{{ group.patient.telefono }}</span>
+            </div>
+
+            <div class="col-md-6 text-muted">
+              <i class="bi bi-envelope me-2"></i>{{ group.patient.email }}
+            </div>
+
+            <div class="col-md-6">
+              <span class="text-muted">Edad:</span>
+              <span class="fw-semibold ms-1">{{ group.patient.edad }} años</span>
+            </div>
+
+            <div class="col-md-6">
+              <span class="text-muted">Obra Social:</span>
+              <span class="fw-semibold ms-1">{{ group.patient.obraSocialNombre }}</span>
+            </div>
+          </div>
+
+          <!-- Historial de turnos -->
+          <p class="fw-semibold text-secondary mb-2">
+            <i class="bi bi-calendar-check me-2"></i>Historial de turnos ({{ group.appointments.length }})
+          </p>
+
+          <div class="appointments-timeline">
+            <div
+              *ngFor="let app of group.appointments"
+              class="timeline-item d-flex align-items-center gap-2 p-2 rounded"
+            >
+              <i class="bi bi-calendar-event text-primary"></i>
+              <span>{{ formatDate(app.date) }}</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+

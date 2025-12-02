@@ -1,0 +1,64 @@
+<svg
+  [attr.width]="circleSize"
+  [attr.height]="circleSize"
+  viewBox="0 0 40 40"
+  class="cursor-pointer"
+>
+  <!-- Círculo exterior -->
+  <circle
+    cx="20"
+    cy="20"
+    r="18"
+    fill="none"
+    stroke="#334155"
+    [attr.stroke-width]="strokeWidth"
+  />
+
+  <!-- Top -->
+  <path
+    d="M 20 2 L 28 12 L 12 12 Z"
+    [attr.fill]="getFaceColor(faces().top)"
+    stroke="#334155"
+    [attr.stroke-width]="strokeWidth"
+    (click)="handleFaceClick('top', $event)"
+  />
+
+  <!-- Right -->
+  <path
+    d="M 38 20 L 28 28 L 28 12 Z"
+    [attr.fill]="getFaceColor(faces().right)"
+    stroke="#334155"
+    [attr.stroke-width]="strokeWidth"
+    (click)="handleFaceClick('right', $event)"
+  />
+
+  <!-- Center -->
+  <circle
+    cx="20"
+    cy="20"
+    r="8"
+    [attr.fill]="getFaceColor(faces().center)"
+    stroke="#334155"
+    [attr.stroke-width]="strokeWidth"
+    (click)="handleFaceClick('center', $event)"
+  />
+
+  <!-- Left -->
+  <path
+    d="M 2 20 L 12 12 L 12 28 Z"
+    [attr.fill]="getFaceColor(faces().left)"
+    stroke="#334155"
+    [attr.stroke-width]="strokeWidth"
+    (click)="handleFaceClick('left', $event)"
+  />
+
+  <!-- Bottom -->
+  <path
+    d="M 20 38 L 12 28 L 28 28 Z"
+    [attr.fill]="getFaceColor(faces().bottom)"
+    stroke="#334155"
+    [attr.stroke-width]="strokeWidth"
+    (click)="handleFaceClick('bottom', $event)"
+  />
+</svg>
+

@@ -1,0 +1,106 @@
+<div class="sidebar-container">
+  <!-- Estado: Sin día seleccionado -->
+  <div class="empty-state" *ngIf="!date">
+    <div class="icon-wrapper">
+      <i class="bi bi-calendar3"></i>
+    </div>
+    <h3 class="empty-title">Selecciona un día</h3>
+    <p class="empty-description">
+      Haz clic en cualquier día del calendario para ver y gestionar los turnos
+    </p>
+  </div>
+
+  <!-- Estado: Día seleccionado -->
+  <div class="selected-state" *ngIf="date">
+    <div class="date-header">
+      <div class="date-icon">
+        <i class="bi bi-calendar-check"></i>
+      </div>
+      <div class="date-info">
+        <span class="date-day">{{ getFormattedDay(date).dayName }}</span>
+        <h2 class="date-full">{{ getFormattedDay(date).dayNumber }} de {{ getFormattedDay(date).month }}</h2>
+        <span class="date-year">{{ getFormattedDay(date).year }}</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="turns-section">
+      <h4 class="section-title">
+        <i class="bi bi-clock me-2"></i>Turnos del día
+      </h4>
+      
+      <!-- Sin turnos -->
+      <div class="no-turns" *ngIf="appointments.length === 0">
+        <i class="bi bi-inbox"></i>
+        <p>No hay turnos programados</p>
+        <small>Haga clic en "Agregar Turno" para crear uno</small>
+      </div>
+
+      <!-- Lista de turnos -->
+      <div class="turns-list" *ngIf="appointments.length > 0">
+        <div class="turn-card" *ngFor="let a of appointments">
+          <div class="turn-header">
+            <div class="patient-info">
+              <i class="bi bi-person-fill text-primary"></i>
+              <strong>{{ a.nombreApellido }}</strong>
+            </div>
+            <button type="button" class="btn-delete" (click)="delete.emit(a.id)">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+
+          <div class="turn-details">
+            <div class="detail-row">
+              <div class="detail-item">
+                <small class="text-muted">DNI</small>
+                <span>{{ a.dni }}</span>
+              </div>
+              <div class="detail-item">
+                <small class="text-muted">Edad</small>
+                <span>{{ a.edad }} años</span>
+              </div>
+            </div>
+
+            <div class="detail-divider"></div>
+
+            <!-- Obra social -->
+            <div class="obra-social">
+              <i class="bi bi-credit-card text-secondary"></i>
+              <div class="flex-grow-1">
+                <small class="text-muted">Obra Social</small>
+                <div class="fw-semibold">{{ a.obraSocialNombre }}</div>
+                <div *ngIf="a.planCategoria" class="text-muted small">{{ a.planCategoria }}</div>
+                <small class="text-muted">N° {{ a.obraSocialNumero }}</small>
+              </div>
+            </div>
+
+            <!-- Contacto -->
+            <div class="contact-info">
+              <div class="contact-item">
+                <i class="bi bi-telephone text-secondary"></i>
+                <span>{{ a.telefono }}</span>
+              </div>
+              <div class="contact-item">
+                <i class="bi bi-envelope text-secondary"></i>
+                <span class="text-truncate">{{ a.email }}</span>
+              </div>
+            </div>
+
+            <!-- Profesional -->
+            <div *ngIf="a.profesional" class="profesional-info">
+              <small class="text-muted">Profesional</small>
+              <span>{{ a.profesional }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-add-turn" (click)="addClick.emit()">
+      <i class="bi bi-plus-lg"></i>
+      <span>Agregar turno</span>
+    </button>
+  </div>
+</div>
+

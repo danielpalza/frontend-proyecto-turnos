@@ -1,0 +1,40 @@
+<div class="position-relative w-100">
+  <!-- Input principal -->
+  <input
+    type="text"
+    class="form-control"
+    placeholder="Seleccione un paciente o escriba uno nuevo…"
+    [(ngModel)]="value"
+    (ngModelChange)="updateValue($event)"
+    (focus)="isOpen = true"
+  />
+
+  <!-- Dropdown -->
+  <div
+    class="dropdown-menu show w-100 mt-1"
+    *ngIf="isOpen"
+    style="max-height: 250px; overflow-y: auto;"
+  >
+    <!-- Si no hay pacientes -->
+    <div *ngIf="filteredPatients.length === 0" class="dropdown-item text-muted">
+      Presione Enter para usar "{{ value }}"
+    </div>
+
+    <!-- Lista filtrada -->
+    <button
+      *ngFor="let patient of filteredPatients"
+      type="button"
+      class="dropdown-item d-flex justify-content-between align-items-center"
+      (click)="choosePatient(patient)"
+    >
+      <div class="d-flex flex-column">
+        <strong>{{ patient.nombreApellido }}</strong>
+        <small class="text-muted">DNI: {{ patient.dni }}</small>
+      </div>
+
+      <!-- Check -->
+      <i *ngIf="patient.nombreApellido === value" class="bi bi-check-lg"></i>
+    </button>
+  </div>
+</div>
+

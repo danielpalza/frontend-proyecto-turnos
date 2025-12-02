@@ -1,0 +1,63 @@
+<div class="calendar-container">
+  <!-- Header -->
+  <div class="calendar-header">
+    <div class="header-left">
+      <h1 class="title">Sistema de Gestión de Turnos</h1>
+      <p class="subtitle">Seleccione un día para crear un nuevo turno</p>
+    </div>
+    <div class="header-right">
+      <button class="btn-today" (click)="goToToday()">Hoy</button>
+      <div class="month-navigation">
+        <button class="nav-arrow" (click)="previousMonth()">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+        <button class="month-selector">
+          {{ getMonthName() }} {{ currentDate.getFullYear() }}
+        </button>
+        <button class="nav-arrow" (click)="nextMonth()">
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Calendario -->
+  <div class="calendar-body">
+    <div class="month-title">{{ getMonthName() }} {{ currentDate.getFullYear() }}</div>
+    
+    <!-- Días de la semana -->
+    <div class="weekdays">
+      <div class="weekday" *ngFor="let day of weekDays">{{ day }}</div>
+    </div>
+
+    <!-- Grid de días -->
+    <div class="days-grid">
+      <ng-container *ngFor="let day of calendarDays">
+        <!-- Espacios vacíos -->
+        <div *ngIf="day.type === 'empty'" class="day-cell empty"></div>
+
+        <!-- Días reales -->
+        <button
+          *ngIf="day.type === 'day'"
+          class="day-cell"
+          [class.today]="day.isToday"
+          [class.selected]="day.dateStr === selectedDate"
+          [class.has-appointments]="day.appointmentCount > 0"
+          (click)="onDateClick(day.dateStr)"
+        >
+          <span class="day-number">{{ day.day }}</span>
+          
+          <!-- Badge de turnos -->
+          <span 
+            *ngIf="day.appointmentCount > 0" 
+            class="appointment-badge"
+            [class.today-badge]="day.isToday"
+          >
+            {{ day.appointmentCount }}
+          </span>
+        </button>
+      </ng-container>
+    </div>
+  </div>
+</div>
+

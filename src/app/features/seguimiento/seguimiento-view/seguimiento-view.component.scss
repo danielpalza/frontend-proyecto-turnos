@@ -1,0 +1,143 @@
+.seguimiento-container {
+  padding: 2rem;
+  background-color: #f8fafc;
+  padding-bottom: 3rem;
+}
+
+.header-section {
+  h1 {
+    color: #0f172a;
+    font-size: 1.875rem;
+  }
+}
+
+.search-container {
+  .form-control {
+    border-radius: 0.75rem;
+    border: 1px solid #e2e8f0;
+    padding: 0.75rem 1rem 0.75rem 2.75rem;
+    transition: all 0.2s ease;
+
+    &:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+  }
+
+  .bi-search {
+    font-size: 1rem;
+  }
+}
+
+.empty-state {
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+}
+
+.patients-list {
+  width: 100%;
+}
+
+.patient-card {
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .card-header {
+    border-bottom: 1px solid #e2e8f0;
+    padding: 1.25rem 1.5rem;
+  }
+
+  .card-body {
+    padding: 1.5rem;
+  }
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: rgba(99, 102, 241, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.patient-info {
+  font-size: 0.9375rem;
+}
+
+.appointments-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.timeline-item {
+  background-color: #f1f5f9;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: #e2e8f0;
+  }
+
+  .bi-calendar-event {
+    font-size: 1rem;
+  }
+
+  span {
+    font-size: 0.9375rem;
+    color: #334155;
+  }
+}
+
+// Animación de entrada
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.patient-card {
+  animation: fadeInUp 0.4s ease-out;
+
+  @for $i from 1 through 10 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{$i * 0.1}s;
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .seguimiento-container {
+    padding: 1rem;
+  }
+
+  .header-section h1 {
+    font-size: 1.5rem;
+  }
+
+  .patient-card {
+    .card-header,
+    .card-body {
+      padding: 1rem;
+    }
+  }
+
+  .avatar {
+    width: 40px;
+    height: 40px;
+  }
+}
+

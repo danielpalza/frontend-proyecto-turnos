@@ -1,0 +1,35 @@
+<div class="turnos-view">
+  <div class="main-layout">
+    <!-- Calendario -->
+    <div class="calendar-section">
+      <app-month-calendar
+        [currentDate]="currentDate"
+        [selectedDate]="selectedDate"
+        [getAppointmentsForDate]="getAppointmentsForDate"
+        (dateClick)="onDateClick($event)"
+        (monthChange)="onMonthChange($event)"
+      />
+    </div>
+
+    <!-- Panel de turnos -->
+    <div class="panel-section">
+      <app-appointments-panel
+        [date]="selectedDate"
+        [appointments]="selectedDate ? getAppointmentsForDate(selectedDate) : []"
+        (delete)="onDeleteAppointment($event)"
+        (addClick)="isDialogOpen = true"
+      />
+    </div>
+  </div>
+
+  <!-- Dialogo -->
+  <app-appointment-dialog
+    *ngIf="selectedDate"
+    [open]="isDialogOpen"
+    [selectedDate]="selectedDate"
+    [existingPatients]="existingPatients"
+    (openChange)="isDialogOpen = $event"
+    (submitForm)="addAppointmentInternal($event)"
+  />
+</div>
+

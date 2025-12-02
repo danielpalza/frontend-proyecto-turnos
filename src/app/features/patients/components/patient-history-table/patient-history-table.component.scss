@@ -1,0 +1,140 @@
+.card {
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+.card-header {
+  border-bottom: 1px solid #e2e8f0;
+  padding: 1.25rem 1.5rem;
+
+  h5 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #0f172a;
+  }
+}
+
+.table {
+  margin-bottom: 0;
+
+  thead {
+    th {
+      padding: 0.875rem 1.25rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.025em;
+      border-bottom: 2px solid #e2e8f0;
+      white-space: nowrap;
+
+      &:first-child {
+        padding-left: 1.5rem;
+      }
+
+      &:last-child {
+        padding-right: 1.5rem;
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid #f1f5f9;
+      transition: background-color 0.15s ease;
+
+      &:hover {
+        background-color: #f8fafc;
+
+        .patient-name {
+          color: #6366f1;
+        }
+      }
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      td {
+        padding: 1rem 1.25rem;
+        vertical-align: middle;
+        font-size: 0.9375rem;
+
+        &:first-child {
+          padding-left: 1.5rem;
+        }
+
+        &:last-child {
+          padding-right: 1.5rem;
+        }
+      }
+    }
+  }
+}
+
+.patient-name {
+  color: #0f172a;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+
+.date-cell {
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.observations-cell {
+  color: #64748b;
+  max-width: 400px;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .card-header {
+    padding: 1rem;
+
+    h5 {
+      font-size: 1rem;
+    }
+  }
+
+  .table {
+    thead th,
+    tbody td {
+      padding: 0.75rem 1rem;
+      font-size: 0.875rem;
+
+      &:first-child {
+        padding-left: 1rem;
+      }
+
+      &:last-child {
+        padding-right: 1rem;
+      }
+    }
+  }
+}
+
+// Animación de entrada para las filas
+@keyframes fadeInRow {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.table tbody tr {
+  animation: fadeInRow 0.3s ease-out;
+  
+  @for $i from 1 through 10 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{$i * 0.05}s;
+    }
+  }
+}
+

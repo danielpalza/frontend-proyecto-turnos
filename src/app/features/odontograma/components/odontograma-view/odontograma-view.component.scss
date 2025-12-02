@@ -1,0 +1,228 @@
+// Variables
+$primary-color: #6366f1;
+$slate-400: #94a3b8;
+$slate-500: #64748b;
+$slate-600: #475569;
+$slate-700: #334155;
+$slate-900: #0f172a;
+$slate-200: #e2e8f0;
+$red-500: #ef4444;
+$blue-500: #3b82f6;
+
+// Contenedor principal
+.odontograma-container {
+  padding: 1rem;
+  padding-bottom: 3rem;
+
+  @media (min-width: 768px) {
+    padding: 2rem;
+    padding-bottom: 3rem;
+  }
+}
+
+.odontograma-content {
+  width: 100%;
+}
+
+// Header
+.odontograma-header {
+  margin-bottom: 2rem;
+
+  h1 {
+    color: $slate-900;
+    margin-bottom: 0.5rem;
+    font-size: 1.875rem;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+// Grid layout principal
+.odontograma-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+
+  @media (min-width: 1200px) {
+    grid-template-columns: 320px 1fr 280px;
+  }
+}
+
+// Sidebars
+.sidebar-left,
+.sidebar-right {
+  align-self: start;
+}
+
+// Contenido central
+.odontograma-main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+// Card del odontograma
+.card {
+  border-radius: 0.75rem;
+  border: 1px solid $slate-200;
+}
+
+.card-body {
+  padding: 2rem;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+}
+
+// Secciones de dientes
+.teeth-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+
+  @media (max-width: 768px) {
+    gap: 2rem;
+  }
+}
+
+// Título de sección
+.section-title {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+// Container de dientes
+.teeth-container {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  align-items: flex-start;
+
+  @media (max-width: 768px) {
+    gap: 1.5rem;
+  }
+
+  @media (max-width: 640px) {
+    gap: 1rem;
+  }
+}
+
+// Grupo de dientes (derecho/izquierdo)
+.teeth-group {
+  display: flex;
+  gap: 0.75rem;
+
+  @media (max-width: 640px) {
+    gap: 0.5rem;
+  }
+}
+
+// Item individual de diente
+.tooth-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.tooth-number {
+  font-size: 0.875rem;
+  color: $slate-700;
+  font-weight: 500;
+}
+
+// Línea vertical central
+.divider-line {
+  width: 2px;
+  background-color: $slate-400;
+  margin: 0 0.75rem;
+  align-self: stretch;
+}
+
+// Leyenda
+.legend-container {
+  p {
+    color: $slate-700;
+  }
+
+  span {
+    font-size: 0.875rem;
+    color: $slate-600;
+  }
+}
+
+.legend-box {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 0.25rem;
+  flex-shrink: 0;
+
+  &.healthy {
+    border: 2px solid $slate-700;
+    background-color: #ffffff;
+  }
+
+  &.caries {
+    background-color: $red-500;
+  }
+
+  &.filling {
+    background-color: $blue-500;
+  }
+
+  &.missing {
+    background-color: $slate-400;
+  }
+}
+
+// Responsive
+@media (max-width: 1200px) {
+  .odontograma-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar-left,
+  .sidebar-right {
+    position: static;
+    height: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .odontograma-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .teeth-container {
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .divider-line {
+    display: none;
+  }
+
+  .teeth-group {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+// Print styles
+@media print {
+  .sidebar-left,
+  .sidebar-right {
+    display: none !important;
+  }
+
+  .odontograma-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+

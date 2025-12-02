@@ -1,0 +1,49 @@
+.turnos-view {
+  padding: 20px;
+  padding-bottom: 3rem;
+  width: 100%;
+}
+
+.main-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
+  align-items: start;
+}
+
+.calendar-section {
+  min-width: 0;
+}
+
+.panel-section {
+  position: sticky;
+  top: 20px;
+}
+
+// Responsive
+@media (max-width: 1200px) {
+  .main-layout {
+    grid-template-columns: 1fr 340px;
+  }
+}
+
+@media (max-width: 992px) {
+  .main-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .panel-section {
+    position: static;
+  }
+}
+
+@media (max-width: 576px) {
+  .turnos-view {
+    padding: 12px;
+  }
+
+  .main-layout {
+    gap: 16px;
+  }
+}
+
