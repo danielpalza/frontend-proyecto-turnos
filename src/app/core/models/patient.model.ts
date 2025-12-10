@@ -16,6 +16,7 @@ export interface Patient {
   obraSocialNombre?: string;
   planCategoria?: string;
   obraSocialNumero?: string;
+  obraSocialVencimiento?: string;
   esTitular?: boolean;
   nombreTitular?: string;
   dniTitular?: string;
