@@ -61,6 +61,16 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
         this.profesionales = profesionales;
       })
     );
+
+    // Si no hay fecha seleccionada, se selecciona la fecha actual
+    if (!this.selectedDate) {
+      this.selectedDate = this.getTodayAsString();
+    }
+  }
+  
+  getTodayAsString(): string {
+    const today = new Date();
+    return today.toISOString().split('T')[0]; 
   }
 
   ngOnDestroy(): void {

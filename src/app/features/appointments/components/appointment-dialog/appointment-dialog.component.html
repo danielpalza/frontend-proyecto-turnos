@@ -3,7 +3,6 @@
 
   <div class="modal-dialog modal-xl modal-dialog-scrollable">
     <div class="modal-content">
-
       <div class="modal-header">
         <h5 class="modal-title">Nueva Cita</h5>
         <small class="text-muted ms-2">{{ formatDisplayDate(selectedDate) }}</small>
@@ -12,30 +11,42 @@
 
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
         <div class="modal-body">
-
           <section class="mb-4">
             <h6 class="mb-3 text-primary">
               <i class="bi bi-search me-2"></i>Buscar Paciente Existente
             </h6>
-            
+
             <div class="position-relative">
               <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-person"></i></span>
-                <input 
-                  type="text" 
-                  class="form-control" 
+                <input
+                  type="text"
+                  class="form-control"
                   placeholder="Buscar por nombre, DNI o email..."
                   (input)="onSearchPatient($event)"
                   [value]="selectedPatient?.nombreApellido || ''"
+                />
+                <button
+                  *ngIf="selectedPatient"
+                  type="button"
+                  class="btn btn-outline-secondary"
+                  (click)="clearPatientSelection()"
                 >
-                <button *ngIf="selectedPatient" type="button" class="btn btn-outline-secondary" (click)="clearPatientSelection()">
                   <i class="bi bi-x-lg"></i>
                 </button>
               </div>
 
-              <div *ngIf="showPatientDropdown && filteredPatients.length > 0" 
-                class="position-absolute w-100 bg-white border rounded shadow-sm mt-1" style="z-index: 1000; max-height: 200px; overflow-y: auto;">
-                <div *ngFor="let patient of filteredPatients" class="p-2 border-bottom" style="cursor: pointer;" (click)="selectPatient(patient)">
+              <div
+                *ngIf="showPatientDropdown && filteredPatients.length > 0"
+                class="position-absolute w-100 bg-white border rounded shadow-sm mt-1"
+                style="z-index: 1000; max-height: 200px; overflow-y: auto"
+              >
+                <div
+                  *ngFor="let patient of filteredPatients"
+                  class="p-2 border-bottom"
+                  style="cursor: pointer"
+                  (click)="selectPatient(patient)"
+                >
                   <div class="fw-semibold">{{ patient.nombreApellido }}</div>
                   <small class="text-muted">DNI: {{ patient.dni }} | {{ patient.email }}</small>
                 </div>
@@ -43,14 +54,16 @@
             </div>
 
             <div *ngIf="selectedPatient" class="alert alert-success mt-2 py-2">
-              <i class="bi bi-check-circle me-2"></i>Paciente seleccionado: <strong>{{ selectedPatient.nombreApellido }}</strong>
+              <i class="bi bi-check-circle me-2"></i>Paciente seleccionado:
+              <strong>{{ selectedPatient.nombreApellido }}</strong>
             </div>
-            
+
             <div *ngIf="isNewPatient && !selectedPatient" class="alert alert-info mt-2 py-2">
-              <i class="bi bi-info-circle me-2"></i>Se creará un nuevo paciente
+              <i class="bi bi-info-circle me-2"></i>Se creará un nuevo paciente si no se selecciona uno existente
             </div>
           </section>
 
+          <!-- Datos Personales -->
           <section class="mb-4">
             <h6 class="mb-3 text-primary"><i class="bi bi-person me-2"></i>Datos Personales</h6>
             <div class="row g-3">
@@ -60,11 +73,16 @@
               </div>
               <div class="col-md-3">
                 <label class="form-label">Fecha de Nacimiento</label>
-                <input class="form-control" type="date" formControlName="fechaNacimiento">
+                <input class="form-control" type="date" formControlName="fechaNacimiento" />
               </div>
               <div class="col-md-3">
                 <label class="form-label">Edad</label>
-                <input class="form-control bg-light" type="number" formControlName="edad" readonly>
+                <input
+                  class="form-control bg-light"
+                  type="number"
+                  formControlName="edad"
+                  readonly
+                />
               </div>
               <div class="col-md-4">
                 <label class="form-label">DNI *</label>
@@ -90,13 +108,45 @@
                 <label class="form-label">Contacto de Emergencia</label>
                 <input class="form-control" type="text" formControlName="contactoEmergencia" />
               </div>
+            </div>
+          </section>
+
+          <!-- Antecedentes médicos -->
+          <section class="mb-4">
+            <h6 class="mb-3 text-primary"><i class="bi bi-person me-2"></i>Antecedentes médicos</h6>
+            <div class="row g-3">
               <div class="col-md-6">
-                <label class="form-label">Anamnesis</label>
-                <input class="form-control" type="text" formControlName="anamnesis" />
+                <label class="form-label">Enfermedades</label>
+                <input class="form-control" type="text" formControlName="enfermedades" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Alergias</label>
+                <input class="form-control" type="text" formControlName="alergias" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Medicación actual o previa</label>
+                <input class="form-control" type="text" formControlName="medicacion" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Cirugías/tratamientos/trastornos</label>
+                <input class="form-control" type="text" formControlName="cirugias" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Embarazo o lactancia</label>
+                <input class="form-control" type="text" formControlName="embarazo" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Marcapasos/prótesis</label>
+                <input class="form-control" type="text" formControlName="marcapasos" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Consumos (tabaco, alcohol, drogas)</label>
+                <input class="form-control" type="text" formControlName="consumos" />
               </div>
             </div>
           </section>
 
+          <!-- Obra social -->
           <section class="mb-4">
             <h6 class="mb-3 text-primary"><i class="bi bi-shield-check me-2"></i>Cobertura</h6>
             <div class="row g-3">
@@ -114,6 +164,10 @@
               <div class="col-md-4">
                 <label class="form-label">Número de Afiliado</label>
                 <input class="form-control" type="text" formControlName="obraSocialNumero" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Fecha de Vencimiento</label>
+                <input class="form-control" type="date" formControlName="obraSocialVencimiento" />
               </div>
               <div class="col-md-3">
                 <label class="form-label">¿Es titular?</label>
@@ -145,14 +199,19 @@
             </div>
           </section>
 
+          <!-- Datos del Turno -->
           <section class="mb-4">
-            <h6 class="mb-3 text-primary"><i class="bi bi-calendar-event me-2"></i>Datos del Turno</h6>
+            <h6 class="mb-3 text-primary">
+              <i class="bi bi-calendar-event me-2"></i>Datos del Turno
+            </h6>
             <div class="row g-3">
               <div class="col-md-6">
                 <label class="form-label">Profesional</label>
                 <select class="form-select" formControlName="profesionalId">
                   <option value="">Sin asignar</option>
-                  <option *ngFor="let prof of profesionales" [value]="prof.id">{{ prof.nombre }}</option>
+                  <option *ngFor="let prof of profesionales" [value]="prof.id">
+                    {{ prof.nombre }}
+                  </option>
                 </select>
               </div>
               <div class="col-md-6">
@@ -162,6 +221,7 @@
             </div>
           </section>
 
+          <!-- Detalles de Pago -->
           <section class="mb-4">
             <h6 class="mb-3 text-primary"><i class="bi bi-cash-coin me-2"></i>Detalles de Pago</h6>
             <div class="row g-3">
@@ -185,23 +245,32 @@
                 <div class="p-3 bg-light rounded border">
                   <div class="d-flex justify-content-between">
                     <span>Resto a Pagar:</span>
-                    <strong [class.text-danger]="calcularResto() > 0" [class.text-success]="calcularResto() <= 0">
+                    <strong
+                      [class.text-danger]="calcularResto() > 0"
+                      [class.text-success]="calcularResto() <= 0"
+                    >
                       $ {{ calcularResto() }}
                     </strong>
                   </div>
                 </div>
               </div>
               <div class="col-12">
-                <label class="form-label">Observaciones</label>
+                <label class="form-label">Observaciones de pago</label>
                 <textarea class="form-control" rows="2" formControlName="observaciones"></textarea>
               </div>
             </div>
           </section>
-
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn btn-outline-secondary" (click)="close()" [disabled]="isLoading">Cancelar</button>
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            (click)="close()"
+            [disabled]="isLoading"
+          >
+            Cancelar
+          </button>
           <button type="submit" class="btn btn-primary" [disabled]="form.invalid || isLoading">
             <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
             {{ isLoading ? 'Guardando...' : 'Guardar Cita' }}

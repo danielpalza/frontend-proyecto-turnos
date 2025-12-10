@@ -1,13 +1,13 @@
 .turnos-view {
-  padding: 20px;
+  padding: 1.25rem;
   padding-bottom: 3rem;
   width: 100%;
 }
 
 .main-layout {
   display: grid;
-  grid-template-columns: 1fr 380px;
-  gap: 24px;
+  grid-template-columns: 1fr 40rem;
+  gap: 1.5rem;
   align-items: start;
 }
 
@@ -17,13 +17,13 @@
 
 .panel-section {
   position: sticky;
-  top: 20px;
+  top: 1.25rem;
 }
 
 // Responsive
 @media (max-width: 1200px) {
   .main-layout {
-    grid-template-columns: 1fr 340px;
+    grid-template-columns: 1fr 19rem;
   }
 }
 
@@ -39,11 +39,11 @@
 
 @media (max-width: 576px) {
   .turnos-view {
-    padding: 12px;
+    padding: 0.75rem;
   }
 
   .main-layout {
-    gap: 16px;
+    gap: 1rem;
   }
 }
 

@@ -62,11 +62,19 @@ export class AppointmentDialogComponent implements OnInit, OnChanges {
       domicilio: ['', Validators.required],
       localidad: ['', Validators.required],
       contactoEmergencia: [''],
-      anamnesis: [''],
+      // Antecedentes médicos
+      enfermedades: [''],
+      alergias: [''],
+      medicacion: [''],
+      cirugias: [''],
+      embarazo: [''],
+      marcapasos: [''],
+      consumos: [''],
       // Cobertura
       obraSocialNombre: ['', Validators.required],
       planCategoria: [''],
       obraSocialNumero: [''],
+      obraSocialVencimiento: [''],
       esTitular: ['si'],
       nombreTitular: [''],
       dniTitular: [''],
@@ -75,10 +83,10 @@ export class AppointmentDialogComponent implements OnInit, OnChanges {
       profesionalId: [''],
       hora: ['09:00'],
       // Pago
-      precioBono: [0],
-      precioTratamiento: [0],
-      extras: [0],
-      montoPago: [0],
+      precioBono: [null],
+      precioTratamiento: [null],
+      extras: [null],
+      montoPago: [null],
       observaciones: ['']
     });
 
@@ -145,6 +153,17 @@ export class AppointmentDialogComponent implements OnInit, OnChanges {
     this.isNewPatient = false;
     this.showPatientDropdown = false;
     
+    // Parsear anamnesis si existe (puede ser JSON o string)
+    let anamnesisData: any = {};
+    if (patient.anamnesis) {
+      try {
+        anamnesisData = typeof patient.anamnesis === 'string' ? JSON.parse(patient.anamnesis) : patient.anamnesis;
+      } catch {
+        // Si no es JSON válido, tratar como string vacío
+        anamnesisData = {};
+      }
+    }
+    
     // Llenar el formulario con los datos del paciente
     this.form.patchValue({
       nombreApellido: patient.nombreApellido,
@@ -155,10 +174,17 @@ export class AppointmentDialogComponent implements OnInit, OnChanges {
       domicilio: patient.domicilio || '',
       localidad: patient.localidad || '',
       contactoEmergencia: patient.contactoEmergencia || '',
-      anamnesis: patient.anamnesis || '',
+      enfermedades: anamnesisData.enfermedades || '',
+      alergias: anamnesisData.alergias || '',
+      medicacion: anamnesisData.medicacion || '',
+      cirugias: anamnesisData.cirugias || '',
+      embarazo: anamnesisData.embarazo || '',
+      marcapasos: anamnesisData.marcapasos || '',
+      consumos: anamnesisData.consumos || '',
       obraSocialNombre: patient.obraSocialNombre || '',
       planCategoria: patient.planCategoria || '',
       obraSocialNumero: patient.obraSocialNumero || '',
+      obraSocialVencimiento: patient.obraSocialVencimiento || '',
       esTitular: patient.esTitular ? 'si' : 'no',
       nombreTitular: patient.nombreTitular || '',
       dniTitular: patient.dniTitular || '',
@@ -175,10 +201,17 @@ export class AppointmentDialogComponent implements OnInit, OnChanges {
     this.form.reset({
       esTitular: 'si',
       hora: '09:00',
-      precioBono: 0,
-      precioTratamiento: 0,
-      extras: 0,
-      montoPago: 0
+      precioBono: null,
+      precioTratamiento: null,
+      extras: null,
+      montoPago: null,
+      enfermedades: '',
+      alergias: '',
+      medicacion: '',
+      cirugias: '',
+      embarazo: '',
+      marcapasos: '',
+      consumos: ''
     });
   }
 
@@ -204,6 +237,20 @@ export class AppointmentDialogComponent implements OnInit, OnChanges {
 
     const raw = this.form.getRawValue();
 
+    // Construir objeto de anamnesis con los antecedentes médicos
+    const anamnesisData: any = {};
+    if (raw.enfermedades) anamnesisData.enfermedades = raw.enfermedades;
+    if (raw.alergias) anamnesisData.alergias = raw.alergias;
+    if (raw.medicacion) anamnesisData.medicacion = raw.medicacion;
+    if (raw.cirugias) anamnesisData.cirugias = raw.cirugias;
+    if (raw.embarazo) anamnesisData.embarazo = raw.embarazo;
+    if (raw.marcapasos) anamnesisData.marcapasos = raw.marcapasos;
+    if (raw.consumos) anamnesisData.consumos = raw.consumos;
+
+    const anamnesis = Object.keys(anamnesisData).length > 0 
+      ? JSON.stringify(anamnesisData) 
+      : undefined;
+
     // Datos del paciente
     const patientData: Partial<Patient> = {
       id: this.selectedPatient?.id,
@@ -215,10 +262,11 @@ export class AppointmentDialogComponent implements OnInit, OnChanges {
       domicilio: raw.domicilio,
       localidad: raw.localidad,
       contactoEmergencia: raw.contactoEmergencia || undefined,
-      anamnesis: raw.anamnesis || undefined,
+      anamnesis: anamnesis,
       obraSocialNombre: raw.obraSocialNombre,
       planCategoria: raw.planCategoria || undefined,
       obraSocialNumero: raw.obraSocialNumero || undefined,
+      obraSocialVencimiento: raw.obraSocialVencimiento || undefined,
       esTitular: raw.esTitular === 'si',
       nombreTitular: raw.nombreTitular || undefined,
       dniTitular: raw.dniTitular || undefined,
