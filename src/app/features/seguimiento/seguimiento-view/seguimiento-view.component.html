@@ -2,11 +2,22 @@
   <div class="container-fluid px-4">
 
     <!-- Título -->
-    <div class="header-section mb-4">
-      <h1 class="fw-bold">
-        <i class="bi bi-clipboard-data me-2 text-primary"></i>Seguimiento de Pacientes
-      </h1>
-      <p class="text-muted">Historial y seguimiento de todos los pacientes</p>
+    <div class="header-section mb-4 d-flex justify-content-between align-items-center">
+      <div>
+        <h1 class="fw-bold mb-0">
+          <i class="bi bi-clipboard-data me-2 text-primary"></i>Seguimiento de Pacientes
+        </h1>
+        <p class="text-muted mb-0">Historial y seguimiento de todos los pacientes</p>
+      </div>
+
+      <button
+        type="button"
+        class="btn btn-primary d-flex align-items-center gap-2"
+        (click)="openAddProfesional()"
+      >
+        <i class="bi bi-person-plus"></i>
+        Agregar profesional
+      </button>
     </div>
 
     <!-- Buscador -->
@@ -44,8 +55,8 @@
             </div>
 
             <div>
-              <h5 class="m-0 fw-semibold">{{ group.patient.nombreApellido }}</h5>
-              <small class="text-muted">DNI: {{ group.patient.dni }}</small>
+              <h5 class="m-0 fw-semibold">{{ group.patient.patientName }}</h5>
+              <small class="text-muted">DNI: {{ group.patient.patientDni }}</small>
             </div>
           </div>
         </div>
@@ -54,23 +65,14 @@
 
           <!-- Datos del paciente -->
           <div class="row g-3 mb-3 pb-3 border-bottom patient-info">
-            <div class="col-md-6 d-flex align-items-center gap-2 text-muted">
-              <i class="bi bi-telephone"></i>
-              <span>{{ group.patient.telefono }}</span>
-            </div>
-
-            <div class="col-md-6 text-muted">
-              <i class="bi bi-envelope me-2"></i>{{ group.patient.email }}
-            </div>
-
             <div class="col-md-6">
-              <span class="text-muted">Edad:</span>
-              <span class="fw-semibold ms-1">{{ group.patient.edad }} años</span>
+              <span class="text-muted">DNI:</span>
+              <span class="fw-semibold ms-1">{{ group.patient.patientDni }}</span>
             </div>
 
-            <div class="col-md-6">
-              <span class="text-muted">Obra Social:</span>
-              <span class="fw-semibold ms-1">{{ group.patient.obraSocialNombre }}</span>
+            <div class="col-md-6" *ngIf="group.patient.patientObraSocialNumero">
+              <span class="text-muted">N° Obra Social:</span>
+              <span class="fw-semibold ms-1">{{ group.patient.patientObraSocialNumero }}</span>
             </div>
           </div>
 
@@ -85,7 +87,7 @@
               class="timeline-item d-flex align-items-center gap-2 p-2 rounded"
             >
               <i class="bi bi-calendar-event text-primary"></i>
-              <span>{{ formatDate(app.date) }}</span>
+              <span>{{ formatDate(app.fecha) }}</span>
             </div>
           </div>
 
@@ -94,6 +96,120 @@
 
     </div>
 
+    <!-- Modal Agregar Profesional -->
+    <div
+      class="modal fade show d-block"
+      tabindex="-1"
+      role="dialog"
+      *ngIf="showProfesionalForm"
+    >
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Agregar profesional</h5>
+            <button
+              type="button"
+              class="btn-close"
+              aria-label="Close"
+              (click)="closeAddProfesional()"
+            ></button>
+          </div>
+
+          <form #profForm="ngForm" (ngSubmit)="onSaveProfesional(profForm)">
+            <div class="modal-body">
+              <div class="mb-3">
+                <label class="form-label">Nombre y apellido *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  name="nombre"
+                  [(ngModel)]="nuevoProfesional.nombre"
+                  required
+                />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">DNI</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  name="dni"
+                  [(ngModel)]="nuevoProfesional.dni"
+                />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Especialidad</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  name="especialidad"
+                  [(ngModel)]="nuevoProfesional.especialidad"
+                />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Matrícula</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  name="matricula"
+                  [(ngModel)]="nuevoProfesional.matricula"
+                />
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Email</label>
+                  <input
+                    type="email"
+                    class="form-control"
+                    name="email"
+                    [(ngModel)]="nuevoProfesional.email"
+                  />
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Teléfono</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="telefono"
+                    [(ngModel)]="nuevoProfesional.telefono"
+                  />
+                </div>
+              </div>
+
+              <div *ngIf="saveProfesionalError" class="alert alert-danger py-2">
+                {{ saveProfesionalError }}
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-outline-secondary"
+                (click)="closeAddProfesional()"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                class="btn btn-primary"
+                [disabled]="profForm.invalid || isSavingProfesional"
+              >
+                {{ isSavingProfesional ? 'Guardando...' : 'Guardar' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal-backdrop fade show"
+      *ngIf="showProfesionalForm"
+    ></div>
+
   </div>
 </div>
-

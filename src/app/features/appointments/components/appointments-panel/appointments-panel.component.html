@@ -12,15 +12,23 @@
 
   <!-- Estado: Día seleccionado -->
   <div class="selected-state" *ngIf="date">
-    <div class="date-header">
-      <div class="date-icon">
-        <i class="bi bi-calendar-check"></i>
+    <div class="header-container">
+      <div class="date-header">
+        <div class="date-icon">
+          <i class="bi bi-calendar-check"></i>
+        </div>
+        <div class="date-info">
+          <span class="date-day">{{ getFormattedDay(date).dayName }}</span>
+          <h2 class="date-full">
+            {{ getFormattedDay(date).dayNumber }} de {{ getFormattedDay(date).month }}
+          </h2>
+          <span class="date-year">{{ getFormattedDay(date).year }}</span>
+        </div>
       </div>
-      <div class="date-info">
-        <span class="date-day">{{ getFormattedDay(date).dayName }}</span>
-        <h2 class="date-full">{{ getFormattedDay(date).dayNumber }} de {{ getFormattedDay(date).month }}</h2>
-        <span class="date-year">{{ getFormattedDay(date).year }}</span>
-      </div>
+      <button class="btn-add-turn" *ngIf="appointmentsCount > 0" (click)="addClick.emit()">
+        <i class="bi bi-plus-lg"></i>
+        <span>Agregar turno</span>
+      </button>
     </div>
 
     <div class="divider"></div>
@@ -28,67 +36,103 @@
     <div class="turns-section">
       <h4 class="section-title">
         <i class="bi bi-clock me-2"></i>Turnos del día
-        <span class="badge bg-primary ms-2">{{ appointments.length }}</span>
+        <span class="badge bg-primary ms-2">{{ appointmentsCount }}</span>
       </h4>
-      
+
       <!-- Sin turnos -->
-      <div class="no-turns" *ngIf="appointments.length === 0">
+      <div class="no-turns" *ngIf="appointmentsCount === 0">
         <i class="bi bi-inbox"></i>
         <p>No hay turnos programados</p>
         <small>Haga clic en "Agregar Turno" para crear uno</small>
       </div>
 
       <!-- Lista de turnos -->
-      <div class="turns-list" *ngIf="appointments.length > 0">
-        <div class="turn-card" *ngFor="let a of appointments">
-          <div class="turn-header">
+      <div class="turns-list" *ngIf="appointmentsCount > 0">
+        <div class="turn-card" *ngFor="let a of displayAppointments">
+          <div class="turn-header" (click)="toggleCard(a.id!, $event)">
             <div class="patient-info">
               <i class="bi bi-person-fill text-primary"></i>
-              <strong>{{ a.patientName }}</strong>
+              <strong>{{ a.patientName }} - {{ a.profesionalName }}</strong>
+              <strong class="fw-bold text-primary" *ngIf="a.hora">{{ formatTime(a.hora) }}</strong>
             </div>
             <div class="d-flex align-items-center gap-2">
               <span class="badge" [ngClass]="getStatusBadgeClass(a.estado)">
                 {{ getStatusLabel(a.estado) }}
               </span>
-              <button type="button" class="btn-delete" (click)="delete.emit(a.id)">
+              <i
+                class="bi expand-icon"
+                [ngClass]="isCardExpanded(a.id!) ? 'bi-chevron-up' : 'bi-chevron-down'"
+              ></i>
+              <button
+                type="button"
+                class="btn-delete"
+                (click)="delete.emit(a.id); $event.stopPropagation()"
+              >
                 <i class="bi bi-trash"></i>
               </button>
             </div>
           </div>
 
-          <div class="turn-details">
+          <div class="turn-details" [class.expanded]="isCardExpanded(a.id!)">
             <div class="detail-row">
-              <div class="detail-item" *ngIf="a.hora">
-                <small class="text-muted">Hora</small>
-                <span class="fw-bold text-primary">{{ formatTime(a.hora) }}</span>
-              </div>
               <div class="detail-item">
                 <small class="text-muted">DNI</small>
                 <span>{{ a.patientDni }}</span>
+              </div>
+              <div class="detail-item" *ngIf="a.patientObraSocialNumero">
+                <small class="text-muted">N° Obra Social</small>
+                <span>{{ a.patientObraSocialNumero }}</span>
               </div>
             </div>
 
             <div class="detail-divider"></div>
 
-            <!-- Profesional -->
-            <div *ngIf="a.profesionalName" class="profesional-info">
-              <i class="bi bi-person-badge text-secondary"></i>
-              <div class="flex-grow-1">
-                <small class="text-muted">Profesional</small>
-                <div class="fw-semibold">{{ a.profesionalName }}</div>
-              </div>
-            </div>
-
             <!-- Montos -->
-            <div class="payment-info" *ngIf="a.precioBono || a.precioTratamiento">
+            <div
+              class="payment-info"
+              *ngIf="a.precioBono || a.precioTratamiento || a.extras || a.montoPago"
+            >
               <i class="bi bi-cash-coin text-secondary"></i>
               <div class="flex-grow-1">
-                <small class="text-muted">Pago</small>
+                <b>
+                  <small class="text-muted">Pago </small>
+                  <small
+                    class="text-muted-payment"
+                    [ngClass]="
+                      getPaymentColorClass(a.precioBono, a.precioTratamiento, a.extras, a.montoPago)
+                    "
+                    >({{
+                      CountTotalPrice(a.precioBono, a.precioTratamiento, a.extras, a.montoPago)
+                    }})</small
+                  >
+                </b>
                 <div class="d-flex gap-3">
                   <span *ngIf="a.precioBono">Bono: ${{ a.precioBono }}</span>
                   <span *ngIf="a.precioTratamiento">Trat: ${{ a.precioTratamiento }}</span>
+                  <span *ngIf="a.extras">Ext: ${{ a.extras }}</span>
                 </div>
               </div>
+            </div>
+
+            <!-- Agregar Pago -->
+            <div class="add-payment-section">
+              <label class="payment-label">Pago:</label>
+              <input
+                type="number"
+                class="payment-input"
+                [value]="getPaymentInput(a.id!)"
+                (input)="updatePaymentInput(a.id!, +$any($event.target).value)"
+                placeholder="0"
+                min="0"
+                step="0.01"
+              />
+              <button
+                type="button"
+                class="btn-add-payment"
+                (click)="onAddPayment(a.id!); $event.stopPropagation()"
+              >
+                Agregar
+              </button>
             </div>
 
             <!-- Observaciones -->
@@ -101,7 +145,7 @@
       </div>
     </div>
 
-    <button class="btn-add-turn" (click)="addClick.emit()">
+    <button class="btn-add-turn" *ngIf="appointmentsCount === 0" (click)="addClick.emit()">
       <i class="bi bi-plus-lg"></i>
       <span>Agregar turno</span>
     </button>

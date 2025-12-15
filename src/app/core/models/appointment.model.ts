@@ -8,6 +8,7 @@ export interface Appointment {
   // Campos de solo lectura (vienen del backend)
   patientName?: string;
   patientDni?: string;
+  patientObraSocialNumero?: string;
   profesionalName?: string;
   // Datos del turno
   fecha: string; // formato: YYYY-MM-DD
