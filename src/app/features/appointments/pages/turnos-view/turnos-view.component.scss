@@ -18,6 +18,9 @@
 .panel-section {
   position: sticky;
   top: 1.25rem;
+  max-height: calc(100vh - 14rem);
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 // Responsive

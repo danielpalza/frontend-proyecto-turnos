@@ -4,6 +4,7 @@
 export interface Profesional {
   id?: number;
   nombre: string;
+  dni?: string;
   especialidad?: string;
   matricula?: string;
   email?: string;
@@ -12,4 +13,3 @@ export interface Profesional {
 }
 
 export type ProfesionalCreateDTO = Omit<Profesional, 'id'>;
-

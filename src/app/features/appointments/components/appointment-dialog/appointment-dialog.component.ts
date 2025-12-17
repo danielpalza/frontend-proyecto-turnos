@@ -288,6 +288,8 @@ export class AppointmentDialogComponent implements OnInit, OnChanges {
     };
 
     this.submitForm.emit({ patientData, appointmentData });
+
+    console.log( anamnesisData, patientData, appointmentData);
   }
 
   formatDisplayDate(dateStr: string | null): string {
