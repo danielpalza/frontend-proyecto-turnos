@@ -417,6 +417,105 @@ $sidebar-bg: #f8fafc;
   border-left: 3px solid $primary-color;
 }
 
+.observaciones-textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid $primary-color;
+  border-radius: 6px;
+  font-size: 13px;
+  color: $text-primary;
+  background-color: white;
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color 0.2s ease;
+
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 2px rgba($primary-color, 0.1);
+  }
+
+  &::placeholder {
+    color: $text-muted;
+  }
+}
+
+.price-edit-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.price-edit-icon {
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  opacity: 0.7;
+
+  &:hover {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+.price-edit-input {
+  width: 80px;
+  padding: 4px 8px;
+  border: 1px solid $primary-color;
+  border-radius: 4px;
+  font-size: 13px;
+  color: $text-primary;
+  background-color: white;
+  transition: border-color 0.2s ease;
+
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 2px rgba($primary-color, 0.1);
+  }
+}
+
+.btn-save-price,
+.btn-cancel-price {
+  padding: 4px 8px;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+
+  i {
+    font-size: 12px;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.btn-save-price {
+  background-color: #10b981;
+  color: white;
+
+  &:hover {
+    background-color: #059669;
+  }
+}
+
+.btn-cancel-price {
+  background-color: #ef4444;
+  color: white;
+
+  &:hover {
+    background-color: #dc2626;
+  }
+}
+
 .btn-add-turn {
   display: flex;
   align-items: center;

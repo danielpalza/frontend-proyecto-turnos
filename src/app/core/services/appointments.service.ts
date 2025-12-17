@@ -119,6 +119,17 @@ export class AppointmentsService {
   }
 
   /**
+   * Agregar pago a un turno
+   */
+  addPayment(id: number, montoPago: number): Observable<Appointment> {
+    return this.http.patch<Appointment>(`${this.apiUrl}/${id}/addPayment`, {
+      montoPago
+    }).pipe(
+      tap(() => this.loadAppointments())
+    );
+  }
+
+  /**
    * Obtener turnos para una fecha específica (del cache)
    */
   getAppointmentsForDate(date: string): Appointment[] {
