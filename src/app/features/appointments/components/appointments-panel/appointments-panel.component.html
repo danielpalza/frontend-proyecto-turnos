@@ -53,7 +53,44 @@
             <div class="patient-info">
               <i class="bi bi-person-fill text-primary"></i>
               <strong>{{ a.patientName }} - {{ a.profesionalName }}</strong>
-              <strong class="fw-bold text-primary" *ngIf="a.hora">{{ formatTime(a.hora) }}</strong>
+              <span class="hora-edit-container">
+                <span *ngIf="!isEditingHora(a.id!)">
+                  <strong class="fw-bold text-primary" *ngIf="a.hora">{{ formatTime(a.hora) }}</strong>
+                  <span class="text-muted small" *ngIf="!a.hora">Sin hora</span>
+                </span>
+                <span *ngIf="isEditingHora(a.id!)" class="d-inline-flex align-items-center gap-1">
+                  <input
+                    type="time"
+                    class="hora-edit-input"
+                    [value]="getHoraInput(a.id!)"
+                    (input)="updateHoraInput(a.id!, $any($event.target).value)"
+                    (keyup.escape)="cancelHoraEdit(a.id!); $event.stopPropagation()"
+                    (click)="$event.stopPropagation()"
+                  />
+                  <button
+                    type="button"
+                    class="btn-save-price"
+                    (click)="saveHora(a.id!); $event.stopPropagation()"
+                    title="Guardar"
+                  >
+                    <i class="bi bi-check-lg"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn-cancel-price"
+                    (click)="cancelHoraEdit(a.id!); $event.stopPropagation()"
+                    title="Cancelar"
+                  >
+                    <i class="bi bi-x-lg"></i>
+                  </button>
+                </span>
+                <i
+                  class="bi bi-pencil text-primary ms-1 price-edit-icon"
+                  (click)="startEditingHora(a.id!, a.hora); $event.stopPropagation()"
+                  *ngIf="!isEditingHora(a.id!)"
+                  title="Editar hora"
+                ></i>
+              </span>
             </div>
             <div class="d-flex align-items-center gap-2">
               <span class="badge" [ngClass]="getStatusBadgeClass(a.estado)">
@@ -249,10 +286,10 @@
               </button>
             </div>
 
-            <!-- Observaciones -->
+            <!-- Observaciones de pago -->
             <div class="observaciones-info">
               <div class="d-flex justify-content-between align-items-start mb-2">
-                <small class="text-muted d-block">Observaciones</small>
+                <small class="text-muted d-block">Observaciones de pago</small>
                 <i
                   class="bi bi-pencil text-primary ms-1 price-edit-icon"
                   (click)="startEditingObservaciones(a.id!, a.observaciones); $event.stopPropagation()"
@@ -288,6 +325,54 @@
                     type="button"
                     class="btn-cancel-price"
                     (click)="cancelObservacionesEdit(a.id!); $event.stopPropagation()"
+                    title="Cancelar"
+                  >
+                    <i class="bi bi-x-lg"></i>
+                    <span class="ms-1">Cancelar</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Observaciones del turno -->
+            <div class="observaciones-info mt-3">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <small class="text-muted d-block">Observaciones del turno</small>
+                <i
+                  class="bi bi-pencil text-primary ms-1 price-edit-icon"
+                  (click)="startEditingObservacionesTurno(a.id!, a.observacionesTurno); $event.stopPropagation()"
+                  *ngIf="!isEditingObservacionesTurno(a.id!)"
+                  title="Editar observaciones del turno"
+                ></i>
+              </div>
+              <div *ngIf="!isEditingObservacionesTurno(a.id!)">
+                <span class="small" *ngIf="a.observacionesTurno">{{ a.observacionesTurno }}</span>
+                <span class="small text-muted" *ngIf="!a.observacionesTurno">Sin observaciones del turno</span>
+              </div>
+              <div *ngIf="isEditingObservacionesTurno(a.id!)" class="d-flex flex-column gap-2">
+                <textarea
+                  class="observaciones-textarea"
+                  [value]="getObservacionesTurnoInput(a.id!)"
+                  (input)="updateObservacionesTurnoInput(a.id!, $any($event.target).value)"
+                  (keyup.escape)="cancelObservacionesTurnoEdit(a.id!); $event.stopPropagation()"
+                  placeholder="Ingrese las observaciones del turno..."
+                  rows="3"
+                  (click)="$event.stopPropagation()"
+                ></textarea>
+                <div class="d-flex gap-2 justify-content-end">
+                  <button
+                    type="button"
+                    class="btn-save-price"
+                    (click)="saveObservacionesTurno(a.id!); $event.stopPropagation()"
+                    title="Guardar"
+                  >
+                    <i class="bi bi-check-lg"></i>
+                    <span class="ms-1">Guardar</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn-cancel-price"
+                    (click)="cancelObservacionesTurnoEdit(a.id!); $event.stopPropagation()"
                     title="Cancelar"
                   >
                     <i class="bi bi-x-lg"></i>

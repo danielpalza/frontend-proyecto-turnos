@@ -27,6 +27,12 @@ export class AppointmentsPanelComponent {
   editingObservaciones = new Map<number, boolean>(); // Rastrea qué observaciones están siendo editadas
   observacionesInputs = new Map<number, string>(); // Rastrea los valores temporales de las observaciones
   originalObservaciones = new Map<number, string>(); // Guarda los valores originales antes de editar
+  editingObservacionesTurno = new Map<number, boolean>(); // Rastrea qué observaciones del turno están siendo editadas
+  observacionesTurnoInputs = new Map<number, string>(); // Rastrea los valores temporales de las observaciones del turno
+  originalObservacionesTurno = new Map<number, string>(); // Guarda los valores originales antes de editar
+  editingHora = new Map<number, boolean>(); // Rastrea qué horas están siendo editadas
+  horaInputs = new Map<number, string>(); // Rastrea los valores temporales de las horas
+  originalHora = new Map<number, string>(); // Guarda los valores originales antes de editar
 
   /**
    * Obtiene los appointments a mostrar
@@ -270,5 +276,116 @@ export class AppointmentsPanelComponent {
     this.editingObservaciones.set(cardId, false);
     this.observacionesInputs.delete(cardId);
     this.originalObservaciones.delete(cardId);
+  }
+
+  // Inicia la edición de observaciones del turno
+  startEditingObservacionesTurno(cardId: number, currentValue?: string): void {
+    this.editingObservacionesTurno.set(cardId, true);
+    this.observacionesTurnoInputs.set(cardId, currentValue || '');
+    this.originalObservacionesTurno.set(cardId, currentValue || '');
+  }
+
+  // Verifica si las observaciones del turno están siendo editadas
+  isEditingObservacionesTurno(cardId: number): boolean {
+    return this.editingObservacionesTurno.get(cardId) || false;
+  }
+
+  // Obtiene el valor del input de observaciones del turno
+  getObservacionesTurnoInput(cardId: number): string {
+    return this.observacionesTurnoInputs.get(cardId) || '';
+  }
+
+  // Actualiza el valor del input de observaciones del turno
+  updateObservacionesTurnoInput(cardId: number, value: string): void {
+    this.observacionesTurnoInputs.set(cardId, value);
+  }
+
+  // Guarda las observaciones del turno editadas
+  saveObservacionesTurno(cardId: number): void {
+    const newValue = this.observacionesTurnoInputs.get(cardId) || '';
+    
+    const updateData = {
+      observacionesTurno: newValue
+    };
+
+    this.appointmentsService.update(cardId, updateData).subscribe({
+      next: () => {
+        this.editingObservacionesTurno.set(cardId, false);
+        this.observacionesTurnoInputs.delete(cardId);
+        this.originalObservacionesTurno.delete(cardId);
+      },
+      error: (err) => {
+        console.error('Error al actualizar observaciones del turno:', err);
+        // Restaurar valor original en caso de error
+        this.observacionesTurnoInputs.set(cardId, this.originalObservacionesTurno.get(cardId) || '');
+        this.editingObservacionesTurno.set(cardId, false);
+        // TODO: Mostrar mensaje de error al usuario
+      }
+    });
+  }
+
+  // Cancela la edición de observaciones del turno
+  cancelObservacionesTurnoEdit(cardId: number): void {
+    this.editingObservacionesTurno.set(cardId, false);
+    this.observacionesTurnoInputs.delete(cardId);
+    this.originalObservacionesTurno.delete(cardId);
+  }
+
+  // Inicia la edición de hora
+  startEditingHora(cardId: number, currentValue?: string): void {
+    this.editingHora.set(cardId, true);
+    // Convertir formato HH:mm:ss a HH:mm para el input type="time"
+    const horaValue = currentValue ? currentValue.substring(0, 5) : '';
+    this.horaInputs.set(cardId, horaValue);
+    this.originalHora.set(cardId, horaValue);
+  }
+
+  // Verifica si la hora está siendo editada
+  isEditingHora(cardId: number): boolean {
+    return this.editingHora.get(cardId) || false;
+  }
+
+  // Obtiene el valor del input de hora
+  getHoraInput(cardId: number): string {
+    return this.horaInputs.get(cardId) || '';
+  }
+
+  // Actualiza el valor del input de hora
+  updateHoraInput(cardId: number, value: string): void {
+    this.horaInputs.set(cardId, value);
+  }
+
+  // Guarda la hora editada
+  saveHora(cardId: number): void {
+    const newValue = this.horaInputs.get(cardId) || '';
+    
+    // Convertir formato HH:mm a HH:mm:ss para el backend, o null si está vacío
+    const horaFormatted = newValue && newValue.trim() !== '' ? `${newValue}:00` : null;
+    
+    const updateData: any = {
+      hora: horaFormatted
+    };
+
+    this.appointmentsService.update(cardId, updateData).subscribe({
+      next: () => {
+        this.editingHora.set(cardId, false);
+        this.horaInputs.delete(cardId);
+        this.originalHora.delete(cardId);
+      },
+      error: (err) => {
+        console.error('Error al actualizar hora:', err);
+        // Restaurar valor original en caso de error
+        this.horaInputs.set(cardId, this.originalHora.get(cardId) || '');
+        this.editingHora.set(cardId, false);
+        // TODO: Mostrar mensaje de error al usuario
+      }
+    });
+  }
+
+  // Cancela la edición de hora
+  cancelHoraEdit(cardId: number): void {
+    this.editingHora.set(cardId, false);
+    this.horaInputs.delete(cardId);
+    this.originalHora.delete(cardId);
   }
 }

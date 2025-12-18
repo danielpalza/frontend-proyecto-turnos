@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, OnChanges, Output, SimpleChanges, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Patient, Profesional, AppointmentCreateDTO } from '../../../../core/models';
@@ -38,7 +38,7 @@ export class AppointmentDialogComponent implements OnInit, OnChanges {
     'ISJ','SEROS','DOSEP','OSPTDF','OSEPJ','IAPOS','ISSSyP','IPS Misiones','IPS Salta'
   ];
 
-  constructor(private fb: FormBuilder) {}
+  constructor(private fb: FormBuilder, private elRef: ElementRef) {}
 
   ngOnInit(): void {
     this.initForm();
@@ -83,6 +83,7 @@ export class AppointmentDialogComponent implements OnInit, OnChanges {
       profesionalId: [''],
       hora: ['09:00'],
       // Pago
+      observacionesTurno: [''],
       precioBono: [null],
       precioTratamiento: [null],
       extras: [null],
@@ -143,6 +144,45 @@ export class AppointmentDialogComponent implements OnInit, OnChanges {
     }
     this.isNewPatient = true;
     this.selectedPatient = null;
+  }
+
+  /**
+   * Mostrar todos los pacientes al enfocar el input si está vacío
+   */
+  onSearchPatientFocus(event: FocusEvent): void {
+    const value = (event.target as HTMLInputElement).value.trim();
+    if (!value) {
+      this.filteredPatients = this.existingPatients;
+      this.showPatientDropdown = this.filteredPatients.length > 0;
+      this.isNewPatient = true;
+      this.selectedPatient = null;
+    }
+  }
+
+  /**
+   * Cerrar el listado cuando el input pierde el foco
+   * (se usa un pequeño delay para permitir el click en un paciente)
+   */
+  onSearchPatientBlur(): void {
+    setTimeout(() => {
+      this.showPatientDropdown = false;
+    }, 150);
+  }
+
+  /**
+   * Cerrar el listado si se hace click fuera del contenedor de búsqueda
+   */
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement | null;
+    if (!target) return;
+
+    const searchContainer: HTMLElement | null =
+      this.elRef.nativeElement.querySelector('.patient-search-container');
+
+    if (searchContainer && !searchContainer.contains(target)) {
+      this.showPatientDropdown = false;
+    }
   }
 
   /**
@@ -284,7 +324,8 @@ export class AppointmentDialogComponent implements OnInit, OnChanges {
       precioTratamiento: raw.precioTratamiento || 0,
       extras: raw.extras || 0,
       montoPago: raw.montoPago || 0,
-      observaciones: raw.observaciones || undefined
+      observaciones: raw.observaciones || undefined,
+      observacionesTurno: raw.observacionesTurno || undefined
     };
 
     this.submitForm.emit({ patientData, appointmentData });

@@ -90,10 +90,11 @@ export class AppointmentsService {
   }
 
   /**
-   * Actualizar turno
+   * Actualizar parcialmente un turno (precios, observaciones, etc.)
+   * Usa PATCH contra el backend.
    */
   update(id: number, appointment: Partial<AppointmentCreateDTO>): Observable<Appointment> {
-    return this.http.put<Appointment>(`${this.apiUrl}/${id}`, appointment).pipe(
+    return this.http.patch<Appointment>(`${this.apiUrl}/${id}`, appointment).pipe(
       tap(() => this.loadAppointments())
     );
   }

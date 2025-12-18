@@ -20,6 +20,7 @@ export interface Appointment {
   extras?: number;
   montoPago?: number;
   observaciones?: string;
+  observacionesTurno?: string;
 }
 
 export type AppointmentStatus = 
@@ -44,6 +45,7 @@ export interface AppointmentCreateDTO {
   extras?: number;
   montoPago?: number;
   observaciones?: string;
+  observacionesTurno?: string;
 }
 
 /**

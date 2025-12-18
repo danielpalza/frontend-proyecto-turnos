@@ -450,12 +450,21 @@ $sidebar-bg: #f8fafc;
   font-size: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
-  opacity: 0.7;
+  opacity: 0;
+  visibility: hidden;
 
   &:hover {
     opacity: 1;
     transform: scale(1.1);
   }
+}
+
+// Mostrar icono de edición al hacer hover sobre el contenedor
+.hora-edit-container:hover .price-edit-icon,
+.price-edit-container:hover .price-edit-icon,
+.observaciones-info:hover .price-edit-icon {
+  opacity: 1;
+  visibility: visible;
 }
 
 .price-edit-input {
