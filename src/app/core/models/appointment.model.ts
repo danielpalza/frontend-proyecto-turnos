@@ -19,6 +19,7 @@ export interface Appointment {
   precioTratamiento?: number;
   extras?: number;
   montoPago?: number;
+  totalPrecio?: number; // Campo calculado del backend: precioBono + precioTratamiento + extras - montoPago
   observaciones?: string;
   observacionesTurno?: string;
 }

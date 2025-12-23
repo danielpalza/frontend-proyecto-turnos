@@ -135,12 +135,8 @@
                   <small class="text-muted">Pago </small>
                   <small
                     class="text-muted-payment"
-                    [ngClass]="
-                      getPaymentColorClass(a.precioBono, a.precioTratamiento, a.extras, a.montoPago)
-                    "
-                    >({{
-                      CountTotalPrice(a.precioBono, a.precioTratamiento, a.extras, a.montoPago)
-                    }})</small
+                    [ngClass]="getPaymentColorClass(a.totalPrecio)"
+                    >({{ a.totalPrecio || 0 }})</small
                   >
                 </b>
                 <div class="d-flex gap-3 align-items-center flex-wrap">
