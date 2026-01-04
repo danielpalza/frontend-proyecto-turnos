@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap } from 'rxjs';
+import { Observable, BehaviorSubject, tap, catchError, of } from 'rxjs';
 import { Profesional, ProfesionalCreateDTO } from '../models';
 import { API_CONFIG } from './api.config';
 
@@ -19,9 +19,14 @@ export class ProfesionalService {
    * Cargar profesionales del backend
    */
   loadProfesionales(): void {
-    this.http.get<Profesional[]>(this.apiUrl).subscribe({
-      next: (data) => this.profesionalesCache$.next(data),
-      error: (err) => console.error('Error loading profesionales:', err)
+    this.http.get<Profesional[]>(this.apiUrl).pipe(
+      catchError((err) => {
+        console.error('Error loading profesionales:', err);
+        // Emitir array vacío en caso de error para evitar que el cache quede en estado inconsistente
+        return of([]);
+      })
+    ).subscribe({
+      next: (data) => this.profesionalesCache$.next(data)
     });
   }
 

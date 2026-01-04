@@ -1,4 +1,23 @@
 <div class="turnos-view">
+  <!-- Mensaje de error general -->
+  @if (hasError && errorMessage) {
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+      <strong>Error:</strong> {{ errorMessage }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" (click)="hasError = false; errorMessage = null"></button>
+    </div>
+  }
+
+  <!-- Indicadores de carga -->
+  @if (isLoadingAppointments || isLoadingPatients || isLoadingProfesionales) {
+    <div class="alert alert-info" role="alert">
+      <div class="spinner-border spinner-border-sm me-2" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <span>Cargando datos...</span>
+    </div>
+  }
+
   <div class="main-layout">
     <!-- Calendario -->
     <div class="calendar-section">
@@ -17,22 +36,23 @@
         [date]="selectedDate"
         [appointments]="selectedDate ? getAppointmentsForDate(selectedDate) : []"
         (delete)="onDeleteAppointment($event)"
-        (addClick)="isDialogOpen = true"
+        (addClick)="onAddAppointmentClick()"
       />
     </div>
   </div>
 
   <!-- Dialogo -->
-  <app-appointment-dialog
-    *ngIf="selectedDate"
-    [open]="isDialogOpen"
-    [selectedDate]="selectedDate"
-    [existingPatients]="existingPatients"
-    [profesionales]="activeProfesionales"
-    [isLoading]="isLoading"
-    (openChange)="isDialogOpen = $event"
-    (submitForm)="onCreateAppointment($event)"
-  />
+  @if (selectedDate) {
+    <app-appointment-dialog
+      [open]="isDialogOpen"
+      [selectedDate]="selectedDate"
+      [existingPatients]="existingPatients"
+      [profesionales]="activeProfesionales"
+      [isLoading]="isLoading"
+      (openChange)="onDialogOpenChange($event)"
+      (submitForm)="onCreateAppointment($event)"
+    />
+  }
 </div>
 
 <ol>

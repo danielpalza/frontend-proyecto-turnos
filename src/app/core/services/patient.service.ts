@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap } from 'rxjs';
+import { Observable, BehaviorSubject, tap, catchError, of } from 'rxjs';
 import { Patient, PatientCreateDTO } from '../models';
 import { API_CONFIG } from './api.config';
+import { skipGlobalErrorHandler } from '../interceptors/http-context';
 
 @Injectable({ providedIn: 'root' })
 export class PatientService {
@@ -18,11 +19,18 @@ export class PatientService {
 
   /**
    * Cargar todos los pacientes del backend
+   * @param skipGlobal - Si es true, el error será manejado específicamente por el componente
    */
-  loadPatients(): void {
-    this.http.get<Patient[]>(this.apiUrl).subscribe({
-      next: (patients) => this.patientsCache$.next(patients),
-      error: (err) => console.error('Error loading patients:', err)
+  loadPatients(skipGlobal: boolean = false): void {
+    const context = skipGlobal ? skipGlobalErrorHandler() : undefined;
+    this.http.get<Patient[]>(this.apiUrl, context ? { context } : undefined).pipe(
+      catchError((err) => {
+        console.error('Error loading patients:', err);
+        // Emitir array vacío en caso de error para evitar que el cache quede en estado inconsistente
+        return of([]);
+      })
+    ).subscribe({
+      next: (patients) => this.patientsCache$.next(patients)
     });
   }
 
@@ -35,9 +43,11 @@ export class PatientService {
 
   /**
    * Obtener todos los pacientes del backend
+   * @param skipGlobal - Si es true, el error será manejado específicamente por el componente
    */
-  findAll(): Observable<Patient[]> {
-    return this.http.get<Patient[]>(this.apiUrl).pipe(
+  findAll(skipGlobal: boolean = false): Observable<Patient[]> {
+    const context = skipGlobal ? skipGlobalErrorHandler() : undefined;
+    return this.http.get<Patient[]>(this.apiUrl, context ? { context } : undefined).pipe(
       tap(patients => this.patientsCache$.next(patients))
     );
   }
@@ -67,9 +77,12 @@ export class PatientService {
 
   /**
    * Crear nuevo paciente
+   * @param patient - Datos del paciente a crear
+   * @param skipGlobal - Si es true, el error será manejado específicamente por el componente
    */
-  create(patient: PatientCreateDTO): Observable<Patient> {
-    return this.http.post<Patient>(this.apiUrl, patient).pipe(
+  create(patient: PatientCreateDTO, skipGlobal: boolean = false): Observable<Patient> {
+    const context = skipGlobal ? skipGlobalErrorHandler() : undefined;
+    return this.http.post<Patient>(this.apiUrl, patient, context ? { context } : undefined).pipe(
       tap(() => this.loadPatients()) // Recargar cache
     );
   }
