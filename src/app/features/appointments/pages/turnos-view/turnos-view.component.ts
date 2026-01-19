@@ -11,6 +11,7 @@ import { ProfesionalService } from '../../../../core/services/profesional.servic
 import { ErrorHandlerService } from '../../../../core/services/error-handler.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { Appointment, AppointmentCreateDTO, Patient, Profesional } from '../../../../core/models';
+import { getTodayAsYYYYMMDD } from '../../../../core/utils/date.utils';
 
 @Component({
   selector: 'app-turnos-view',
@@ -65,12 +66,15 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           console.error('Error loading appointments:', err);
-          const message = this.errorHandler.getErrorMessage(err, 'cargar los turnos');
-          console.log('Mensaje de error generado:', message);
-          this.notification.showError(message);
+          // Los errores 404 se manejan completamente desde el backend sin notificaciones
+          if (err.status !== 404) {
+            const message = this.errorHandler.getErrorMessage(err, 'cargar los turnos');
+            console.log('Mensaje de error generado:', message);
+            this.notification.showError(message);
+            this.errorMessage = message;
+          }
           this.isLoadingAppointments = false;
           this.hasError = true;
-          this.errorMessage = message;
         }
       });
 
@@ -83,8 +87,11 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
           this.isLoadingPatients = false;
         },
         error: (err) => {
-          const message = this.errorHandler.getErrorMessage(err, 'cargar los pacientes');
-          this.notification.showError(message);
+          // Los errores 404 se manejan completamente desde el backend sin notificaciones
+          if (err.status !== 404) {
+            const message = this.errorHandler.getErrorMessage(err, 'cargar los pacientes');
+            this.notification.showError(message);
+          }
           this.isLoadingPatients = false;
           console.error('Error loading patients:', err);
         }
@@ -99,8 +106,11 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
           this.isLoadingProfesionales = false;
         },
         error: (err) => {
-          const message = this.errorHandler.getErrorMessage(err, 'cargar los profesionales');
-          this.notification.showError(message);
+          // Los errores 404 se manejan completamente desde el backend sin notificaciones
+          if (err.status !== 404) {
+            const message = this.errorHandler.getErrorMessage(err, 'cargar los profesionales');
+            this.notification.showError(message);
+          }
           this.isLoadingProfesionales = false;
           console.error('Error loading profesionales:', err);
         }
@@ -108,15 +118,10 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
 
     // Si no hay fecha seleccionada, se selecciona la fecha actual
     if (!this.selectedDate) {
-      this.selectedDate = this.getTodayAsString();
+      this.selectedDate = getTodayAsYYYYMMDD();
     }
   }
   
-  getTodayAsString(): string {
-    const today = new Date();
-    return today.toISOString().split('T')[0]; 
-  }
-
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -179,6 +184,19 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Validar que el profesional seleccionado exista en la lista de profesionales activos
+    if (data.appointmentData.profesionalId) {
+      const profesionalExists = this.activeProfesionales.some(
+        p => p.id === data.appointmentData.profesionalId
+      );
+      
+      if (!profesionalExists) {
+        this.notification.showError('El profesional seleccionado no está disponible. Por favor, seleccione otro profesional.');
+        this.isLoading = false;
+        return;
+      }
+    }
+
     this.isLoading = true;
 
     // Si el paciente no existe (no tiene id), primero lo creamos
@@ -213,8 +231,11 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
           this.createAppointment(appointmentData);
         },
         error: (err) => {
-          const message = this.errorHandler.getErrorMessage(err, 'crear el paciente');
-          this.notification.showError(message);
+          // Los errores 404 se manejan completamente desde el backend sin notificaciones
+          if (err.status !== 404) {
+            const message = this.errorHandler.getErrorMessage(err, 'crear el paciente');
+            this.notification.showError(message);
+          }
           this.isLoading = false;
           console.error('Error creating patient:', err);
         }
@@ -254,8 +275,11 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
         // isLoading ya se resetea en finalize
       },
       error: (err) => {
-        const message = this.errorHandler.getErrorMessage(err, 'crear el turno');
-        this.notification.showError(message);
+        // Los errores 404 se manejan completamente desde el backend sin notificaciones
+        if (err.status !== 404) {
+          const message = this.errorHandler.getErrorMessage(err, 'crear el turno');
+          this.notification.showError(message);
+        }
         console.error('Error creating appointment:', err);
         // isLoading ya se resetea en finalize
         // No cerrar el diálogo en caso de error para que el usuario pueda corregir
@@ -271,25 +295,40 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
 
     // Pasar true para indicar que el componente manejará el error específicamente
     this.appointmentsService.delete(id, true)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          // Garantizar que cualquier limpieza necesaria se ejecute siempre
+          // El cache ya se actualiza automáticamente mediante tap() en el servicio
+        })
+      )
       .subscribe({
-      next: () => {
-        this.notification.showSuccess('Turno eliminado correctamente.');
-      },
-      error: (err) => {
-        const message = this.errorHandler.getErrorMessage(err, 'eliminar el turno');
-        this.notification.showError(message);
-        console.error('Error deleting appointment:', err);
-      }
-    });
+        next: () => {
+          // Mostrar mensaje de éxito al usuario
+          this.notification.showSuccess('Turno eliminado correctamente.');
+          // El cache se actualiza automáticamente mediante tap(() => this.loadAppointments()) en el servicio
+        },
+        error: (err) => {
+          // Los errores 404 se manejan completamente desde el backend sin notificaciones
+          if (err.status !== 404) {
+            const message = this.errorHandler.getErrorMessage(err, 'eliminar el turno');
+            this.notification.showError(message);
+          }
+          console.error('Error deleting appointment:', err);
+        }
+      });
   }
 
   /**
    * Obtener turnos para una fecha (para el calendario)
+   * Método normal de clase para mejor rendimiento y compatibilidad con Angular change detection
    */
-  getAppointmentsForDate = (date: string): Appointment[] => {
+  getAppointmentsForDate(date: string): Appointment[] {
+    if (!this.appointments || !Array.isArray(this.appointments)) {
+      return [];
+    }
     return this.appointments.filter(app => app.fecha === date);
-  };
+  }
 
   /**
    * Lista de pacientes existentes para el combobox

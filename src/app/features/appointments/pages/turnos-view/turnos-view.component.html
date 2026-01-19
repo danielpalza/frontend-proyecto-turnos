@@ -1,21 +1,27 @@
 <div class="turnos-view">
   <!-- Mensaje de error general -->
   @if (hasError && errorMessage) {
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-      <i class="bi bi-exclamation-triangle-fill me-2"></i>
-      <strong>Error:</strong> {{ errorMessage }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" (click)="hasError = false; errorMessage = null"></button>
-    </div>
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    <strong>Error:</strong> {{ errorMessage }}
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="alert"
+      aria-label="Close"
+      (click)="hasError = false; errorMessage = null"
+    ></button>
+  </div>
   }
 
   <!-- Indicadores de carga -->
   @if (isLoadingAppointments || isLoadingPatients || isLoadingProfesionales) {
-    <div class="alert alert-info" role="alert">
-      <div class="spinner-border spinner-border-sm me-2" role="status">
-        <span class="visually-hidden">Cargando...</span>
-      </div>
-      <span>Cargando datos...</span>
+  <div class="alert alert-info" role="alert">
+    <div class="spinner-border spinner-border-sm me-2" role="status">
+      <span class="visually-hidden">Cargando...</span>
     </div>
+    <span>Cargando datos...</span>
+  </div>
   }
 
   <div class="main-layout">
@@ -24,7 +30,7 @@
       <app-month-calendar
         [currentDate]="currentDate"
         [selectedDate]="selectedDate"
-        [getAppointmentsForDate]="getAppointmentsForDate"
+        [appointments]="appointments"
         (dateClick)="onDateClick($event)"
         (monthChange)="onMonthChange($event)"
       />
@@ -43,40 +49,60 @@
 
   <!-- Dialogo -->
   @if (selectedDate) {
-    <app-appointment-dialog
-      [open]="isDialogOpen"
-      [selectedDate]="selectedDate"
-      [existingPatients]="existingPatients"
-      [profesionales]="activeProfesionales"
-      [isLoading]="isLoading"
-      (openChange)="onDialogOpenChange($event)"
-      (submitForm)="onCreateAppointment($event)"
-    />
+  <app-appointment-dialog
+    [open]="isDialogOpen"
+    [selectedDate]="selectedDate"
+    [existingPatients]="existingPatients"
+    [profesionales]="activeProfesionales"
+    [isLoading]="isLoading"
+    (openChange)="onDialogOpenChange($event)"
+    (submitForm)="onCreateAppointment($event)"
+  />
   }
 </div>
 
 <ol>
   <strong>Primer modelo:</strong>
   <li>
-    Al crear/editar turno: <br>
-    - Verificar que
-    el horario este libre <br>
-    - Prevenir superposición <br>
-    - Bloquear horarios pasados <br>
-    - EDITAR/REPROGRAMAR EL TURNO <br>
+    Al crear/editar turno: <br />
+    - Verificar que el horario este libre <br />
+    - Prevenir superposición <br />
+    - Bloquear horarios pasados <br />
+    - EDITAR/REPROGRAMAR EL TURNO <br />
     - PASAR MATEMATICAS DEL CONTEO DEL PAGO DEL TURNO AL BACKEND
   </li>
   <li>
-    Seguimiento/Historial del paciente: <br>
-    - Ver odontogramas asociados al turno <br>
-    - Estado del pago de los turnos o modal mostrando seguimiento de pagos <br>
+    Seguimiento/Historial del paciente: <br />
+    - Ver odontogramas asociados al turno <br />
+    - Estado del pago de los turnos o modal mostrando seguimiento de pagos <br />
     - EDITAR DATOS DEL PACIENTE
   </li>
   <li>
-    En el calendario mensual de turnos:
-    - Filtrar por profesional <br>
-    - Filtrar por paciente <br>
-    - Filtrar por pagos pendientes por pagos pendientes <br>
+    En el calendario mensual de turnos: - Filtrar por profesional <br />
+    - Filtrar por paciente <br />
+    - Filtrar por pagos pendientes por pagos pendientes <br />
     - Mostrar profesionales de vacaciones
+  </li>
+  <li>
+    <strong>Revision errores:</strong> <br />
+    - Evitar mas de una mensaje de alerta por vez<br />
+    - Destruir modal de creacion de turno si se crea correctamente<br />
+    - No destruir ni borrar el modal de creacion de turno si hay errores o conflicto<br />
+    - Resaltar con un borde rojo los elementos del formulario que generan error o conflicto <br />
+    - modal confirmacion borrado (revisar todos los possibles)<br />
+    - Evitar que se puedan poner turnos sin hora o crear un checkbox para que pueda ser creado sin hora <br>
+  </li>
+  <li>
+    <strong>Luego de relevar todo: </strong><br />
+    - Revisar como se evita la duplicacion de datos en la creacion de turnos y revisar como se hace
+    y si se puede mejorar/limpiar codigo <br />
+    - Evitar que un cliente tenga mas de un turno con diferente profesional a la misma hora. <br />
+    - Evitar que seguimientos se actualice cuando se llena formulario de nuevo profesional. <br />
+    - Al crear un nuevo paciente con dni repetido pero con espacios se debe realizar un trim() y
+    eliminar todos los caracteres que no sean numericos. <br />
+    - Limpiar configuraciones del modal para crear turnos si se cierra. <br>
+    - Agregar modal a la funcionalidad de eliminacion/edicion/dar de baja de profesionales avisando que se perderan los turnos asociados a este profesional.
+    - Agregar un checkbox en "detalles de pago" en el formulario de creacion de turno para que se configure el pago total del turno en caso de que el paciente no tenga saldo disponible. <br>
+    - 
   </li>
 </ol>

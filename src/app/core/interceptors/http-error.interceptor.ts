@@ -37,7 +37,8 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
         const context = extractContextFromUrl(req.url);
         const message = errorHandler.getErrorMessage(error, context);
         
-        // Mostrar notificación solo para errores no críticos
+        // Mostrar notificación para errores, excepto 401/403 que se manejan desde el backend
+        // Los errores 401/403 se manejan específicamente desde el backend con mensajes personalizados
         if (error.status !== 401 && error.status !== 403) {
           notification.showError(message);
         }
@@ -54,11 +55,12 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
 
 /**
  * Determina si un error debe ser manejado globalmente
- * Algunos errores son manejados específicamente por componentes
+ * Algunos errores son manejados específicamente por componentes o por el backend
  */
 function shouldHandleErrorGlobally(url: string, error: HttpErrorResponse): boolean {
-  // No manejar errores 401/403 globalmente (pueden requerir redirección)
-  if (error.status === 401 || error.status === 403) {
+  // No manejar errores 401/403/404 globalmente - se manejan desde el backend
+  // El backend devuelve mensajes personalizados en el body de la respuesta
+  if (error.status === 401 || error.status === 403 || error.status === 404) {
     return false;
   }
 
@@ -77,10 +79,15 @@ function extractContextFromUrl(url: string): string {
     if (url.includes('/status')) {
       return 'actualizar el estado del turno';
     }
-    if (url.includes('/date') || url.includes('/range') || url.includes('/count')) {
+    // Detectar si es el endpoint principal (GET /api/appointments) o endpoints de consulta
+    if (url.match(/\/appointments\/?$/) || url.includes('/date') || url.includes('/range') || url.includes('/count') || url.includes('/patient/')) {
       return 'cargar los turnos';
     }
-    return 'gestionar el turno';
+    // Para otros endpoints de appointments (POST, PATCH, DELETE)
+    if (url.match(/\/appointments\/\d+$/)) {
+      return 'gestionar el turno';
+    }
+    return 'gestionar los turnos';
   }
 
   if (url.includes('/patients')) {

@@ -31,16 +31,17 @@ export class ErrorHandlerService {
       //   return backendMessage || `Error al ${context}. Los datos recibidos no son válidos.`;
       
       case 401:
-        return 'Su sesión ha expirado. Por favor, inicie sesión nuevamente.';
+        // Usar el mensaje del backend si está disponible, sino usar el mensaje por defecto
+        return backendMessage || 'Su sesión ha expirado. Por favor, inicie sesión nuevamente.';
       
       case 403:
-        return `No tiene permisos para ${context}.`;
+        // Usar el mensaje del backend si está disponible, sino usar el mensaje por defecto
+        return backendMessage || `No tiene permisos para ${context}.`;
       
       case 404:
-        if (context.includes('eliminar')) {
-          return 'El turno que intenta eliminar no existe o ya fue eliminado.';
-        }
-        return backendMessage || `No se encontró el servicio. Contacte al administrador.`;
+        // Los errores 404 se manejan completamente desde el backend
+        // Solo devolver el mensaje del backend, sin fallback
+        return backendMessage || '';
       
       case 408:
         return 'La solicitud tardó demasiado tiempo. Por favor, intente nuevamente.';
@@ -72,7 +73,13 @@ export class ErrorHandlerService {
    * Obtiene mensaje específico para errores de conflicto (409)
    */
   private getConflictMessage(backendMessage: string | null, context: string): string {
+    // Si el mensaje del backend ya incluye el horario, usarlo directamente
     if (backendMessage) {
+      // Verificar si el mensaje ya contiene "El horario X está en uso"
+      if (backendMessage.includes('El horario') && backendMessage.includes('está en uso')) {
+        return backendMessage;
+      }
+      // Si es otro tipo de mensaje de conflicto, retornarlo
       return backendMessage;
     }
 

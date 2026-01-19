@@ -1,7 +1,10 @@
-import { Component, EventEmitter, Input, OnInit, OnChanges, Output, SimpleChanges, ElementRef, HostListener } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, OnChanges, OnDestroy, Output, SimpleChanges, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { takeUntil, debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { Patient, Profesional, AppointmentCreateDTO } from '../../../../core/models';
+import { AppointmentsService } from '../../../../core/services/appointments.service';
 
 @Component({
   selector: 'app-appointment-dialog',
@@ -10,7 +13,7 @@ import { Patient, Profesional, AppointmentCreateDTO } from '../../../../core/mod
   templateUrl: './appointment-dialog.component.html',
   styleUrls: ['./appointment-dialog.component.scss']
 })
-export class AppointmentDialogComponent implements OnInit, OnChanges {
+export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy {
   @Input() open = false;
   @Input() selectedDate: string | null = null;
   @Input() existingPatients: Patient[] = [];
@@ -25,6 +28,10 @@ export class AppointmentDialogComponent implements OnInit, OnChanges {
   isNewPatient = true;
   filteredPatients: Patient[] = [];
   showPatientDropdown = false;
+  isCheckingAvailability = false;
+  availabilityError: string | null = null;
+  private destroy$ = new Subject<void>();
+  private searchSubject = new Subject<string>();
 
   // Obras sociales
   OBRAS_SOCIALES = [
@@ -38,15 +45,27 @@ export class AppointmentDialogComponent implements OnInit, OnChanges {
     'ISJ','SEROS','DOSEP','OSPTDF','OSEPJ','IAPOS','ISSSyP','IPS Misiones','IPS Salta'
   ];
 
-  constructor(private fb: FormBuilder, private elRef: ElementRef) {}
+  constructor(
+    private fb: FormBuilder, 
+    private elRef: ElementRef,
+    private appointmentsService: AppointmentsService
+  ) {}
 
   ngOnInit(): void {
     this.initForm();
+    this.setupSearchDebounce();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['existingPatients']) {
       this.filteredPatients = this.existingPatients;
+    }
+    
+    // Detectar cuando el diálogo se cierra para limpiar el formulario
+    // Esto asegura que el formulario se limpie incluso cuando se cierra desde el componente padre
+    if (changes['open'] && !changes['open'].currentValue && changes['open'].previousValue) {
+      // Se cerró el diálogo (cambió de true a false)
+      this.clearPatientSelection();
     }
   }
 
@@ -57,7 +76,7 @@ export class AppointmentDialogComponent implements OnInit, OnChanges {
       fechaNacimiento: [''],
       edad: [{ value: '', disabled: true }],
       dni: ['', Validators.required],
-      telefono: ['', Validators.required],
+      telefono: ['', [Validators.required, Validators.pattern(/^[0-9]{10,15}$/)]],
       email: ['', [Validators.required, Validators.email]],
       domicilio: ['', Validators.required],
       localidad: ['', Validators.required],
@@ -91,22 +110,51 @@ export class AppointmentDialogComponent implements OnInit, OnChanges {
       observaciones: ['']
     });
 
-    // Calcular edad a partir de fechaNacimiento
-    this.form.get('fechaNacimiento')?.valueChanges.subscribe((val: string) => {
-      if (val) {
-        const birthDate = new Date(val);
-        const today = new Date();
-        let age = today.getFullYear() - birthDate.getFullYear();
-        const monthDiff = today.getMonth() - birthDate.getMonth();
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-          age--;
+    // Calcular edad a partir de fechaNacimiento con validaciones
+    this.form.get('fechaNacimiento')?.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((val: string) => {
+        if (val) {
+          const birthDate = new Date(val);
+          const today = new Date();
+          
+          // Validar que la fecha no sea inválida
+          if (isNaN(birthDate.getTime())) {
+            this.form.get('edad')?.setValue('', { emitEvent: false });
+            return;
+          }
+          
+          // Validar que la fecha no sea futura
+          if (birthDate > today) {
+            this.form.get('edad')?.setValue('', { emitEvent: false });
+            return;
+          }
+          
+          // Validar que la fecha no sea muy antigua (más de 150 años)
+          const maxAge = 150;
+          const minYear = today.getFullYear() - maxAge;
+          if (birthDate.getFullYear() < minYear) {
+            this.form.get('edad')?.setValue('', { emitEvent: false });
+            return;
+          }
+          
+          // Calcular edad correctamente
+          let age = today.getFullYear() - birthDate.getFullYear();
+          const monthDiff = today.getMonth() - birthDate.getMonth();
+          if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+          }
+          
+          this.form.get('edad')?.setValue(age.toString(), { emitEvent: false });
+        } else {
+          this.form.get('edad')?.setValue('', { emitEvent: false });
         }
-        this.form.get('edad')?.setValue(age.toString(), { emitEvent: false });
-      }
-    });
+      });
 
     // Validaciones condicionales para titular
-    this.form.get('esTitular')?.valueChanges.subscribe((val: string) => {
+    this.form.get('esTitular')?.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((val: string) => {
       const nombreTitular = this.form.get('nombreTitular')!;
       const dniTitular = this.form.get('dniTitular')!;
       const parentesco = this.form.get('parentesco')!;
@@ -127,25 +175,37 @@ export class AppointmentDialogComponent implements OnInit, OnChanges {
   }
 
   /**
-   * Buscar pacientes mientras escribe
+   * Buscar pacientes mientras escribe (con debounce para mejor performance)
    */
   onSearchPatient(event: Event): void {
-    const value = (event.target as HTMLInputElement).value.toLowerCase();
-    if (value.length >= 2) {
-      this.filteredPatients = this.existingPatients.filter(p =>
-        p.nombreApellido.toLowerCase().includes(value) ||
-        p.dni.includes(value) ||
-        (p.email && p.email.toLowerCase().includes(value))
-      );
-      this.showPatientDropdown = true;
-    } else {
-      this.filteredPatients = [];
-      this.showPatientDropdown = false;
-    }
+    const value = (event.target as HTMLInputElement).value;
+    this.searchSubject.next(value);
     this.isNewPatient = true;
-    this.selectedPatient = null;
   }
 
+  /**
+   * Configurar debounce para búsqueda de pacientes
+   */
+  private setupSearchDebounce(): void {
+    this.searchSubject.pipe(
+      debounceTime(300), // Esperar 300ms después de la última tecla
+      distinctUntilChanged(), // Solo filtrar si el valor cambió
+      takeUntil(this.destroy$)
+    ).subscribe(searchValue => {
+      const value = searchValue.toLowerCase();
+      if (value.length >= 2) {
+        this.filteredPatients = this.existingPatients.filter(p =>
+          p.nombreApellido.toLowerCase().includes(value) ||
+          p.dni.includes(value) ||
+          (p.email && p.email.toLowerCase().includes(value))
+        );
+        this.showPatientDropdown = true;
+      } else {
+        this.filteredPatients = [];
+        this.showPatientDropdown = false;
+      }
+    });
+  }
   /**
    * Mostrar todos los pacientes al enfocar el input si está vacío
    */
@@ -161,12 +221,14 @@ export class AppointmentDialogComponent implements OnInit, OnChanges {
 
   /**
    * Cerrar el listado cuando el input pierde el foco
-   * (se usa un pequeño delay para permitir el click en un paciente)
+   * (usamos mousedown en lugar de click, por lo que no necesitamos delay largo)
    */
   onSearchPatientBlur(): void {
+    // Usar un pequeño delay mínimo solo para asegurar que el mousedown se procese primero
+    // mousedown se dispara antes de blur, por lo que el delay es mucho más corto y robusto
     setTimeout(() => {
       this.showPatientDropdown = false;
-    }, 150);
+    }, 10);
   }
 
   /**
@@ -261,12 +323,74 @@ export class AppointmentDialogComponent implements OnInit, OnChanges {
     this.clearPatientSelection();
   }
 
+  /**
+   * Parsea un valor a número de forma segura
+   * Maneja null, undefined, NaN, Infinity, valores negativos
+   * y retorna 0 como valor por defecto seguro
+   */
+  private parseAmount(value: any): number {
+    if (value === null || value === undefined || value === '') {
+      return 0;
+    }
+    
+    const num = Number(value);
+    
+    // Validar que sea un número válido
+    if (Number.isNaN(num) || !Number.isFinite(num)) {
+      console.warn('Valor inválido para monto:', value);
+      return 0;
+    }
+    
+    // Validar que no sea negativo
+    if (num < 0) {
+      console.warn('Valor negativo para monto:', value);
+      return 0;
+    }
+    
+    return num;
+  }
+
   calcularResto(): number {
-    const bono = this.form.get('precioBono')?.value || 0;
-    const tratamiento = this.form.get('precioTratamiento')?.value || 0;
-    const extras = this.form.get('extras')?.value || 0;
-    const pago = this.form.get('montoPago')?.value || 0;
-    return (bono + tratamiento + extras) - pago;
+    const bono = this.parseAmount(this.form.get('precioBono')?.value);
+    const tratamiento = this.parseAmount(this.form.get('precioTratamiento')?.value);
+    const extras = this.parseAmount(this.form.get('extras')?.value);
+    const pago = this.parseAmount(this.form.get('montoPago')?.value);
+    
+    const resultado = (bono + tratamiento + extras) - pago;
+    
+    // Validar que el resultado sea un número finito
+    return Number.isFinite(resultado) ? resultado : 0;
+  }
+
+  /**
+   * Normaliza el formato de hora a HH:mm:ss
+   * Maneja diferentes formatos de entrada (HH:mm, HH:mm:ss, etc.)
+   * y los normaliza a HH:mm:ss para el backend
+   */
+  private normalizeTime(time: string | null | undefined): string | undefined {
+    if (!time) return undefined;
+    
+    // Validar formato HH:mm o HH:mm:ss usando regex
+    const timeRegex = /^([0-1][0-9]|2[0-3]):[0-5][0-9](:([0-5][0-9]))?$/;
+    
+    if (!timeRegex.test(time)) {
+      console.warn('Formato de hora inválido:', time);
+      return undefined;
+    }
+    
+    // Si tiene formato HH:mm (5 caracteres), agregar :00
+    if (time.length === 5) {
+      return `${time}:00`;
+    }
+    
+    // Si ya tiene formato HH:mm:ss (8 caracteres), extraer solo HH:mm y agregar :00
+    // Esto previene formatos como HH:mm:ss:00 si se concatenaba dos veces
+    if (time.length >= 8) {
+      return `${time.substring(0, 5)}:00`;
+    }
+    
+    // Si el formato es inesperado, retornar undefined
+    return undefined;
   }
 
   onSubmit(): void {
@@ -275,8 +399,57 @@ export class AppointmentDialogComponent implements OnInit, OnChanges {
       return;
     }
 
+    // Validar disponibilidad solo al enviar el formulario
     const raw = this.form.getRawValue();
+    const profesionalId = raw.profesionalId;
+    const hora = raw.hora;
 
+    // Solo verificar si hay profesional, fecha y hora
+    if (profesionalId && this.selectedDate && hora) {
+      const normalizedHora = this.normalizeTime(hora);
+      if (!normalizedHora) {
+        // Si no se puede normalizar la hora, proceder (el backend validará)
+        this.submitFormData(raw);
+        return;
+      }
+
+      // Verificar disponibilidad antes de enviar
+      this.isCheckingAvailability = true;
+      this.availabilityError = null;
+
+      this.appointmentsService.checkAvailability(profesionalId, this.selectedDate, normalizedHora)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (isAvailable) => {
+            this.isCheckingAvailability = false;
+            if (!isAvailable) {
+              this.availabilityError = 'Este horario ya está ocupado. Por favor, seleccione otro horario.';
+              this.form.markAllAsTouched();
+              return;
+            }
+            // Si está disponible, proceder con el envío
+            this.availabilityError = null;
+            this.submitFormData(raw);
+          },
+          error: (err) => {
+            this.isCheckingAvailability = false;
+            // En caso de error, permitir el envío (el backend validará)
+            console.warn('Error verificando disponibilidad:', err);
+            this.availabilityError = null;
+            this.submitFormData(raw);
+          }
+        });
+      return; // No continuar hasta que se complete la verificación
+    }
+
+    // Si no hay profesional o no se puede verificar, proceder normalmente
+    this.submitFormData(raw);
+  }
+
+  /**
+   * Enviar los datos del formulario
+   */
+  private submitFormData(raw: any): void {
     // Construir objeto de anamnesis con los antecedentes médicos
     const anamnesisData: any = {};
     if (raw.enfermedades) anamnesisData.enfermedades = raw.enfermedades;
@@ -318,17 +491,21 @@ export class AppointmentDialogComponent implements OnInit, OnChanges {
       patientId: this.selectedPatient?.id || 0, // Se actualizará si es paciente nuevo
       profesionalId: raw.profesionalId ? Number(raw.profesionalId) : undefined,
       fecha: this.selectedDate || '',
-      hora: raw.hora ? `${raw.hora}:00` : undefined,
+      hora: this.normalizeTime(raw.hora), // Normalizar formato de hora
       estado: 'PENDIENTE',
-      precioBono: raw.precioBono || 0,
-      precioTratamiento: raw.precioTratamiento || 0,
-      extras: raw.extras || 0,
-      montoPago: raw.montoPago || 0,
+      precioBono: this.parseAmount(raw.precioBono), // Parsear monto de forma segura
+      precioTratamiento: this.parseAmount(raw.precioTratamiento), // Parsear monto de forma segura
+      extras: this.parseAmount(raw.extras), // Parsear monto de forma segura
+      montoPago: this.parseAmount(raw.montoPago), // Parsear monto de forma segura
       observaciones: raw.observaciones || undefined,
       observacionesTurno: raw.observacionesTurno || undefined
     };
 
     this.submitForm.emit({ patientData, appointmentData });
+
+    // Resetear el formulario después de emitir el evento
+    // Esto asegura que el formulario esté limpio para el próximo uso
+    this.clearPatientSelection();
 
     // console.log( anamnesisData, patientData, appointmentData);
   }
@@ -342,5 +519,10 @@ export class AppointmentDialogComponent implements OnInit, OnChanges {
       month: 'long',
       day: 'numeric'
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

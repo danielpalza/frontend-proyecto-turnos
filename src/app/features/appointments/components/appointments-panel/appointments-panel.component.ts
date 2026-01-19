@@ -1,7 +1,9 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Appointment } from '../../../../core/models';
 import { AppointmentsService } from '../../../../core/services/appointments.service';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { ErrorHandlerService } from '../../../../core/services/error-handler.service';
 
 @Component({
   selector: 'app-appointments-panel',
@@ -10,14 +12,25 @@ import { AppointmentsService } from '../../../../core/services/appointments.serv
   templateUrl: './appointments-panel.component.html',
   styleUrls: ['./appointments-panel.component.scss']
 })
-export class AppointmentsPanelComponent {
+export class AppointmentsPanelComponent implements OnChanges {
   @Input() date: string | null = null;
   @Input() appointments: Appointment[] = [];
 
   @Output() delete = new EventEmitter<number>();
   @Output() addClick = new EventEmitter<void>();
 
-  constructor(private appointmentsService: AppointmentsService) {}
+  constructor(
+    private appointmentsService: AppointmentsService,
+    private notification: NotificationService,
+    private errorHandler: ErrorHandlerService
+  ) {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // Limpiar expandedCards cuando cambia la fecha
+    if (changes['date'] && !changes['date'].firstChange) {
+      this.expandedCards.clear();
+    }
+  }
 
   expandedCards = new Set<number>(); // Rastrea qué tarjetas están expandidas
   paymentInputs = new Map<number, number>(); // Rastrea los valores de pago por tarjeta
@@ -91,6 +104,13 @@ export class AppointmentsPanelComponent {
 
   formatTime(time: string | undefined): string {
     if (!time) return '';
+    
+    // Validar que tenga al menos 5 caracteres (formato HH:mm)
+    if (time.length < 5) {
+      console.warn('Formato de hora inválido:', time);
+      return ''; // Retornar string vacío si el formato es inválido
+    }
+    
     // El backend envía formato HH:mm:ss, mostramos HH:mm
     return time.substring(0, 5);
   }
@@ -135,15 +155,26 @@ export class AppointmentsPanelComponent {
   // Agrega el pago a un turno
   onAddPayment(cardId: number): void {
     const paymentValue = this.paymentInputs.get(cardId) || 0;
+    
+    // Validar que el monto sea mayor a cero
+    if (paymentValue <= 0) {
+      this.notification.showError('El monto del pago debe ser mayor a cero.');
+      return;
+    }
+    
     if (paymentValue > 0) {
       this.appointmentsService.addPayment(cardId, paymentValue).subscribe({
         next: () => {
           // Limpiar el input después de agregar el pago exitosamente
           this.paymentInputs.set(cardId, 0);
+          this.notification.showSuccess('Pago agregado correctamente.');
         },
         error: (err) => {
-          console.error('Error al agregar pago:', err);
-          // TODO: Mostrar mensaje de error al usuario
+          // Los errores 404 se manejan completamente desde el backend sin notificaciones
+          if (err.status !== 404) {
+            const message = this.errorHandler.getErrorMessage(err, 'agregar el pago');
+            this.notification.showError(message);
+          }
         }
       });
     }
