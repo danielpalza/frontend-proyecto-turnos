@@ -100,17 +100,10 @@ export class AppointmentsPanelComponent {
     return this.displayAppointments.length;
   }
 
-  //  Contor el total de pagos
-  CountTotalPrice(precioBono?: number, precioTratamiento?: number, extras?: number, montoPago?: number): number {
-    return (precioBono || 0)
-         + (precioTratamiento || 0)
-         + (extras || 0)
-         - (montoPago || 0);
-  }
-
   // Obtiene la clase CSS según el valor del total de pago
-  getPaymentColorClass(precioBono?: number, precioTratamiento?: number, extras?: number, montoPago?: number): string {
-    const total = this.CountTotalPrice(precioBono, precioTratamiento, extras, montoPago);
+  // Ahora usa el totalPrecio calculado en el backend
+  getPaymentColorClass(totalPrecio?: number): string {
+    const total = totalPrecio || 0;
     return total > 0 ? 'text-danger' : 'text-success';
   }
 
