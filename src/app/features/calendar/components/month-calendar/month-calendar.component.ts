@@ -11,7 +11,7 @@ import { CommonModule } from '@angular/common';
 export class MonthCalendarComponent implements OnInit, OnChanges {
   @Input() currentDate: Date = new Date();
   @Input() selectedDate: string | null = null;
-  @Input() getAppointmentsForDate!: (date: string) => any[];
+  @Input() appointments: any[] = [];
 
   @Output() dateClick = new EventEmitter<string>();
   @Output() monthChange = new EventEmitter<Date>();
@@ -30,7 +30,7 @@ export class MonthCalendarComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['currentDate']) {
+    if (changes['currentDate'] || changes['appointments'] || changes['selectedDate']) {
       this.generateCalendar();
     }
   }
@@ -53,7 +53,10 @@ export class MonthCalendarComponent implements OnInit, OnChanges {
     // Días del mes
     for (let day = 1; day <= lastDay.getDate(); day++) {
       const dateStr = this.formatDate(month, day);
-      const count = this.getAppointmentsForDate ? this.getAppointmentsForDate(dateStr)?.length ?? 0 : 0;
+      let count = 0;
+      if (this.appointments && Array.isArray(this.appointments)) {
+        count = this.appointments.filter(app => app.fecha === dateStr).length;
+      }
       
       this.calendarDays.push({
         type: 'day',
@@ -74,10 +77,11 @@ export class MonthCalendarComponent implements OnInit, OnChanges {
     }
   }
 
-  formatDate(month: number, day: number): string {
+  formatDate(month: number, day: number, year?: number): string {
     const m = String(month + 1).padStart(2, '0');
     const d = String(day).padStart(2, '0');
-    return `${this.currentDate.getFullYear()}-${m}-${d}`;
+    const y = year !== undefined ? year : this.currentDate.getFullYear();
+    return `${y}-${m}-${d}`;
   }
 
   isToday(day: number): boolean {
@@ -114,7 +118,8 @@ export class MonthCalendarComponent implements OnInit, OnChanges {
   goToToday(): void {
     const today = new Date();
     this.monthChange.emit(today);
-    this.dateClick.emit(this.formatDate(today.getMonth(), today.getDate()));
+    // Pasar el año correcto de today para evitar usar this.currentDate.getFullYear()
+    this.dateClick.emit(this.formatDate(today.getMonth(), today.getDate(), today.getFullYear()));
   }
 
   onDateClick(dateStr: string): void {

@@ -113,3 +113,59 @@ body {
 .fade-in {
   animation: fadeIn 0.3s ease forwards;
 }
+
+// Estilos para el contenedor de notificaciones (toasts)
+#toast-container {
+  z-index: 9999 !important;
+  max-width: 500px;
+  width: 100%;
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  position: fixed !important;
+  top: 0 !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  padding: 1rem !important;
+  pointer-events: none; // Permitir clicks a través del contenedor
+  
+  .toast {
+    pointer-events: auto !important; // Los toasts sí reciben clicks
+    min-width: 300px;
+    max-width: 500px;
+    width: 100%;
+    margin-bottom: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    border-radius: 8px;
+    overflow: hidden;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    
+    .toast-header {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      padding: 0.5rem 1rem;
+      
+      .btn-close {
+        filter: invert(1);
+        cursor: pointer;
+        background: transparent;
+        border: none;
+        font-size: 1.25rem;
+        opacity: 0.5;
+        
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
+    
+    .toast-body {
+      padding: 0.75rem 1rem;
+      line-height: 1.5;
+    }
+  }
+}

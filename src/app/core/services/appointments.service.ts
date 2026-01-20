@@ -1,8 +1,11 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap, map } from 'rxjs';
+import { HttpClient, HttpContext, HttpErrorResponse } from '@angular/common/http';
+import { Observable, BehaviorSubject, tap, map, catchError, of } from 'rxjs';
 import { Appointment, AppointmentCreateDTO, AppointmentStatus, AppointmentCountByDate } from '../models';
 import { API_CONFIG } from './api.config';
+import { skipGlobalErrorHandler } from '../interceptors/http-context';
+import { ErrorHandlerService } from './error-handler.service';
+import { NotificationService } from './notification.service';
 
 @Injectable({ providedIn: 'root' })
 export class AppointmentsService {
@@ -11,17 +14,37 @@ export class AppointmentsService {
   // Cache local de turnos
   private appointmentsCache$ = new BehaviorSubject<Appointment[]>([]);
 
-  constructor(private http: HttpClient) {
+  constructor(
+    private http: HttpClient,
+    private errorHandler: ErrorHandlerService,
+    private notification: NotificationService
+  ) {
     this.loadAppointments();
   }
 
   /**
    * Cargar todos los turnos del backend
+   * @param skipGlobal - Si es true, el error será manejado específicamente por el componente
    */
-  loadAppointments(): void {
-    this.http.get<Appointment[]>(this.apiUrl).subscribe({
-      next: (appointments) => this.appointmentsCache$.next(appointments),
-      error: (err) => console.error('Error loading appointments:', err)
+  loadAppointments(skipGlobal: boolean = false): void {
+    const context = skipGlobal ? skipGlobalErrorHandler() : undefined;
+    this.http.get<Appointment[]>(this.apiUrl, context ? { context } : undefined).pipe(
+      catchError((err: HttpErrorResponse) => {
+        console.error('Error loading appointments:', err);
+        
+        // Manejar errores 401/403 específicamente desde el backend
+        // Los errores 404 se manejan completamente desde el backend sin notificaciones
+        if (err.status === 401 || err.status === 403) {
+          const message = this.errorHandler.getErrorMessage(err, 'cargar los turnos');
+          this.notification.showError(message);
+        }
+        
+        // Emitir array vacío en caso de error para evitar que el cache quede en estado inconsistente
+        // El componente manejará el error a través de la suscripción
+        return of([]);
+      })
+    ).subscribe({
+      next: (appointments) => this.appointmentsCache$.next(appointments)
     });
   }
 
@@ -34,9 +57,11 @@ export class AppointmentsService {
 
   /**
    * Obtener todos los turnos del backend
+   * @param skipGlobal - Si es true, el error será manejado específicamente por el componente
    */
-  findAll(): Observable<Appointment[]> {
-    return this.http.get<Appointment[]>(this.apiUrl).pipe(
+  findAll(skipGlobal: boolean = false): Observable<Appointment[]> {
+    const context = skipGlobal ? skipGlobalErrorHandler() : undefined;
+    return this.http.get<Appointment[]>(this.apiUrl, context ? { context } : undefined).pipe(
       tap(appointments => this.appointmentsCache$.next(appointments))
     );
   }
@@ -82,9 +107,12 @@ export class AppointmentsService {
 
   /**
    * Crear nuevo turno
+   * @param appointment - Datos del turno a crear
+   * @param skipGlobal - Si es true, el error será manejado específicamente por el componente
    */
-  create(appointment: AppointmentCreateDTO): Observable<Appointment> {
-    return this.http.post<Appointment>(this.apiUrl, appointment).pipe(
+  create(appointment: AppointmentCreateDTO, skipGlobal: boolean = false): Observable<Appointment> {
+    const context = skipGlobal ? skipGlobalErrorHandler() : undefined;
+    return this.http.post<Appointment>(this.apiUrl, appointment, context ? { context } : undefined).pipe(
       tap(() => this.loadAppointments())
     );
   }
@@ -101,9 +129,12 @@ export class AppointmentsService {
 
   /**
    * Eliminar turno
+   * @param id - ID del turno a eliminar
+   * @param skipGlobal - Si es true, el error será manejado específicamente por el componente
    */
-  delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+  delete(id: number, skipGlobal: boolean = false): Observable<void> {
+    const context = skipGlobal ? skipGlobalErrorHandler() : undefined;
+    return this.http.delete<void>(`${this.apiUrl}/${id}`, context ? { context } : undefined).pipe(
       tap(() => this.loadAppointments())
     );
   }
@@ -127,6 +158,30 @@ export class AppointmentsService {
       montoPago
     }).pipe(
       tap(() => this.loadAppointments())
+    );
+  }
+
+  /**
+   * Verificar si un horario está disponible para un profesional
+   * @param profesionalId ID del profesional
+   * @param fecha Fecha del turno (formato YYYY-MM-DD)
+   * @param hora Hora del turno (formato HH:mm:ss)
+   * @returns Observable que emite true si está disponible, false si está ocupado
+   */
+  checkAvailability(profesionalId: number, fecha: string, hora: string): Observable<boolean> {
+    return this.http.get<{ available: boolean }>(`${this.apiUrl}/check-availability`, {
+      params: {
+        profesionalId: profesionalId.toString(),
+        fecha: fecha,
+        hora: hora
+      }
+    }).pipe(
+      map(response => response.available),
+      catchError((err: HttpErrorResponse) => {
+        console.error('Error checking availability:', err);
+        // En caso de error, asumir que no está disponible para ser conservador
+        return of(false);
+      })
     );
   }
 

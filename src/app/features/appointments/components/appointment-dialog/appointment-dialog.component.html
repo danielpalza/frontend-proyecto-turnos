@@ -47,6 +47,7 @@
                   *ngFor="let patient of filteredPatients"
                   class="p-2 border-bottom"
                   style="cursor: pointer"
+                  (mousedown)="selectPatient(patient); $event.preventDefault()"
                   (click)="selectPatient(patient)"
                 >
                   <div class="fw-semibold">{{ patient.nombreApellido }}</div>
@@ -92,11 +93,41 @@
               </div>
               <div class="col-md-4">
                 <label class="form-label">Teléfono *</label>
-                <input class="form-control" type="tel" formControlName="telefono" />
+                <input 
+                  class="form-control" 
+                  type="tel" 
+                  formControlName="telefono"
+                  [class.is-invalid]="form.get('telefono')?.invalid && form.get('telefono')?.touched"
+                />
+                @if (form.get('telefono')?.invalid && form.get('telefono')?.touched) {
+                  <div class="invalid-feedback">
+                    @if (form.get('telefono')?.hasError('required')) {
+                      <div>El teléfono es obligatorio</div>
+                    }
+                    @if (form.get('telefono')?.hasError('pattern')) {
+                      <div>El teléfono debe tener entre 10 y 15 dígitos numéricos</div>
+                    }
+                  </div>
+                }
               </div>
               <div class="col-md-4">
                 <label class="form-label">Email *</label>
-                <input class="form-control" type="email" formControlName="email" />
+                <input 
+                  class="form-control" 
+                  type="email" 
+                  formControlName="email"
+                  [class.is-invalid]="form.get('email')?.invalid && form.get('email')?.touched"
+                />
+                @if (form.get('email')?.invalid && form.get('email')?.touched) {
+                  <div class="invalid-feedback">
+                    @if (form.get('email')?.hasError('required')) {
+                      <div>El email es obligatorio</div>
+                    }
+                    @if (form.get('email')?.hasError('email')) {
+                      <div>Por favor ingrese un email válido</div>
+                    }
+                  </div>
+                }
               </div>
               <div class="col-md-6">
                 <label class="form-label">Domicilio *</label>
@@ -211,16 +242,35 @@
             <div class="row g-3">
               <div class="col-md-6">
                 <label class="form-label">Profesional</label>
-                <select class="form-select" formControlName="profesionalId">
+                <select class="form-select" formControlName="profesionalId" [disabled]="profesionales.length === 0">
                   <option value="">Sin asignar</option>
-                  <option *ngFor="let prof of profesionales" [value]="prof.id">
-                    {{ prof.nombre }}
-                  </option>
+                  @if (profesionales.length === 0) {
+                    <option value="" disabled>No hay profesionales disponibles</option>
+                  } @else {
+                    @for (prof of profesionales; track prof.id) {
+                      <option [value]="prof.id">{{ prof.nombre }}</option>
+                    }
+                  }
                 </select>
               </div>
               <div class="col-md-6">
                 <label class="form-label">Hora del Turno</label>
-                <input class="form-control" type="time" formControlName="hora" />
+                <input 
+                  class="form-control" 
+                  type="time" 
+                  formControlName="hora"
+                  [class.is-invalid]="availabilityError !== null"
+                />
+                @if (isCheckingAvailability) {
+                  <div class="form-text text-info">
+                    <i class="bi bi-hourglass-split me-1"></i>Verificando disponibilidad...
+                  </div>
+                }
+                @if (availabilityError && isCheckingAvailability === false) {
+                  <div class="invalid-feedback d-block">
+                    <i class="bi bi-exclamation-triangle me-1"></i>{{ availabilityError }}
+                  </div>
+                }
               </div>
           <div class="col-12">
             <label class="form-label">Observaciones del turno</label>
@@ -241,19 +291,19 @@
             <div class="row g-3">
               <div class="col-md-3">
                 <label class="form-label">Precio de Bono</label>
-                <input class="form-control" type="number" formControlName="precioBono" />
+                <input class="form-control" type="number" formControlName="precioBono" step="0.01" />
               </div>
               <div class="col-md-3">
                 <label class="form-label">Precio Tratamiento</label>
-                <input class="form-control" type="number" formControlName="precioTratamiento" />
+                <input class="form-control" type="number" formControlName="precioTratamiento" step="0.01" />
               </div>
               <div class="col-md-3">
                 <label class="form-label">Extras</label>
-                <input class="form-control" type="number" formControlName="extras" />
+                <input class="form-control" type="number" formControlName="extras" step="0.01" />
               </div>
               <div class="col-md-3">
                 <label class="form-label">Monto Pagado</label>
-                <input class="form-control" type="number" formControlName="montoPago" />
+                <input class="form-control" type="number" formControlName="montoPago" step="0.01" />
               </div>
               <div class="col-12">
                 <div class="p-3 bg-light rounded border">
@@ -285,9 +335,12 @@
           >
             Cancelar
           </button>
-          <button type="submit" class="btn btn-primary" [disabled]="form.invalid || isLoading">
-            <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
-            {{ isLoading ? 'Guardando...' : 'Guardar Cita' }}
+          <button 
+            type="submit" 
+            class="btn btn-primary" 
+            [disabled]="form.invalid || isLoading || isCheckingAvailability || availabilityError !== null">
+            <span *ngIf="isLoading || isCheckingAvailability" class="spinner-border spinner-border-sm me-2"></span>
+            {{ isLoading ? 'Guardando...' : (isCheckingAvailability ? 'Verificando...' : 'Guardar Cita') }}
           </button>
         </div>
       </form>
