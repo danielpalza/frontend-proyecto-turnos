@@ -35,6 +35,12 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
   selectedDate: string | null = null;
   isDialogOpen = false;
   isLoading = false;
+
+  // Modal confirmación eliminación
+  isDeleteConfirmOpen = false;
+  isDeletingAppointment = false;
+  deleteCandidateId: number | null = null;
+  deleteCandidateSummary: string | null = null;
   
   // Estados de error
   hasError = false;
@@ -288,25 +294,62 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
   }
 
   onDeleteAppointment(id: number): void {
-    // Confirmar antes de eliminar
-    if (!confirm('¿Está seguro de que desea eliminar este turno?')) {
+    this.openDeleteConfirm(id);
+  }
+
+  openDeleteConfirm(id: number): void {
+    if (this.isDeletingAppointment) {
       return;
     }
+
+    this.deleteCandidateId = id;
+    const a = this.appointments.find(ap => ap.id === id);
+    const hora = a?.hora ? a.hora.substring(0, 5) : null;
+    const parts = [
+      a?.patientName || 'Paciente',
+      a?.profesionalName ? `- ${a.profesionalName}` : null,
+      hora ? `(${hora})` : null
+    ].filter(Boolean);
+    this.deleteCandidateSummary = parts.length ? parts.join(' ') : null;
+
+    this.isDeleteConfirmOpen = true;
+  }
+
+  closeDeleteConfirm(force = false): void {
+    if (this.isDeletingAppointment && !force) {
+      return;
+    }
+
+    this.isDeleteConfirmOpen = false;
+    this.deleteCandidateId = null;
+    this.deleteCandidateSummary = null;
+  }
+
+  confirmDeleteAppointment(): void {
+    if (this.isDeletingAppointment) {
+      return;
+    }
+
+    const id = this.deleteCandidateId;
+    if (id == null) {
+      this.closeDeleteConfirm(true);
+      return;
+    }
+
+    this.isDeletingAppointment = true;
 
     // Pasar true para indicar que el componente manejará el error específicamente
     this.appointmentsService.delete(id, true)
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => {
-          // Garantizar que cualquier limpieza necesaria se ejecute siempre
-          // El cache ya se actualiza automáticamente mediante tap() en el servicio
+          this.isDeletingAppointment = false;
         })
       )
       .subscribe({
         next: () => {
-          // Mostrar mensaje de éxito al usuario
           this.notification.showSuccess('Turno eliminado correctamente.');
-          // El cache se actualiza automáticamente mediante tap(() => this.loadAppointments()) en el servicio
+          this.closeDeleteConfirm(true);
         },
         error: (err) => {
           // Los errores 404 se manejan completamente desde el backend sin notificaciones

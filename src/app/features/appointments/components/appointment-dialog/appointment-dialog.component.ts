@@ -54,6 +54,7 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
   ngOnInit(): void {
     this.initForm();
     this.setupSearchDebounce();
+    this.setupHoraAvailabilityValidation();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -393,7 +394,61 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
     return undefined;
   }
 
+  /**
+   * Configura la validación de disponibilidad cada vez que cambia la hora
+   */
+  private setupHoraAvailabilityValidation(): void {
+    const horaControl = this.form.get('hora');
+    if (!horaControl) return;
+
+    horaControl.valueChanges
+      .pipe(
+        debounceTime(300),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((hora: string) => {
+        const profesionalId = this.form.get('profesionalId')?.value;
+
+        // Si falta profesional, fecha o hora, limpiamos el error y no validamos
+        if (!profesionalId || !this.selectedDate || !hora) {
+          this.availabilityError = null;
+          return;
+        }
+
+        const normalizedHora = this.normalizeTime(hora);
+        if (!normalizedHora) {
+          this.availabilityError = 'Formato de hora inválido. Use HH:mm.';
+          return;
+        }
+
+        this.isCheckingAvailability = true;
+        this.availabilityError = null;
+
+        this.appointmentsService.checkAvailability(profesionalId, this.selectedDate, normalizedHora)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: (isAvailable) => {
+              this.isCheckingAvailability = false;
+              if (!isAvailable) {
+                this.availabilityError = 'Este horario ya está ocupado. Por favor, seleccione otro horario.';
+              } else {
+                this.availabilityError = null;
+              }
+            },
+            error: (err) => {
+              this.isCheckingAvailability = false;
+              console.warn('Error verificando disponibilidad (cambio de hora):', err);
+              // No bloqueamos al usuario por un error de red puntual
+              this.availabilityError = null;
+            }
+          });
+      });
+  }
+
   onSubmit(): void {
+    // Normalizar espacios en los campos requeridos de datos personales
+    this.trimPersonalData();
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -444,6 +499,36 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
 
     // Si no hay profesional o no se puede verificar, proceder normalmente
     this.submitFormData(raw);
+  }
+
+  /**
+   * Aplica trim() a los campos requeridos de datos personales
+   * para evitar espacios en blanco al inicio/fin
+   */
+  private trimPersonalData(): void {
+    if (!this.form) return;
+
+    const personalRequiredFields = [
+      'nombreApellido',
+      'dni',
+      'telefono',
+      'email',
+      'domicilio',
+      'localidad'
+    ];
+
+    personalRequiredFields.forEach(fieldName => {
+      const control = this.form.get(fieldName);
+      if (!control) return;
+
+      const value = control.value;
+      if (typeof value === 'string') {
+        const trimmed = value.trim();
+        if (trimmed !== value) {
+          control.setValue(trimmed);
+        }
+      }
+    });
   }
 
   /**
@@ -503,11 +588,8 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
 
     this.submitForm.emit({ patientData, appointmentData });
 
-    // Resetear el formulario después de emitir el evento
-    // Esto asegura que el formulario esté limpio para el próximo uso
-    this.clearPatientSelection();
-
-    // console.log( anamnesisData, patientData, appointmentData);
+    // Nota: El formulario se limpia únicamente cuando se cierra el diálogo
+    // (open cambia de true a false o se llama a close()).
   }
 
   formatDisplayDate(dateStr: string | null): string {
