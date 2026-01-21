@@ -6,7 +6,7 @@ const isProduction = window.location.hostname !== 'localhost';
 
 export const API_CONFIG = {
   baseUrl: isProduction 
-  ? 'https://backend-turnos-jg3n.onrender.com' 
+  ? 'https://backend-turnos-jg3n.onrender.com/api' 
   : 'http://localhost:8080/api',
   endpoints: {
     patients: '/patients',
