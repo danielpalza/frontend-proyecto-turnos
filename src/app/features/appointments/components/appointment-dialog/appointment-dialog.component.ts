@@ -5,11 +5,12 @@ import { Subject } from 'rxjs';
 import { takeUntil, debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { Patient, Profesional, AppointmentCreateDTO } from '../../../../core/models';
 import { AppointmentsService } from '../../../../core/services/appointments.service';
+import { PatientFormComponent, getPatientFormConfig } from '../../../../shared';
 
 @Component({
   selector: 'app-appointment-dialog',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, PatientFormComponent],
   templateUrl: './appointment-dialog.component.html',
   styleUrls: ['./appointment-dialog.component.scss']
 })
@@ -26,24 +27,10 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
   form!: FormGroup;
   selectedPatient: Patient | null = null;
   isNewPatient = true;
-  filteredPatients: Patient[] = [];
   showPatientDropdown = false;
   isCheckingAvailability = false;
   availabilityError: string | null = null;
   private destroy$ = new Subject<void>();
-  private searchSubject = new Subject<string>();
-
-  // Obras sociales
-  OBRAS_SOCIALES = [
-    'Particular','OSDEPYM','PAMI','OSPAT','OSPE','OSDE','OSDOP','OSPJN','OSMATA','OSPRERA','OSSEG',
-    'OSDIPP','OSPAP','OSPECON','OSPERYHRA','OSPM','OSPT','OSPRA','OSECAC','UOM Salud','OSEIV','OSMITA',
-    'OSPDH','OSPIF','OSPED','OSPIT','OSPF','OSPTR','UOM','UOCRA Salud','OSCHOCA (Camioneros)','UTEDYC',
-    'OSPEDYC','OSPIM','OSPLAD','SUTEBA','FEB','AMET','OSPSA (Sanidad)','OSPAGA','OSPACP','OSPAC (Aeronavegantes)',
-    'OSPIL','OSFE','OSPIA','OSUOMRA','OSPPRA','OSBA (Bancaria)','OSUTHGRA','Swiss Medical','Medicus','Galeno',
-    'Omint','Sancor Salud','Hominis','Avalian','Prevención Salud','Hospital Italiano Plan de Salud','Accord Salud',
-    'Medifé','Boreal Salud','ACA Salud','AMEBPBA','Staff Médico','IOMA','OSEP','IPROSS','ISSN','IOSCOR','APROSS',
-    'ISJ','SEROS','DOSEP','OSPTDF','OSEPJ','IAPOS','ISSSyP','IPS Misiones','IPS Salta'
-  ];
 
   constructor(
     private fb: FormBuilder, 
@@ -53,15 +40,10 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
 
   ngOnInit(): void {
     this.initForm();
-    this.setupSearchDebounce();
     this.setupHoraAvailabilityValidation();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['existingPatients']) {
-      this.filteredPatients = this.existingPatients;
-    }
-    
     // Detectar cuando el diálogo se cierra para limpiar el formulario
     // Esto asegura que el formulario se limpie incluso cuando se cierra desde el componente padre
     if (changes['open'] && !changes['open'].currentValue && changes['open'].previousValue) {
@@ -72,37 +54,9 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
 
   private initForm(): void {
     this.form = this.fb.group({
-      // Datos Personales del Paciente
-      nombreApellido: ['', Validators.required],
-      fechaNacimiento: [''],
-      edad: [{ value: '', disabled: true }],
-      dni: ['', Validators.required],
-      telefono: ['', [Validators.required, Validators.pattern(/^[0-9]{10,15}$/)]],
-      email: ['', [Validators.required, Validators.email]],
-      domicilio: ['', Validators.required],
-      localidad: ['', Validators.required],
-      contactoEmergencia: [''],
-      // Antecedentes médicos
-      enfermedades: [''],
-      alergias: [''],
-      medicacion: [''],
-      cirugias: [''],
-      embarazo: [''],
-      marcapasos: [''],
-      consumos: [''],
-      // Cobertura
-      obraSocialNombre: ['', Validators.required],
-      planCategoria: [''],
-      obraSocialNumero: [''],
-      obraSocialVencimiento: [''],
-      esTitular: ['si'],
-      nombreTitular: [''],
-      dniTitular: [''],
-      parentesco: [''],
-      // Turno
+      ...getPatientFormConfig(this.fb),
       profesionalId: [''],
       hora: ['09:00'],
-      // Pago
       observacionesTurno: [''],
       precioBono: [null],
       precioTratamiento: [null],
@@ -110,142 +64,6 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
       montoPago: [null],
       observaciones: ['']
     });
-
-    // Calcular edad a partir de fechaNacimiento con validaciones
-    this.form.get('fechaNacimiento')?.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((val: string) => {
-        if (val) {
-          const birthDate = new Date(val);
-          const today = new Date();
-          
-          // Validar que la fecha no sea inválida
-          if (isNaN(birthDate.getTime())) {
-            this.form.get('edad')?.setValue('', { emitEvent: false });
-            return;
-          }
-          
-          // Validar que la fecha no sea futura
-          if (birthDate > today) {
-            this.form.get('edad')?.setValue('', { emitEvent: false });
-            return;
-          }
-          
-          // Validar que la fecha no sea muy antigua (más de 150 años)
-          const maxAge = 150;
-          const minYear = today.getFullYear() - maxAge;
-          if (birthDate.getFullYear() < minYear) {
-            this.form.get('edad')?.setValue('', { emitEvent: false });
-            return;
-          }
-          
-          // Calcular edad correctamente
-          let age = today.getFullYear() - birthDate.getFullYear();
-          const monthDiff = today.getMonth() - birthDate.getMonth();
-          if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-            age--;
-          }
-          
-          this.form.get('edad')?.setValue(age.toString(), { emitEvent: false });
-        } else {
-          this.form.get('edad')?.setValue('', { emitEvent: false });
-        }
-      });
-
-    // Validaciones condicionales para titular
-    this.form.get('esTitular')?.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((val: string) => {
-      const nombreTitular = this.form.get('nombreTitular')!;
-      const dniTitular = this.form.get('dniTitular')!;
-      const parentesco = this.form.get('parentesco')!;
-
-      if (val === 'no') {
-        nombreTitular.setValidators([Validators.required]);
-        dniTitular.setValidators([Validators.required]);
-        parentesco.setValidators([Validators.required]);
-      } else {
-        nombreTitular.clearValidators();
-        dniTitular.clearValidators();
-        parentesco.clearValidators();
-      }
-      nombreTitular.updateValueAndValidity();
-      dniTitular.updateValueAndValidity();
-      parentesco.updateValueAndValidity();
-    });
-  }
-
-  /**
-   * Buscar pacientes mientras escribe (con debounce para mejor performance)
-   */
-  onSearchPatient(event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    this.searchSubject.next(value);
-    this.isNewPatient = true;
-  }
-
-  /**
-   * Configurar debounce para búsqueda de pacientes
-   */
-  private setupSearchDebounce(): void {
-    this.searchSubject.pipe(
-      debounceTime(300), // Esperar 300ms después de la última tecla
-      distinctUntilChanged(), // Solo filtrar si el valor cambió
-      takeUntil(this.destroy$)
-    ).subscribe(searchValue => {
-      const value = searchValue.toLowerCase();
-      if (value.length >= 2) {
-        this.filteredPatients = this.existingPatients.filter(p =>
-          p.nombreApellido.toLowerCase().includes(value) ||
-          p.dni.includes(value) ||
-          (p.email && p.email.toLowerCase().includes(value))
-        );
-        this.showPatientDropdown = true;
-      } else {
-        this.filteredPatients = [];
-        this.showPatientDropdown = false;
-      }
-    });
-  }
-  /**
-   * Mostrar todos los pacientes al enfocar el input si está vacío
-   */
-  onSearchPatientFocus(event: FocusEvent): void {
-    const value = (event.target as HTMLInputElement).value.trim();
-    if (!value) {
-      this.filteredPatients = this.existingPatients;
-      this.showPatientDropdown = this.filteredPatients.length > 0;
-      this.isNewPatient = true;
-      this.selectedPatient = null;
-    }
-  }
-
-  /**
-   * Cerrar el listado cuando el input pierde el foco
-   * (usamos mousedown en lugar de click, por lo que no necesitamos delay largo)
-   */
-  onSearchPatientBlur(): void {
-    // Usar un pequeño delay mínimo solo para asegurar que el mousedown se procese primero
-    // mousedown se dispara antes de blur, por lo que el delay es mucho más corto y robusto
-    setTimeout(() => {
-      this.showPatientDropdown = false;
-    }, 10);
-  }
-
-  /**
-   * Cerrar el listado si se hace click fuera del contenedor de búsqueda
-   */
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    const target = event.target as HTMLElement | null;
-    if (!target) return;
-
-    const searchContainer: HTMLElement | null =
-      this.elRef.nativeElement.querySelector('.patient-search-container');
-
-    if (searchContainer && !searchContainer.contains(target)) {
-      this.showPatientDropdown = false;
-    }
   }
 
   /**

@@ -1,0 +1,302 @@
+@if (showSearch) {
+  <section class="mb-4">
+    <h6 class="mb-3 text-primary">
+      <i class="bi bi-search me-2"></i>Buscar Paciente Existente
+    </h6>
+    <div class="position-relative patient-search-container">
+      <app-search-input
+        [patients]="existingPatients"
+        [profesionales]="[]"
+        [searchType]="'patient'"
+        [showTypeSelector]="false"
+        [showIcon]="true"
+        [placeholder]="'Buscar por nombre, DNI o email...'"
+        [selectedValue]="selectedPatient?.nombreApellido || ''"
+        [debounceTime]="300"
+        (select)="onPatientSearchSelect($event)"
+        (clear)="onClearPatient()"
+      />
+    </div>
+    @if (selectedPatient) {
+      <div class="alert alert-success mt-2 py-2">
+        <i class="bi bi-check-circle me-2"></i>Paciente seleccionado:
+        <strong>{{ selectedPatient.nombreApellido }}</strong>
+      </div>
+    }
+    @if (!selectedPatient) {
+      <div class="alert alert-info mt-2 py-2">
+        <i class="bi bi-info-circle me-2"></i>Se creará un nuevo paciente si no se selecciona uno existente
+      </div>
+    }
+  </section>
+}
+
+<!-- Datos Personales -->
+<section class="mb-4">
+  <h6 class="mb-3 text-primary"><i class="bi bi-person me-2"></i>Datos Personales</h6>
+  <div class="row g-3" [formGroup]="form">
+    <div class="col-12 col-md-6">
+      <label class="form-label">Nombre y Apellido *</label>
+      <input class="form-control" type="text" formControlName="nombreApellido" />
+    </div>
+    <div class="col-12 col-sm-6 col-md-3">
+      <label class="form-label">Fecha de Nacimiento</label>
+      <input class="form-control" type="date" formControlName="fechaNacimiento" />
+    </div>
+    <div class="col-12 col-sm-6 col-md-3">
+      <label class="form-label">Edad</label>
+      <input class="form-control bg-light" type="number" formControlName="edad" readonly />
+    </div>
+    <div class="col-12 col-md-4">
+      <label class="form-label">DNI *</label>
+      <input class="form-control" type="text" formControlName="dni" />
+    </div>
+    <div class="col-12 col-md-4">
+      <label class="form-label">Teléfono *</label>
+      <input
+        class="form-control"
+        type="tel"
+        formControlName="telefono"
+        [class.is-invalid]="form.get('telefono')?.invalid && form.get('telefono')?.touched"
+      />
+      @if (form.get('telefono')?.invalid && form.get('telefono')?.touched) {
+        <div class="invalid-feedback d-block">
+          @if (form.get('telefono')?.hasError('required')) {
+            <div>El teléfono es obligatorio</div>
+          }
+          @if (form.get('telefono')?.hasError('pattern')) {
+            <div>El teléfono debe tener entre 10 y 15 dígitos numéricos</div>
+          }
+        </div>
+      }
+    </div>
+    <div class="col-12 col-md-4">
+      <label class="form-label">Email *</label>
+      <input
+        class="form-control"
+        type="email"
+        formControlName="email"
+        [class.is-invalid]="form.get('email')?.invalid && form.get('email')?.touched"
+      />
+      @if (form.get('email')?.invalid && form.get('email')?.touched) {
+        <div class="invalid-feedback d-block">
+          @if (form.get('email')?.hasError('required')) {
+            <div>El email es obligatorio</div>
+          }
+          @if (form.get('email')?.hasError('email')) {
+            <div>Por favor ingrese un email válido</div>
+          }
+        </div>
+      }
+    </div>
+    <div class="col-12 col-md-6">
+      <label class="form-label">Domicilio *</label>
+      <input class="form-control" type="text" formControlName="domicilio" />
+    </div>
+    <div class="col-12 col-md-6">
+      <label class="form-label">Localidad *</label>
+      <input class="form-control" type="text" formControlName="localidad" />
+    </div>
+    <div class="col-12 col-md-6">
+      <label class="form-label">Contacto de Emergencia</label>
+      <input class="form-control" type="text" formControlName="contactoEmergencia" />
+    </div>
+  </div>
+</section>
+
+<!-- Antecedentes médicos -->
+<section class="mb-4">
+  <h6 class="mb-3 text-primary"><i class="bi bi-person me-2"></i>Antecedentes médicos</h6>
+  <div class="row g-3" [formGroup]="form">
+    <div class="col-12 col-md-6">
+      <label class="form-label">Enfermedades</label>
+      <input class="form-control" type="text" formControlName="enfermedades" />
+    </div>
+    <div class="col-12 col-md-6">
+      <label class="form-label">Alergias</label>
+      <input class="form-control" type="text" formControlName="alergias" />
+    </div>
+    <div class="col-12 col-md-6">
+      <label class="form-label">Medicación actual o previa</label>
+      <input class="form-control" type="text" formControlName="medicacion" />
+    </div>
+    <div class="col-12 col-md-6">
+      <label class="form-label">Cirugías/tratamientos/trastornos</label>
+      <input class="form-control" type="text" formControlName="cirugias" />
+    </div>
+    <div class="col-12 col-md-6">
+      <label class="form-label">Embarazo o lactancia</label>
+      <input class="form-control" type="text" formControlName="embarazo" />
+    </div>
+    <div class="col-12 col-md-6">
+      <label class="form-label">Marcapasos/prótesis</label>
+      <input class="form-control" type="text" formControlName="marcapasos" />
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Consumos (tabaco, alcohol, drogas)</label>
+      <input class="form-control" type="text" formControlName="consumos" />
+    </div>
+  </div>
+</section>
+
+<!-- Obra social -->
+<section class="mb-4">
+  <h6 class="mb-3 text-primary"><i class="bi bi-shield-check me-2"></i>Cobertura</h6>
+  <div class="row g-3" [formGroup]="form">
+    <div class="col-12 col-md-6 col-lg-4">
+      <label class="form-label">Obra Social *</label>
+      <select class="form-select" formControlName="obraSocialNombre">
+        <option value="">Seleccione...</option>
+        @for (os of OBRAS_SOCIALES; track os) {
+          <option [value]="os">{{ os }}</option>
+        }
+      </select>
+    </div>
+    @if (form.get('obraSocialNombre')?.value !== 'Particular') {
+      <div class="col-12 col-md-6 col-lg-4">
+        <label class="form-label">Plan / Categoría</label>
+        <input class="form-control" type="text" formControlName="planCategoria" />
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <label class="form-label">Número de Afiliado</label>
+        <input class="form-control" type="text" formControlName="obraSocialNumero" />
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <label class="form-label">Fecha de Vencimiento</label>
+        <input class="form-control" type="date" formControlName="obraSocialVencimiento" />
+      </div>
+      <div class="col-12 col-md-6 col-lg-3">
+        <label class="form-label">¿Es titular?</label>
+        <select class="form-select" formControlName="esTitular">
+          <option value="si">Sí</option>
+          <option value="no">No</option>
+        </select>
+      </div>
+      @if (form.get('esTitular')?.value === 'no') {
+        <div class="col-12 col-md-6 col-lg-3">
+          <label class="form-label">Nombre del Titular</label>
+          <input class="form-control" type="text" formControlName="nombreTitular" />
+        </div>
+        <div class="col-12 col-md-6 col-lg-3">
+          <label class="form-label">DNI del Titular</label>
+          <input class="form-control" type="text" formControlName="dniTitular" />
+        </div>
+        <div class="col-12 col-md-6 col-lg-3">
+          <label class="form-label">Parentesco</label>
+          <select class="form-select" formControlName="parentesco">
+            <option value="">Seleccione...</option>
+            <option value="padre">Padre</option>
+            <option value="madre">Madre</option>
+            <option value="conyuge">Cónyuge</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+      }
+    }
+  </div>
+</section>
+
+@if (showAppointmentDetails) {
+  <!-- Datos del Turno -->
+  <section class="mb-4">
+    <h6 class="mb-3 text-primary">
+      <i class="bi bi-calendar-event me-2"></i>Datos del Turno
+    </h6>
+    <div class="row g-3" [formGroup]="form">
+      <div class="col-12 col-md-6">
+        <label class="form-label">Profesional</label>
+        <select
+          class="form-select"
+          formControlName="profesionalId"
+          [disabled]="profesionales.length === 0"
+        >
+          <option value="">Sin asignar</option>
+          @if (profesionales.length === 0) {
+            <option value="" disabled>No hay profesionales disponibles</option>
+          } @else {
+            @for (prof of profesionales; track prof.id) {
+              <option [value]="prof.id">{{ prof.nombre }}</option>
+            }
+          }
+        </select>
+      </div>
+      <div class="col-12 col-md-6">
+        <label class="form-label">Hora del Turno</label>
+        <input
+          class="form-control"
+          type="time"
+          formControlName="hora"
+          [class.is-invalid]="availabilityError !== null"
+        />
+        @if (isCheckingAvailability) {
+          <div class="form-text text-info">
+            <i class="bi bi-hourglass-split me-1"></i>Verificando disponibilidad...
+          </div>
+        }
+        @if (availabilityError && isCheckingAvailability === false) {
+          <div class="invalid-feedback d-block">
+            <i class="bi bi-exclamation-triangle me-1"></i>{{ availabilityError }}
+          </div>
+        }
+      </div>
+      <div class="col-12">
+        <label class="form-label">Observaciones del turno</label>
+        <textarea
+          class="form-control"
+          rows="2"
+          formControlName="observacionesTurno"
+          placeholder="Motivo de la consulta, indicaciones especiales, etc."
+        ></textarea>
+      </div>
+    </div>
+  </section>
+}
+
+@if (showPaymentDetails) {
+  <!-- Detalles de Pago -->
+  <section class="mb-4">
+    <h6 class="mb-3 text-primary">
+      <i class="bi bi-cash-coin me-2"></i>Detalles de Pago
+    </h6>
+    <div class="row g-3" [formGroup]="form">
+      <div class="col-12 col-sm-6 col-md-3">
+        <label class="form-label">Precio de Bono</label>
+        <input class="form-control" type="number" formControlName="precioBono" step="0.01" />
+      </div>
+      <div class="col-12 col-sm-6 col-md-3">
+        <label class="form-label">Precio Tratamiento</label>
+        <input
+          class="form-control"
+          type="number"
+          formControlName="precioTratamiento"
+          step="0.01"
+        />
+      </div>
+      <div class="col-12 col-sm-6 col-md-3">
+        <label class="form-label">Extras</label>
+        <input class="form-control" type="number" formControlName="extras" step="0.01" />
+      </div>
+      <div class="col-12 col-sm-6 col-md-3">
+        <label class="form-label">Monto Pagado</label>
+        <input class="form-control" type="number" formControlName="montoPago" step="0.01" />
+      </div>
+      <div class="col-12">
+        <div class="p-3 bg-light rounded border">
+          <div class="d-flex justify-content-between">
+            <span>Resto a Pagar:</span>
+            <strong
+              [class.text-danger]="calcularResto() > 0"
+              [class.text-success]="calcularResto() <= 0"
+            >
+              $ {{ calcularResto() }}
+            </strong>
+          </div>
+        </div>
+      </div>
+      <div class="col-12">
+        <label class="form-label">Observaciones de pago</label>
+        <textarea class="form-control" rows="2" formControlName="observaciones"></textarea>
+      </div>
+    </div>
+  </section>
+}

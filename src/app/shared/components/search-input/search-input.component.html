@@ -1,0 +1,124 @@
+<div class="search-input-wrapper">
+  <div class="d-flex align-items-center gap-3">
+    <!-- Checkbox saldo pendiente (solo si showPendingOnlyFilter es true) -->
+    <div *ngIf="showPendingOnlyFilter" class="form-check">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        id="pendingOnlyFilter"
+        [checked]="pendingOnly"
+        (change)="onPendingOnlyChange($event)"
+      />
+      <label class="form-check-label" for="pendingOnlyFilter">
+        Solo con saldo pendiente
+      </label>
+    </div>
+
+    <!-- Radio buttons para seleccionar tipo de búsqueda (opcional, solo si searchType es 'both') -->
+    <div *ngIf="showTypeSelector && searchType === 'both'" class="d-flex flex-column gap-2">
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="radio"
+          name="searchType"
+          id="searchPatient"
+          value="patient"
+          [(ngModel)]="currentSearchType"
+          (change)="onSearchTypeChange('patient')"
+        />
+        <label class="form-check-label" for="searchPatient">
+          Pacientes
+        </label>
+      </div>
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="radio"
+          name="searchType"
+          id="searchProfesional"
+          value="profesional"
+          [(ngModel)]="currentSearchType"
+          (change)="onSearchTypeChange('profesional')"
+        />
+        <label class="form-check-label" for="searchProfesional">
+          Profesionales
+        </label>
+      </div>
+    </div>
+
+    <!-- Input de búsqueda -->
+    <div class="position-relative search-input-container flex-grow-1">
+      <div [class]="showIcon ? 'input-group' : ''">
+        <span *ngIf="showIcon" class="input-group-text"><i class="bi bi-person"></i></span>
+        <input
+          type="text"
+          class="form-control"
+          [style.padding-right]="searchTerm && !showIcon ? '2.5rem' : ''"
+          [placeholder]="placeholder"
+          (input)="onInput($event)"
+          (focus)="onFocus($event)"
+          (blur)="onBlur()"
+          [value]="searchTerm"
+        />
+        <button
+          *ngIf="searchTerm && !showIcon"
+          type="button"
+          class="btn btn-sm position-absolute"
+          style="right: 0.25rem; top: 50%; transform: translateY(-50%); border: none; background: transparent; padding: 0.25rem 0.5rem; z-index: 10;"
+          (mousedown)="onClear(); $event.preventDefault()"
+          (click)="onClear()"
+        >
+          <i class="bi bi-x-lg text-muted"></i>
+        </button>
+        <button
+          *ngIf="searchTerm && showIcon"
+          type="button"
+          class="btn btn-outline-secondary"
+          (mousedown)="onClear(); $event.preventDefault()"
+          (click)="onClear()"
+        >
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <!-- Dropdown con resultados -->
+      <div
+        class="position-absolute w-100 bg-white border rounded shadow-sm mt-1"
+        style="z-index: 1000; max-height: 200px; overflow-y: auto"
+        *ngIf="showDropdown && getFilteredResults().length > 0"
+      >
+        <!-- Pacientes -->
+        <ng-container *ngIf="filteredPatients.length > 0">
+          <div
+            class="p-2 border-bottom"
+            style="cursor: pointer"
+            *ngFor="let patient of filteredPatients"
+            (mousedown)="onItemSelect({ type: 'patient', item: patient }); $event.preventDefault()"
+            (click)="onItemSelect({ type: 'patient', item: patient })"
+          >
+            <div class="fw-semibold">{{ patient.nombreApellido }}</div>
+            <small class="text-muted">
+              DNI: {{ patient.dni }}<span *ngIf="patient.email"> | {{ patient.email }}</span>
+            </small>
+          </div>
+        </ng-container>
+
+        <!-- Profesionales -->
+        <ng-container *ngIf="filteredProfesionales.length > 0">
+          <div
+            class="p-2 border-bottom"
+            style="cursor: pointer"
+            *ngFor="let prof of filteredProfesionales"
+            (mousedown)="onItemSelect({ type: 'profesional', item: prof }); $event.preventDefault()"
+            (click)="onItemSelect({ type: 'profesional', item: prof })"
+          >
+            <div class="fw-semibold">{{ prof.nombre }}</div>
+            <small class="text-muted" *ngIf="prof.especialidad">
+              {{ prof.especialidad }}
+            </small>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div>

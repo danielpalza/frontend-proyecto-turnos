@@ -313,6 +313,22 @@ $sidebar-bg: #f8fafc;
   white-space: nowrap;
 }
 
+.payment-total-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: $text-primary;
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+
+  input[type="checkbox"] {
+    cursor: pointer;
+  }
+}
+
 .payment-input {
   flex: 1;
   padding: 6px 12px;

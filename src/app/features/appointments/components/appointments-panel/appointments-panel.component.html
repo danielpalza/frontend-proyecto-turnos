@@ -51,60 +51,39 @@
         <div class="turn-card" *ngFor="let a of displayAppointments">
           <div class="turn-header" (click)="toggleCard(a.id!, $event)">
             <div class="patient-info">
-              <i class="bi bi-person-fill text-primary"></i>
-              <strong>{{ a.patientName }} - {{ a.profesionalName }}</strong>
+              <i class="bi bi-person-fill" [ngClass]="hasPendingDebt(a) ? 'text-danger' : 'text-primary'"></i>
+              <strong lass="fw-bold" [ngClass]="hasPendingDebt(a) ? 'text-danger' : 'text-primary'">{{ a.patientName }}
+                - {{ a.profesionalName }}</strong>
               <span class="hora-edit-container">
                 <span *ngIf="!isEditingHora(a.id!)">
                   <strong class="fw-bold text-primary" *ngIf="a.hora">{{ formatTime(a.hora) }}</strong>
                   <span class="text-muted small" *ngIf="!a.hora">Sin hora</span>
                 </span>
                 <span *ngIf="isEditingHora(a.id!)" class="d-inline-flex align-items-center gap-1">
-                  <input
-                    type="time"
-                    class="hora-edit-input"
-                    [value]="getHoraInput(a.id!)"
+                  <input type="time" class="hora-edit-input" [value]="getHoraInput(a.id!)"
                     (input)="updateHoraInput(a.id!, $any($event.target).value)"
                     (keyup.escape)="cancelHoraEdit(a.id!); $event.stopPropagation()"
-                    (click)="$event.stopPropagation()"
-                  />
-                  <button
-                    type="button"
-                    class="btn-save-price"
-                    (click)="saveHora(a.id!); $event.stopPropagation()"
-                    title="Guardar"
-                  >
+                    (click)="$event.stopPropagation()" />
+                  <button type="button" class="btn-save-price" (click)="saveHora(a.id!); $event.stopPropagation()"
+                    title="Guardar">
                     <i class="bi bi-check-lg"></i>
                   </button>
-                  <button
-                    type="button"
-                    class="btn-cancel-price"
-                    (click)="cancelHoraEdit(a.id!); $event.stopPropagation()"
-                    title="Cancelar"
-                  >
+                  <button type="button" class="btn-cancel-price"
+                    (click)="cancelHoraEdit(a.id!); $event.stopPropagation()" title="Cancelar">
                     <i class="bi bi-x-lg"></i>
                   </button>
                 </span>
-                <i
-                  class="bi bi-pencil text-primary ms-1 price-edit-icon"
-                  (click)="startEditingHora(a.id!, a.hora); $event.stopPropagation()"
-                  *ngIf="!isEditingHora(a.id!)"
-                  title="Editar hora"
-                ></i>
+                <i class="bi bi-pencil text-primary ms-1 price-edit-icon"
+                  (click)="startEditingHora(a.id!, a.hora); $event.stopPropagation()" *ngIf="!isEditingHora(a.id!)"
+                  title="Editar hora"></i>
               </span>
             </div>
             <div class="d-flex align-items-center gap-2">
               <span class="badge" [ngClass]="getStatusBadgeClass(a.estado)">
                 {{ getStatusLabel(a.estado) }}
               </span>
-              <i
-                class="bi expand-icon"
-                [ngClass]="isCardExpanded(a.id!) ? 'bi-chevron-up' : 'bi-chevron-down'"
-              ></i>
-              <button
-                type="button"
-                class="btn-delete"
-                (click)="delete.emit(a.id); $event.stopPropagation()"
-              >
+              <i class="bi expand-icon" [ngClass]="isCardExpanded(a.id!) ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+              <button type="button" class="btn-delete" (click)="delete.emit(a.id); $event.stopPropagation()">
                 <i class="bi bi-trash"></i>
               </button>
             </div>
@@ -125,137 +104,77 @@
             <div class="detail-divider"></div>
 
             <!-- Montos -->
-            <div
-              class="payment-info"
-              *ngIf="a.precioBono || a.precioTratamiento || a.extras || a.montoPago"
-            >
+            <div class="payment-info">
               <i class="bi bi-cash-coin text-secondary"></i>
               <div class="flex-grow-1">
                 <b>
                   <small class="text-muted">Pago </small>
-                  <small
-                    class="text-muted-payment"
-                    [ngClass]="getPaymentColorClass(a.totalPrecio)"
-                    >({{ a.totalPrecio || 0 }})</small
-                  >
+                  <small class="text-muted-payment" [ngClass]="getPaymentColorClass(a.totalPrecio)">({{ a.totalPrecio ||
+                    0 }})</small>
                 </b>
                 <div class="d-flex gap-3 align-items-center flex-wrap">
                   <span class="price-edit-container">
-                    Bono: 
+                    Bono:
                     <span *ngIf="!isEditingPrice(a.id!, 'bono')">${{ a.precioBono || 0 }}</span>
                     <span *ngIf="isEditingPrice(a.id!, 'bono')" class="d-inline-flex align-items-center gap-1">
-                      <input
-                        type="number"
-                        class="price-edit-input"
-                        [value]="getPriceInput(a.id!, 'bono')"
+                      <input type="number" class="price-edit-input" [value]="getPriceInput(a.id!, 'bono')"
                         (input)="updatePriceInput(a.id!, 'bono', +$any($event.target).value)"
-                        (keyup.escape)="cancelPriceEdit(a.id!, 'bono'); $event.stopPropagation()"
-                        placeholder="0"
-                        min="0"
-                        step="0.01"
-                        (click)="$event.stopPropagation()"
-                      />
-                      <button
-                        type="button"
-                        class="btn-save-price"
-                        (click)="savePrice(a.id!, 'bono'); $event.stopPropagation()"
-                        title="Guardar"
-                      >
+                        (keyup.escape)="cancelPriceEdit(a.id!, 'bono'); $event.stopPropagation()" placeholder="0"
+                        min="0" step="0.01" (click)="$event.stopPropagation()" />
+                      <button type="button" class="btn-save-price"
+                        (click)="savePrice(a.id!, 'bono'); $event.stopPropagation()" title="Guardar">
                         <i class="bi bi-check-lg"></i>
                       </button>
-                      <button
-                        type="button"
-                        class="btn-cancel-price"
-                        (click)="cancelPriceEdit(a.id!, 'bono'); $event.stopPropagation()"
-                        title="Cancelar"
-                      >
+                      <button type="button" class="btn-cancel-price"
+                        (click)="cancelPriceEdit(a.id!, 'bono'); $event.stopPropagation()" title="Cancelar">
                         <i class="bi bi-x-lg"></i>
                       </button>
                     </span>
-                    <i
-                      class="bi bi-pencil text-primary ms-1 price-edit-icon"
+                    <i class="bi bi-pencil text-primary ms-1 price-edit-icon"
                       (click)="startEditingPrice(a.id!, 'bono', a.precioBono); $event.stopPropagation()"
-                      *ngIf="!isEditingPrice(a.id!, 'bono')"
-                      title="Editar bono"
-                    ></i>
+                      *ngIf="!isEditingPrice(a.id!, 'bono')" title="Editar bono"></i>
                   </span>
                   <span class="price-edit-container">
-                    Trat: 
+                    Trat:
                     <span *ngIf="!isEditingPrice(a.id!, 'tratamiento')">${{ a.precioTratamiento || 0 }}</span>
                     <span *ngIf="isEditingPrice(a.id!, 'tratamiento')" class="d-inline-flex align-items-center gap-1">
-                      <input
-                        type="number"
-                        class="price-edit-input"
-                        [value]="getPriceInput(a.id!, 'tratamiento')"
+                      <input type="number" class="price-edit-input" [value]="getPriceInput(a.id!, 'tratamiento')"
                         (input)="updatePriceInput(a.id!, 'tratamiento', +$any($event.target).value)"
-                        (keyup.escape)="cancelPriceEdit(a.id!, 'tratamiento'); $event.stopPropagation()"
-                        placeholder="0"
-                        min="0"
-                        step="0.01"
-                        (click)="$event.stopPropagation()"
-                      />
-                      <button
-                        type="button"
-                        class="btn-save-price"
-                        (click)="savePrice(a.id!, 'tratamiento'); $event.stopPropagation()"
-                        title="Guardar"
-                      >
+                        (keyup.escape)="cancelPriceEdit(a.id!, 'tratamiento'); $event.stopPropagation()" placeholder="0"
+                        min="0" step="0.01" (click)="$event.stopPropagation()" />
+                      <button type="button" class="btn-save-price"
+                        (click)="savePrice(a.id!, 'tratamiento'); $event.stopPropagation()" title="Guardar">
                         <i class="bi bi-check-lg"></i>
                       </button>
-                      <button
-                        type="button"
-                        class="btn-cancel-price"
-                        (click)="cancelPriceEdit(a.id!, 'tratamiento'); $event.stopPropagation()"
-                        title="Cancelar"
-                      >
+                      <button type="button" class="btn-cancel-price"
+                        (click)="cancelPriceEdit(a.id!, 'tratamiento'); $event.stopPropagation()" title="Cancelar">
                         <i class="bi bi-x-lg"></i>
                       </button>
                     </span>
-                    <i
-                      class="bi bi-pencil text-primary ms-1 price-edit-icon"
+                    <i class="bi bi-pencil text-primary ms-1 price-edit-icon"
                       (click)="startEditingPrice(a.id!, 'tratamiento', a.precioTratamiento); $event.stopPropagation()"
-                      *ngIf="!isEditingPrice(a.id!, 'tratamiento')"
-                      title="Editar tratamiento"
-                    ></i>
+                      *ngIf="!isEditingPrice(a.id!, 'tratamiento')" title="Editar tratamiento"></i>
                   </span>
                   <span class="price-edit-container">
-                    Ext: 
+                    Ext:
                     <span *ngIf="!isEditingPrice(a.id!, 'extras')">${{ a.extras || 0 }}</span>
                     <span *ngIf="isEditingPrice(a.id!, 'extras')" class="d-inline-flex align-items-center gap-1">
-                      <input
-                        type="number"
-                        class="price-edit-input"
-                        [value]="getPriceInput(a.id!, 'extras')"
+                      <input type="number" class="price-edit-input" [value]="getPriceInput(a.id!, 'extras')"
                         (input)="updatePriceInput(a.id!, 'extras', +$any($event.target).value)"
-                        (keyup.escape)="cancelPriceEdit(a.id!, 'extras'); $event.stopPropagation()"
-                        placeholder="0"
-                        min="0"
-                        step="0.01"
-                        (click)="$event.stopPropagation()"
-                      />
-                      <button
-                        type="button"
-                        class="btn-save-price"
-                        (click)="savePrice(a.id!, 'extras'); $event.stopPropagation()"
-                        title="Guardar"
-                      >
+                        (keyup.escape)="cancelPriceEdit(a.id!, 'extras'); $event.stopPropagation()" placeholder="0"
+                        min="0" step="0.01" (click)="$event.stopPropagation()" />
+                      <button type="button" class="btn-save-price"
+                        (click)="savePrice(a.id!, 'extras'); $event.stopPropagation()" title="Guardar">
                         <i class="bi bi-check-lg"></i>
                       </button>
-                      <button
-                        type="button"
-                        class="btn-cancel-price"
-                        (click)="cancelPriceEdit(a.id!, 'extras'); $event.stopPropagation()"
-                        title="Cancelar"
-                      >
+                      <button type="button" class="btn-cancel-price"
+                        (click)="cancelPriceEdit(a.id!, 'extras'); $event.stopPropagation()" title="Cancelar">
                         <i class="bi bi-x-lg"></i>
                       </button>
                     </span>
-                    <i
-                      class="bi bi-pencil text-primary ms-1 price-edit-icon"
+                    <i class="bi bi-pencil text-primary ms-1 price-edit-icon"
                       (click)="startEditingPrice(a.id!, 'extras', a.extras); $event.stopPropagation()"
-                      *ngIf="!isEditingPrice(a.id!, 'extras')"
-                      title="Editar extras"
-                    ></i>
+                      *ngIf="!isEditingPrice(a.id!, 'extras')" title="Editar extras"></i>
                   </span>
                 </div>
               </div>
@@ -264,65 +183,45 @@
             <!-- Editar Pago -->
             <div class="add-payment-section">
               <label class="payment-label">Pago:</label>
-              <input
-                type="number"
-                class="payment-input"
-                [value]="getPaymentInput(a.id!)"
-                (input)="updatePaymentInput(a.id!, +$any($event.target).value)"
-                placeholder="0"
-                min="0.01"
-                step="0.01"
-              />
-              <button
-                type="button"
-                class="btn-add-payment"
-                (click)="onAddPayment(a.id!); $event.stopPropagation()"
-              >
+              <input type="number" class="payment-input" [value]="getPaymentInput(a.id!)"
+                (input)="updatePaymentInput(a.id!, +$any($event.target).value)" placeholder="0" min="0.01"
+                step="0.01" />
+              <button type="button" class="btn-add-payment" (click)="onAddPayment(a.id!); $event.stopPropagation()">
                 Agregar
               </button>
+              <label class="payment-total-checkbox ms-2" (click)="$event.stopPropagation()">
+                <input type="checkbox"
+                  [checked]="getPaymentInput(a.id!) === (a.totalPrecio ?? 0) && (a.totalPrecio ?? 0) > 0"
+                  (change)="$any($event.target).checked ? updatePaymentInput(a.id!, a.totalPrecio ?? 0) : updatePaymentInput(a.id!, 0); $event.stopPropagation()" />
+                Pago total
+              </label>
             </div>
 
             <!-- Observaciones de pago -->
             <div class="observaciones-info">
               <div class="d-flex justify-content-between align-items-start mb-2">
                 <small class="text-muted d-block">Observaciones de pago</small>
-                <i
-                  class="bi bi-pencil text-primary ms-1 price-edit-icon"
+                <i class="bi bi-pencil text-primary ms-1 price-edit-icon"
                   (click)="startEditingObservaciones(a.id!, a.observaciones); $event.stopPropagation()"
-                  *ngIf="!isEditingObservaciones(a.id!)"
-                  title="Editar observaciones"
-                ></i>
+                  *ngIf="!isEditingObservaciones(a.id!)" title="Editar observaciones"></i>
               </div>
               <div *ngIf="!isEditingObservaciones(a.id!)">
                 <span class="small" *ngIf="a.observaciones">{{ a.observaciones }}</span>
                 <span class="small text-muted" *ngIf="!a.observaciones">Sin observaciones</span>
               </div>
               <div *ngIf="isEditingObservaciones(a.id!)" class="d-flex flex-column gap-2">
-                <textarea
-                  class="observaciones-textarea"
-                  [value]="getObservacionesInput(a.id!)"
+                <textarea class="observaciones-textarea" [value]="getObservacionesInput(a.id!)"
                   (input)="updateObservacionesInput(a.id!, $any($event.target).value)"
                   (keyup.escape)="cancelObservacionesEdit(a.id!); $event.stopPropagation()"
-                  placeholder="Ingrese las observaciones..."
-                  rows="3"
-                  (click)="$event.stopPropagation()"
-                ></textarea>
+                  placeholder="Ingrese las observaciones..." rows="3" (click)="$event.stopPropagation()"></textarea>
                 <div class="d-flex gap-2 justify-content-end">
-                  <button
-                    type="button"
-                    class="btn-save-price"
-                    (click)="saveObservaciones(a.id!); $event.stopPropagation()"
-                    title="Guardar"
-                  >
+                  <button type="button" class="btn-save-price"
+                    (click)="saveObservaciones(a.id!); $event.stopPropagation()" title="Guardar">
                     <i class="bi bi-check-lg"></i>
                     <span class="ms-1">Guardar</span>
                   </button>
-                  <button
-                    type="button"
-                    class="btn-cancel-price"
-                    (click)="cancelObservacionesEdit(a.id!); $event.stopPropagation()"
-                    title="Cancelar"
-                  >
+                  <button type="button" class="btn-cancel-price"
+                    (click)="cancelObservacionesEdit(a.id!); $event.stopPropagation()" title="Cancelar">
                     <i class="bi bi-x-lg"></i>
                     <span class="ms-1">Cancelar</span>
                   </button>
@@ -334,43 +233,28 @@
             <div class="observaciones-info mt-3">
               <div class="d-flex justify-content-between align-items-start mb-2">
                 <small class="text-muted d-block">Observaciones del turno</small>
-                <i
-                  class="bi bi-pencil text-primary ms-1 price-edit-icon"
+                <i class="bi bi-pencil text-primary ms-1 price-edit-icon"
                   (click)="startEditingObservacionesTurno(a.id!, a.observacionesTurno); $event.stopPropagation()"
-                  *ngIf="!isEditingObservacionesTurno(a.id!)"
-                  title="Editar observaciones del turno"
-                ></i>
+                  *ngIf="!isEditingObservacionesTurno(a.id!)" title="Editar observaciones del turno"></i>
               </div>
               <div *ngIf="!isEditingObservacionesTurno(a.id!)">
                 <span class="small" *ngIf="a.observacionesTurno">{{ a.observacionesTurno }}</span>
                 <span class="small text-muted" *ngIf="!a.observacionesTurno">Sin observaciones del turno</span>
               </div>
               <div *ngIf="isEditingObservacionesTurno(a.id!)" class="d-flex flex-column gap-2">
-                <textarea
-                  class="observaciones-textarea"
-                  [value]="getObservacionesTurnoInput(a.id!)"
+                <textarea class="observaciones-textarea" [value]="getObservacionesTurnoInput(a.id!)"
                   (input)="updateObservacionesTurnoInput(a.id!, $any($event.target).value)"
                   (keyup.escape)="cancelObservacionesTurnoEdit(a.id!); $event.stopPropagation()"
-                  placeholder="Ingrese las observaciones del turno..."
-                  rows="3"
-                  (click)="$event.stopPropagation()"
-                ></textarea>
+                  placeholder="Ingrese las observaciones del turno..." rows="3"
+                  (click)="$event.stopPropagation()"></textarea>
                 <div class="d-flex gap-2 justify-content-end">
-                  <button
-                    type="button"
-                    class="btn-save-price"
-                    (click)="saveObservacionesTurno(a.id!); $event.stopPropagation()"
-                    title="Guardar"
-                  >
+                  <button type="button" class="btn-save-price"
+                    (click)="saveObservacionesTurno(a.id!); $event.stopPropagation()" title="Guardar">
                     <i class="bi bi-check-lg"></i>
                     <span class="ms-1">Guardar</span>
                   </button>
-                  <button
-                    type="button"
-                    class="btn-cancel-price"
-                    (click)="cancelObservacionesTurnoEdit(a.id!); $event.stopPropagation()"
-                    title="Cancelar"
-                  >
+                  <button type="button" class="btn-cancel-price"
+                    (click)="cancelObservacionesTurnoEdit(a.id!); $event.stopPropagation()" title="Cancelar">
                     <i class="bi bi-x-lg"></i>
                     <span class="ms-1">Cancelar</span>
                   </button>

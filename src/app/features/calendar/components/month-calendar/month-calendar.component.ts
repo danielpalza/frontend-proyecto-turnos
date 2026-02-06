@@ -1,10 +1,13 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Profesional, Patient } from '../../../../core/models';
+import { SearchInputComponent, SearchResult } from '../../../../shared';
 
 @Component({
   selector: 'app-month-calendar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule, SearchInputComponent],
   templateUrl: './month-calendar.component.html',
   styleUrls: ['./month-calendar.component.scss']
 })
@@ -12,9 +15,15 @@ export class MonthCalendarComponent implements OnInit, OnChanges {
   @Input() currentDate: Date = new Date();
   @Input() selectedDate: string | null = null;
   @Input() appointments: any[] = [];
+  @Input() profesionales: Profesional[] = [];
+  @Input() patients: Patient[] = [];
+  @Input() showPendingOnlyFilter: boolean = false;
+  @Input() pendingOnly: boolean = false;
 
   @Output() dateClick = new EventEmitter<string>();
   @Output() monthChange = new EventEmitter<Date>();
+  @Output() filterChange = new EventEmitter<{ type: 'patient' | 'profesional'; term: string }>();
+  @Output() pendingOnlyChange = new EventEmitter<boolean>();
 
   calendarDays: any[] = [];
   
@@ -24,6 +33,10 @@ export class MonthCalendarComponent implements OnInit, OnChanges {
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
   ];
+
+  filterType: 'patient' | 'profesional' = 'patient';
+  filterTerm = '';
+  showProfesionalDropdown = false;
 
   ngOnInit(): void {
     this.generateCalendar();
@@ -124,6 +137,35 @@ export class MonthCalendarComponent implements OnInit, OnChanges {
 
   onDateClick(dateStr: string): void {
     this.dateClick.emit(dateStr);
+  }
+
+  onSearchTypeChange(type: 'patient' | 'profesional'): void {
+    this.filterType = type;
+    this.filterTerm = '';
+    this.filterChange.emit({ type: this.filterType, term: '' });
+  }
+
+  onSearchSelect(result: SearchResult): void {
+    this.filterType = result.type;
+    this.filterTerm = result.type === 'patient' 
+      ? (result.item as Patient).nombreApellido 
+      : (result.item as Profesional).nombre;
+    this.filterChange.emit({ type: this.filterType, term: this.filterTerm });
+  }
+
+  onSearchClear(): void {
+    this.filterTerm = '';
+    this.filterChange.emit({ type: this.filterType, term: '' });
+  }
+
+  onSearchChange(term: string): void {
+    this.filterTerm = term;
+    // Emitir el cambio de filtro con el tipo actual
+    this.filterChange.emit({ type: this.filterType, term });
+  }
+
+  onPendingOnlyChange(checked: boolean): void {
+    this.pendingOnlyChange.emit(checked);
   }
 }
 

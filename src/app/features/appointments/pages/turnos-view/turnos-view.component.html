@@ -4,13 +4,8 @@
   <div class="alert alert-danger alert-dismissible fade show" role="alert">
     <i class="bi bi-exclamation-triangle-fill me-2"></i>
     <strong>Error:</strong> {{ errorMessage }}
-    <button
-      type="button"
-      class="btn-close"
-      data-bs-dismiss="alert"
-      aria-label="Close"
-      (click)="hasError = false; errorMessage = null"
-    ></button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"
+      (click)="hasError = false; errorMessage = null"></button>
   </div>
   }
 
@@ -31,113 +26,40 @@
         [currentDate]="currentDate"
         [selectedDate]="selectedDate"
         [appointments]="appointments"
+        [profesionales]="activeProfesionales"
+        [patients]="existingPatients"
+        [showPendingOnlyFilter]="true"
+        [pendingOnly]="pendingOnlyFilter"
         (dateClick)="onDateClick($event)"
         (monthChange)="onMonthChange($event)"
+        (filterChange)="onFilterChange($event)"
+        (pendingOnlyChange)="onPendingOnlyChange($event)"
       />
     </div>
 
     <!-- Panel de turnos -->
     <div class="panel-section">
-      <app-appointments-panel
-        [date]="selectedDate"
-        [appointments]="selectedDate ? getAppointmentsForDate(selectedDate) : []"
-        (delete)="onDeleteAppointment($event)"
-        (addClick)="onAddAppointmentClick()"
-      />
+      <app-appointments-panel [date]="selectedDate"
+        [appointments]="selectedDate ? getAppointmentsForDate(selectedDate) : []" (delete)="onDeleteAppointment($event)"
+        (addClick)="onAddAppointmentClick()" />
     </div>
   </div>
 
   <!-- Dialogo -->
   @if (selectedDate) {
-  <app-appointment-dialog
-    [open]="isDialogOpen"
-    [selectedDate]="selectedDate"
-    [existingPatients]="existingPatients"
-    [profesionales]="activeProfesionales"
-    [isLoading]="isLoading"
-    (openChange)="onDialogOpenChange($event)"
-    (submitForm)="onCreateAppointment($event)"
-  />
+  <app-appointment-dialog [open]="isDialogOpen" [selectedDate]="selectedDate" [existingPatients]="existingPatients"
+    [profesionales]="activeProfesionales" [isLoading]="isLoading" (openChange)="onDialogOpenChange($event)"
+    (submitForm)="onCreateAppointment($event)" />
   }
 
   <!-- Modal confirmación eliminación -->
-  @if (isDeleteConfirmOpen) {
-  <div class="confirm-modal-backdrop" (click)="closeDeleteConfirm()">
-    <div
-      class="confirm-modal"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="confirmDeleteTitle"
-      (click)="$event.stopPropagation()"
-    >
-      <div class="d-flex align-items-start justify-content-between gap-3">
-        <div>
-          <h5 id="confirmDeleteTitle" class="mb-1">Eliminar turno</h5>
-          <p class="text-muted mb-0">
-            ¿Está seguro de que desea eliminar este turno? Esta acción no se puede deshacer.
-          </p>
-          @if (deleteCandidateSummary) {
-          <div class="mt-2 small">
-            <span class="text-muted">Turno:</span>
-            <strong class="ms-1">{{ deleteCandidateSummary }}</strong>
-          </div>
-          }
-        </div>
-
-        <button
-          type="button"
-          class="btn-close"
-          aria-label="Cerrar"
-          (click)="closeDeleteConfirm()"
-          [disabled]="isDeletingAppointment"
-        ></button>
-      </div>
-
-      <div class="confirm-modal-actions mt-3">
-        <button
-          type="button"
-          class="btn btn-outline-secondary"
-          (click)="closeDeleteConfirm()"
-          [disabled]="isDeletingAppointment"
-        >
-          Cancelar
-        </button>
-
-        <button
-          type="button"
-          class="btn btn-danger"
-          (click)="confirmDeleteAppointment()"
-          [disabled]="isDeletingAppointment"
-        >
-          @if (isDeletingAppointment) {
-          <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-          }
-          Eliminar
-        </button>
-      </div>
-    </div>
-  </div>
-  }
+  <app-confirm-dialog [open]="isDeleteConfirmOpen" title="Eliminar turno"
+    message="¿Está seguro de que desea eliminar este turno? Esta acción no se puede deshacer."
+    [summary]="deleteCandidateSummary" [isLoading]="isDeletingAppointment" confirmText="Eliminar" cancelText="Cancelar"
+    confirmButtonClass="btn-danger" dialogId="confirmDelete" (confirm)="confirmDeleteAppointment()"
+    (cancel)="closeDeleteConfirm()" (openChange)="onDeleteConfirmOpenChange($event)" />
 </div>
 
 <ol>
-  <li>
-    <strong>Seguimiento/Historial del paciente: </strong><br />
-    - Evitar que seguimientos se actualice cuando se llena formulario de nuevo profesional. <br />
-    - Ver odontogramas asociados al turno <br />
-    - Estado del pago de los turnos o modal mostrando seguimiento de pagos <br />
-    - Agregar modal a la funcionalidad de eliminacion/edicion/dar de baja de profesionales avisando que se perderan los turnos asociados a este profesional. <br />
-    - EDITAR DATOS DEL PACIENTE
-  </li>
-  <li>
-    En el calendario mensual de turnos: <br>
-    - Filtrar por profesional <br />
-    - Filtrar por paciente <br />
-    - Filtrar por pagos pendientes<br />
-    - Mostrar profesionales de vacaciones
-  </li>
-  <li>
-    <strong>Luego de relevar todo: </strong><br />
-    - Agregar un checkbox en "detalles de pago" en el formulario de creacion de turno para que se configure el pago total del turno<br>
-  </li>
+  <li>Estilos: Cambiar estilos alertas toast para adaptar a los estilos de la app</li>
 </ol>

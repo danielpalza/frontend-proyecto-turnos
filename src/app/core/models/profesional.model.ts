@@ -10,6 +10,9 @@ export interface Profesional {
   email?: string;
   telefono?: string;
   activo?: boolean;
+  estado?: string;
+  desde?: string;
+  hasta?: string;
 }
 
 export type ProfesionalCreateDTO = Omit<Profesional, 'id'>;

@@ -2,8 +2,27 @@
   <!-- Header -->
   <div class="calendar-header">
     <div class="header-left">
-      <h1 class="title">Sistema de Gestión de Turnos</h1>
-      <p class="subtitle">Seleccione un día para crear un nuevo turno</p>
+      <h1 class="title">On-Check!</h1>
+      <p class="subtitle">Tus turnos al alcance de un click</p>
+    </div>
+
+    <!-- Buscador de pacientes / profesionales -->
+    <div class="header-search">
+      <app-search-input
+        [patients]="patients"
+        [profesionales]="profesionales"
+        [searchType]="'both'"
+        [showTypeSelector]="true"
+        [showPendingOnlyFilter]="showPendingOnlyFilter"
+        [pendingOnly]="pendingOnly"
+        [placeholder]="'Buscar por nombre, DNI o email...'"
+        [selectedValue]="filterTerm"
+        (select)="onSearchSelect($event)"
+        (clear)="onSearchClear()"
+        (searchChange)="onSearchChange($event)"
+        (typeChange)="onSearchTypeChange($event)"
+        (pendingOnlyChange)="onPendingOnlyChange($event)"
+      />
     </div>
     <div class="header-right">
       <button class="btn-today" (click)="goToToday()">Hoy</button>

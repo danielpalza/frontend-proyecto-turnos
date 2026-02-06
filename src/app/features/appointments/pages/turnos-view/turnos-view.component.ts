@@ -5,6 +5,7 @@ import { takeUntil, finalize } from 'rxjs/operators';
 import { MonthCalendarComponent } from '../../../calendar/components/month-calendar/month-calendar.component';
 import { AppointmentsPanelComponent } from '../../components/appointments-panel/appointments-panel.component';
 import { AppointmentDialogComponent } from '../../components/appointment-dialog/appointment-dialog.component';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { AppointmentsService } from '../../../../core/services/appointments.service';
 import { PatientService } from '../../../../core/services/patient.service';
 import { ProfesionalService } from '../../../../core/services/profesional.service';
@@ -20,7 +21,8 @@ import { getTodayAsYYYYMMDD } from '../../../../core/utils/date.utils';
     CommonModule,
     MonthCalendarComponent,
     AppointmentsPanelComponent,
-    AppointmentDialogComponent
+    AppointmentDialogComponent,
+    ConfirmDialogComponent
   ],
   templateUrl: './turnos-view.component.html',
   styleUrls: ['./turnos-view.component.scss']
@@ -42,6 +44,9 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
   deleteCandidateId: number | null = null;
   deleteCandidateSummary: string | null = null;
   
+  // Filtro saldo pendiente (checkbox en búsqueda)
+  pendingOnlyFilter = false;
+
   // Estados de error
   hasError = false;
   errorMessage: string | null = null;
@@ -61,8 +66,8 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // Suscribirse a los turnos (el servicio usa cache, así que el error se maneja en loadAppointments)
-    this.appointmentsService.getAppointments()
+    // Suscribirse a los turnos filtrados (el servicio usa cache + filtro)
+    this.appointmentsService.getFilteredAppointments()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (appointments) => {
@@ -76,7 +81,10 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
           if (err.status !== 404) {
             const message = this.errorHandler.getErrorMessage(err, 'cargar los turnos');
             console.log('Mensaje de error generado:', message);
-            this.notification.showError(message);
+            // Para errores de red, mostrar solo el alert dismissible en la vista (sin toast)
+            if (!this.errorHandler.isNetworkError(err)) {
+              this.notification.showError(message);
+            }
             this.errorMessage = message;
           }
           this.isLoadingAppointments = false;
@@ -96,7 +104,9 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
           // Los errores 404 se manejan completamente desde el backend sin notificaciones
           if (err.status !== 404) {
             const message = this.errorHandler.getErrorMessage(err, 'cargar los pacientes');
-            this.notification.showError(message);
+            if (!this.errorHandler.isNetworkError(err)) {
+              this.notification.showError(message);
+            }
           }
           this.isLoadingPatients = false;
           console.error('Error loading patients:', err);
@@ -115,7 +125,9 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
           // Los errores 404 se manejan completamente desde el backend sin notificaciones
           if (err.status !== 404) {
             const message = this.errorHandler.getErrorMessage(err, 'cargar los profesionales');
-            this.notification.showError(message);
+            if (!this.errorHandler.isNetworkError(err)) {
+              this.notification.showError(message);
+            }
           }
           this.isLoadingProfesionales = false;
           console.error('Error loading profesionales:', err);
@@ -140,6 +152,23 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
 
   onMonthChange(date: Date): void {
     this.currentDate = date;
+  }
+
+  /**
+   * Maneja cambios en el filtro de calendario (paciente / profesional)
+   */
+  onFilterChange(filter: { type: 'patient' | 'profesional'; term: string }): void {
+    const type = filter.term ? filter.type : 'none';
+    this.appointmentsService.setFilter(type, filter.term);
+  }
+
+  /**
+   * Maneja el checkbox "Solo con saldo pendiente".
+   * Actualiza el filtro en el servicio; getFilteredAppointments() hará una petición al backend con pendingOnly.
+   */
+  onPendingOnlyChange(checked: boolean): void {
+    this.pendingOnlyFilter = checked;
+    this.appointmentsService.setFilterPendingOnly(checked);
   }
 
   /**
@@ -240,7 +269,9 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
           // Los errores 404 se manejan completamente desde el backend sin notificaciones
           if (err.status !== 404) {
             const message = this.errorHandler.getErrorMessage(err, 'crear el paciente');
-            this.notification.showError(message);
+            if (!this.errorHandler.isNetworkError(err)) {
+              this.notification.showError(message);
+            }
           }
           this.isLoading = false;
           console.error('Error creating patient:', err);
@@ -284,7 +315,9 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
         // Los errores 404 se manejan completamente desde el backend sin notificaciones
         if (err.status !== 404) {
           const message = this.errorHandler.getErrorMessage(err, 'crear el turno');
-          this.notification.showError(message);
+          if (!this.errorHandler.isNetworkError(err)) {
+            this.notification.showError(message);
+          }
         }
         console.error('Error creating appointment:', err);
         // isLoading ya se resetea en finalize
@@ -315,14 +348,30 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
     this.isDeleteConfirmOpen = true;
   }
 
-  closeDeleteConfirm(force = false): void {
-    if (this.isDeletingAppointment && !force) {
+  closeDeleteConfirm(): void {
+    if (this.isDeletingAppointment) {
       return;
     }
-
     this.isDeleteConfirmOpen = false;
     this.deleteCandidateId = null;
     this.deleteCandidateSummary = null;
+  }
+
+  private forceCloseDeleteConfirm(): void {
+    this.isDeleteConfirmOpen = false;
+    this.deleteCandidateId = null;
+    this.deleteCandidateSummary = null;
+  }
+
+  onDeleteConfirmOpenChange(open: boolean): void {
+    this.isDeleteConfirmOpen = open;
+    if (!open) {
+      // Limpiar datos cuando se cierra el modal
+      if (!this.isDeletingAppointment) {
+        this.deleteCandidateId = null;
+        this.deleteCandidateSummary = null;
+      }
+    }
   }
 
   confirmDeleteAppointment(): void {
@@ -332,7 +381,9 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
 
     const id = this.deleteCandidateId;
     if (id == null) {
-      this.closeDeleteConfirm(true);
+      this.isDeleteConfirmOpen = false;
+      this.deleteCandidateId = null;
+      this.deleteCandidateSummary = null;
       return;
     }
 
@@ -349,16 +400,20 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.notification.showSuccess('Turno eliminado correctamente.');
-          this.closeDeleteConfirm(true);
+          // Cerrar el modal después de la operación exitosa
+          this.forceCloseDeleteConfirm();
         },
-        error: (err) => {
-          // Los errores 404 se manejan completamente desde el backend sin notificaciones
-          if (err.status !== 404) {
-            const message = this.errorHandler.getErrorMessage(err, 'eliminar el turno');
+      error: (err) => {
+        // Los errores 404 se manejan completamente desde el backend sin notificaciones
+        if (err.status !== 404) {
+          const message = this.errorHandler.getErrorMessage(err, 'eliminar el turno');
+          if (!this.errorHandler.isNetworkError(err)) {
             this.notification.showError(message);
           }
-          console.error('Error deleting appointment:', err);
         }
+        console.error('Error deleting appointment:', err);
+        // No cerrar el modal en caso de error para que el usuario pueda intentar de nuevo
+      }
       });
   }
 
