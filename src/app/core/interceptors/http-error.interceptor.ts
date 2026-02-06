@@ -37,9 +37,10 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
         const context = extractContextFromUrl(req.url);
         const message = errorHandler.getErrorMessage(error, context);
         
-        // Mostrar notificación para errores, excepto 401/403 que se manejan desde el backend
-        // Los errores 401/403 se manejan específicamente desde el backend con mensajes personalizados
-        if (error.status !== 401 && error.status !== 403) {
+        // Mostrar notificación para errores, excepto:
+        // - 401/403 que se manejan desde el backend
+        // - errores de red (sin conexión), que se mostrarán solo en los componentes
+        if (error.status !== 401 && error.status !== 403 && !errorHandler.isNetworkError(error)) {
           notification.showError(message);
         }
 

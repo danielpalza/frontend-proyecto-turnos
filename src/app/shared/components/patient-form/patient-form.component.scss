@@ -1,0 +1,9 @@
+.patient-search-container {
+  // Ajustes opcionales para el buscador
+}
+
+// Asegura que las columnas del formulario hagan salto limpio
+// y no queden demasiado angostas al achicarse el contenedor.
+.row.g-3 > [class*='col-'] {
+  min-width: 260px;
+}

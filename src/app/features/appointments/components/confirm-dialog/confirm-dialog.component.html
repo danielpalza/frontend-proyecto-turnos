@@ -1,0 +1,57 @@
+@if (open) {
+<div class="confirm-modal-backdrop" (click)="onBackdropClick()">
+  <div
+    class="confirm-modal"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-labelledby]="dialogId + 'Title'"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="d-flex align-items-start justify-content-between gap-3">
+      <div>
+        <h5 [id]="dialogId + 'Title'" class="mb-1">{{ title }}</h5>
+        <p class="text-muted mb-0">
+          {{ message }}
+        </p>
+        @if (summary) {
+        <div class="mt-2 small">
+          <span class="text-muted">Detalle:</span>
+          <strong class="ms-1">{{ summary }}</strong>
+        </div>
+        }
+      </div>
+
+      <button
+        type="button"
+        class="btn-close"
+        aria-label="Cerrar"
+        (click)="onCloseClick()"
+        [disabled]="isLoading"
+      ></button>
+    </div>
+
+    <div class="confirm-modal-actions mt-3">
+      <button
+        type="button"
+        class="btn btn-outline-secondary"
+        (click)="onCancelClick()"
+        [disabled]="isLoading"
+      >
+        {{ cancelText }}
+      </button>
+
+      <button
+        type="button"
+        [class]="'btn ' + confirmButtonClass"
+        (click)="onConfirmClick()"
+        [disabled]="isLoading"
+      >
+        @if (isLoading) {
+        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+        }
+        {{ confirmText }}
+      </button>
+    </div>
+  </div>
+</div>
+}

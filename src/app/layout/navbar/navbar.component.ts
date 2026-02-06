@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 
-export type ViewType = 'turnos' | 'odontograma' | 'seguimiento';
+export type ViewType = 'turnos' | 'odontograma' | 'seguimiento' | 'configuraciones';
 
 @Component({
   selector: 'app-navbar',
@@ -17,7 +17,8 @@ export class NavbarComponent {
   menuItems = [
     { title: 'Turnos', icon: 'bi-calendar', route: '/turnos' },
     { title: 'Odontograma', icon: 'bi-heart-pulse', route: '/odontograma' },
-    { title: 'Seguimiento', icon: 'bi-clipboard-data', route: '/seguimiento' }
+    { title: 'Seguimiento', icon: 'bi-clipboard-data', route: '/seguimiento' },
+    { title: 'Configuraciones', icon: 'bi-gear', route: '/configuraciones' }
   ];
 }
 

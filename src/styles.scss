@@ -44,6 +44,17 @@ body {
   overflow-x: hidden;
 }
 
+// Oculta solo la barra de desplazamiento de la página (html/body) en la vista Seguimiento. No afecta a .patients-list ni .patient-form-panel.
+html.seguimiento-view-active,
+html.seguimiento-view-active body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+html.seguimiento-view-active::-webkit-scrollbar,
+html.seguimiento-view-active body::-webkit-scrollbar {
+  display: none;
+}
+
 // Estilos de botones personalizados
 .btn-primary-custom {
   background-color: $primary-color;

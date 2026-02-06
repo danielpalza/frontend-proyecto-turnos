@@ -26,5 +26,12 @@ export const routes: Routes = [
       import('./features/seguimiento/seguimiento-view/seguimiento-view.component').then(
         m => m.SeguimientoViewComponent
       )
+  },
+  {
+    path: 'configuraciones',
+    loadComponent: () =>
+      import('./features/configuraciones/configuraciones-view/configuraciones-view.component').then(
+        m => m.ConfiguracionesViewComponent
+      )
   }
 ];

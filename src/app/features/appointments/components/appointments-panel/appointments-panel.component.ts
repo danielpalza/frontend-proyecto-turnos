@@ -2,8 +2,6 @@ import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from
 import { CommonModule } from '@angular/common';
 import { Appointment } from '../../../../core/models';
 import { AppointmentsService } from '../../../../core/services/appointments.service';
-import { NotificationService } from '../../../../core/services/notification.service';
-import { ErrorHandlerService } from '../../../../core/services/error-handler.service';
 
 @Component({
   selector: 'app-appointments-panel',
@@ -19,11 +17,7 @@ export class AppointmentsPanelComponent implements OnChanges {
   @Output() delete = new EventEmitter<number>();
   @Output() addClick = new EventEmitter<void>();
 
-  constructor(
-    private appointmentsService: AppointmentsService,
-    private notification: NotificationService,
-    private errorHandler: ErrorHandlerService
-  ) {}
+  constructor(private appointmentsService: AppointmentsService) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     // Limpiar expandedCards cuando cambia la fecha
@@ -127,6 +121,11 @@ export class AppointmentsPanelComponent implements OnChanges {
     return total > 0 ? 'text-danger' : 'text-success';
   }
 
+  /** Indica si el turno tiene saldo pendiente de pago (totalPrecio > 0). */
+  hasPendingDebt(app: Appointment): boolean {
+    return (app.totalPrecio ?? 0) > 0;
+  }
+
   // Toggle del estado expandido/colapsado de una tarjeta
   toggleCard(cardId: number, event: Event): void {
     event.stopPropagation();
@@ -152,32 +151,13 @@ export class AppointmentsPanelComponent implements OnChanges {
     this.paymentInputs.set(cardId, value);
   }
 
-  // Agrega el pago a un turno
+  // Agrega el pago a un turno (usa lógica compartida del servicio)
   onAddPayment(cardId: number): void {
     const paymentValue = this.paymentInputs.get(cardId) || 0;
-    
-    // Validar que el monto sea mayor a cero
-    if (paymentValue <= 0) {
-      this.notification.showError('El monto del pago debe ser mayor a cero.');
-      return;
-    }
-    
-    if (paymentValue > 0) {
-      this.appointmentsService.addPayment(cardId, paymentValue).subscribe({
-        next: () => {
-          // Limpiar el input después de agregar el pago exitosamente
-          this.paymentInputs.set(cardId, 0);
-          this.notification.showSuccess('Pago agregado correctamente.');
-        },
-        error: (err) => {
-          // Los errores 404 se manejan completamente desde el backend sin notificaciones
-          if (err.status !== 404) {
-            const message = this.errorHandler.getErrorMessage(err, 'agregar el pago');
-            this.notification.showError(message);
-          }
-        }
-      });
-    }
+    this.appointmentsService.addPaymentWithFeedback(cardId, paymentValue).subscribe({
+      next: () => this.paymentInputs.set(cardId, 0),
+      error: () => { /* notificación ya mostrada por el servicio */ }
+    });
   }
 
   // Inicia la edición de un precio
@@ -206,37 +186,28 @@ export class AppointmentsPanelComponent implements OnChanges {
     this.priceInputs.set(key, value);
   }
 
-  // Guarda el precio editado
+  // Guarda el precio editado (usa lógica compartida del servicio)
   savePrice(cardId: number, priceType: 'bono' | 'tratamiento' | 'extras'): void {
     const key = `${cardId}-${priceType}`;
     const newValue = this.priceInputs.get(key) || 0;
-    
-    // Obtener el appointment actual para construir el objeto de actualización
     const appointment = this.appointments.find(a => a.id === cardId);
     if (!appointment) return;
 
-    const updateData: any = {};
-    
-    if (priceType === 'bono') {
-      updateData.precioBono = newValue;
-    } else if (priceType === 'tratamiento') {
-      updateData.precioTratamiento = newValue;
-    } else if (priceType === 'extras') {
-      updateData.extras = newValue;
-    }
+    const updateData: Record<string, number> = {};
+    if (priceType === 'bono') updateData['precioBono'] = newValue;
+    else if (priceType === 'tratamiento') updateData['precioTratamiento'] = newValue;
+    else if (priceType === 'extras') updateData['extras'] = newValue;
 
-    this.appointmentsService.update(cardId, updateData).subscribe({
+    const label = priceType === 'bono' ? 'bono' : priceType === 'tratamiento' ? 'tratamiento' : 'extras';
+    this.appointmentsService.updateWithFeedback(cardId, updateData, `Precio (${label}) actualizado.`, `actualizar ${label}`).subscribe({
       next: () => {
         this.editingPrices.set(key, false);
         this.priceInputs.delete(key);
         this.originalPrices.delete(key);
       },
-      error: (err) => {
-        console.error(`Error al actualizar ${priceType}:`, err);
-        // Restaurar valor original en caso de error
+      error: () => {
         this.priceInputs.set(key, this.originalPrices.get(key) || 0);
         this.editingPrices.set(key, false);
-        // TODO: Mostrar mensaje de error al usuario
       }
     });
   }
@@ -271,26 +242,23 @@ export class AppointmentsPanelComponent implements OnChanges {
     this.observacionesInputs.set(cardId, value);
   }
 
-  // Guarda las observaciones editadas
+  // Guarda las observaciones editadas (usa lógica compartida del servicio)
   saveObservaciones(cardId: number): void {
     const newValue = this.observacionesInputs.get(cardId) || '';
-    
-    const updateData = {
-      observaciones: newValue
-    };
-
-    this.appointmentsService.update(cardId, updateData).subscribe({
+    this.appointmentsService.updateWithFeedback(
+      cardId,
+      { observaciones: newValue },
+      'Observaciones de pago guardadas.',
+      'actualizar las observaciones'
+    ).subscribe({
       next: () => {
         this.editingObservaciones.set(cardId, false);
         this.observacionesInputs.delete(cardId);
         this.originalObservaciones.delete(cardId);
       },
-      error: (err) => {
-        console.error('Error al actualizar observaciones:', err);
-        // Restaurar valor original en caso de error
+      error: () => {
         this.observacionesInputs.set(cardId, this.originalObservaciones.get(cardId) || '');
         this.editingObservaciones.set(cardId, false);
-        // TODO: Mostrar mensaje de error al usuario
       }
     });
   }
@@ -324,26 +292,23 @@ export class AppointmentsPanelComponent implements OnChanges {
     this.observacionesTurnoInputs.set(cardId, value);
   }
 
-  // Guarda las observaciones del turno editadas
+  // Guarda las observaciones del turno editadas (usa lógica compartida del servicio)
   saveObservacionesTurno(cardId: number): void {
     const newValue = this.observacionesTurnoInputs.get(cardId) || '';
-    
-    const updateData = {
-      observacionesTurno: newValue
-    };
-
-    this.appointmentsService.update(cardId, updateData).subscribe({
+    this.appointmentsService.updateWithFeedback(
+      cardId,
+      { observacionesTurno: newValue },
+      'Observaciones del turno guardadas.',
+      'actualizar las observaciones del turno'
+    ).subscribe({
       next: () => {
         this.editingObservacionesTurno.set(cardId, false);
         this.observacionesTurnoInputs.delete(cardId);
         this.originalObservacionesTurno.delete(cardId);
       },
-      error: (err) => {
-        console.error('Error al actualizar observaciones del turno:', err);
-        // Restaurar valor original en caso de error
+      error: () => {
         this.observacionesTurnoInputs.set(cardId, this.originalObservacionesTurno.get(cardId) || '');
         this.editingObservacionesTurno.set(cardId, false);
-        // TODO: Mostrar mensaje de error al usuario
       }
     });
   }

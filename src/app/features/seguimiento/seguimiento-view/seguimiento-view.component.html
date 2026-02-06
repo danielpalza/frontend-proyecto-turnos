@@ -1,202 +1,315 @@
 <div class="seguimiento-container">
   <div class="container-fluid px-4">
-    <!-- Título -->
-    <div class="header-section mb-4 d-flex justify-content-between align-items-center">
-      <div>
-        <h1 class="fw-bold mb-0">
-          <i class="bi bi-clipboard-data me-2 text-primary"></i>Seguimiento de Pacientes
-        </h1>
-        <p class="text-muted mb-0">Historial y seguimiento de todos los pacientes</p>
-      </div>
+    <div class="row g-4">
+      <!-- Columna principal: Lista de pacientes -->
+      <div class="col-lg-8">
+        <!-- Título -->
+        <div class="header-section mb-4">
+          <h1 class="fw-bold mb-0">
+            <i class="bi bi-clipboard-data me-2 text-primary"></i>Seguimiento de Pacientes
+          </h1>
+          <p class="text-muted mb-0">Historial y seguimiento de todos los pacientes</p>
+        </div>
 
-      <button
-        type="button"
-        class="btn btn-primary d-flex align-items-center gap-2"
-        (click)="openAddProfesional()"
-      >
-        <i class="bi bi-person-plus"></i>
-        Agregar profesional
-      </button>
-    </div>
+        <!-- Buscador -->
+        <div class="mb-4 position-relative search-container">
+          <i class="bi bi-search position-absolute top-50 translate-middle-y ms-3 text-muted"></i>
+          <input type="text" class="form-control ps-5" placeholder="Buscar por nombre, DNI o email..."
+            [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" />
+        </div>
 
-
-    <!-- Buscador -->
-    <div class="mb-4 position-relative search-container">
-      <i class="bi bi-search position-absolute top-50 translate-middle-y ms-3 text-muted"></i>
-      <input
-        type="text"
-        class="form-control ps-5"
-        placeholder="Buscar por nombre, DNI o email..."
-        [(ngModel)]="searchTerm"
-      />
-    </div>
-
-    <!-- Sin resultados -->
-    <div *ngIf="patientGroups.length === 0" class="card empty-state">
-      <div class="card-body text-center p-5">
-        <i class="bi bi-people fs-1 mb-3 d-block text-muted opacity-50"></i>
-        <p class="text-muted mb-0">
-          {{ searchTerm ? 'No se encontraron pacientes' : 'No hay pacientes registrados' }}
-        </p>
-      </div>
-    </div>
-
-    <!-- Lista de pacientes -->
-    <div class="patients-list" *ngIf="patientGroups.length > 0">
-      <div *ngFor="let group of patientGroups" class="card shadow-sm patient-card mb-4">
-        <div class="card-header bg-white">
-          <div class="d-flex align-items-center gap-3">
-            <div class="avatar">
-              <i class="bi bi-person fs-4 text-primary"></i>
-            </div>
-
-            <div>
-              <h5 class="m-0 fw-semibold">{{ group.patient.patientName }}</h5>
-              <small class="text-muted">DNI: {{ group.patient.patientDni }}</small>
-            </div>
+        <!-- Sin resultados -->
+        <div *ngIf="patientGroups.length === 0" class="card empty-state">
+          <div class="card-body text-center p-5">
+            <i class="bi bi-people fs-1 mb-3 d-block text-muted opacity-50"></i>
+            <p class="text-muted mb-0">
+              {{ searchTerm ? 'No se encontraron pacientes' : 'No hay pacientes registrados' }}
+            </p>
           </div>
         </div>
 
-        <div class="card-body">
-          <!-- Datos del paciente -->
-          <div class="row g-3 mb-3 pb-3 border-bottom patient-info">
-            <div class="col-md-6">
-              <span class="text-muted">DNI:</span>
-              <span class="fw-semibold ms-1">{{ group.patient.patientDni }}</span>
-            </div>
-
-            <div class="col-md-6" *ngIf="group.patient.patientObraSocialNumero">
-              <span class="text-muted">N° Obra Social:</span>
-              <span class="fw-semibold ms-1">{{ group.patient.patientObraSocialNumero }}</span>
-            </div>
-          </div>
-
-          <!-- Historial de turnos -->
-          <p class="fw-semibold text-secondary mb-2">
-            <i class="bi bi-calendar-check me-2"></i>Historial de turnos ({{
-              group.appointments.length
-            }})
-          </p>
-
-          <div class="appointments-timeline">
-            <div
-              *ngFor="let app of group.appointments"
-              class="timeline-item d-flex align-items-center gap-2 p-2 rounded"
-              [attr.data-shift]="app.id"
-            >
-              <i class="bi bi-calendar-event text-primary"></i>
-              <span>{{ formatDate(app.fecha) }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal Agregar Profesional -->
-    <div class="modal fade show d-block" tabindex="-1" role="dialog" *ngIf="showProfesionalForm">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Agregar profesional</h5>
-            <button
-              type="button"
-              class="btn-close"
-              aria-label="Close"
-              (click)="closeAddProfesional()"
-            ></button>
-          </div>
-
-          <form #profForm="ngForm" (ngSubmit)="onSaveProfesional(profForm)">
-            <div class="modal-body">
-              <div class="mb-3">
-                <label class="form-label">Nombre y apellido *</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  name="nombre"
-                  [(ngModel)]="nuevoProfesional.nombre"
-                  required
-                />
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">DNI</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  name="dni"
-                  [(ngModel)]="nuevoProfesional.dni"
-                />
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">Especialidad</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  name="especialidad"
-                  [(ngModel)]="nuevoProfesional.especialidad"
-                />
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">Matrícula</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  name="matricula"
-                  [(ngModel)]="nuevoProfesional.matricula"
-                />
-              </div>
-
-              <div class="row">
-                <div class="col-md-6 mb-3">
-                  <label class="form-label">Email</label>
-                  <input
-                    type="email"
-                    class="form-control"
-                    name="email"
-                    [(ngModel)]="nuevoProfesional.email"
-                  />
+        <!-- Lista de pacientes -->
+        <div class="patients-list" *ngIf="patientGroups.length > 0">
+          <div *ngFor="let group of patientGroups" class="card shadow-sm patient-card mb-4">
+            <div class="card-header bg-white">
+              <div class="d-flex align-items-center gap-3">
+                <div class="avatar">
+                  <i class="bi bi-person fs-4 text-primary"></i>
                 </div>
 
-                <div class="col-md-6 mb-3">
-                  <label class="form-label">Teléfono</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    name="telefono"
-                    [(ngModel)]="nuevoProfesional.telefono"
-                  />
+                <div class="flex-grow-1">
+                  <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <h5 class="m-0 fw-semibold">{{ group.patient.patientName }}</h5>
+                    <span class="total-deuda" *ngIf="group.totalAdeudado > 0">
+                      {{ formatCurrency(group.totalAdeudado) }}
+                    </span>
+                    <button type="button" class="btn btn-sm btn-outline-primary ms-auto"
+                      title="Editar datos del paciente" (click)="editPatientFromGroup(group)">
+                      <i class="bi bi-pencil"></i> Editar
+                    </button>
+                  </div>
+                  <small class="text-primary d-block mt-1" *ngIf="group.patient.patientDni">
+                    DNI: {{ group.patient.patientDni }}
+                  </small>
+                  <small class="text-muted d-block mt-1" *ngIf="getObraSocialInfo(group.patient.patientDni || '')">
+                    Obra Social: {{ getObraSocialInfo(group.patient.patientDni || '') }}
+                  </small>
                 </div>
               </div>
+            </div>
 
-              <div *ngIf="saveProfesionalError" class="alert alert-danger py-2">
-                {{ saveProfesionalError }}
+            <div class="card-body">
+              <!-- Historial de turnos -->
+              <p class="fw-semibold text-secondary mb-2">
+                <i class="bi bi-calendar-check me-2"></i>Historial de turnos ({{
+                group.appointments.length
+                }})
+              </p>
+
+              <div class="appointments-list">
+                <div *ngFor="let app of group.appointments" class="appointment-badge"
+                  [ngClass]="'appointment-' + getAppointmentColor(app)" (click)="openTurnModal(app)" role="button"
+                  tabindex="0" (keydown.enter)="openTurnModal(app)"
+                  (keydown.space)="openTurnModal(app); $event.preventDefault()">
+                  <span class="appointment-date">{{ formatDate(app.fecha) }}</span>
+                  <span class="appointment-amount" *ngIf="app.totalPrecio && app.totalPrecio > 0">
+                    {{ formatCurrency(app.totalPrecio) }}
+                  </span>
+                </div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
 
-            <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-outline-secondary"
-                (click)="closeAddProfesional()"
-              >
-                Cancelar
+      <!-- Columna derecha: Formulario Paciente -->
+      <div class="col-lg-4">
+        <div class="patient-form-panel">
+          <div class="patient-form-header mb-3">
+            <h2 class="fw-bold mb-0">
+              <i class="bi bi-person-plus me-2 text-primary"></i>Paciente
+            </h2>
+            <p class="text-muted mb-3 small">Crear o editar datos del paciente</p>
+            <div *ngIf="patientFormError" class="alert alert-danger py-2 mb-3">
+              {{ patientFormError }}
+            </div>
+          </div>
+          <div class="patient-form-body">
+            <app-patient-form [form]="patientForm" [showSearch]="false" [existingPatients]="patients"
+              [selectedPatient]="selectedPatientForForm" (patientSelect)="onPatientFormSelect($event)"
+              (clearPatient)="onClearPatientForm()" />
+            <div class="d-flex gap-1 mt-3 mb-5">
+              <button type="button" class="btn btn-outline-secondary" (click)="onClearPatientForm()">
+                <i class="bi bi-trash"></i> Limpiar formulario
               </button>
-              <button
-                type="submit"
-                class="btn btn-primary"
-                [disabled]="profForm.invalid || isSavingProfesional"
-              >
-                {{ isSavingProfesional ? 'Guardando...' : 'Guardar' }}
+              <button type="button" class="btn btn-primary flex-grow-1" (click)="savePatient()"
+                [disabled]="patientForm.invalid || isSavingPatient">
+                <span *ngIf="isSavingPatient" class="spinner-border spinner-border-sm me-1"></span>
+                {{ isSavingPatient ? 'Guardando...' : 'Guardar' }}
               </button>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>
-
-    <div class="modal-backdrop fade show" *ngIf="showProfesionalForm"></div>
   </div>
+
+  <!-- Modal Pago y observaciones del turno -->
+  <div class="modal fade show d-block" tabindex="-1" role="dialog" *ngIf="showTurnModal && selectedAppointment">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content turn-modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="bi bi-cash-coin me-2 text-primary"></i>Pago y observaciones
+          </h5>
+          <button type="button" class="btn-close" aria-label="Cerrar" (click)="closeTurnModal()"></button>
+        </div>
+        <div class="modal-body">
+          <div class="turn-modal-context mb-3">
+            <span class="fw-semibold">{{ selectedAppointment.patientName }}</span>
+            <span class="text-muted"> · {{ formatDate(selectedAppointment.fecha) }}</span>
+            <span class="text-muted" *ngIf="selectedAppointment.profesionalName">
+              · {{ selectedAppointment.profesionalName }}
+            </span>
+          </div>
+
+          <!-- Información de pago (montos editables) -->
+          <div class="turn-modal-section">
+            <h6 class="section-label"><i class="bi bi-cash-stack me-2"></i>Información de pago</h6>
+            <div class="payment-summary">
+              <!-- Bono -->
+              <div class="d-flex justify-content-between align-items-center mb-2 payment-row">
+                <span class="text-muted">Bono:</span>
+                <div class="d-flex align-items-center gap-2">
+                  <span *ngIf="!editingPriceBono">{{ formatCurrency(selectedAppointment.precioBono) || '$0' }}</span>
+                  <span *ngIf="editingPriceBono" class="d-inline-flex align-items-center gap-1">
+                    <input type="number" class="form-control form-control-sm price-edit-input" placeholder="0" min="0"
+                      step="0.01" [(ngModel)]="inputBono" (keyup.escape)="cancelEditingPriceBono()" />
+                    <button type="button" class="btn btn-sm btn-success" (click)="savePriceBono()"
+                      [disabled]="isSavingPrice" title="Guardar">
+                      <i class="bi bi-check-lg"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="cancelEditingPriceBono()"
+                      title="Cancelar">
+                      <i class="bi bi-x-lg"></i>
+                    </button>
+                  </span>
+                  <button type="button" class="btn btn-sm btn-link p-0 text-primary" *ngIf="!editingPriceBono"
+                    (click)="startEditingPriceBono()" title="Editar bono">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                </div>
+              </div>
+              <!-- Tratamiento -->
+              <div class="d-flex justify-content-between align-items-center mb-2 payment-row">
+                <span class="text-muted">Tratamiento:</span>
+                <div class="d-flex align-items-center gap-2">
+                  <span *ngIf="!editingPriceTratamiento">{{ formatCurrency(selectedAppointment.precioTratamiento) ||
+                    '$0' }}</span>
+                  <span *ngIf="editingPriceTratamiento" class="d-inline-flex align-items-center gap-1">
+                    <input type="number" class="form-control form-control-sm price-edit-input" placeholder="0" min="0"
+                      step="0.01" [(ngModel)]="inputTratamiento" (keyup.escape)="cancelEditingPriceTratamiento()" />
+                    <button type="button" class="btn btn-sm btn-success" (click)="savePriceTratamiento()"
+                      [disabled]="isSavingPrice" title="Guardar">
+                      <i class="bi bi-check-lg"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                      (click)="cancelEditingPriceTratamiento()" title="Cancelar">
+                      <i class="bi bi-x-lg"></i>
+                    </button>
+                  </span>
+                  <button type="button" class="btn btn-sm btn-link p-0 text-primary" *ngIf="!editingPriceTratamiento"
+                    (click)="startEditingPriceTratamiento()" title="Editar tratamiento">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                </div>
+              </div>
+              <!-- Extras -->
+              <div class="d-flex justify-content-between align-items-center mb-2 payment-row">
+                <span class="text-muted">Extras:</span>
+                <div class="d-flex align-items-center gap-2">
+                  <span *ngIf="!editingPriceExtras">{{ formatCurrency(selectedAppointment.extras) || '$0' }}</span>
+                  <span *ngIf="editingPriceExtras" class="d-inline-flex align-items-center gap-1">
+                    <input type="number" class="form-control form-control-sm price-edit-input" placeholder="0" min="0"
+                      step="0.01" [(ngModel)]="inputExtras" (keyup.escape)="cancelEditingPriceExtras()" />
+                    <button type="button" class="btn btn-sm btn-success" (click)="savePriceExtras()"
+                      [disabled]="isSavingPrice" title="Guardar">
+                      <i class="bi bi-check-lg"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="cancelEditingPriceExtras()"
+                      title="Cancelar">
+                      <i class="bi bi-x-lg"></i>
+                    </button>
+                  </span>
+                  <button type="button" class="btn btn-sm btn-link p-0 text-primary" *ngIf="!editingPriceExtras"
+                    (click)="startEditingPriceExtras()" title="Editar extras">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="d-flex justify-content-between mb-2 payment-row">
+                <span class="text-muted">Pagado:</span>
+                <span class="text-success">-{{ formatCurrency(selectedAppointment.montoPago) || '$0' }}</span>
+              </div>
+              <div class="d-flex justify-content-between pt-2 border-top fw-semibold">
+                <span>Total a pagar:</span>
+                <span [class.text-danger]="(selectedAppointment.totalPrecio ?? 0) > 0"
+                  [class.text-success]="(selectedAppointment.totalPrecio ?? 0) === 0">
+                  {{ formatCurrency(selectedAppointment.totalPrecio) || '$0' }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sección para pago -->
+          <div class="turn-modal-section">
+            <h6 class="section-label"><i class="bi bi-wallet2 me-2"></i>Agregar pago</h6>
+            <div class="add-payment-row d-flex flex-wrap align-items-center gap-2">
+              <label class="mb-0">Monto:</label>
+              <input type="number" class="form-control payment-input-inline" placeholder="0" min="0.01" step="0.01"
+                [value]="getTurnModalPaymentInput()"
+                (input)="updateTurnModalPaymentInput(+$any($event.target).value)" />
+              <button type="button" class="btn btn-primary btn-sm" (click)="onTurnModalAddPayment()"
+                [disabled]="isAddingPayment">
+                {{ isAddingPayment ? 'Agregando...' : 'Agregar' }}
+              </button>
+              <label class="mb-0 d-flex align-items-center gap-1 payment-total-label">
+                <input type="checkbox"
+                  [checked]="getTurnModalPaymentInput() === (selectedAppointment.totalPrecio ?? 0) && (selectedAppointment.totalPrecio ?? 0) > 0"
+                  (change)="$any($event.target).checked ? updateTurnModalPaymentInput(selectedAppointment.totalPrecio ?? 0) : updateTurnModalPaymentInput(0)" />
+                Pago total
+              </label>
+            </div>
+            <p class="small text-muted mb-0 mt-2" *ngIf="(selectedAppointment.totalPrecio ?? 0) > 0">
+              Saldo pendiente: {{ formatCurrency(selectedAppointment.totalPrecio) }}
+            </p>
+          </div>
+
+          <!-- Observaciones de pago -->
+          <div class="turn-modal-section">
+            <h6 class="section-label d-flex justify-content-between align-items-center">
+              <span><i class="bi bi-chat-text me-2"></i>Observaciones de pago</span>
+              <button type="button" class="btn btn-sm btn-outline-primary" *ngIf="!editingObservacionesPago"
+                (click)="startEditingObservacionesPago()">
+                <i class="bi bi-pencil"></i>
+              </button>
+            </h6>
+            <div *ngIf="!editingObservacionesPago">
+              <p class="mb-0 small" *ngIf="selectedAppointment.observaciones">{{ selectedAppointment.observaciones }}
+              </p>
+              <p class="mb-0 small text-muted" *ngIf="!selectedAppointment.observaciones">Sin observaciones</p>
+            </div>
+            <div *ngIf="editingObservacionesPago" class="d-flex flex-column gap-2">
+              <textarea class="form-control" rows="3" placeholder="Ingrese las observaciones de pago..."
+                [(ngModel)]="observacionesPagoInput"></textarea>
+              <div class="d-flex gap-2 justify-content-end">
+                <button type="button" class="btn btn-sm btn-outline-secondary"
+                  (click)="cancelEditingObservacionesPago()">
+                  Cancelar
+                </button>
+                <button type="button" class="btn btn-sm btn-primary" (click)="saveObservacionesPago()">
+                  Guardar
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Observaciones del turno -->
+          <div class="turn-modal-section">
+            <h6 class="section-label d-flex justify-content-between align-items-center">
+              <span><i class="bi bi-journal-text me-2"></i>Observaciones del turno</span>
+              <button type="button" class="btn btn-sm btn-outline-primary" *ngIf="!editingObservacionesTurno"
+                (click)="startEditingObservacionesTurno()">
+                <i class="bi bi-pencil"></i>
+              </button>
+            </h6>
+            <div *ngIf="!editingObservacionesTurno">
+              <p class="mb-0 small" *ngIf="selectedAppointment.observacionesTurno">{{
+                selectedAppointment.observacionesTurno }}</p>
+              <p class="mb-0 small text-muted" *ngIf="!selectedAppointment.observacionesTurno">Sin observaciones del
+                turno</p>
+            </div>
+            <div *ngIf="editingObservacionesTurno" class="d-flex flex-column gap-2">
+              <textarea class="form-control" rows="3" placeholder="Ingrese las observaciones del turno..."
+                [(ngModel)]="observacionesTurnoInput"></textarea>
+              <div class="d-flex gap-2 justify-content-end">
+                <button type="button" class="btn btn-sm btn-outline-secondary"
+                  (click)="cancelEditingObservacionesTurno()">
+                  Cancelar
+                </button>
+                <button type="button" class="btn btn-sm btn-primary" (click)="saveObservacionesTurno()">
+                  Guardar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" (click)="closeTurnModal()">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop fade show" *ngIf="showTurnModal"></div>
 </div>

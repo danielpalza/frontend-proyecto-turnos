@@ -106,11 +106,11 @@ export class NotificationService {
       return;
     }
 
-    console.log('[NotificationService] Contenedor encontrado, creando toast...', {
-      container: this.toastContainer,
-      message,
-      type
-    });
+    // console.log('[NotificationService] Contenedor encontrado, creando toast...', {
+    //   container: this.toastContainer,
+    //   message,
+    //   type
+    // });
 
     const toastId = `toast-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const duration = options?.duration ?? 5000;

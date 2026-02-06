@@ -1,7 +1,60 @@
+// Altura del navbar-container (padding 16px*2 + contenido ~40px) para cálculos de viewport
+$navbar-height: 4.75rem;
+
+// La barra de la página se oculta vía clase en html (seguimiento-view-active) desde el .ts y estilos en styles.scss
+
 .seguimiento-container {
   padding: 2rem;
   background-color: #f8fafc;
   padding-bottom: 3rem;
+}
+
+// Modal Pago y observaciones del turno
+.turn-modal-content {
+  .turn-modal-context {
+    font-size: 0.9rem;
+  }
+
+  .turn-modal-section {
+    margin-bottom: 1.25rem;
+
+    &:last-of-type {
+      margin-bottom: 0;
+    }
+  }
+
+  .section-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 0.5rem;
+  }
+
+  .payment-summary {
+    background: #f8fafc;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .add-payment-row {
+    .payment-input-inline {
+      width: 120px;
+      display: inline-block;
+    }
+
+    .payment-total-label {
+      font-weight: 500;
+      cursor: pointer;
+      user-select: none;
+    }
+  }
+
+  .payment-row {
+    .price-edit-input {
+      width: 90px;
+      display: inline-block;
+    }
+  }
 }
 
 .header-section {
@@ -34,8 +87,63 @@
   border: 1px solid #e2e8f0;
 }
 
+// Panel formulario cliente (columna derecha)
+.patient-form-panel {
+  position: sticky;
+  top: 2rem;
+  max-height: calc(100vh - #{$navbar-height} - 3.5rem);
+  overflow-y: auto;
+  padding-right: 0.5rem;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+
+    &:hover {
+      background: #94a3b8;
+    }
+  }
+}
+
+.patient-form-header {
+  h2 {
+    color: #0f172a;
+    font-size: 1.25rem;
+  }
+}
+
 .patients-list {
   width: 100%;
+  max-height: calc(100vh - #{$navbar-height} - 14rem);
+  overflow-y: auto;
+  padding-right: 0.5rem;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+
+    &:hover {
+      background: #94a3b8;
+    }
+  }
 }
 
 .patient-card {
@@ -66,33 +174,70 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-shrink: 0;
 }
 
-.patient-info {
-  font-size: 0.9375rem;
+.total-deuda {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #dc2626;
+  white-space: nowrap;
 }
 
-.appointments-timeline {
+.appointments-list {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: 0.5rem;
 }
 
-.timeline-item {
-  background-color: #f1f5f9;
-  transition: background-color 0.15s ease;
+.appointment-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
 
   &:hover {
-    background-color: #e2e8f0;
+    filter: brightness(0.95);
+    transform: translateY(-1px);
   }
 
-  .bi-calendar-event {
-    font-size: 1rem;
+  .appointment-date {
+    color: inherit;
   }
 
-  span {
-    font-size: 0.9375rem;
-    color: #334155;
+  .appointment-amount {
+    font-weight: 600;
+    color: inherit;
+  }
+
+  // Colores según estado de WhatsApp
+  &.appointment-red {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+  }
+
+  &.appointment-orange {
+    background-color: #fed7aa;
+    color: #9a3412;
+    border: 1px solid #fdba74;
+  }
+
+  &.appointment-green {
+    background-color: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+  }
+
+  &.appointment-gray {
+    background-color: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
   }
 }
 
@@ -119,6 +264,18 @@
 }
 
 // Responsive
+@media (max-width: 992px) {
+  .patients-list {
+    max-height: 400px;
+  }
+
+  .patient-form-panel {
+    position: relative;
+    top: 0;
+    max-height: 500px;
+  }
+}
+
 @media (max-width: 768px) {
   .seguimiento-container {
     padding: 1rem;
@@ -139,5 +296,13 @@
     width: 40px;
     height: 40px;
   }
-}
 
+  .total-deuda {
+    font-size: 1rem;
+  }
+
+  .appointment-badge {
+    font-size: 0.8125rem;
+    padding: 0.375rem 0.625rem;
+  }
+}
