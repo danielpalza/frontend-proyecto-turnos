@@ -1,54 +1,50 @@
-$primary-color: #6366f1;
-$text-primary: #1e293b;
-$text-secondary: #64748b;
-$border-color: #e2e8f0;
-$hover-bg: #f1f5f9;
+@use 'variables' as *;
 
 .navbar-container {
   display: flex;
   justify-content: center;
-  padding: 16px 0;
-  background-color: white;
+  padding: 1rem 0;
+  background-color: $card-background;
   border-bottom: 1px solid $border-color;
 }
 
 .nav-tabs {
   display: flex;
-  gap: 8px;
-  background-color: #f8fafc;
+  gap: $spacing-sm;
+  background-color: $sidebar-bg;
   padding: 4px;
-  border-radius: 12px;
+  border-radius: $radius-lg;
 }
 
 .nav-tab {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
+  gap: $spacing-sm;
+  padding: 0.625rem 1.25rem;
   border: none;
   background-color: transparent;
   color: $text-secondary;
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 500;
-  border-radius: 8px;
+  border-radius: $radius-md;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all $transition-base;
   text-decoration: none;
 
   i {
-    font-size: 16px;
+    font-size: 1rem;
   }
 
   &:hover {
-    background-color: white;
+    background-color: $card-background;
     color: $text-primary;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    box-shadow: $shadow-sm;
   }
 
   &.active {
     background-color: $text-primary;
     color: white;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: $shadow-md;
 
     &:hover {
       background-color: darken($text-primary, 5%);

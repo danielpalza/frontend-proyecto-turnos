@@ -1,13 +1,16 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
 .turnos-view {
-  padding: 1.25rem;
-  padding-bottom: 3rem;
+  padding: $spacing-xl;
+  padding-bottom: $spacing-3xl;
   width: 100%;
 }
 
 .main-layout {
   display: grid;
   grid-template-columns: 1fr 40rem;
-  gap: 1.5rem;
+  gap: $spacing-2xl;
   align-items: start;
 }
 
@@ -17,20 +20,20 @@
 
 .panel-section {
   position: sticky;
-  top: 1.25rem;
+  top: $spacing-xl;
   max-height: calc(100vh - 14rem);
   overflow-y: auto;
   overflow-x: hidden;
 }
 
 // Responsive
-@media (max-width: 1200px) {
+@include desktop-sm {
   .main-layout {
     grid-template-columns: 1fr 19rem;
   }
 }
 
-@media (max-width: 992px) {
+@include tablet {
   .main-layout {
     grid-template-columns: 1fr;
   }
@@ -40,13 +43,13 @@
   }
 }
 
-@media (max-width: 576px) {
+@include mobile-xs {
   .turnos-view {
-    padding: 0.75rem;
+    padding: $spacing-md;
   }
 
   .main-layout {
-    gap: 1rem;
+    gap: $spacing-lg;
   }
 }
 

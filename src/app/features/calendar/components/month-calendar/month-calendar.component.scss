@@ -1,25 +1,19 @@
-$primary-color: #6366f1;
-$primary-light: #818cf8;
-$text-primary: #1e293b;
-$text-secondary: #64748b;
-$text-muted: #94a3b8;
-$border-color: #e2e8f0;
-$hover-bg: #f1f5f9;
-$card-bg: #ffffff;
+@use 'variables' as *;
+@use 'mixins' as *;
 
 .calendar-container {
-  background-color: $card-bg;
-  border-radius: 1rem;
-  padding: 1.5rem;
-  box-shadow: 0 0.25rem 1.25rem rgba(0, 0, 0, 0.05);
+  background-color: $card-background;
+  border-radius: $radius-xl;
+  padding: $spacing-2xl;
+  box-shadow: $shadow-sm;
 }
 
 .calendar-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1.25rem;
+  margin-bottom: $spacing-2xl;
+  padding-bottom: $spacing-xl;
   border-bottom: 1px solid $border-color;
 }
 
@@ -28,7 +22,7 @@ $card-bg: #ffffff;
     font-size: 1.5rem;
     font-weight: 600;
     color: $text-primary;
-    margin-bottom: 0.25rem;
+    margin-bottom: $spacing-xs;
   }
 
   .subtitle {
@@ -41,19 +35,20 @@ $card-bg: #ffffff;
 .header-right {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: $spacing-md;
 }
 
 .btn-today {
+  // Usa los mismos estilos que btn-outline-custom pero mantiene clase específica
   padding: 0.625rem 1.25rem;
   border: 1px solid $border-color;
-  background-color: white;
+  background-color: $card-background;
   color: $text-primary;
   font-size: 0.875rem;
   font-weight: 500;
-  border-radius: 0.5rem;
+  border-radius: $radius-md;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all $transition-base;
 
   &:hover {
     background-color: $hover-bg;
@@ -65,7 +60,7 @@ $card-bg: #ffffff;
 .month-navigation {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: $spacing-xs;
 }
 
 .nav-arrow {
@@ -75,12 +70,12 @@ $card-bg: #ffffff;
   background-color: transparent;
   color: $text-secondary;
   font-size: 1rem;
-  border-radius: 0.5rem;
+  border-radius: $radius-md;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: all $transition-base;
 
   &:hover {
     background-color: $hover-bg;
@@ -89,24 +84,14 @@ $card-bg: #ffffff;
 }
 
 .month-selector {
+  @include button-gradient-primary($radius-md);
   padding: 0.625rem 1.25rem;
-  border: none;
-  background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
-  color: white;
   font-size: 0.875rem;
-  font-weight: 500;
-  border-radius: 0.5rem;
   cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    transform: translateY(-0.0625rem);
-    box-shadow: 0 0.25rem 0.75rem rgba($primary-color, 0.3);
-  }
 }
 
 .calendar-body {
-  padding: 1rem 0;
+  padding: $spacing-lg 0;
 }
 
 .month-title {
@@ -114,15 +99,15 @@ $card-bg: #ffffff;
   font-size: 1rem;
   font-weight: 500;
   color: $primary-color;
-  margin-bottom: 1.25rem;
+  margin-bottom: $spacing-xl;
 }
 
 .weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-  padding: 0 0.5rem;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+  padding: 0 $spacing-sm;
 }
 
 .weekday {
@@ -130,16 +115,16 @@ $card-bg: #ffffff;
   font-size: 0.8125rem;
   font-weight: 500;
   color: $text-secondary;
-  padding: 0.5rem 0;
+  padding: $spacing-sm 0;
   text-decoration: underline;
-  text-underline-offset: 0.25rem;
+  text-underline-offset: $spacing-xs;
 }
 
 .days-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 0.5rem;
-  padding: 0 0.5rem;
+  gap: $spacing-sm;
+  padding: 0 $spacing-sm;
 }
 
 .day-cell {
@@ -148,10 +133,10 @@ $card-bg: #ffffff;
   align-items: center;
   justify-content: center;
   border: 1px solid $border-color;
-  border-radius: 0.75rem;
+  border-radius: $radius-lg;
   cursor: pointer;
-  transition: all 0.2s ease;
-  background-color: white;
+  transition: all $transition-base;
+  background-color: $card-background;
   width: 5rem;
   height: 5rem;
   margin: 0 auto;
@@ -161,7 +146,7 @@ $card-bg: #ffffff;
     border-color: $primary-color;
     background-color: rgba($primary-color, 0.05);
     transform: translateY(-0.125rem);
-    box-shadow: 0 0.25rem 0.75rem rgba($primary-color, 0.15);
+    box-shadow: $shadow-primary;
   }
 
   &.empty {
@@ -181,7 +166,7 @@ $card-bg: #ffffff;
   }
 
   &.selected {
-    background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+    @include button-gradient-primary($radius-lg);
     border-color: transparent;
 
     .day-number {
@@ -207,20 +192,10 @@ $card-bg: #ffffff;
 }
 
 .appointment-badge {
+  @include badge($primary-color, 0.625rem);
   position: absolute;
   top: 0.375rem;
   right: 0.375rem;
-  min-width: 1.25rem;
-  height: 1.25rem;
-  border-radius: 0.625rem;
-  background-color: $primary-color;
-  color: white;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 0.375rem;
 
   &.today-badge {
     background-color: white;
@@ -230,10 +205,10 @@ $card-bg: #ffffff;
 }
 
 // Responsive
-@media (max-width: 992px) {
+@include tablet {
   .calendar-header {
     flex-direction: column;
-    gap: 1rem;
+    gap: $spacing-lg;
   }
 
   .header-right {
@@ -247,15 +222,15 @@ $card-bg: #ffffff;
   }
 }
 
-@media (max-width: 576px) {
+@include mobile-xs {
   .calendar-container {
-    padding: 1rem;
+    padding: $spacing-lg;
   }
 
   .day-cell {
     width: 1.5rem;
     height: 1.5rem;
-    border-radius: 0.5rem;
+    border-radius: $radius-md;
   }
 
   .day-number {

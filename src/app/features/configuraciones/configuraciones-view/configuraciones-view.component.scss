@@ -1,28 +1,27 @@
-$navbar-height: 4.75rem;
+@use 'variables' as *;
+@use 'mixins' as *;
 
 .configuraciones-container {
-  padding: 2rem;
-  background-color: #f8fafc;
-  padding-bottom: 3rem;
+  padding: $spacing-3xl;
+  background-color: $sidebar-bg;
+  padding-bottom: $spacing-3xl + $spacing-lg;
 }
 
 .header-section {
   h1 {
-    color: #0f172a;
+    color: $text-primary;
     font-size: 1.875rem;
   }
 }
 
 .profesionales-panel {
-  position: sticky;
-  top: 2rem;
-  max-height: calc(100vh - #{$navbar-height} - 4rem);
-  overflow-y: auto;
+  @include sticky-container;
+  top: $spacing-3xl;
 }
 
 .profesionales-header {
   h2 {
-    color: #0f172a;
+    color: $text-primary;
     font-size: 1.5rem;
   }
 }
@@ -30,52 +29,44 @@ $navbar-height: 4.75rem;
 .profesionales-list {
   max-height: calc(100vh - #{$navbar-height} - 20rem);
   overflow-y: auto;
-  padding-right: 0.5rem;
+  padding-right: $spacing-sm;
 
+  // Usa la scrollbar global de styles.scss
+  // Si necesitas una personalizada específica, puedes mantenerla aquí
   &::-webkit-scrollbar {
     width: 6px;
   }
 
   &::-webkit-scrollbar-track {
-    background: #f1f5f9;
+    background: $hover-bg;
     border-radius: 3px;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
+    background: $text-muted;
     border-radius: 3px;
 
     &:hover {
-      background: #94a3b8;
+      background: $text-secondary;
     }
   }
 }
 
 .profesional-card {
-  border-radius: 0.75rem;
-  border: 1px solid #e2e8f0;
-  transition: all 0.2s ease;
+  @include card-hover($radius-lg);
 
   &:hover {
-    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.1);
     transform: translateY(-1px);
   }
 
   &.profesional-inactive {
     opacity: 0.7;
-    background-color: #f8fafc;
+    background-color: $sidebar-bg;
   }
 }
 
 .avatar-small {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: rgba(99, 102, 241, 0.1);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-shrink: 0;
+  @include icon-wrapper-circle-sm;
 }
 
 .profesional-actions {
@@ -85,7 +76,7 @@ $navbar-height: 4.75rem;
   }
 }
 
-@media (max-width: 992px) {
+@include tablet {
   .profesionales-panel {
     position: relative;
     top: 0;

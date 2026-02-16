@@ -1,0 +1,169 @@
+@use 'variables' as *;
+
+@mixin button-gradient-primary($radius: $radius-md) {
+  background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+  color: white;
+  border: none;
+  border-radius: $radius;
+  transition: all $transition-base;
+  cursor: pointer;
+  font-weight: 500;
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: $shadow-primary-hover;
+  }
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+@mixin card-hover($radius: $radius-lg) {
+  background-color: $card-background;
+  border: 1px solid $border-color;
+  border-radius: $radius;
+  transition: all $transition-base;
+  &:hover {
+    border-color: $primary-color;
+    box-shadow: $shadow-primary;
+  }
+}
+
+@mixin input-focus($radius: $radius-sm, $shadow-size: 2px) {
+  border: 1px solid $border-color;
+  border-radius: $radius;
+  transition: border-color $transition-base;
+  background-color: $card-background;
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 $shadow-size rgba($primary-color, 0.1);
+  }
+  &::placeholder {
+    color: $text-muted;
+  }
+}
+
+@mixin container-light-bg($radius: $radius-lg, $padding: $spacing-xl) {
+  background-color: $sidebar-bg;
+  border-radius: $radius;
+  padding: $padding;
+}
+
+@mixin divider($color: $border-color, $margin-y: 0) {
+  height: 1px;
+  background-color: $color;
+  margin: $margin-y 0;
+  border: none;
+}
+
+@mixin empty-state($padding-y: 2rem, $padding-x: 1.25rem) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: $padding-y $padding-x;
+}
+
+@mixin badge($bg-color: $primary-color, $radius: 0.625rem) {
+  min-width: 1.25rem;
+  height: 1.25rem;
+  border-radius: $radius;
+  background-color: $bg-color;
+  color: white;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.375rem;
+}
+
+@mixin button-action-small($bg-color, $hover-color) {
+  padding: 4px 8px;
+  border: none;
+  border-radius: $radius-sm;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all $transition-base;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  background-color: $bg-color;
+  color: white;
+  &:hover {
+    background-color: $hover-color;
+  }
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+@mixin icon-wrapper-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: rgba($primary-color, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  i {
+    font-size: 32px;
+    color: $primary-color;
+  }
+}
+
+@mixin icon-wrapper-circle-sm {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgba($primary-color, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  i {
+    font-size: 20px;
+    color: $primary-color;
+  }
+}
+
+@mixin section-bordered-left {
+  padding: 0.5rem 0.75rem;
+  background-color: $sidebar-bg;
+  border-radius: $radius-sm;
+  border-left: 3px solid $primary-color;
+}
+
+@mixin sticky-container {
+  position: sticky;
+  top: $spacing-xl;
+  max-height: calc(100vh - #{$navbar-height} - 4rem);
+  overflow-y: auto;
+}
+
+@mixin mobile-xs {
+  @media (max-width: #{$breakpoint-xs - 1px}) {
+    @content;
+  }
+}
+
+@mixin mobile {
+  @media (max-width: #{$breakpoint-sm - 1px}) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (max-width: #{$breakpoint-md - 1px}) {
+    @content;
+  }
+}
+
+@mixin desktop-sm {
+  @media (max-width: #{$breakpoint-lg - 1px}) {
+    @content;
+  }
+}
