@@ -121,14 +121,16 @@ export class NotificationService {
     const icon = this.getIcon(type);
 
     const toastHtml = `
-      <div id="${toastId}" class="toast ${bgClass} text-white" role="alert" aria-live="assertive" aria-atomic="true" style="pointer-events: auto; min-width: 300px; max-width: 500px; width: 100%; margin-bottom: 0.5rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); border-radius: 8px; overflow: hidden;">
-        <div class="toast-header ${bgClass} text-white" style="border-bottom: 1px solid rgba(255, 255, 255, 0.2); font-weight: 600; display: flex; align-items: center; padding: 0.5rem 1rem;">
+      <div id="${toastId}" class="toast ${bgClass} text-white" role="alert" aria-live="assertive" aria-atomic="true" style="pointer-events: auto; min-width: 300px; max-width: 500px; width: 100%; margin-bottom: 0.5rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); border-radius: 16px; overflow: hidden;">
+        <div class="toast-content d-flex align-items-center w-100" style="padding: 0.75rem 1rem; line-height: 1.5; gap: 0.5rem;">
           <i class="${icon} me-2"></i>
-          <strong class="me-auto">${this.getTitle(type)}</strong>
-          ${dismissible ? `<button type="button" class="btn-close btn-close-white" aria-label="Close" style="filter: invert(1); cursor: pointer;" onclick="this.closest('.toast').remove()"></button>` : ''}
-        </div>
-        <div class="toast-body" style="padding: 0.75rem 1rem; line-height: 1.5;">
-          ${this.escapeHtml(message)}
+          <div class="toast-text flex-grow-1">
+            <strong>${this.getTitle(type)}</strong>
+            <span class="ms-1">${this.escapeHtml(message)}</span>
+          </div>
+          ${dismissible ? `<button type="button" class="btn-close ms-2" aria-label="Cerrar" onclick="this.closest('.toast').remove()">
+            <i class="bi bi-x-lg"></i>
+          </button>` : ''}
         </div>
       </div>
     `;
@@ -234,15 +236,15 @@ export class NotificationService {
   private getTitle(type: NotificationType): string {
     switch (type) {
       case 'success':
-        return 'Éxito';
+        return 'Éxito:';
       case 'error':
-        return 'Error';
+        return 'Error:';
       case 'warning':
-        return 'Advertencia';
+        return 'Advertencia:';
       case 'info':
-        return 'Información';
+        return 'Información:';
       default:
-        return 'Notificación';
+        return 'Notificación:';
     }
   }
 

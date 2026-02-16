@@ -1,15 +1,5 @@
-// Variables personalizadas
-$primary-color: #6366f1;
-$primary-light: #818cf8;
-$primary-dark: #4f46e5;
-$secondary-color: #8b5cf6;
-$background-color: #f8fafc;
-$card-background: #ffffff;
-$text-primary: #1e293b;
-$text-secondary: #64748b;
-$text-muted: #94a3b8;
-$border-color: #e2e8f0;
-$hover-bg: #f1f5f9;
+@use 'variables' as *;
+@use 'mixins' as *;
 
 // Importar Bootstrap
 @import "bootstrap/scss/bootstrap";
@@ -55,37 +45,81 @@ html.seguimiento-view-active body::-webkit-scrollbar {
   display: none;
 }
 
-// Estilos de botones personalizados
-.btn-primary-custom {
-  background-color: $primary-color;
-  border-color: $primary-color;
-  color: white;
-  border-radius: 8px;
-  padding: 8px 16px;
-  font-weight: 500;
-  transition: all 0.2s ease;
+// ============================================
+// CLASES DE BOTONES REUTILIZABLES
+// ============================================
 
-  &:hover {
-    background-color: $primary-dark;
-    border-color: $primary-dark;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba($primary-color, 0.3);
-  }
+// Botón primario con gradiente
+.btn-primary-gradient {
+  @include button-gradient-primary();
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
 }
 
+// Botón primario con gradiente grande
+.btn-primary-gradient-lg {
+  @include button-gradient-primary($radius-lg);
+  padding: 0.875rem 1.5rem;
+  font-size: 1rem;
+}
+
+// Botón outline
 .btn-outline-custom {
   background-color: transparent;
   border: 1px solid $border-color;
   color: $text-primary;
-  border-radius: 8px;
-  padding: 8px 16px;
+  border-radius: $radius-md;
+  padding: 0.625rem 1.25rem;
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition: all $transition-base;
+  cursor: pointer;
 
   &:hover {
     background-color: $hover-bg;
     border-color: $primary-color;
     color: $primary-color;
+  }
+}
+
+// Botón primario sólido (sin gradiente)
+.btn-primary-custom {
+  background-color: $primary-color;
+  border-color: $primary-color;
+  color: white;
+  border-radius: $radius-md;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  transition: all $transition-base;
+  cursor: pointer;
+
+  &:hover {
+    background-color: $primary-dark;
+    border-color: $primary-dark;
+    transform: translateY(-1px);
+    box-shadow: $shadow-primary;
+  }
+}
+
+// Botones de acción pequeños
+.btn-save {
+  @include button-action-small($success-light, $success-dark);
+}
+
+.btn-cancel {
+  @include button-action-small($danger-light, $danger-dark);
+}
+
+.btn-delete {
+  background: none;
+  border: none;
+  padding: 6px 10px;
+  border-radius: $radius-sm;
+  color: $danger-light;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover {
+    background-color: rgba($danger-light, 0.1);
   }
 }
 
@@ -122,7 +156,133 @@ html.seguimiento-view-active body::-webkit-scrollbar {
 }
 
 .fade-in {
-  animation: fadeIn 0.3s ease forwards;
+  animation: fadeIn $transition-slow forwards;
+}
+
+// ============================================
+// CLASES DE CARDS Y CONTENEDORES
+// ============================================
+
+// Card básica con hover
+.card-hover {
+  @include card-hover();
+}
+
+// Card con overflow hidden
+.card-overflow {
+  @include card-hover();
+  overflow: hidden;
+}
+
+// Contenedor con fondo gris claro
+.container-light {
+  @include container-light-bg();
+}
+
+// Contenedor con fondo gris claro pequeño
+.container-light-sm {
+  @include container-light-bg($radius-md, $spacing-md);
+}
+
+// ============================================
+// CLASES DE INPUTS Y FORMULARIOS
+// ============================================
+
+// Input estándar
+.input-custom {
+  @include input-focus();
+  padding: 0.375rem 0.75rem;
+  font-size: 0.9375rem;
+}
+
+// Input pequeño
+.input-custom-sm {
+  @include input-focus($radius-sm, 2px);
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8125rem;
+}
+
+// Textarea personalizado
+.textarea-custom {
+  @include input-focus($radius-sm, 2px);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  font-family: inherit;
+  resize: vertical;
+  width: 100%;
+}
+
+// ============================================
+// CLASES DE DIVIDERS
+// ============================================
+
+.divider {
+  @include divider();
+}
+
+.divider-spaced {
+  @include divider($border-color, $spacing-md);
+}
+
+.divider-large {
+  @include divider($border-color, $spacing-xl);
+}
+
+// ============================================
+// CLASES DE EMPTY STATES
+// ============================================
+
+.empty-state {
+  @include empty-state();
+  flex: 1;
+}
+
+.empty-state-compact {
+  @include empty-state(2rem, 1rem);
+}
+
+// ============================================
+// CLASES DE BADGES
+// ============================================
+
+.badge-custom {
+  @include badge();
+}
+
+.badge-primary {
+  @include badge($primary-color);
+}
+
+.badge-success {
+  @include badge($success-light);
+}
+
+.badge-danger {
+  @include badge($danger-light);
+}
+
+// ============================================
+// CLASES UTILITARIAS ADICIONALES
+// ============================================
+
+// Icono wrapper con fondo circular
+.icon-wrapper-circle {
+  @include icon-wrapper-circle;
+}
+
+// Icono wrapper pequeño
+.icon-wrapper-circle-sm {
+  @include icon-wrapper-circle-sm;
+}
+
+// Sección con borde izquierdo de color primario
+.section-bordered-left {
+  @include section-bordered-left;
+}
+
+// Contenedor sticky estándar
+.sticky-container {
+  @include sticky-container;
 }
 
 // Estilos para el contenedor de notificaciones (toasts)
@@ -149,34 +309,127 @@ html.seguimiento-view-active body::-webkit-scrollbar {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
     border-radius: 8px;
     overflow: hidden;
-    display: block !important;
+    display: flex !important;
     visibility: visible !important;
     opacity: 1 !important;
-    
-    .toast-header {
-      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-      font-weight: 600;
+
+    .toast-content {
       display: flex;
       align-items: center;
-      padding: 0.5rem 1rem;
-      
+      width: 100%;
+
+      .toast-text {
+        flex: 1;
+      }
+
       .btn-close {
-        filter: invert(1);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.75rem;
+        height: 1.75rem;
         cursor: pointer;
-        background: transparent;
+        background: rgba(0, 0, 0, 0.08);
         border: none;
-        font-size: 1.25rem;
-        opacity: 0.5;
-        
+        border-radius: 999px;
+        color: #ffffff;
+        opacity: 0.9;
+
+        i {
+          font-size: 1rem;
+        }
+
         &:hover {
+          background: rgba(0, 0, 0, 0.16);
           opacity: 1;
         }
       }
     }
-    
-    .toast-body {
-      padding: 0.75rem 1rem;
-      line-height: 1.5;
-    }
   }
 }
+
+// ============================================
+// DOCUMENTACIÓN DE USO
+// ============================================
+//
+// Este archivo contiene variables, mixins y clases reutilizables
+// para mantener consistencia en todo el proyecto.
+//
+// CÓMO USAR EN COMPONENTES SCSS:
+//
+// 1. IMPORTAR VARIABLES Y MIXINS:
+//    @use 'src/styles.scss' as *;
+//    O simplemente usar las variables directamente ya que están en el scope global
+//
+// 2. USAR VARIABLES:
+//    .mi-clase {
+//      color: $primary-color;
+//      padding: $spacing-lg;
+//      border-radius: $radius-md;
+//    }
+//
+// 3. USAR MIXINS:
+//    .mi-boton {
+//      @include button-gradient-primary();
+//    }
+//
+//    .mi-card {
+//      @include card-hover();
+//    }
+//
+//    .mi-input {
+//      @include input-focus();
+//    }
+//
+// 4. USAR CLASES EN HTML:
+//    <button class="btn-primary-gradient">Botón</button>
+//    <div class="card-hover">Contenido</div>
+//    <input class="input-custom" type="text">
+//
+// 5. USAR BREAKPOINTS:
+//    .mi-componente {
+//      padding: $spacing-lg;
+//
+//      @include tablet {
+//        padding: $spacing-md;
+//      }
+//
+//      @include mobile {
+//        padding: $spacing-sm;
+//      }
+//    }
+//
+// VARIABLES DISPONIBLES:
+// - Colores: $primary-color, $primary-light, $text-primary, etc.
+// - Espaciado: $spacing-xs, $spacing-sm, $spacing-md, etc.
+// - Border radius: $radius-sm, $radius-md, $radius-lg, etc.
+// - Breakpoints: $breakpoint-xs, $breakpoint-sm, $breakpoint-md, etc.
+// - Transiciones: $transition-fast, $transition-base, $transition-slow
+// - Sombras: $shadow-sm, $shadow-md, $shadow-lg, etc.
+//
+// MIXINS DISPONIBLES:
+// - @include button-gradient-primary($radius)
+// - @include card-hover($radius)
+// - @include input-focus($radius, $shadow-size)
+// - @include container-light-bg($radius, $padding)
+// - @include divider($color, $margin-y)
+// - @include empty-state($padding-y, $padding-x)
+// - @include badge($bg-color, $radius)
+// - @include button-action-small($bg-color, $hover-color)
+// - @include mobile-xs, @include mobile, @include tablet, @include desktop-sm
+//
+// CLASES DISPONIBLES:
+// Botones: .btn-primary-gradient, .btn-primary-gradient-lg, .btn-outline-custom,
+//          .btn-primary-custom, .btn-save, .btn-cancel, .btn-delete
+// Cards: .card-hover, .card-overflow
+// Contenedores: .container-light, .container-light-sm, .sticky-container
+// Inputs: .input-custom, .input-custom-sm, .textarea-custom
+// Dividers: .divider, .divider-spaced, .divider-large
+// Empty states: .empty-state, .empty-state-compact
+// Badges: .badge-custom, .badge-primary, .badge-success, .badge-danger
+// Utilidades: .icon-wrapper-circle, .icon-wrapper-circle-sm, .section-bordered-left
+//
+// REFACTORIZACIÓN RECOMENDADA:
+// Los componentes pueden migrar gradualmente a usar estas clases y mixins
+// en lugar de duplicar estilos. Ver ANALISIS-ESTILOS-COMPARATIVO.md para más detalles.
+//

@@ -1,3 +1,5 @@
+@use 'variables' as *;
+
 // Modal confirmación (sin JS de Bootstrap)
 .confirm-modal-backdrop {
   position: fixed;
@@ -7,19 +9,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
+  padding: $spacing-lg;
 }
 
 .confirm-modal {
   width: min(34rem, 100%);
-  background: #fff;
-  border-radius: 0.75rem;
-  padding: 1rem 1.25rem;
-  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.2);
+  background: $card-background;
+  border-radius: $radius-lg;
+  padding: $spacing-lg $spacing-xl;
+  box-shadow: $shadow-lg;
 }
 
 .confirm-modal-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 0.5rem;
+  gap: $spacing-sm;
 }

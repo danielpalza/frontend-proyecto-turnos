@@ -4,61 +4,61 @@
   viewBox="0 0 40 40"
   class="cursor-pointer"
 >
-  <!-- Círculo exterior -->
-  <circle
-    cx="20"
-    cy="20"
-    r="18"
-    fill="none"
-    stroke="#334155"
-    [attr.stroke-width]="strokeWidth"
-  />
+  <!-- Grupo con rotación de 45 grados -->
+  <g transform="rotate(45 20 20)">
+    <!-- Círculo exterior -->
+    <circle
+      cx="20"
+      cy="20"
+      r="18"
+      fill="none"
+      stroke="#334155"
+      [attr.stroke-width]="strokeWidth"
+    />
 
-  <!-- Top -->
-  <path
-    d="M 20 2 L 28 12 L 12 12 Z"
-    [attr.fill]="getFaceColor(faces().top)"
-    stroke="#334155"
-    [attr.stroke-width]="strokeWidth"
-    (click)="handleFaceClick('top', $event)"
-  />
-
-  <!-- Right -->
-  <path
-    d="M 38 20 L 28 28 L 28 12 Z"
-    [attr.fill]="getFaceColor(faces().right)"
-    stroke="#334155"
-    [attr.stroke-width]="strokeWidth"
-    (click)="handleFaceClick('right', $event)"
-  />
-
-  <!-- Center -->
-  <circle
-    cx="20"
-    cy="20"
-    r="8"
+    <!-- Círculo interior -->
+    <path
+    d="M 20 12 A 8 8 0 1 1 20 28 A 8 8 0 1 1 20 12 Z"
     [attr.fill]="getFaceColor(faces().center)"
     stroke="#334155"
     [attr.stroke-width]="strokeWidth"
     (click)="handleFaceClick('center', $event)"
   />
+  
+    <!-- Top section (arco superior) -->
+    <path
+      d="M 20 2 A 18 18 0 0 1 38 20 L 28 20 A 8 8 0 0 0 20 12 Z"
+      [attr.fill]="getFaceColor(faces().top)"
+      stroke="#334155"
+      [attr.stroke-width]="strokeWidth"
+      (click)="handleFaceClick('top', $event)"
+    />
 
-  <!-- Left -->
-  <path
-    d="M 2 20 L 12 12 L 12 28 Z"
-    [attr.fill]="getFaceColor(faces().left)"
-    stroke="#334155"
-    [attr.stroke-width]="strokeWidth"
-    (click)="handleFaceClick('left', $event)"
-  />
+    <!-- Right section (arco derecho) -->
+    <path
+      d="M 38 20 A 18 18 0 0 1 20 38 L 20 28 A 8 8 0 0 0 28 20 Z"
+      [attr.fill]="getFaceColor(faces().right)"
+      stroke="#334155"
+      [attr.stroke-width]="strokeWidth"
+      (click)="handleFaceClick('right', $event)"
+    />
 
-  <!-- Bottom -->
-  <path
-    d="M 20 38 L 12 28 L 28 28 Z"
-    [attr.fill]="getFaceColor(faces().bottom)"
-    stroke="#334155"
-    [attr.stroke-width]="strokeWidth"
-    (click)="handleFaceClick('bottom', $event)"
-  />
+    <!-- Bottom section (arco inferior) -->
+    <path
+      d="M 20 38 A 18 18 0 0 1 2 20 L 12 20 A 8 8 0 0 0 20 28 Z"
+      [attr.fill]="getFaceColor(faces().bottom)"
+      stroke="#334155"
+      [attr.stroke-width]="strokeWidth"
+      (click)="handleFaceClick('bottom', $event)"
+    />
+
+    <!-- Left section (arco izquierdo) -->
+    <path
+      d="M 2 20 A 18 18 0 0 1 20 2 L 20 12 A 8 8 0 0 0 12 20 Z"
+      [attr.fill]="getFaceColor(faces().left)"
+      stroke="#334155"
+      [attr.stroke-width]="strokeWidth"
+      (click)="handleFaceClick('left', $event)"
+    />
+  </g>
 </svg>
-
