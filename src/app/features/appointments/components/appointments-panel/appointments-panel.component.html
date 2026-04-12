@@ -52,8 +52,37 @@
           <div class="turn-header" (click)="toggleCard(a.id!, $event)">
             <div class="patient-info">
               <i class="bi bi-person-fill" [ngClass]="hasPendingDebt(a) ? 'text-danger' : 'text-primary'"></i>
-              <strong lass="fw-bold" [ngClass]="hasPendingDebt(a) ? 'text-danger' : 'text-primary'">{{ a.patientName }}
-                - {{ a.profesionalName }}</strong>
+              <strong class="fw-bold" [ngClass]="hasPendingDebt(a) ? 'text-danger' : 'text-primary'">{{ a.patientName }}</strong>
+              <span class="profesional-edit-container">
+                <span *ngIf="!isEditingProfesional(a.id!)">
+                  <span class="text-muted"> - </span>
+                  <strong class="fw-bold" [ngClass]="hasPendingDebt(a) ? 'text-danger' : 'text-primary'">
+                    {{ a.profesionalName || 'Sin asignar' }}
+                  </strong>
+                </span>
+                <span *ngIf="isEditingProfesional(a.id!)" class="d-inline-flex align-items-center gap-1">
+                  <select class="profesional-select" [value]="(getProfesionalInput(a.id!) ?? '') + ''"
+                    (change)="updateProfesionalInput(a.id!, $any($event.target).value)"
+                    (keyup.escape)="cancelProfesionalEdit(a.id!); $event.stopPropagation()"
+                    (click)="$event.stopPropagation()">
+                    <option value="">Sin asignar</option>
+                    <option *ngFor="let p of activeProfesionales" [value]="(p.id ?? '') + ''">
+                      {{ p.nombre }}
+                    </option>
+                  </select>
+                  <button type="button" class="btn-save-price" (click)="saveProfesional(a.id!); $event.stopPropagation()"
+                    title="Guardar">
+                    <i class="bi bi-check-lg"></i>
+                  </button>
+                  <button type="button" class="btn-cancel-price"
+                    (click)="cancelProfesionalEdit(a.id!); $event.stopPropagation()" title="Cancelar">
+                    <i class="bi bi-x-lg"></i>
+                  </button>
+                </span>
+                <i class="bi bi-pencil text-primary ms-1 price-edit-icon"
+                  (click)="startEditingProfesional(a.id!, a.profesionalId); $event.stopPropagation()"
+                  *ngIf="!isEditingProfesional(a.id!)" title="Editar profesional"></i>
+              </span>
               <span class="hora-edit-container">
                 <span *ngIf="!isEditingHora(a.id!)">
                   <strong class="fw-bold text-primary" *ngIf="a.hora">{{ formatTime(a.hora) }}</strong>

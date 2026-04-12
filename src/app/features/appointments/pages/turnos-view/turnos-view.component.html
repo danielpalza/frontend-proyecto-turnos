@@ -40,7 +40,9 @@
     <!-- Panel de turnos -->
     <div class="panel-section">
       <app-appointments-panel [date]="selectedDate"
-        [appointments]="selectedDate ? getAppointmentsForDate(selectedDate) : []" (delete)="onDeleteAppointment($event)"
+        [appointments]="selectedDate ? getAppointmentsForDate(selectedDate) : []"
+        [profesionales]="activeProfesionales"
+        (delete)="onDeleteAppointment($event)"
         (addClick)="onAddAppointmentClick()" />
     </div>
   </div>
@@ -60,10 +62,6 @@
     (cancel)="closeDeleteConfirm()" (openChange)="onDeleteConfirmOpenChange($event)" />
 </div>
 
-<ol>
-  <li>Estilos: Cambiar estilos alertas toast para adaptar a los estilos de la app</li> <br>
-  <li>Funcionalidad: Agregar funcionalidad para editar profesionales en los turnos</li>
-</ol>
 
 <!-- <div class="debug-info">
   <h3>Debug Info</h3>
