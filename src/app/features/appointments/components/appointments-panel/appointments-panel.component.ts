@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Appointment } from '../../../../core/models';
+import { Appointment, AppointmentPartialUpdateDTO, Profesional } from '../../../../core/models';
 import { AppointmentsService } from '../../../../core/services/appointments.service';
 
 @Component({
@@ -13,6 +13,7 @@ import { AppointmentsService } from '../../../../core/services/appointments.serv
 export class AppointmentsPanelComponent implements OnChanges {
   @Input() date: string | null = null;
   @Input() appointments: Appointment[] = [];
+  @Input() profesionales: Profesional[] = [];
 
   @Output() delete = new EventEmitter<number>();
   @Output() addClick = new EventEmitter<void>();
@@ -40,6 +41,9 @@ export class AppointmentsPanelComponent implements OnChanges {
   editingHora = new Map<number, boolean>(); // Rastrea qué horas están siendo editadas
   horaInputs = new Map<number, string>(); // Rastrea los valores temporales de las horas
   originalHora = new Map<number, string>(); // Guarda los valores originales antes de editar
+  editingProfesional = new Map<number, boolean>(); // Rastrea qué profesionales están siendo editados
+  profesionalInputs = new Map<number, number | null>(); // profesionalId seleccionado (null = sin asignar)
+  originalProfesionalId = new Map<number, number | undefined>(); // Guarda el valor original
 
   /**
    * Obtiene los appointments a mostrar
@@ -348,25 +352,28 @@ export class AppointmentsPanelComponent implements OnChanges {
   saveHora(cardId: number): void {
     const newValue = this.horaInputs.get(cardId) || '';
     
-    // Convertir formato HH:mm a HH:mm:ss para el backend, o null si está vacío
-    const horaFormatted = newValue && newValue.trim() !== '' ? `${newValue}:00` : null;
-    
-    const updateData: any = {
-      hora: horaFormatted
-    };
+    // Convertir formato HH:mm a HH:mm:ss para el backend.
+    // Si está vacío, no enviamos el campo (no se soporta limpiar hora vía PATCH actual).
+    const horaFormatted = newValue && newValue.trim() !== '' ? `${newValue}:00` : undefined;
+    const updateData: AppointmentPartialUpdateDTO = {};
+    if (horaFormatted) {
+      updateData.hora = horaFormatted;
+    }
 
-    this.appointmentsService.update(cardId, updateData).subscribe({
+    this.appointmentsService.updateWithFeedback(
+      cardId,
+      updateData,
+      'Hora actualizada correctamente.',
+      'actualizar la hora'
+    ).subscribe({
       next: () => {
         this.editingHora.set(cardId, false);
         this.horaInputs.delete(cardId);
         this.originalHora.delete(cardId);
       },
-      error: (err) => {
-        console.error('Error al actualizar hora:', err);
-        // Restaurar valor original en caso de error
+      error: () => {
         this.horaInputs.set(cardId, this.originalHora.get(cardId) || '');
         this.editingHora.set(cardId, false);
-        // TODO: Mostrar mensaje de error al usuario
       }
     });
   }
@@ -376,5 +383,64 @@ export class AppointmentsPanelComponent implements OnChanges {
     this.editingHora.set(cardId, false);
     this.horaInputs.delete(cardId);
     this.originalHora.delete(cardId);
+  }
+
+  // Profesional asignado
+  get activeProfesionales(): Profesional[] {
+    return (this.profesionales || []).filter(p => p.activo !== false);
+  }
+
+  startEditingProfesional(cardId: number, currentProfesionalId?: number): void {
+    this.editingProfesional.set(cardId, true);
+    this.profesionalInputs.set(cardId, currentProfesionalId ?? null);
+    this.originalProfesionalId.set(cardId, currentProfesionalId);
+  }
+
+  isEditingProfesional(cardId: number): boolean {
+    return this.editingProfesional.get(cardId) || false;
+  }
+
+  getProfesionalInput(cardId: number): number | null {
+    const val = this.profesionalInputs.get(cardId);
+    return val !== undefined ? val : null;
+  }
+
+  updateProfesionalInput(cardId: number, value: string): void {
+    const id = value === '' || value === 'null' ? null : +value;
+    this.profesionalInputs.set(cardId, id);
+  }
+
+  saveProfesional(cardId: number): void {
+    const selectedId = this.profesionalInputs.get(cardId);
+    const updateData: { profesionalId?: number; unassignProfesional?: boolean } = {};
+
+    if (selectedId === null || selectedId === undefined) {
+      updateData.unassignProfesional = true;
+    } else {
+      updateData.profesionalId = selectedId;
+    }
+
+    this.appointmentsService.updateWithFeedback(
+      cardId,
+      updateData,
+      'Profesional actualizado correctamente.',
+      'actualizar el profesional'
+    ).subscribe({
+      next: () => {
+        this.editingProfesional.set(cardId, false);
+        this.profesionalInputs.delete(cardId);
+        this.originalProfesionalId.delete(cardId);
+      },
+      error: () => {
+        this.profesionalInputs.set(cardId, this.originalProfesionalId.get(cardId) ?? null);
+        this.editingProfesional.set(cardId, false);
+      }
+    });
+  }
+
+  cancelProfesionalEdit(cardId: number): void {
+    this.editingProfesional.set(cardId, false);
+    this.profesionalInputs.delete(cardId);
+    this.originalProfesionalId.delete(cardId);
   }
 }

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpContext, HttpErrorResponse } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap, map, catchError, of, combineLatest, EMPTY, throwError } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-import { Appointment, AppointmentCreateDTO, AppointmentStatus, AppointmentCountByDate } from '../models';
+import { Appointment, AppointmentCreateDTO, AppointmentPartialUpdateDTO, AppointmentStatus, AppointmentCountByDate } from '../models';
 import { API_CONFIG } from './api.config';
 import { skipGlobalErrorHandler } from '../interceptors/http-context';
 import { ErrorHandlerService } from './error-handler.service';
@@ -194,10 +194,10 @@ export class AppointmentsService {
   }
 
   /**
-   * Actualizar parcialmente un turno (precios, observaciones, etc.)
+   * Actualizar parcialmente un turno (precios, observaciones, profesional, etc.)
    * Usa PATCH contra el backend.
    */
-  update(id: number, appointment: Partial<AppointmentCreateDTO>): Observable<Appointment> {
+  update(id: number, appointment: AppointmentPartialUpdateDTO): Observable<Appointment> {
     return this.http.patch<Appointment>(`${this.apiUrl}/${id}`, appointment).pipe(
       tap(() => this.refreshFiltered())
     );
@@ -266,7 +266,7 @@ export class AppointmentsService {
    */
   updateWithFeedback(
     id: number,
-    appointment: Partial<AppointmentCreateDTO>,
+    appointment: AppointmentPartialUpdateDTO,
     successMessage: string,
     errorContext: string
   ): Observable<Appointment> {

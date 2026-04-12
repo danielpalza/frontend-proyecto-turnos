@@ -50,6 +50,14 @@ export interface AppointmentCreateDTO {
 }
 
 /**
+ * DTO para actualizaciones parciales (PATCH).
+ * Incluye campos adicionales como unassignProfesional para desasignar.
+ */
+export interface AppointmentPartialUpdateDTO extends Partial<AppointmentCreateDTO> {
+  unassignProfesional?: boolean;
+}
+
+/**
  * Conteo de turnos por fecha (para calendario)
  */
 export type AppointmentCountByDate = Record<string, number>;
