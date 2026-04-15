@@ -1,6 +1,12 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
+  {
+    path: 'login',
+    loadComponent: () =>
+      import('./features/auth/login/login.component').then(m => m.LoginComponent)
+  },
   {
     path: '',
     redirectTo: 'turnos',
@@ -8,6 +14,7 @@ export const routes: Routes = [
   },
   {
     path: 'turnos',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./features/appointments/pages/turnos-view/turnos-view.component').then(
         m => m.TurnosViewComponent
@@ -15,6 +22,7 @@ export const routes: Routes = [
   },
   {
     path: 'odontograma',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./features/odontograma/components/odontograma-view/odontograma-view.component').then(
         m => m.OdontogramaViewComponent
@@ -22,6 +30,7 @@ export const routes: Routes = [
   },
   {
     path: 'seguimiento',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./features/seguimiento/seguimiento-view/seguimiento-view.component').then(
         m => m.SeguimientoViewComponent
@@ -29,9 +38,14 @@ export const routes: Routes = [
   },
   {
     path: 'configuraciones',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./features/configuraciones/configuraciones-view/configuraciones-view.component').then(
         m => m.ConfiguracionesViewComponent
       )
+  },
+  {
+    path: '**',
+    redirectTo: 'turnos'
   }
 ];

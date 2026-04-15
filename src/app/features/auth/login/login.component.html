@@ -1,0 +1,150 @@
+<div class="login-container">
+  <div class="login-card fade-in">
+    <div class="login-header">
+      <h1 class="login-title">OdontoLite</h1>
+      <p class="login-subtitle">
+        {{ isLoginMode ? 'Iniciar sesión' : 'Crear cuenta' }}
+      </p>
+    </div>
+
+    @if (errorMessage) {
+      <div class="alert alert-danger d-flex align-items-center" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        {{ errorMessage }}
+      </div>
+    }
+
+    @if (isLoginMode) {
+      <form (ngSubmit)="onLogin()" class="login-form">
+        <div class="form-group">
+          <label for="username" class="form-label">Usuario o email</label>
+          <div class="input-wrapper">
+            <i class="bi bi-person input-icon"></i>
+            <input
+              id="username"
+              type="text"
+              class="form-control form-input"
+              placeholder="Ingrese su usuario o email"
+              [(ngModel)]="loginData.username"
+              name="username"
+              [disabled]="loading"
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password" class="form-label">Contraseña</label>
+          <div class="input-wrapper">
+            <i class="bi bi-lock input-icon"></i>
+            <input
+              id="password"
+              type="password"
+              class="form-control form-input"
+              placeholder="Ingrese su contraseña"
+              [(ngModel)]="loginData.password"
+              name="password"
+              [disabled]="loading"
+            />
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          class="btn btn-login"
+          [disabled]="loading"
+        >
+          @if (loading) {
+            <span class="spinner-border spinner-border-sm me-2"></span>
+          }
+          Iniciar sesión
+        </button>
+      </form>
+    } @else {
+      <form (ngSubmit)="onRegister()" class="login-form">
+        <div class="form-group">
+          <label for="reg-username" class="form-label">Usuario</label>
+          <div class="input-wrapper">
+            <i class="bi bi-person input-icon"></i>
+            <input
+              id="reg-username"
+              type="text"
+              class="form-control form-input"
+              placeholder="Nombre de usuario"
+              [(ngModel)]="registerData.username"
+              name="username"
+              [disabled]="loading"
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="reg-email" class="form-label">Email</label>
+          <div class="input-wrapper">
+            <i class="bi bi-envelope input-icon"></i>
+            <input
+              id="reg-email"
+              type="email"
+              class="form-control form-input"
+              placeholder="correo@ejemplo.com"
+              [(ngModel)]="registerData.email"
+              name="email"
+              [disabled]="loading"
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="reg-password" class="form-label">Contraseña</label>
+          <div class="input-wrapper">
+            <i class="bi bi-lock input-icon"></i>
+            <input
+              id="reg-password"
+              type="password"
+              class="form-control form-input"
+              placeholder="Mínimo 6 caracteres"
+              [(ngModel)]="registerData.password"
+              name="password"
+              [disabled]="loading"
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="reg-confirm" class="form-label">Confirmar contraseña</label>
+          <div class="input-wrapper">
+            <i class="bi bi-lock-fill input-icon"></i>
+            <input
+              id="reg-confirm"
+              type="password"
+              class="form-control form-input"
+              placeholder="Repita la contraseña"
+              [(ngModel)]="confirmPassword"
+              name="confirmPassword"
+              [disabled]="loading"
+            />
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          class="btn btn-login"
+          [disabled]="loading"
+        >
+          @if (loading) {
+            <span class="spinner-border spinner-border-sm me-2"></span>
+          }
+          Crear cuenta
+        </button>
+      </form>
+    }
+
+    <div class="login-footer">
+      <p>
+        {{ isLoginMode ? '¿No tenés cuenta?' : '¿Ya tenés cuenta?' }}
+        <a class="toggle-link" (click)="toggleMode()">
+          {{ isLoginMode ? 'Crear una' : 'Iniciar sesión' }}
+        </a>
+      </p>
+    </div>
+  </div>
+</div>

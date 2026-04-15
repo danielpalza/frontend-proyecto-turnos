@@ -1,8 +1,10 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { ErrorHandlerService } from '../services/error-handler.service';
 import { NotificationService } from '../services/notification.service';
+import { AuthService } from '../services/auth.service';
 import { SKIP_GLOBAL_ERROR_HANDLER } from './http-context';
 
 /**
@@ -17,9 +19,18 @@ import { SKIP_GLOBAL_ERROR_HANDLER } from './http-context';
 export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
   const errorHandler = inject(ErrorHandlerService);
   const notification = inject(NotificationService);
+  const authService = inject(AuthService);
+  const router = inject(Router);
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
+      // Si es 401 y no es una request de auth, cerrar sesión y redirigir al login
+      if (error.status === 401 && !req.url.includes('/auth/')) {
+        authService.logout();
+        router.navigate(['/login']);
+        return throwError(() => error);
+      }
+
       // Verificar si el componente quiere manejar el error específicamente
       const skipGlobalHandler = req.context.get(SKIP_GLOBAL_ERROR_HANDLER);
       

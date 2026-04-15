@@ -11,7 +11,8 @@ export const API_CONFIG = {
   endpoints: {
     patients: '/patients',
     profesionales: '/profesionales',
-    appointments: '/appointments'
+    appointments: '/appointments',
+    auth: '/auth'
   }
 };
 
