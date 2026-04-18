@@ -7,8 +7,14 @@ export interface RegisterRequest {
   username: string;
   email: string;
   password: string;
-  role?: string;
-  profesionalId?: number;
+  role: string;
+  nombre: string;
+  dni?: string;
+  telefono?: string;
+  direccion?: string;
+  localidad?: string;
+  especialidad?: string;
+  matricula?: string;
 }
 
 export interface AuthResponse {
@@ -19,4 +25,6 @@ export interface AuthResponse {
   role: string;
   profesionalId?: number;
   profesionalNombre?: string;
+  recepcionistaId?: number;
+  recepcionistaNombre?: string;
 }

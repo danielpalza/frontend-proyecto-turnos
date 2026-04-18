@@ -24,8 +24,7 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      // Si es 401 y no es una request de auth, cerrar sesión y redirigir al login
-      if (error.status === 401 && !req.url.includes('/auth/')) {
+      if ((error.status === 401 || error.status === 403) && !req.url.includes('/auth/')) {
         authService.logout();
         router.navigate(['/login']);
         return throwError(() => error);
@@ -51,7 +50,7 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
         // Mostrar notificación para errores, excepto:
         // - 401/403 que se manejan desde el backend
         // - errores de red (sin conexión), que se mostrarán solo en los componentes
-        if (error.status !== 401 && error.status !== 403 && !errorHandler.isNetworkError(error)) {
+        if (!errorHandler.isNetworkError(error)) {
           notification.showError(message);
         }
 
@@ -70,8 +69,8 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
  * Algunos errores son manejados específicamente por componentes o por el backend
  */
 function shouldHandleErrorGlobally(url: string, error: HttpErrorResponse): boolean {
-  // No manejar errores 401/403/404 globalmente - se manejan desde el backend
-  // El backend devuelve mensajes personalizados en el body de la respuesta
+  // 401 y 403 ya se manejan arriba (redirect a login), no necesitan manejo global
+  // 404 se maneja desde el backend con mensajes personalizados
   if (error.status === 401 || error.status === 403 || error.status === 404) {
     return false;
   }

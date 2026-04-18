@@ -3,9 +3,39 @@
     <div class="login-header">
       <h1 class="login-title">OdontoLite</h1>
       <p class="login-subtitle">
-        {{ isLoginMode ? 'Iniciar sesión' : 'Crear cuenta' }}
+        @if (isLoginMode) {
+          Iniciar sesión
+        } @else {
+          @switch (registerStep) {
+            @case ('role') { Seleccioná tu tipo de cuenta }
+            @case ('details') {
+              Datos {{ selectedRole === 'PROFESIONAL' ? 'del profesional' : 'del recepcionista' }}
+            }
+            @case ('account') { Datos de la cuenta }
+          }
+        }
       </p>
     </div>
+
+    <!-- Step indicator para registro -->
+    @if (!isLoginMode) {
+      <div class="step-indicator">
+        <div class="step" [class.active]="registerStep === 'role'" [class.completed]="registerStep === 'details' || registerStep === 'account'">
+          <span class="step-number">1</span>
+          <span class="step-label">Rol</span>
+        </div>
+        <div class="step-line" [class.active]="registerStep === 'details' || registerStep === 'account'"></div>
+        <div class="step" [class.active]="registerStep === 'details'" [class.completed]="registerStep === 'account'">
+          <span class="step-number">2</span>
+          <span class="step-label">Datos</span>
+        </div>
+        <div class="step-line" [class.active]="registerStep === 'account'"></div>
+        <div class="step" [class.active]="registerStep === 'account'">
+          <span class="step-number">3</span>
+          <span class="step-label">Cuenta</span>
+        </div>
+      </div>
+    }
 
     @if (errorMessage) {
       <div class="alert alert-danger d-flex align-items-center" role="alert">
@@ -14,6 +44,7 @@
       </div>
     }
 
+    <!-- ====== LOGIN ====== -->
     @if (isLoginMode) {
       <form (ngSubmit)="onLogin()" class="login-form">
         <div class="form-group">
@@ -48,94 +79,255 @@
           </div>
         </div>
 
-        <button
-          type="submit"
-          class="btn btn-login"
-          [disabled]="loading"
-        >
+        <button type="submit" class="btn btn-login" [disabled]="loading">
           @if (loading) {
             <span class="spinner-border spinner-border-sm me-2"></span>
           }
           Iniciar sesión
         </button>
       </form>
+
+    <!-- ====== REGISTRO ====== -->
     } @else {
-      <form (ngSubmit)="onRegister()" class="login-form">
-        <div class="form-group">
-          <label for="reg-username" class="form-label">Usuario</label>
-          <div class="input-wrapper">
-            <i class="bi bi-person input-icon"></i>
-            <input
-              id="reg-username"
-              type="text"
-              class="form-control form-input"
-              placeholder="Nombre de usuario"
-              [(ngModel)]="registerData.username"
-              name="username"
-              [disabled]="loading"
-            />
+
+      <!-- Step 1: Selección de rol -->
+      @if (registerStep === 'role') {
+        <div class="role-selection">
+          <div
+            class="role-card"
+            [class.selected]="selectedRole === 'PROFESIONAL'"
+            (click)="selectRole('PROFESIONAL')"
+          >
+            <div class="role-icon">
+              <i class="bi bi-heart-pulse"></i>
+            </div>
+            <h3 class="role-title">Profesional</h3>
+            <p class="role-desc">Odontólogo o especialista que atiende pacientes</p>
+          </div>
+
+          <div
+            class="role-card"
+            [class.selected]="selectedRole === 'RECEPCIONISTA'"
+            (click)="selectRole('RECEPCIONISTA')"
+          >
+            <div class="role-icon">
+              <i class="bi bi-clipboard-check"></i>
+            </div>
+            <h3 class="role-title">Recepcionista</h3>
+            <p class="role-desc">Gestión de turnos, pacientes y administración</p>
           </div>
         </div>
 
-        <div class="form-group">
-          <label for="reg-email" class="form-label">Email</label>
-          <div class="input-wrapper">
-            <i class="bi bi-envelope input-icon"></i>
-            <input
-              id="reg-email"
-              type="email"
-              class="form-control form-input"
-              placeholder="correo@ejemplo.com"
-              [(ngModel)]="registerData.email"
-              name="email"
-              [disabled]="loading"
-            />
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="reg-password" class="form-label">Contraseña</label>
-          <div class="input-wrapper">
-            <i class="bi bi-lock input-icon"></i>
-            <input
-              id="reg-password"
-              type="password"
-              class="form-control form-input"
-              placeholder="Mínimo 6 caracteres"
-              [(ngModel)]="registerData.password"
-              name="password"
-              [disabled]="loading"
-            />
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="reg-confirm" class="form-label">Confirmar contraseña</label>
-          <div class="input-wrapper">
-            <i class="bi bi-lock-fill input-icon"></i>
-            <input
-              id="reg-confirm"
-              type="password"
-              class="form-control form-input"
-              placeholder="Repita la contraseña"
-              [(ngModel)]="confirmPassword"
-              name="confirmPassword"
-              [disabled]="loading"
-            />
-          </div>
-        </div>
-
-        <button
-          type="submit"
-          class="btn btn-login"
-          [disabled]="loading"
-        >
-          @if (loading) {
-            <span class="spinner-border spinner-border-sm me-2"></span>
-          }
-          Crear cuenta
+        <button class="btn btn-login" (click)="nextStep()" [disabled]="!selectedRole">
+          Siguiente
         </button>
-      </form>
+      }
+
+      <!-- Step 2: Datos personales -->
+      @if (registerStep === 'details') {
+        <div class="login-form">
+          <div class="form-group">
+            <label for="nombre" class="form-label">Nombre completo *</label>
+            <div class="input-wrapper">
+              <i class="bi bi-person input-icon"></i>
+              <input
+                id="nombre"
+                type="text"
+                class="form-control form-input"
+                placeholder="Nombre y apellido"
+                [(ngModel)]="registerData.nombre"
+                name="nombre"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="dni" class="form-label">DNI</label>
+            <div class="input-wrapper">
+              <i class="bi bi-card-text input-icon"></i>
+              <input
+                id="dni"
+                type="text"
+                class="form-control form-input"
+                placeholder="Número de documento"
+                [(ngModel)]="registerData.dni"
+                name="dni"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="telefono" class="form-label">Teléfono</label>
+            <div class="input-wrapper">
+              <i class="bi bi-telephone input-icon"></i>
+              <input
+                id="telefono"
+                type="tel"
+                class="form-control form-input"
+                placeholder="Número de teléfono"
+                [(ngModel)]="registerData.telefono"
+                name="telefono"
+              />
+            </div>
+          </div>
+
+          <!-- Campos exclusivos de Profesional -->
+          @if (selectedRole === 'PROFESIONAL') {
+            <div class="form-group">
+              <label for="especialidad" class="form-label">Especialidad</label>
+              <div class="input-wrapper">
+                <i class="bi bi-award input-icon"></i>
+                <input
+                  id="especialidad"
+                  type="text"
+                  class="form-control form-input"
+                  placeholder="Ej: Ortodoncia, Endodoncia"
+                  [(ngModel)]="registerData.especialidad"
+                  name="especialidad"
+                />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="matricula" class="form-label">Matrícula *</label>
+              <div class="input-wrapper">
+                <i class="bi bi-hash input-icon"></i>
+                <input
+                  id="matricula"
+                  type="text"
+                  class="form-control form-input"
+                  placeholder="Número de matrícula"
+                  [(ngModel)]="registerData.matricula"
+                  name="matricula"
+                />
+              </div>
+            </div>
+          }
+
+          <!-- Campos exclusivos de Recepcionista -->
+          @if (selectedRole === 'RECEPCIONISTA') {
+            <div class="form-group">
+              <label for="direccion" class="form-label">Dirección</label>
+              <div class="input-wrapper">
+                <i class="bi bi-geo-alt input-icon"></i>
+                <input
+                  id="direccion"
+                  type="text"
+                  class="form-control form-input"
+                  placeholder="Dirección"
+                  [(ngModel)]="registerData.direccion"
+                  name="direccion"
+                />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="localidad" class="form-label">Localidad</label>
+              <div class="input-wrapper">
+                <i class="bi bi-building input-icon"></i>
+                <input
+                  id="localidad"
+                  type="text"
+                  class="form-control form-input"
+                  placeholder="Localidad"
+                  [(ngModel)]="registerData.localidad"
+                  name="localidad"
+                />
+              </div>
+            </div>
+          }
+
+          <div class="btn-group-wizard">
+            <button class="btn btn-outline" (click)="prevStep()">
+              <i class="bi bi-arrow-left me-1"></i> Volver
+            </button>
+            <button class="btn btn-login" (click)="nextStep()">
+              Siguiente
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- Step 3: Datos de la cuenta -->
+      @if (registerStep === 'account') {
+        <form (ngSubmit)="onRegister()" class="login-form">
+          <div class="form-group">
+            <label for="reg-username" class="form-label">Usuario *</label>
+            <div class="input-wrapper">
+              <i class="bi bi-person input-icon"></i>
+              <input
+                id="reg-username"
+                type="text"
+                class="form-control form-input"
+                placeholder="Nombre de usuario"
+                [(ngModel)]="registerData.username"
+                name="username"
+                [disabled]="loading"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="reg-email" class="form-label">Email *</label>
+            <div class="input-wrapper">
+              <i class="bi bi-envelope input-icon"></i>
+              <input
+                id="reg-email"
+                type="email"
+                class="form-control form-input"
+                placeholder="correo@ejemplo.com"
+                [(ngModel)]="registerData.email"
+                name="email"
+                [disabled]="loading"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="reg-password" class="form-label">Contraseña *</label>
+            <div class="input-wrapper">
+              <i class="bi bi-lock input-icon"></i>
+              <input
+                id="reg-password"
+                type="password"
+                class="form-control form-input"
+                placeholder="Mínimo 6 caracteres"
+                [(ngModel)]="registerData.password"
+                name="password"
+                [disabled]="loading"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="reg-confirm" class="form-label">Confirmar contraseña *</label>
+            <div class="input-wrapper">
+              <i class="bi bi-lock-fill input-icon"></i>
+              <input
+                id="reg-confirm"
+                type="password"
+                class="form-control form-input"
+                placeholder="Repita la contraseña"
+                [(ngModel)]="confirmPassword"
+                name="confirmPassword"
+                [disabled]="loading"
+              />
+            </div>
+          </div>
+
+          <div class="btn-group-wizard">
+            <button type="button" class="btn btn-outline" (click)="prevStep()" [disabled]="loading">
+              <i class="bi bi-arrow-left me-1"></i> Volver
+            </button>
+            <button type="submit" class="btn btn-login" [disabled]="loading">
+              @if (loading) {
+                <span class="spinner-border spinner-border-sm me-2"></span>
+              }
+              Crear cuenta
+            </button>
+          </div>
+        </form>
+      }
     }
 
     <div class="login-footer">

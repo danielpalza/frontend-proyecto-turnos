@@ -1,9 +1,11 @@
 $primary-color: #6366f1;
 $primary-dark: #4f46e5;
+$primary-light: #eef2ff;
 $text-primary: #1e293b;
 $text-secondary: #64748b;
 $border-color: #e2e8f0;
 $background-color: #f8fafc;
+$success-color: #22c55e;
 
 .login-container {
   display: flex;
@@ -19,13 +21,13 @@ $background-color: #f8fafc;
   border-radius: 16px;
   padding: 40px;
   width: 100%;
-  max-width: 420px;
+  max-width: 480px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
 }
 
 .login-header {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 28px;
 }
 
 .login-title {
@@ -41,16 +43,136 @@ $background-color: #f8fafc;
   margin: 0;
 }
 
+// Step indicator
+.step-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  gap: 0;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+
+  .step-number {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    background: #f1f5f9;
+    color: $text-secondary;
+    border: 2px solid $border-color;
+    transition: all 0.3s ease;
+  }
+
+  .step-label {
+    font-size: 11px;
+    color: $text-secondary;
+    font-weight: 500;
+    transition: color 0.3s ease;
+  }
+
+  &.active .step-number {
+    background: $primary-color;
+    color: white;
+    border-color: $primary-color;
+  }
+
+  &.active .step-label {
+    color: $primary-color;
+    font-weight: 600;
+  }
+
+  &.completed .step-number {
+    background: $success-color;
+    color: white;
+    border-color: $success-color;
+  }
+
+  &.completed .step-label {
+    color: $success-color;
+  }
+}
+
+.step-line {
+  width: 48px;
+  height: 2px;
+  background: $border-color;
+  margin: 0 8px;
+  margin-bottom: 18px;
+  transition: background 0.3s ease;
+
+  &.active {
+    background: $success-color;
+  }
+}
+
+// Role selection cards
+.role-selection {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.role-card {
+  flex: 1;
+  padding: 20px 16px;
+  border: 2px solid $border-color;
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: rgba($primary-color, 0.4);
+    background: rgba($primary-color, 0.02);
+  }
+
+  &.selected {
+    border-color: $primary-color;
+    background: $primary-light;
+  }
+
+  .role-icon {
+    font-size: 28px;
+    color: $primary-color;
+    margin-bottom: 8px;
+  }
+
+  .role-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0 0 4px;
+  }
+
+  .role-desc {
+    font-size: 12px;
+    color: $text-secondary;
+    margin: 0;
+    line-height: 1.4;
+  }
+}
+
+// Form
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
 }
 
 .form-label {
@@ -90,6 +212,7 @@ $background-color: #f8fafc;
   }
 }
 
+// Buttons
 .btn-login {
   background-color: $primary-color;
   color: white;
@@ -99,7 +222,7 @@ $background-color: #f8fafc;
   font-size: 15px;
   font-weight: 600;
   transition: all 0.2s ease;
-  margin-top: 4px;
+  flex: 1;
 
   &:hover:not(:disabled) {
     background-color: $primary-dark;
@@ -113,6 +236,32 @@ $background-color: #f8fafc;
   }
 }
 
+.btn-outline {
+  background: white;
+  color: $text-secondary;
+  border: 1px solid $border-color;
+  border-radius: 10px;
+  height: 46px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  flex: 0 0 auto;
+  padding: 0 20px;
+
+  &:hover:not(:disabled) {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: $text-primary;
+  }
+}
+
+.btn-group-wizard {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+// Footer
 .login-footer {
   text-align: center;
   margin-top: 24px;
@@ -133,4 +282,39 @@ $background-color: #f8fafc;
   &:hover {
     text-decoration: underline;
   }
+}
+
+// Alert
+.alert-danger {
+  border: none;
+  border-radius: 10px;
+  background-color: #fef2f2;
+  color: #991b1b;
+  font-size: 14px;
+  padding: 12px 16px;
+  margin-bottom: 4px;
+  animation: shake 0.4s ease-in-out;
+
+  i {
+    color: #dc2626;
+    font-size: 16px;
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+// Fade in animation
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }

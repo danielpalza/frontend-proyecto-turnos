@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { API_CONFIG } from './api.config';
 import { AuthResponse, LoginRequest, RegisterRequest } from '../models/auth.model';
+import { skipGlobalErrorHandler } from '../interceptors/http-context';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -14,13 +15,17 @@ export class AuthService {
   constructor(private http: HttpClient) {}
 
   login(request: LoginRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, request).pipe(
+    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, request, {
+      context: skipGlobalErrorHandler()
+    }).pipe(
       tap(response => this.setSession(response))
     );
   }
 
   register(request: RegisterRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, request).pipe(
+    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, request, {
+      context: skipGlobalErrorHandler()
+    }).pipe(
       tap(response => this.setSession(response))
     );
   }
@@ -36,7 +41,21 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    return !!this.getToken();
+    const token = this.getToken();
+    if (!token) return false;
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const isExpired = Date.now() >= payload.exp * 1000;
+      if (isExpired) {
+        this.logout();
+        return false;
+      }
+      return true;
+    } catch {
+      this.logout();
+      return false;
+    }
   }
 
   getCurrentUser(): AuthResponse | null {
