@@ -9,6 +9,12 @@ import { LoginRequest, RegisterRequest } from '../../../core/models/auth.model';
 
 type RegisterStep = 'role' | 'details' | 'account';
 
+const PATTERNS = {
+  onlyLetters: /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ ]+$/,
+  onlyNumbers: /^[0-9]+$/,
+  email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+};
+
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -20,6 +26,7 @@ export class LoginComponent {
   isLoginMode = true;
   loading = false;
   errorMessage = '';
+  fieldErrors: Record<string, string> = {};
 
   loginData: LoginRequest = { username: '', password: '' };
 
@@ -48,8 +55,16 @@ export class LoginComponent {
   toggleMode(): void {
     this.isLoginMode = !this.isLoginMode;
     this.errorMessage = '';
+    this.fieldErrors = {};
     this.registerStep = 'role';
     this.selectedRole = null;
+    this.registerData = {
+      username: '', email: '', password: '', role: '',
+      nombre: '', dni: '', telefono: '',
+      direccion: '', localidad: '',
+      especialidad: '', matricula: ''
+    };
+    this.confirmPassword = '';
   }
 
   selectRole(role: 'PROFESIONAL' | 'RECEPCIONISTA'): void {
@@ -57,8 +72,13 @@ export class LoginComponent {
     this.errorMessage = '';
   }
 
+  onFieldInput(field: string): void {
+    delete this.fieldErrors[field];
+  }
+
   nextStep(): void {
     this.errorMessage = '';
+    this.fieldErrors = {};
 
     if (this.registerStep === 'role') {
       if (!this.selectedRole) {
@@ -71,20 +91,14 @@ export class LoginComponent {
     }
 
     if (this.registerStep === 'details') {
-      if (!this.registerData.nombre.trim()) {
-        this.errorMessage = 'El nombre completo es obligatorio';
-        return;
-      }
-      if (this.selectedRole === 'PROFESIONAL' && !this.registerData.matricula?.trim()) {
-        this.errorMessage = 'La matrícula es obligatoria para profesionales';
-        return;
-      }
+      if (!this.validateDetailsStep()) return;
       this.registerStep = 'account';
     }
   }
 
   prevStep(): void {
     this.errorMessage = '';
+    this.fieldErrors = {};
     if (this.registerStep === 'account') {
       this.registerStep = 'details';
     } else if (this.registerStep === 'details') {
@@ -119,17 +133,32 @@ export class LoginComponent {
 
   onRegister(): void {
     if (this.loading) return;
+    this.fieldErrors = {};
 
-    if (!this.registerData.username || !this.registerData.email || !this.registerData.password) {
-      this.errorMessage = 'Complete todos los campos obligatorios';
-      return;
+    if (!this.registerData.username.trim()) {
+      this.fieldErrors['username'] = 'El usuario es obligatorio';
+    } else if (this.registerData.username.trim().length < 3) {
+      this.fieldErrors['username'] = 'El usuario debe tener al menos 3 caracteres';
     }
-    if (this.registerData.password !== this.confirmPassword) {
-      this.errorMessage = 'Las contraseñas no coinciden';
-      return;
+
+    if (!this.registerData.email.trim()) {
+      this.fieldErrors['email'] = 'El email es obligatorio';
+    } else if (!PATTERNS.email.test(this.registerData.email)) {
+      this.fieldErrors['email'] = 'Ingrese un email válido';
     }
-    if (this.registerData.password.length < 6) {
-      this.errorMessage = 'La contraseña debe tener al menos 6 caracteres';
+
+    if (!this.registerData.password) {
+      this.fieldErrors['password'] = 'La contraseña es obligatoria';
+    } else if (this.registerData.password.length < 6) {
+      this.fieldErrors['password'] = 'Mínimo 6 caracteres';
+    }
+
+    if (this.registerData.password && this.registerData.password !== this.confirmPassword) {
+      this.fieldErrors['confirmPassword'] = 'Las contraseñas no coinciden';
+    }
+
+    if (Object.keys(this.fieldErrors).length > 0) {
+      this.errorMessage = 'Corrija los errores marcados';
       return;
     }
 
@@ -148,6 +177,53 @@ export class LoginComponent {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  private validateDetailsStep(): boolean {
+    const d = this.registerData;
+
+    if (!d.nombre.trim()) {
+      this.fieldErrors['nombre'] = 'El nombre completo es obligatorio';
+    } else if (!PATTERNS.onlyLetters.test(d.nombre.trim())) {
+      this.fieldErrors['nombre'] = 'Solo puede contener letras y espacios';
+    }
+
+    if (d.dni && d.dni.trim()) {
+      if (!PATTERNS.onlyNumbers.test(d.dni.trim())) {
+        this.fieldErrors['dni'] = 'Solo números';
+      } else if (d.dni.trim().length > 8) {
+        this.fieldErrors['dni'] = 'Máximo 8 dígitos';
+      }
+    }
+
+    if (d.telefono && d.telefono.trim()) {
+      if (!PATTERNS.onlyNumbers.test(d.telefono.trim())) {
+        this.fieldErrors['telefono'] = 'Solo números';
+      } else if (d.telefono.trim().length > 20) {
+        this.fieldErrors['telefono'] = 'Máximo 20 dígitos';
+      }
+    }
+
+    if (this.selectedRole === 'PROFESIONAL') {
+      if (d.especialidad && d.especialidad.trim() && !PATTERNS.onlyLetters.test(d.especialidad.trim())) {
+        this.fieldErrors['especialidad'] = 'Solo puede contener letras y espacios';
+      }
+      if (!d.matricula?.trim()) {
+        this.fieldErrors['matricula'] = 'La matrícula es obligatoria';
+      }
+    }
+
+    if (this.selectedRole === 'RECEPCIONISTA') {
+      if (d.localidad && d.localidad.trim() && !PATTERNS.onlyLetters.test(d.localidad.trim())) {
+        this.fieldErrors['localidad'] = 'Solo puede contener letras y espacios';
+      }
+    }
+
+    if (Object.keys(this.fieldErrors).length > 0) {
+      this.errorMessage = 'Corrija los errores marcados';
+      return false;
+    }
+    return true;
   }
 
   private extractErrorMessage(err: HttpErrorResponse, fallback: string): string {

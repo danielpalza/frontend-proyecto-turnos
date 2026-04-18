@@ -210,6 +210,20 @@ $success-color: #22c55e;
   &::placeholder {
     color: #94a3b8;
   }
+
+  &.is-invalid {
+    border-color: #dc2626;
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(#dc2626, 0.15);
+    }
+  }
+}
+
+.field-error {
+  font-size: 12px;
+  color: #dc2626;
+  margin-top: 2px;
 }
 
 // Buttons

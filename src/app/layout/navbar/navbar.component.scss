@@ -3,9 +3,11 @@
 .navbar-container {
   display: flex;
   justify-content: center;
-  padding: 1rem 0;
+  align-items: center;
+  padding: 1rem 1.5rem;
   background-color: $card-background;
   border-bottom: 1px solid $border-color;
+  position: relative;
 }
 
 .nav-tabs {
@@ -50,6 +52,33 @@
       background-color: darken($text-primary, 5%);
       color: white;
     }
+  }
+}
+
+.btn-logout {
+  position: absolute;
+  right: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: 0.5rem 1rem;
+  border: 1px solid $border-color;
+  background-color: transparent;
+  color: $text-secondary;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  i {
+    font-size: 1rem;
+  }
+
+  &:hover {
+    background-color: #fef2f2;
+    border-color: #fca5a5;
+    color: #dc2626;
   }
 }
 

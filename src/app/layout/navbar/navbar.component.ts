@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '../../core/services/auth.service';
 
 export type ViewType = 'turnos' | 'odontograma' | 'seguimiento' | 'configuraciones';
 
@@ -12,7 +13,10 @@ export type ViewType = 'turnos' | 'odontograma' | 'seguimiento' | 'configuracion
   styleUrls: ['./navbar.component.scss']
 })
 export class NavbarComponent {
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService
+  ) {}
 
   menuItems = [
     { title: 'Turnos', icon: 'bi-calendar', route: '/turnos' },
@@ -20,5 +24,10 @@ export class NavbarComponent {
     { title: 'Seguimiento', icon: 'bi-clipboard-data', route: '/seguimiento' },
     { title: 'Configuraciones', icon: 'bi-gear', route: '/configuraciones' }
   ];
+
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
 }
 

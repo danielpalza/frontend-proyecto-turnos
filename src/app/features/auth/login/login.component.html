@@ -17,7 +17,6 @@
       </p>
     </div>
 
-    <!-- Step indicator para registro -->
     @if (!isLoginMode) {
       <div class="step-indicator">
         <div class="step" [class.active]="registerStep === 'role'" [class.completed]="registerStep === 'details' || registerStep === 'account'">
@@ -134,11 +133,17 @@
                 id="nombre"
                 type="text"
                 class="form-control form-input"
+                [class.is-invalid]="fieldErrors['nombre']"
                 placeholder="Nombre y apellido"
                 [(ngModel)]="registerData.nombre"
+                (ngModelChange)="onFieldInput('nombre')"
                 name="nombre"
+                maxlength="100"
               />
             </div>
+            @if (fieldErrors['nombre']) {
+              <span class="field-error">{{ fieldErrors['nombre'] }}</span>
+            }
           </div>
 
           <div class="form-group">
@@ -149,11 +154,17 @@
                 id="dni"
                 type="text"
                 class="form-control form-input"
-                placeholder="Número de documento"
+                [class.is-invalid]="fieldErrors['dni']"
+                placeholder="Máximo 8 dígitos"
                 [(ngModel)]="registerData.dni"
+                (ngModelChange)="onFieldInput('dni')"
                 name="dni"
+                maxlength="8"
               />
             </div>
+            @if (fieldErrors['dni']) {
+              <span class="field-error">{{ fieldErrors['dni'] }}</span>
+            }
           </div>
 
           <div class="form-group">
@@ -164,11 +175,17 @@
                 id="telefono"
                 type="tel"
                 class="form-control form-input"
-                placeholder="Número de teléfono"
+                [class.is-invalid]="fieldErrors['telefono']"
+                placeholder="Solo números"
                 [(ngModel)]="registerData.telefono"
+                (ngModelChange)="onFieldInput('telefono')"
                 name="telefono"
+                maxlength="20"
               />
             </div>
+            @if (fieldErrors['telefono']) {
+              <span class="field-error">{{ fieldErrors['telefono'] }}</span>
+            }
           </div>
 
           <!-- Campos exclusivos de Profesional -->
@@ -181,11 +198,17 @@
                   id="especialidad"
                   type="text"
                   class="form-control form-input"
+                  [class.is-invalid]="fieldErrors['especialidad']"
                   placeholder="Ej: Ortodoncia, Endodoncia"
                   [(ngModel)]="registerData.especialidad"
+                  (ngModelChange)="onFieldInput('especialidad')"
                   name="especialidad"
+                  maxlength="100"
                 />
               </div>
+              @if (fieldErrors['especialidad']) {
+                <span class="field-error">{{ fieldErrors['especialidad'] }}</span>
+              }
             </div>
 
             <div class="form-group">
@@ -196,11 +219,17 @@
                   id="matricula"
                   type="text"
                   class="form-control form-input"
+                  [class.is-invalid]="fieldErrors['matricula']"
                   placeholder="Número de matrícula"
                   [(ngModel)]="registerData.matricula"
+                  (ngModelChange)="onFieldInput('matricula')"
                   name="matricula"
+                  maxlength="50"
                 />
               </div>
+              @if (fieldErrors['matricula']) {
+                <span class="field-error">{{ fieldErrors['matricula'] }}</span>
+              }
             </div>
           }
 
@@ -217,6 +246,7 @@
                   placeholder="Dirección"
                   [(ngModel)]="registerData.direccion"
                   name="direccion"
+                  maxlength="200"
                 />
               </div>
             </div>
@@ -229,11 +259,17 @@
                   id="localidad"
                   type="text"
                   class="form-control form-input"
+                  [class.is-invalid]="fieldErrors['localidad']"
                   placeholder="Localidad"
                   [(ngModel)]="registerData.localidad"
+                  (ngModelChange)="onFieldInput('localidad')"
                   name="localidad"
+                  maxlength="100"
                 />
               </div>
+              @if (fieldErrors['localidad']) {
+                <span class="field-error">{{ fieldErrors['localidad'] }}</span>
+              }
             </div>
           }
 
@@ -259,12 +295,18 @@
                 id="reg-username"
                 type="text"
                 class="form-control form-input"
-                placeholder="Nombre de usuario"
+                [class.is-invalid]="fieldErrors['username']"
+                placeholder="Mínimo 3 caracteres"
                 [(ngModel)]="registerData.username"
+                (ngModelChange)="onFieldInput('username')"
                 name="username"
                 [disabled]="loading"
+                maxlength="30"
               />
             </div>
+            @if (fieldErrors['username']) {
+              <span class="field-error">{{ fieldErrors['username'] }}</span>
+            }
           </div>
 
           <div class="form-group">
@@ -275,12 +317,17 @@
                 id="reg-email"
                 type="email"
                 class="form-control form-input"
+                [class.is-invalid]="fieldErrors['email']"
                 placeholder="correo@ejemplo.com"
                 [(ngModel)]="registerData.email"
+                (ngModelChange)="onFieldInput('email')"
                 name="email"
                 [disabled]="loading"
               />
             </div>
+            @if (fieldErrors['email']) {
+              <span class="field-error">{{ fieldErrors['email'] }}</span>
+            }
           </div>
 
           <div class="form-group">
@@ -291,12 +338,17 @@
                 id="reg-password"
                 type="password"
                 class="form-control form-input"
+                [class.is-invalid]="fieldErrors['password']"
                 placeholder="Mínimo 6 caracteres"
                 [(ngModel)]="registerData.password"
+                (ngModelChange)="onFieldInput('password')"
                 name="password"
                 [disabled]="loading"
               />
             </div>
+            @if (fieldErrors['password']) {
+              <span class="field-error">{{ fieldErrors['password'] }}</span>
+            }
           </div>
 
           <div class="form-group">
@@ -307,12 +359,17 @@
                 id="reg-confirm"
                 type="password"
                 class="form-control form-input"
+                [class.is-invalid]="fieldErrors['confirmPassword']"
                 placeholder="Repita la contraseña"
                 [(ngModel)]="confirmPassword"
+                (ngModelChange)="onFieldInput('confirmPassword')"
                 name="confirmPassword"
                 [disabled]="loading"
               />
             </div>
+            @if (fieldErrors['confirmPassword']) {
+              <span class="field-error">{{ fieldErrors['confirmPassword'] }}</span>
+            }
           </div>
 
           <div class="btn-group-wizard">
