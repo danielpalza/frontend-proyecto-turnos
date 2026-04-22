@@ -1,10 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { PatientHistoryTableComponent } from '../../../patients/components/patient-history-table/patient-history-table.component';
 import { OdontogramaActionsComponent } from '../odontograma-actions/odontograma-actions.component';
 import { ToothFacesComponent } from '../tooth-faces/tooth-faces.component';
-import { ToothIconComponent } from '../tooth-icon/tooth-icon.component';
-import { OdontogramaSidebarComponent } from '../odontograma-sidebar/odontograma-sidebar.component';
 
 type ToothType = 'molar' | 'premolar' | 'canine' | 'incisor';
 
@@ -20,11 +17,8 @@ interface TeethLayout {
   standalone: true,
   imports: [
     CommonModule,
-    ToothIconComponent,
     ToothFacesComponent,
-    OdontogramaSidebarComponent,
     OdontogramaActionsComponent,
-    PatientHistoryTableComponent
   ],
   templateUrl: './odontograma-view.component.html',
   styleUrls: ['./odontograma-view.component.scss']

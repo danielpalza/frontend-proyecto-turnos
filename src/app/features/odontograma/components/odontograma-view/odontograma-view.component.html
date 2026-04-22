@@ -2,22 +2,37 @@
   <div class="odontograma-content">
 
     <!-- Header -->
-    <div class="odontograma-header">
-      <h1><i class="bi bi-clipboard2-pulse me-2"></i>Odontograma</h1>
+    <div class="odontograma-header" style="border: 2px solid red;">
+      <h1><i class="bi bi-clipboard2-pulse me-2"></i>Odontograma (Ver si se vuela este header que ocupa espacio al pedo)
+      </h1>
       <p class="text-muted">Vista dental completa del paciente</p>
     </div>
 
     <!-- Grid principal -->
     <div class="odontograma-grid">
-      
+
       <!-- Sidebar izquierdo -->
       <div class="sidebar-left">
-        <app-odontograma-sidebar></app-odontograma-sidebar>
+        <!-- AGREGAR COMENTARIOS DE TURNOS ANTERIORES Y HISTORIA CLINICA DEL PACIENTE -->
+        <div style="border: 2px solid red;">
+          <p style="font-size: 1.2rem; font-weight: bold;">Historia clinica del paciente</p>
+          <textarea class="form-control" rows="3">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.
+          </textarea>
+        </div>
+        <div style="border: 2px solid red;">
+          <p style="font-size: 1.2rem; font-weight: bold;">Comentarios del turno anterior</p>
+          <textarea class="form-control" rows="3">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.
+          </textarea>
+        </div>
       </div>
 
       <!-- Contenido principal -->
       <div class="odontograma-main-content">
-        
+
         <!-- Card del odontograma -->
         <div id="odontograma-print" class="card shadow-sm">
           <div class="card-body">
@@ -30,7 +45,6 @@
                   <!-- Derecho -->
                   <div class="teeth-group">
                     <div *ngFor="let tooth of permanentTeeth.topRight" class="tooth-item">
-                      <app-tooth-icon [type]="getToothType(tooth)" position="top"></app-tooth-icon>
                       <small class="tooth-number">{{ tooth }}</small>
                       <app-tooth-faces [toothNumber]="tooth"></app-tooth-faces>
                     </div>
@@ -42,7 +56,6 @@
                   <!-- Izquierdo -->
                   <div class="teeth-group">
                     <div *ngFor="let tooth of permanentTeeth.topLeft" class="tooth-item">
-                      <app-tooth-icon [type]="getToothType(tooth)" position="top"></app-tooth-icon>
                       <small class="tooth-number">{{ tooth }}</small>
                       <app-tooth-faces [toothNumber]="tooth"></app-tooth-faces>
                     </div>
@@ -52,7 +65,6 @@
 
               <!-- Dientes de Leche Superiores -->
               <section>
-                <p class="section-title text-secondary">Dientes de Leche</p>
                 <div class="teeth-container">
                   <!-- Derecho -->
                   <div class="teeth-group">
@@ -107,7 +119,6 @@
                     <div *ngFor="let tooth of permanentTeeth.bottomRight" class="tooth-item">
                       <app-tooth-faces [toothNumber]="tooth"></app-tooth-faces>
                       <small class="tooth-number">{{ tooth }}</small>
-                      <app-tooth-icon [type]="getToothType(tooth)" position="bottom"></app-tooth-icon>
                     </div>
                   </div>
 
@@ -119,7 +130,6 @@
                     <div *ngFor="let tooth of permanentTeeth.bottomLeft" class="tooth-item">
                       <app-tooth-faces [toothNumber]="tooth"></app-tooth-faces>
                       <small class="tooth-number">{{ tooth }}</small>
-                      <app-tooth-icon [type]="getToothType(tooth)" position="bottom"></app-tooth-icon>
                     </div>
                   </div>
                 </div>
@@ -131,33 +141,52 @@
             <div class="legend-container mt-4 pt-4 border-top">
               <p class="fw-semibold mb-3">Leyenda de Estados:</p>
               <div class="row g-3">
-                <div class="col-6 col-md-3 d-flex align-items-center gap-2">
+                <div class="col-6 col-md-2 d-flex align-items-center gap-2">
                   <div class="legend-box healthy"></div>
                   <span>Sano</span>
                 </div>
-                <div class="col-6 col-md-3 d-flex align-items-center gap-2">
+                <div class="col-6 col-md-2 d-flex align-items-center gap-2">
                   <div class="legend-box caries"></div>
                   <span>Caries</span>
                 </div>
-                <div class="col-6 col-md-3 d-flex align-items-center gap-2">
+                <div class="col-6 col-md-2 d-flex align-items-center gap-2">
                   <div class="legend-box filling"></div>
                   <span>Obturación</span>
                 </div>
-                <div class="col-6 col-md-3 d-flex align-items-center gap-2">
+                <div class="col-6 col-md-2 d-flex align-items-center gap-2">
+                  <div class="legend-box treatment"></div>
+                  <span>Tratamiento</span>
+                </div>
+                <div class="col-6 col-md-2 d-flex align-items-center gap-2">
                   <div class="legend-box missing"></div>
                   <span>Ausente</span>
+                </div>
+                <div class="col-6 col-md-2 d-flex align-items-center gap-2">
+                  <div class="legend-box missing"></div>
+                  <span>Otro</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Tabla de historial -->
-        <app-patient-history-table></app-patient-history-table>
+        <!-- Input comentarios de turno -->
+        <!-- AGREGAR INPUT DE COMENTARIOS DE TURNO -->
+        <div style="border: 2px solid red;">
+          <p style="font-size: 1.2rem; font-weight: bold;">Comentarios del turno</p>
+          <textarea class="form-control" rows="3"></textarea>
+        </div>
       </div>
 
       <!-- Sidebar derecho -->
       <div class="sidebar-right">
+        <!-- Botonera de navegacion odontograma/periodontograma -->
+        <div style="flex: 1; padding-bottom: 50px;">
+          <p style="font-size: 1.2rem; font-weight: bold;">Navegacion</p>
+          <button class="btn btn-primary">Odontograma</button>
+          <button class="btn btn-primary">Periodontograma</button>
+        </div>
+
         <app-odontograma-actions></app-odontograma-actions>
       </div>
 
@@ -167,14 +196,18 @@
   <ul>
     <strong>Tareas</strong>
     <li>Estilos: adaptar a los estilos de la app</li>
-    <li>Funcionalidad: difuminar la pantalla hasta seleccionar paciente o nuevo paciente (agregar buscador de pacientes con sus turnos + crear nuevo paciente en el momento)</li>
-    <li>Emprolijar impresion del odontograma para que solo se vea el odontograma, la leyenda de estado y la observacion de profesional</li>
+    <li>Leyenda de estado: agregar "Tratamiento", "Otro"</li>
+    <li>Funcionalidad: difuminar la pantalla hasta seleccionar paciente o nuevo paciente (agregar buscador de pacientes
+      con sus turnos + crear nuevo paciente en el momento)</li>
+    <li>Emprolijar impresion del odontograma para que solo se vea el odontograma, la leyenda de estado y la observacion
+      de profesional</li>
     <li>Estilos: emprolijar selector de caras de diente para que sea igual al de un odontograma real</li>
     <li>Investigar: como se señalizan los estados y procedimientos en los dientes en un odontograma real</li>
     <li>Investigar: como se señalan estados del diente para la leyenda de estados</li>
     <li>Agregar: Vinculacion entre odontograma y turno (no existe tabla de odontogramas en BD)</li>
     <li>Agregar: observaciones de turno y antecedentes medicos</li>
-    <li>Funcionalidad: Agregar la funcionalidad para embeber el Historial de Turnos con los datos adecuados a la tabla <strong>"Historial de Turnos"</strong></li>
-    <li>Agregar: Flechas de navegacion para cargar odontogramas pasados que sean sólo de lectura (inhabilitando su edicion o guardado, impresion me chupa un huevo). Revisar si esto vuelve inutl la tabla de <strong>"Historial de Turnos"</strong></li>
+    <li>Agregar: Flechas de navegacion para cargar odontogramas pasados que sean sólo de lectura (inhabilitando su
+      edicion o guardado, impresion me chupa un huevo). Revisar si esto vuelve inutl la tabla de <strong>"Historial de
+        Turnos"</strong></li>
   </ul>
 </div>
