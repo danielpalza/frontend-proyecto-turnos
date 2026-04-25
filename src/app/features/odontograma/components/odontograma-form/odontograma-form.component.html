@@ -1,0 +1,117 @@
+<div id="odontograma-print" class="card shadow-sm">
+  <div class="card-body">
+    <div class="teeth-section">
+      <section>
+        <p class="section-title text-primary">Dientes Permanentes</p>
+        <div class="teeth-container">
+          <div class="teeth-group">
+            <div *ngFor="let tooth of permanentTeeth.topRight" class="tooth-item">
+              <small class="tooth-number">{{ tooth }}</small>
+              <app-tooth-faces [toothNumber]="tooth"></app-tooth-faces>
+            </div>
+          </div>
+
+          <div class="divider-line"></div>
+
+          <div class="teeth-group">
+            <div *ngFor="let tooth of permanentTeeth.topLeft" class="tooth-item">
+              <small class="tooth-number">{{ tooth }}</small>
+              <app-tooth-faces [toothNumber]="tooth"></app-tooth-faces>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="teeth-container">
+          <div class="teeth-group">
+            <div *ngFor="let tooth of primaryTeeth.topRight" class="tooth-item">
+              <small class="tooth-number">{{ tooth }}</small>
+              <app-tooth-faces [toothNumber]="tooth" size="sm"></app-tooth-faces>
+            </div>
+          </div>
+
+          <div class="divider-line"></div>
+
+          <div class="teeth-group">
+            <div *ngFor="let tooth of primaryTeeth.topLeft" class="tooth-item">
+              <small class="tooth-number">{{ tooth }}</small>
+              <app-tooth-faces [toothNumber]="tooth" size="sm"></app-tooth-faces>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="teeth-container">
+          <div class="teeth-group">
+            <div *ngFor="let tooth of primaryTeeth.bottomRight" class="tooth-item">
+              <app-tooth-faces [toothNumber]="tooth" size="sm"></app-tooth-faces>
+              <small class="tooth-number">{{ tooth }}</small>
+            </div>
+          </div>
+
+          <div class="divider-line"></div>
+
+          <div class="teeth-group">
+            <div *ngFor="let tooth of primaryTeeth.bottomLeft" class="tooth-item">
+              <app-tooth-faces [toothNumber]="tooth" size="sm"></app-tooth-faces>
+              <small class="tooth-number">{{ tooth }}</small>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="teeth-container">
+          <div class="teeth-group">
+            <div *ngFor="let tooth of permanentTeeth.bottomRight" class="tooth-item">
+              <app-tooth-faces [toothNumber]="tooth"></app-tooth-faces>
+              <small class="tooth-number">{{ tooth }}</small>
+            </div>
+          </div>
+
+          <div class="divider-line"></div>
+
+          <div class="teeth-group">
+            <div *ngFor="let tooth of permanentTeeth.bottomLeft" class="tooth-item">
+              <app-tooth-faces [toothNumber]="tooth"></app-tooth-faces>
+              <small class="tooth-number">{{ tooth }}</small>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="legend-container mt-4 pt-4 border-top">
+      <p class="fw-semibold mb-3">Leyenda de Estados:</p>
+      <div class="row g-3">
+        <div class="col-6 col-md-2 d-flex align-items-center gap-2">
+          <div class="legend-box healthy"></div>
+          <span>Sano</span>
+        </div>
+        <div class="col-6 col-md-2 d-flex align-items-center gap-2">
+          <div class="legend-box caries"></div>
+          <span>Caries</span>
+        </div>
+        <div class="col-6 col-md-2 d-flex align-items-center gap-2">
+          <div class="legend-box filling"></div>
+          <span>Obturación</span>
+        </div>
+        <div class="col-6 col-md-2 d-flex align-items-center gap-2">
+          <div class="legend-box treatment"></div>
+          <span>Tratamiento</span>
+        </div>
+        <div class="col-6 col-md-2 d-flex align-items-center gap-2">
+          <div class="legend-box missing"></div>
+          <span>Ausente</span>
+        </div>
+        <div class="col-6 col-md-2 d-flex align-items-center gap-2">
+          <div class="legend-box other"></div>
+          <span>Otro</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

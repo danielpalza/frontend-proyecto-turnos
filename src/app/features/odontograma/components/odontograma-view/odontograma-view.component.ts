@@ -1,55 +1,29 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OdontogramaActionsComponent } from '../odontograma-actions/odontograma-actions.component';
-import { ToothFacesComponent } from '../tooth-faces/tooth-faces.component';
+import { OdontogramaFormComponent } from '../odontograma-form/odontograma-form.component';
+import { PeriodontogramaFormComponent } from '../periodontograma-form/periodontograma-form.component';
+import { OdontogramaCommentComponent } from '../odontograma-comment/odontograma-comment.component';
 
-type ToothType = 'molar' | 'premolar' | 'canine' | 'incisor';
-
-interface TeethLayout {
-  topRight: number[];
-  topLeft: number[];
-  bottomLeft: number[];
-  bottomRight: number[];
-}
+type DentalFormMode = 'odontograma' | 'periodontograma';
 
 @Component({
   selector: 'app-odontograma-view',
   standalone: true,
   imports: [
     CommonModule,
-    ToothFacesComponent,
+    OdontogramaFormComponent,
+    PeriodontogramaFormComponent,
     OdontogramaActionsComponent,
+    OdontogramaCommentComponent,
   ],
   templateUrl: './odontograma-view.component.html',
   styleUrls: ['./odontograma-view.component.scss']
 })
 export class OdontogramaViewComponent {
-  permanentTeeth: TeethLayout = {
-    topRight: [18, 17, 16, 15, 14, 13, 12, 11],
-    topLeft: [21, 22, 23, 24, 25, 26, 27, 28],
-    bottomLeft: [31, 32, 33, 34, 35, 36, 37, 38],
-    bottomRight: [48, 47, 46, 45, 44, 43, 42, 41],
-  };
+  activeForm: DentalFormMode = 'odontograma';
 
-  primaryTeeth: TeethLayout = {
-    topRight: [55, 54, 53, 52, 51],
-    topLeft: [61, 62, 63, 64, 65],
-    bottomRight: [85, 84, 83, 82, 81],
-    bottomLeft: [71, 72, 73, 74, 75],
-  };
-
-  getToothType(num: number): ToothType {
-    const lastDigit = num % 10;
-    if (lastDigit === 8 || lastDigit === 7 || lastDigit === 6) {
-      return 'molar';
-    }
-    if (lastDigit === 5 || lastDigit === 4) {
-      return 'premolar';
-    }
-    if (lastDigit === 3) {
-      return 'canine';
-    }
-    return 'incisor';
+  setActiveForm(mode: DentalFormMode): void {
+    this.activeForm = mode;
   }
 }
-

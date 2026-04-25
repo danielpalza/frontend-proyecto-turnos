@@ -1,0 +1,127 @@
+$slate-400: #94a3b8;
+$yellow-500: #ffbf00;
+$slate-600: #475569;
+$slate-700: #334155;
+$red-500: #ef4444;
+$blue-500: #3b82f6;
+
+.teeth-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+
+  @media (max-width: 768px) {
+    gap: 2rem;
+  }
+}
+
+.section-title {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.teeth-container {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  align-items: flex-start;
+
+  @media (max-width: 768px) {
+    gap: 1.5rem;
+  }
+
+  @media (max-width: 640px) {
+    gap: 1rem;
+  }
+}
+
+.teeth-group {
+  display: flex;
+  gap: 0.75rem;
+
+  @media (max-width: 640px) {
+    gap: 0.5rem;
+  }
+}
+
+.tooth-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.tooth-number {
+  font-size: 0.875rem;
+  color: $slate-700;
+  font-weight: 500;
+}
+
+.divider-line {
+  width: 2px;
+  background-color: $slate-400;
+  margin: 0 0.75rem;
+  align-self: stretch;
+}
+
+.legend-container {
+  p {
+    color: $slate-700;
+  }
+
+  span {
+    font-size: 0.875rem;
+    color: $slate-600;
+  }
+}
+
+.legend-box {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 0.25rem;
+  flex-shrink: 0;
+
+  &.healthy {
+    border: 2px solid $slate-700;
+    background-color: #ffffff;
+  }
+
+  &.caries {
+    background-color: $red-500;
+  }
+
+  &.filling {
+    background-color: $blue-500;
+  }
+
+  &.treatment {
+    background-color: $yellow-500;
+  }
+
+  &.missing {
+    background-color: #000000;
+  }
+
+  &.other {
+    background-color: $slate-400;
+  }
+}
+
+@media (max-width: 640px) {
+  .teeth-container {
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .divider-line {
+    display: none;
+  }
+
+  .teeth-group {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
