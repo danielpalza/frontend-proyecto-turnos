@@ -1,0 +1,42 @@
+<div class="card shadow-sm mb-3">
+  <div class="card-body">
+    <h5 class="card-title mb-3">
+      <i class="bi bi-list-check me-2"></i>Leyenda
+    </h5>
+
+    <div class="mb-3">
+      <p class="fw-semibold mb-2">Estados:</p>
+      <div class="d-flex flex-column gap-2">
+        <label
+          *ngFor="let estado of estados; let idx = index"
+          class="form-check d-flex align-items-center gap-2 mb-0"
+        >
+          <input class="form-check-input mt-0" type="checkbox" [id]="'estado-' + idx" />
+          <span class="small">{{ estado || ' ' }}</span>
+          <i class="bi bi-cart"></i>
+        </label>
+      </div>
+    </div>
+
+    <div>
+      <p class="fw-semibold mb-2">Condiciones</p>
+      <div class="d-flex flex-column gap-2 mb-3">
+        <label
+          *ngFor="let condicion of condiciones; let idx = index"
+          class="form-check d-flex align-items-center gap-2 mb-0"
+        >
+          <input class="form-check-input mt-0" type="checkbox" [id]="'condicion-' + idx" />
+          <span class="small">{{ condicion }}</span>
+          <i class="bi bi-cart"></i>
+        </label>
+      </div>
+
+      <label class="form-label small mb-1" for="movilidad-select">Movilidad</label>
+      <select id="movilidad-select" class="form-select form-select-sm">
+        <option *ngFor="let opcion of movilidadOpciones" [value]="opcion">
+          {{ opcion }}
+        </option>
+      </select>
+    </div>
+  </div>
+</div>

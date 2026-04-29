@@ -10,13 +10,13 @@
         <app-odontograma-form [hidden]="activeForm !== 'odontograma'"></app-odontograma-form>
         <app-periodontograma-form [hidden]="activeForm !== 'periodontograma'"></app-periodontograma-form>
         <app-odontograma-comment-component title="Comentarios del turno"></app-odontograma-comment-component>
+        <app-odontograma-comment-component title="Plan de tratamiento"></app-odontograma-comment-component>
         <app-odontograma-comment-component title="Historia clinica del paciente"></app-odontograma-comment-component>
         <app-odontograma-comment-component title="Comentarios del turno anterior"></app-odontograma-comment-component>
       </div>
 
       <div class="sidebar-right">
         <div class="navigation-panel">
-          <p class="navigation-title">Navegacion</p>
           <div class="btn-group w-100" role="group" aria-label="Selector de formulario">
             <button type="button" class="btn"
               [ngClass]="activeForm === 'odontograma' ? 'btn-primary' : 'btn-outline-primary'"
@@ -31,6 +31,7 @@
           </div>
         </div>
 
+        <app-odontograma-leyend></app-odontograma-leyend>
         <app-odontograma-actions></app-odontograma-actions>
       </div>
 

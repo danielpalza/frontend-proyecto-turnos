@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OdontogramaActionsComponent } from '../odontograma-actions/odontograma-actions.component';
+import { OdontogramaLeyendComponent } from '../odontograma-leyend/odontograma-leyend.component';
 import { OdontogramaFormComponent } from '../odontograma-form/odontograma-form.component';
 import { PeriodontogramaFormComponent } from '../periodontograma-form/periodontograma-form.component';
 import { OdontogramaCommentComponent } from '../odontograma-comment/odontograma-comment.component';
@@ -14,6 +15,7 @@ type DentalFormMode = 'odontograma' | 'periodontograma';
     CommonModule,
     OdontogramaFormComponent,
     PeriodontogramaFormComponent,
+    OdontogramaLeyendComponent,
     OdontogramaActionsComponent,
     OdontogramaCommentComponent,
   ],
