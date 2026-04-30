@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ToothFacesComponent } from '../tooth-faces/tooth-faces.component';
+import { OdontogramaSelectionService, LeyendaItem } from '../../services/odontograma-selection.service';
 
 interface TeethLayout {
   topRight: number[];
@@ -17,6 +18,14 @@ interface TeethLayout {
   styleUrls: ['./odontograma-form.component.scss']
 })
 export class OdontogramaFormComponent {
+  selectedTooth: number | null = null;
+
+  constructor(private readonly odontogramaSelectionService: OdontogramaSelectionService) {
+    this.odontogramaSelectionService.selectedTooth$.subscribe(tooth => {
+      this.selectedTooth = tooth;
+    });
+  }
+
   permanentTeeth: TeethLayout = {
     topRight: [18, 17, 16, 15, 14, 13, 12, 11],
     topLeft: [21, 22, 23, 24, 25, 26, 27, 28],
@@ -30,5 +39,18 @@ export class OdontogramaFormComponent {
     bottomRight: [85, 84, 83, 82, 81],
     bottomLeft: [71, 72, 73, 74, 75],
   };
+
+  selectTooth(tooth: number): void {
+    const nextTooth = this.selectedTooth === tooth ? null : tooth;
+    this.odontogramaSelectionService.selectTooth(nextTooth);
+  }
+
+  isToothSelected(tooth: number): boolean {
+    return this.selectedTooth === tooth;
+  }
+
+  getToothIcons(tooth: number): LeyendaItem[] {
+    return this.odontogramaSelectionService.getIconsForTooth(tooth);
+  }
 }
 

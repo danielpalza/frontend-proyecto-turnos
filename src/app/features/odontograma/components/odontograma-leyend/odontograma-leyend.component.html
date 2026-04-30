@@ -7,13 +7,17 @@
     <div class="mb-3">
       <p class="fw-semibold mb-2">Estados:</p>
       <div class="d-flex flex-column gap-2">
-        <label
-          *ngFor="let estado of estados; let idx = index"
-          class="form-check d-flex align-items-center gap-2 mb-0"
-        >
-          <input class="form-check-input mt-0" type="checkbox" [id]="'estado-' + idx" />
-          <span class="small">{{ estado || ' ' }}</span>
-          <i class="bi bi-cart"></i>
+        <label *ngFor="let estado of estados; let idx = index" class="form-check d-flex align-items-center gap-2 mb-0">
+          <input
+            class="form-check-input mt-0"
+            type="checkbox"
+            [id]="'estado-' + idx"
+            [disabled]="!selectedTooth"
+            [checked]="isItemSelected(estado.label)"
+            (change)="onToggleEstado(estado, $event)"
+          />
+          <span class="small">{{ estado.label || ' ' }}</span>
+          <i [ngClass]="estado.icono"></i>
         </label>
       </div>
     </div>
@@ -21,20 +25,31 @@
     <div>
       <p class="fw-semibold mb-2">Condiciones</p>
       <div class="d-flex flex-column gap-2 mb-3">
-        <label
-          *ngFor="let condicion of condiciones; let idx = index"
-          class="form-check d-flex align-items-center gap-2 mb-0"
-        >
-          <input class="form-check-input mt-0" type="checkbox" [id]="'condicion-' + idx" />
-          <span class="small">{{ condicion }}</span>
-          <i class="bi bi-cart"></i>
-        </label>
+        <label *ngFor="let condicion of condiciones; let idx = index"
+          class="form-check d-flex align-items-center gap-2 mb-0">
+          <input
+            class="form-check-input mt-0"
+            type="checkbox"
+            [id]="'condicion-' + idx"
+            [disabled]="!selectedTooth"
+            [checked]="isItemSelected(condicion.label)"
+            (change)="onToggleCondicion(condicion, $event)"
+          />
+          <span class="small">{{ condicion.label }}</span>
+          <i [ngClass]="condicion.icono"></i> </label>
       </div>
 
       <label class="form-label small mb-1" for="movilidad-select">Movilidad</label>
-      <select id="movilidad-select" class="form-select form-select-sm">
-        <option *ngFor="let opcion of movilidadOpciones" [value]="opcion">
-          {{ opcion }}
+      <select
+        id="movilidad-select"
+        class="form-select form-select-sm"
+        [disabled]="!selectedTooth"
+        [value]="getSelectedMovilidadLabel()"
+        (change)="onMovilidadChange($event)"
+      >
+        <option value="">Seleccionar movilidad</option>
+        <option *ngFor="let opcion of movilidadOpciones" [value]="opcion.label">
+          {{ opcion.label }}
         </option>
       </select>
     </div>

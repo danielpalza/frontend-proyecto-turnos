@@ -5,18 +5,26 @@
         <p class="section-title text-primary">Dientes Permanentes</p>
         <div class="teeth-container">
           <div class="teeth-group">
-            <div *ngFor="let tooth of permanentTeeth.topRight" class="tooth-item">
+            <div *ngFor="let tooth of permanentTeeth.topRight" class="tooth-item" [class.selected]="isToothSelected(tooth)"
+              (click)="selectTooth(tooth)">
               <small class="tooth-number">{{ tooth }}</small>
               <app-tooth-faces [toothNumber]="tooth"></app-tooth-faces>
+              <div class="tooth-icons">
+                <i *ngFor="let item of getToothIcons(tooth)" [ngClass]="item.icono" [title]="item.label"></i>
+              </div>
             </div>
           </div>
 
           <div class="divider-line"></div>
 
           <div class="teeth-group">
-            <div *ngFor="let tooth of permanentTeeth.topLeft" class="tooth-item">
+            <div *ngFor="let tooth of permanentTeeth.topLeft" class="tooth-item" [class.selected]="isToothSelected(tooth)"
+              (click)="selectTooth(tooth)">
               <small class="tooth-number">{{ tooth }}</small>
               <app-tooth-faces [toothNumber]="tooth"></app-tooth-faces>
+              <div class="tooth-icons">
+                <i *ngFor="let item of getToothIcons(tooth)" [ngClass]="item.icono" [title]="item.label"></i>
+              </div>
             </div>
           </div>
         </div>
@@ -25,18 +33,26 @@
       <section>
         <div class="teeth-container">
           <div class="teeth-group">
-            <div *ngFor="let tooth of primaryTeeth.topRight" class="tooth-item">
+            <div *ngFor="let tooth of primaryTeeth.topRight" class="tooth-item" [class.selected]="isToothSelected(tooth)"
+              (click)="selectTooth(tooth)">
               <small class="tooth-number">{{ tooth }}</small>
               <app-tooth-faces [toothNumber]="tooth" size="sm"></app-tooth-faces>
+              <div class="tooth-icons">
+                <i *ngFor="let item of getToothIcons(tooth)" [ngClass]="item.icono" [title]="item.label"></i>
+              </div>
             </div>
           </div>
 
           <div class="divider-line"></div>
 
           <div class="teeth-group">
-            <div *ngFor="let tooth of primaryTeeth.topLeft" class="tooth-item">
+            <div *ngFor="let tooth of primaryTeeth.topLeft" class="tooth-item" [class.selected]="isToothSelected(tooth)"
+              (click)="selectTooth(tooth)">
               <small class="tooth-number">{{ tooth }}</small>
               <app-tooth-faces [toothNumber]="tooth" size="sm"></app-tooth-faces>
+              <div class="tooth-icons">
+                <i *ngFor="let item of getToothIcons(tooth)" [ngClass]="item.icono" [title]="item.label"></i>
+              </div>
             </div>
           </div>
         </div>
@@ -45,8 +61,12 @@
       <section>
         <div class="teeth-container">
           <div class="teeth-group">
-            <div *ngFor="let tooth of primaryTeeth.bottomRight" class="tooth-item">
+            <div *ngFor="let tooth of primaryTeeth.bottomRight" class="tooth-item" [class.selected]="isToothSelected(tooth)"
+              (click)="selectTooth(tooth)">
               <app-tooth-faces [toothNumber]="tooth" size="sm"></app-tooth-faces>
+              <div class="tooth-icons">
+                <i *ngFor="let item of getToothIcons(tooth)" [ngClass]="item.icono" [title]="item.label"></i>
+              </div>
               <small class="tooth-number">{{ tooth }}</small>
             </div>
           </div>
@@ -54,8 +74,12 @@
           <div class="divider-line"></div>
 
           <div class="teeth-group">
-            <div *ngFor="let tooth of primaryTeeth.bottomLeft" class="tooth-item">
+            <div *ngFor="let tooth of primaryTeeth.bottomLeft" class="tooth-item" [class.selected]="isToothSelected(tooth)"
+              (click)="selectTooth(tooth)">
               <app-tooth-faces [toothNumber]="tooth" size="sm"></app-tooth-faces>
+              <div class="tooth-icons">
+                <i *ngFor="let item of getToothIcons(tooth)" [ngClass]="item.icono" [title]="item.label"></i>
+              </div>
               <small class="tooth-number">{{ tooth }}</small>
             </div>
           </div>
@@ -65,8 +89,12 @@
       <section>
         <div class="teeth-container">
           <div class="teeth-group">
-            <div *ngFor="let tooth of permanentTeeth.bottomRight" class="tooth-item">
+            <div *ngFor="let tooth of permanentTeeth.bottomRight" class="tooth-item" [class.selected]="isToothSelected(tooth)"
+              (click)="selectTooth(tooth)">
               <app-tooth-faces [toothNumber]="tooth"></app-tooth-faces>
+              <div class="tooth-icons">
+                <i *ngFor="let item of getToothIcons(tooth)" [ngClass]="item.icono" [title]="item.label"></i>
+              </div>
               <small class="tooth-number">{{ tooth }}</small>
             </div>
           </div>
@@ -74,8 +102,12 @@
           <div class="divider-line"></div>
 
           <div class="teeth-group">
-            <div *ngFor="let tooth of permanentTeeth.bottomLeft" class="tooth-item">
+            <div *ngFor="let tooth of permanentTeeth.bottomLeft" class="tooth-item" [class.selected]="isToothSelected(tooth)"
+              (click)="selectTooth(tooth)">
               <app-tooth-faces [toothNumber]="tooth"></app-tooth-faces>
+              <div class="tooth-icons">
+                <i *ngFor="let item of getToothIcons(tooth)" [ngClass]="item.icono" [title]="item.label"></i>
+              </div>
               <small class="tooth-number">{{ tooth }}</small>
             </div>
           </div>
@@ -93,10 +125,6 @@
         <div class="col-6 col-md-2 d-flex align-items-center gap-2">
           <div class="legend-box caries"></div>
           <span>Caries</span>
-        </div>
-        <div class="col-6 col-md-2 d-flex align-items-center gap-2">
-          <div class="legend-box filling"></div>
-          <span>Obturación</span>
         </div>
         <div class="col-6 col-md-2 d-flex align-items-center gap-2">
           <div class="legend-box treatment"></div>

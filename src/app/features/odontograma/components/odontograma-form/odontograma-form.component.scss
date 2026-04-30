@@ -1,9 +1,9 @@
-$slate-400: #94a3b8;
-$yellow-500: #ffbf00;
+$slate-400: hsl(215, 20%, 65%);
 $slate-600: #475569;
 $slate-700: #334155;
 $red-500: #ef4444;
 $blue-500: #3b82f6;
+$black: #000000;
 
 .teeth-section {
   display: flex;
@@ -51,12 +51,36 @@ $blue-500: #3b82f6;
   flex-direction: column;
   align-items: center;
   gap: 0.25rem;
+  cursor: pointer;
+  border-radius: 0.5rem;
+  padding: 0.25rem;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: #f8fafc;
+  }
+
+  &.selected {
+    background-color: #eff6ff;
+    outline: 1px solid #93c5fd;
+  }
 }
 
 .tooth-number {
   font-size: 0.875rem;
   color: $slate-700;
   font-weight: 500;
+}
+
+.tooth-icons {
+  min-height: 1rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, max-content));
+  justify-content: center;
+  justify-items: center;
+  gap: 0.25rem 0.35rem;
+  color: $slate-700;
+  font-size: 0.875rem;
 }
 
 .divider-line {
@@ -92,16 +116,12 @@ $blue-500: #3b82f6;
     background-color: $red-500;
   }
 
-  &.filling {
+  &.treatment {
     background-color: $blue-500;
   }
 
-  &.treatment {
-    background-color: $yellow-500;
-  }
-
   &.missing {
-    background-color: #000000;
+    background-color: $black;
   }
 
   &.other {
@@ -124,4 +144,3 @@ $blue-500: #3b82f6;
     flex-wrap: wrap;
   }
 }
-
