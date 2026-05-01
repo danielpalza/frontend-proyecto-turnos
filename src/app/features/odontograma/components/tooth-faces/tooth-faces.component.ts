@@ -55,7 +55,7 @@ export class ToothFacesComponent {
   }
 
   get circleSize() {
-    return this.size === 'sm' ? 32 : 40;
+    return this.size === 'sm' ? 35 : 40;
   }
 
   get strokeWidth() {

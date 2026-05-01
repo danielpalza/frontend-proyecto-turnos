@@ -73,6 +73,12 @@ $blue-500: #3b82f6;
   gap: 1.5rem;
 }
 
+.comments-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
 // Card del odontograma
 .card {
   border-radius: 0.75rem;
@@ -102,6 +108,10 @@ $blue-500: #3b82f6;
 @media (max-width: 640px) {
   .odontograma-header h1 {
     font-size: 1.5rem;
+  }
+
+  .comments-row {
+    grid-template-columns: 1fr;
   }
 }
 

@@ -8,7 +8,7 @@ $black: #000000;
 .teeth-section {
   display: flex;
   flex-direction: column;
-  gap: 4rem;
+  gap: 3rem;
 
   @media (max-width: 768px) {
     gap: 2rem;
@@ -73,11 +73,12 @@ $black: #000000;
 }
 
 .tooth-icons {
-  min-height: 1rem;
+  min-height: 3rem;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, max-content));
   justify-content: center;
   justify-items: center;
+  align-content: start;
   gap: 0.25rem 0.35rem;
   color: $slate-700;
   font-size: 0.875rem;

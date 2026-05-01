@@ -1,8 +1,28 @@
+@use '../../../../../../_variables' as *;
+@use '../../../../../../_mixins' as *;
+
 .odontograma-comment {
-  border: 2px solid red;
+  @include container-light-bg($radius-md, $spacing-lg);
+  border: 1px solid $border-color;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
 }
 
 .odontograma-comment__title {
-  font-size: 1.2rem;
-  font-weight: bold;
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.odontograma-comment__textarea {
+  @include input-focus($radius-sm, 2px);
+  width: 100%;
+  min-height: 90px;
+  resize: vertical;
+  color: $text-primary;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  padding: $spacing-md;
 }
