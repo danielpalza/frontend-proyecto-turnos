@@ -1,14 +1,10 @@
-$slate-400: hsl(215, 20%, 65%);
-$slate-600: #475569;
-$slate-700: #334155;
-$red-500: #ef4444;
-$blue-500: #3b82f6;
-$black: #000000;
+@use 'sass:color' as color;
+@use 'variables' as *;
 
 .teeth-section {
   display: flex;
   flex-direction: column;
-  gap: 3rem;
+  gap: 1rem;
 
   @media (max-width: 768px) {
     gap: 2rem;
@@ -57,19 +53,29 @@ $black: #000000;
   transition: background-color 0.15s ease;
 
   &:hover {
-    background-color: #f8fafc;
+    background-color: $background-color;
   }
 
   &.selected {
-    background-color: #eff6ff;
-    outline: 1px solid #93c5fd;
+    background-color: color.mix(white, $info, 88%);
+    outline: 1px solid rgba($primary-color, 0.45);
   }
 }
 
 .tooth-number {
   font-size: 0.875rem;
-  color: $slate-700;
+  color: $text-primary;
   font-weight: 500;
+}
+
+.tooth-icons-top {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 1.5rem;
+  color: $text-primary;
+  font-size: 0.875rem;
 }
 
 .tooth-icons {
@@ -80,25 +86,25 @@ $black: #000000;
   justify-items: center;
   align-content: start;
   gap: 0.25rem 0.35rem;
-  color: $slate-700;
+  color: $text-primary;
   font-size: 0.875rem;
 }
 
 .divider-line {
   width: 2px;
-  background-color: $slate-400;
+  background-color: $text-muted;
   margin: 0 0.75rem;
   align-self: stretch;
 }
 
 .legend-container {
   p {
-    color: $slate-700;
+    color: $text-primary;
   }
 
   span {
     font-size: 0.875rem;
-    color: $slate-600;
+    color: $text-secondary;
   }
 }
 
@@ -109,24 +115,24 @@ $black: #000000;
   flex-shrink: 0;
 
   &.healthy {
-    border: 2px solid $slate-700;
-    background-color: #ffffff;
+    border: 2px solid $text-primary;
+    background-color: $card-background;
   }
 
   &.caries {
-    background-color: $red-500;
+    background-color: $danger-light;
   }
 
   &.treatment {
-    background-color: $blue-500;
+    background-color: $info;
   }
 
   &.missing {
-    background-color: $black;
+    background-color: #000000;
   }
 
   &.other {
-    background-color: $slate-400;
+    background-color: $text-muted;
   }
 }
 

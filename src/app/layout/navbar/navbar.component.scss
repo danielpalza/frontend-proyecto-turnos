@@ -1,3 +1,4 @@
+@use 'sass:color' as color;
 @use 'variables' as *;
 
 .navbar-container {
@@ -49,7 +50,7 @@
     box-shadow: $shadow-md;
 
     &:hover {
-      background-color: darken($text-primary, 5%);
+      background-color: color.adjust($text-primary, $lightness: -5%);
       color: white;
     }
   }

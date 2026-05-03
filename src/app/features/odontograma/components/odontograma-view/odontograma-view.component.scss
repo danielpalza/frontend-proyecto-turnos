@@ -1,13 +1,4 @@
-// Variables
-$primary-color: #6366f1;
-$slate-400: #94a3b8;
-$slate-500: #64748b;
-$slate-600: #475569;
-$slate-700: #334155;
-$slate-900: #0f172a;
-$slate-200: #e2e8f0;
-$red-500: #ef4444;
-$blue-500: #3b82f6;
+@use 'variables' as *;
 
 // Contenedor principal
 .odontograma-container {
@@ -29,7 +20,7 @@ $blue-500: #3b82f6;
   margin-bottom: 2rem;
 
   h1 {
-    color: $slate-900;
+    color: $text-primary;
     margin-bottom: 0.5rem;
     font-size: 1.875rem;
     font-weight: 700;
@@ -81,8 +72,8 @@ $blue-500: #3b82f6;
 
 // Card del odontograma
 .card {
-  border-radius: 0.75rem;
-  border: 1px solid $slate-200;
+  border-radius: $radius-lg;
+  border: 1px solid $border-color;
 }
 
 .card-body {

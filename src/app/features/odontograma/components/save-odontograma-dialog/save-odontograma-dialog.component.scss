@@ -1,3 +1,6 @@
+@use 'sass:color' as color;
+@use 'variables' as *;
+
 // Modal personalizado
 .modal {
   &.show.d-block {
@@ -23,19 +26,19 @@
   .modal-content {
     max-height: 95vh;
     overflow: hidden;
-    border-radius: 0.75rem;
+    border-radius: $radius-lg;
     border: none;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   }
 
   .modal-header {
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid $border-color;
     padding: 1.25rem 1.5rem;
 
     .modal-title {
       font-size: 1.25rem;
       font-weight: 600;
-      color: #0f172a;
+      color: $text-primary;
     }
   }
 
@@ -45,9 +48,9 @@
   }
 
   .modal-footer {
-    border-top: 1px solid #e2e8f0;
+    border-top: 1px solid $border-color;
     padding: 1.25rem 1.5rem;
-    background-color: #f8fafc;
+    background-color: $background-color;
     gap: 0.75rem;
 
     .btn.flex-fill {
@@ -67,16 +70,16 @@
   }
 
   &::-webkit-scrollbar-track {
-    background: #f1f5f9;
+    background: $hover-bg;
     border-radius: 4px;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
+    background: color.mix($border-color, $text-muted, 55%);
     border-radius: 4px;
 
     &:hover {
-      background: #94a3b8;
+      background: $text-muted;
     }
   }
 
@@ -88,16 +91,20 @@
 
 // Fondo suave
 .bg-soft {
-  background: linear-gradient(to bottom right, #f8fafc, #eef2ff);
+  background: linear-gradient(
+    to bottom right,
+    $background-color,
+    color.mix(white, $primary-color, 88%)
+  );
 }
 
 // Área de totales
 .bg-indigo-light {
-  background-color: #eef2ff !important;
+  background-color: color.mix(white, $primary-color, 88%) !important;
 }
 
 .border-indigo {
-  border-color: #c7d2fe !important;
+  border-color: color.mix($primary-light, $border-color, 65%) !important;
 }
 
 // Leyenda
@@ -108,43 +115,47 @@
   flex-shrink: 0;
 
   &.border {
-    border: 2px solid #334155 !important;
-    background-color: white;
+    border: 2px solid $text-primary !important;
+    background-color: $card-background;
   }
 }
 
 // Botones del footer
 .modal-footer {
   .btn-outline-secondary {
-    border-color: #cbd5e1;
-    color: #64748b;
-    transition: all 0.2s ease;
+    border-color: color.mix($border-color, $text-muted, 50%);
+    color: $text-secondary;
+    transition: all $transition-base;
 
     &:hover {
-      background-color: #f1f5f9;
-      border-color: #94a3b8;
-      color: #475569;
+      background-color: $hover-bg;
+      border-color: $text-muted;
+      color: $text-primary;
     }
   }
 
   .btn-primary {
-    background: linear-gradient(to right, #6366f1, #a855f7);
+    background: linear-gradient(to right, $primary-color, $secondary-color);
     border: none;
     color: white;
     font-weight: 500;
-    transition: all 0.3s ease;
+    transition: all $transition-slow;
 
     &:hover {
-      background: linear-gradient(to right, #4f46e5, #9333ea);
+      background: linear-gradient(
+        to right,
+        $primary-dark,
+        color.adjust($secondary-color, $lightness: -8%)
+      );
       transform: translateY(-1px);
-      box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
+      box-shadow: 0 10px 25px -5px rgba($primary-color, 0.4);
     }
   }
 }
 
 // Labels y forms
 .form-label {
-  color: #334155;
+  color: $text-primary;
   font-weight: 500;
   margin-bottom: 0.5rem;
 }
@@ -154,8 +165,8 @@ textarea.form-control {
   min-height: 80px;
 
   &:focus {
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
   }
 }
 

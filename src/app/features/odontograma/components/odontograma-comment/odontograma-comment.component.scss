@@ -1,5 +1,5 @@
-@use '../../../../../../_variables' as *;
-@use '../../../../../../_mixins' as *;
+@use 'variables' as *;
+@use 'mixins' as *;
 
 .odontograma-comment {
   @include container-light-bg($radius-md, $spacing-lg);

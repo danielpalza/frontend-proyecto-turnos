@@ -49,8 +49,25 @@ export class OdontogramaFormComponent {
     return this.selectedTooth === tooth;
   }
 
+  private readonly movilidadLabels = new Set(['M0', 'M1', 'M2', 'M3']);
+  private readonly furcaLabels = new Set(['F0', 'F1', 'F2', 'F3']);
+
   getToothIcons(tooth: number): LeyendaItem[] {
     return this.odontogramaSelectionService.getIconsForTooth(tooth);
+  }
+
+  getMovilidadIconForTooth(tooth: number): LeyendaItem | null {
+    return this.getToothIcons(tooth).find(item => this.movilidadLabels.has(item.label)) ?? null;
+  }
+
+  getFurcaIconForTooth(tooth: number): LeyendaItem | null {
+    return this.getToothIcons(tooth).find(item => this.furcaLabels.has(item.label)) ?? null;
+  }
+
+  getToothIconsExcludingMovilidad(tooth: number): LeyendaItem[] {
+    return this.getToothIcons(tooth).filter(
+      item => !this.movilidadLabels.has(item.label) && !this.furcaLabels.has(item.label)
+    );
   }
 }
 

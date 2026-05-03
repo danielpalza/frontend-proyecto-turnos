@@ -1,3 +1,5 @@
+@use 'variables' as *;
+
 :host {
   display: block;
   height: auto !important;
@@ -7,7 +9,7 @@
 .app-container {
   display: block;
   min-height: 100vh;
-  background-color: #f8fafc;
+  background-color: $background-color;
 }
 
 .main-content {

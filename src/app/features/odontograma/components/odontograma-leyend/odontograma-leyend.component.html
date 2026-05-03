@@ -1,9 +1,24 @@
 <div class="card shadow-sm mb-3">
-  <div class="card-body">
-    <h5 class="card-title mb-3">
-      <i class="bi bi-list-check me-2"></i>Leyenda
-    </h5>
-
+  <div class="card-body p-0">
+    <div class="dropdown w-100">
+      <button
+        type="button"
+        class="btn btn-light dropdown-toggle w-100 d-flex align-items-center justify-content-between rounded-0 border-0 py-3 px-3 text-start shadow-none"
+        id="leyenda-dropdown"
+        (click)="legendOpen = !legendOpen"
+        [attr.aria-expanded]="legendOpen"
+        aria-controls="leyenda-dropdown-panel"
+      >
+        <span class="h5 mb-0 fw-semibold d-flex align-items-center text-body">
+          <i class="bi bi-list-check me-2"></i>Leyenda
+        </span>
+      </button>
+      <div
+        id="leyenda-dropdown-panel"
+        class="dropdown-menu w-100 border-0 shadow-none px-3 pb-3 pt-0"
+        [class.show]="legendOpen"
+        style="position: static; transform: none !important; float: none"
+      >
     <div class="mb-3">
       <p class="fw-semibold mb-2">Estados:</p>
       <div class="d-flex flex-column gap-2">
@@ -42,7 +57,7 @@
       <label class="form-label small mb-1" for="movilidad-select">Movilidad</label>
       <select
         id="movilidad-select"
-        class="form-select form-select-sm"
+        class="form-select form-select-sm mb-3"
         [disabled]="!selectedTooth"
         [value]="getSelectedMovilidadLabel()"
         (change)="onMovilidadChange($event)"
@@ -52,6 +67,22 @@
           {{ opcion.label }}
         </option>
       </select>
+
+      <label class="form-label small mb-1" for="furca-select">Furca</label>
+      <select
+        id="furca-select"
+        class="form-select form-select-sm"
+        [disabled]="!selectedTooth"
+        [value]="getSelectedFurcaLabel()"
+        (change)="onFurcaChange($event)"
+      >
+        <option value="">Seleccionar furca</option>
+        <option *ngFor="let opcion of furcaOpciones" [value]="opcion.label">
+          {{ opcion.label }}
+        </option>
+      </select>
+    </div>
+      </div>
     </div>
   </div>
 </div>

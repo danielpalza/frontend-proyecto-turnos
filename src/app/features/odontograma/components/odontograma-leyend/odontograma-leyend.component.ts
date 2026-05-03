@@ -11,6 +11,7 @@ import { OdontogramaSelectionService, LeyendaItem } from '../../services/odontog
 })
 export class OdontogramaLeyendComponent {
   selectedTooth: number | null = null;
+  legendOpen = true;
 
   constructor(private readonly odontogramaSelectionService: OdontogramaSelectionService) {
     this.odontogramaSelectionService.selectedTooth$.subscribe(tooth => {
@@ -45,6 +46,13 @@ export class OdontogramaLeyendComponent {
     { label: 'M3', icono: 'bi bi-3-circle-fill' },
   ];
 
+  readonly furcaOpciones = [
+    { label: 'F0', icono: 'bi bi-0-square-fill' },
+    { label: 'F1', icono: 'bi bi-1-square-fill' },
+    { label: 'F2', icono: 'bi bi-2-square-fill' },
+    { label: 'F3', icono: 'bi bi-3-square-fill' },
+  ];
+
   onToggleEstado(estado: LeyendaItem, event: Event): void {
     const checked = (event.target as HTMLInputElement).checked;
     this.odontogramaSelectionService.toggleItemForSelectedTooth(estado, checked);
@@ -73,5 +81,21 @@ export class OdontogramaLeyendComponent {
   getSelectedMovilidadLabel(): string {
     const movilidadActual = this.movilidadOpciones.find(opcion => this.isItemSelected(opcion.label));
     return movilidadActual?.label ?? '';
+  }
+
+  onFurcaChange(event: Event): void {
+    const selectedLabel = (event.target as HTMLSelectElement).value;
+    const furcaLabels = this.furcaOpciones.map(opcion => opcion.label);
+    this.odontogramaSelectionService.removeItemsByLabelsForSelectedTooth(furcaLabels);
+
+    const furcaSeleccionada = this.furcaOpciones.find(opcion => opcion.label === selectedLabel);
+    if (furcaSeleccionada) {
+      this.odontogramaSelectionService.toggleItemForSelectedTooth(furcaSeleccionada, true);
+    }
+  }
+
+  getSelectedFurcaLabel(): string {
+    const furcaActual = this.furcaOpciones.find(opcion => this.isItemSelected(opcion.label));
+    return furcaActual?.label ?? '';
   }
 }

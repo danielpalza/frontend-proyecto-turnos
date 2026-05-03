@@ -7,10 +7,14 @@
           <div class="teeth-group">
             <div *ngFor="let tooth of permanentTeeth.topRight" class="tooth-item" [class.selected]="isToothSelected(tooth)"
               (click)="selectTooth(tooth)">
+              <div class="tooth-icons-top">
+                <i *ngIf="getMovilidadIconForTooth(tooth) as m" [ngClass]="m.icono" [title]="m.label"></i>
+                <i *ngIf="getFurcaIconForTooth(tooth) as f" [ngClass]="f.icono" [title]="f.label"></i>
+              </div>
               <small class="tooth-number">{{ tooth }}</small>
               <app-tooth-faces [toothNumber]="tooth"></app-tooth-faces>
               <div class="tooth-icons">
-                <i *ngFor="let item of getToothIcons(tooth)" [ngClass]="item.icono" [title]="item.label"></i>
+                <i *ngFor="let item of getToothIconsExcludingMovilidad(tooth)" [ngClass]="item.icono" [title]="item.label"></i>
               </div>
             </div>
           </div>
@@ -20,10 +24,14 @@
           <div class="teeth-group">
             <div *ngFor="let tooth of permanentTeeth.topLeft" class="tooth-item" [class.selected]="isToothSelected(tooth)"
               (click)="selectTooth(tooth)">
+              <div class="tooth-icons-top">
+                <i *ngIf="getMovilidadIconForTooth(tooth) as m" [ngClass]="m.icono" [title]="m.label"></i>
+                <i *ngIf="getFurcaIconForTooth(tooth) as f" [ngClass]="f.icono" [title]="f.label"></i>
+              </div>
               <small class="tooth-number">{{ tooth }}</small>
               <app-tooth-faces [toothNumber]="tooth"></app-tooth-faces>
               <div class="tooth-icons">
-                <i *ngFor="let item of getToothIcons(tooth)" [ngClass]="item.icono" [title]="item.label"></i>
+                <i *ngFor="let item of getToothIconsExcludingMovilidad(tooth)" [ngClass]="item.icono" [title]="item.label"></i>
               </div>
             </div>
           </div>
@@ -35,10 +43,14 @@
           <div class="teeth-group">
             <div *ngFor="let tooth of primaryTeeth.topRight" class="tooth-item" [class.selected]="isToothSelected(tooth)"
               (click)="selectTooth(tooth)">
+              <div class="tooth-icons-top">
+                <i *ngIf="getMovilidadIconForTooth(tooth) as m" [ngClass]="m.icono" [title]="m.label"></i>
+                <i *ngIf="getFurcaIconForTooth(tooth) as f" [ngClass]="f.icono" [title]="f.label"></i>
+              </div>
               <small class="tooth-number">{{ tooth }}</small>
               <app-tooth-faces [toothNumber]="tooth" size="sm"></app-tooth-faces>
               <div class="tooth-icons">
-                <i *ngFor="let item of getToothIcons(tooth)" [ngClass]="item.icono" [title]="item.label"></i>
+                <i *ngFor="let item of getToothIconsExcludingMovilidad(tooth)" [ngClass]="item.icono" [title]="item.label"></i>
               </div>
             </div>
           </div>
@@ -48,10 +60,14 @@
           <div class="teeth-group">
             <div *ngFor="let tooth of primaryTeeth.topLeft" class="tooth-item" [class.selected]="isToothSelected(tooth)"
               (click)="selectTooth(tooth)">
+              <div class="tooth-icons-top">
+                <i *ngIf="getMovilidadIconForTooth(tooth) as m" [ngClass]="m.icono" [title]="m.label"></i>
+                <i *ngIf="getFurcaIconForTooth(tooth) as f" [ngClass]="f.icono" [title]="f.label"></i>
+              </div>
               <small class="tooth-number">{{ tooth }}</small>
               <app-tooth-faces [toothNumber]="tooth" size="sm"></app-tooth-faces>
               <div class="tooth-icons">
-                <i *ngFor="let item of getToothIcons(tooth)" [ngClass]="item.icono" [title]="item.label"></i>
+                <i *ngFor="let item of getToothIconsExcludingMovilidad(tooth)" [ngClass]="item.icono" [title]="item.label"></i>
               </div>
             </div>
           </div>
@@ -63,10 +79,14 @@
           <div class="teeth-group">
             <div *ngFor="let tooth of primaryTeeth.bottomRight" class="tooth-item" [class.selected]="isToothSelected(tooth)"
             (click)="selectTooth(tooth)">
+            <div class="tooth-icons-top">
+              <i *ngIf="getMovilidadIconForTooth(tooth) as m" [ngClass]="m.icono" [title]="m.label"></i>
+              <i *ngIf="getFurcaIconForTooth(tooth) as f" [ngClass]="f.icono" [title]="f.label"></i>
+            </div>
             <app-tooth-faces [toothNumber]="tooth" size="sm"></app-tooth-faces>
             <small class="tooth-number">{{ tooth }}</small>
             <div class="tooth-icons">
-              <i *ngFor="let item of getToothIcons(tooth)" [ngClass]="item.icono" [title]="item.label"></i>
+              <i *ngFor="let item of getToothIconsExcludingMovilidad(tooth)" [ngClass]="item.icono" [title]="item.label"></i>
             </div>
             </div>
           </div>
@@ -76,10 +96,14 @@
           <div class="teeth-group">
             <div *ngFor="let tooth of primaryTeeth.bottomLeft" class="tooth-item" [class.selected]="isToothSelected(tooth)"
               (click)="selectTooth(tooth)">
+              <div class="tooth-icons-top">
+                <i *ngIf="getMovilidadIconForTooth(tooth) as m" [ngClass]="m.icono" [title]="m.label"></i>
+                <i *ngIf="getFurcaIconForTooth(tooth) as f" [ngClass]="f.icono" [title]="f.label"></i>
+              </div>
               <app-tooth-faces [toothNumber]="tooth" size="sm"></app-tooth-faces>
               <small class="tooth-number">{{ tooth }}</small>
               <div class="tooth-icons">
-                <i *ngFor="let item of getToothIcons(tooth)" [ngClass]="item.icono" [title]="item.label"></i>
+                <i *ngFor="let item of getToothIconsExcludingMovilidad(tooth)" [ngClass]="item.icono" [title]="item.label"></i>
               </div>
             </div>
           </div>
@@ -91,10 +115,14 @@
           <div class="teeth-group">
             <div *ngFor="let tooth of permanentTeeth.bottomRight" class="tooth-item" [class.selected]="isToothSelected(tooth)"
               (click)="selectTooth(tooth)">
+              <div class="tooth-icons-top">
+                <i *ngIf="getMovilidadIconForTooth(tooth) as m" [ngClass]="m.icono" [title]="m.label"></i>
+                <i *ngIf="getFurcaIconForTooth(tooth) as f" [ngClass]="f.icono" [title]="f.label"></i>
+              </div>
               <app-tooth-faces [toothNumber]="tooth"></app-tooth-faces>
               <small class="tooth-number">{{ tooth }}</small>
               <div class="tooth-icons">
-                <i *ngFor="let item of getToothIcons(tooth)" [ngClass]="item.icono" [title]="item.label"></i>
+                <i *ngFor="let item of getToothIconsExcludingMovilidad(tooth)" [ngClass]="item.icono" [title]="item.label"></i>
               </div>
             </div>
           </div>
@@ -104,10 +132,14 @@
           <div class="teeth-group">
             <div *ngFor="let tooth of permanentTeeth.bottomLeft" class="tooth-item" [class.selected]="isToothSelected(tooth)"
               (click)="selectTooth(tooth)">
+              <div class="tooth-icons-top">
+                <i *ngIf="getMovilidadIconForTooth(tooth) as m" [ngClass]="m.icono" [title]="m.label"></i>
+                <i *ngIf="getFurcaIconForTooth(tooth) as f" [ngClass]="f.icono" [title]="f.label"></i>
+              </div>
               <app-tooth-faces [toothNumber]="tooth"></app-tooth-faces>
               <small class="tooth-number">{{ tooth }}</small>
               <div class="tooth-icons">
-                <i *ngFor="let item of getToothIcons(tooth)" [ngClass]="item.icono" [title]="item.label"></i>
+                <i *ngFor="let item of getToothIconsExcludingMovilidad(tooth)" [ngClass]="item.icono" [title]="item.label"></i>
               </div>
             </div>
           </div>
@@ -128,7 +160,7 @@
         </div>
         <div class="col-6 col-md-2 d-flex align-items-center gap-2">
           <div class="legend-box treatment"></div>
-          <span>Tratamiento: resina amalgama provisorio</span>
+          <span>Tratamiento</span>
         </div>
         <div class="col-6 col-md-2 d-flex align-items-center gap-2">
           <div class="legend-box missing"></div>

@@ -1,5 +1,13 @@
 @use 'variables' as *;
 
+// Dos arcadas × rejilla 4×3 por diente: altura intrínseca muy mayor que el odontograma.
+// Limita la altura al viewport y desplaza dentro de la tarjeta para no alargar toda la página.
+.card-body {
+  max-height: min(72vh, calc(100dvh - 9rem));
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
 .arc-title {
   margin: 0 0 $spacing-md;
   font-size: 0.82rem;
