@@ -40,6 +40,15 @@
   @media (min-width: 1200px) {
     grid-template-columns: 1fr 280px;
   }
+
+  // Periodontograma: ancho completo y barra lateral debajo (una sola columna en todos los breakpoints)
+  &.odontograma-grid--perio {
+    grid-template-columns: 1fr;
+
+    @media (min-width: 1200px) {
+      grid-template-columns: 1fr;
+    }
+  }
 }
 
 // Sidebars
@@ -62,6 +71,20 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+}
+
+// Rompe el padding horizontal del contenedor para que el periodontograma use todo el ancho útil de pantalla
+.periodontograma-host--full {
+  margin-left: -1rem;
+  margin-right: -1rem;
+  width: calc(100% + 2rem);
+  max-width: none;
+
+  @media (min-width: 768px) {
+    margin-left: -2rem;
+    margin-right: -2rem;
+    width: calc(100% + 4rem);
+  }
 }
 
 .comments-row {

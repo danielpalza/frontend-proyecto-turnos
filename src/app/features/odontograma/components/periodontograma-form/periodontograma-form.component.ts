@@ -5,8 +5,8 @@ import { FormsModule } from '@angular/forms';
 interface PerioToothMvp {
   id: number;
   present: boolean;
-  probing: number;
-  recession: number;
+  probing: [number, number, number];
+  recession: [number, number, number];
   bleeding: [boolean, boolean, boolean];
   plaque: [boolean, boolean, boolean];
   mobility: number;
@@ -75,30 +75,52 @@ export class PeriodontogramaFormComponent {
   }
 
   get avgProbing(): string {
-    const withProbing = this.activeTeeth.filter((t) => t.probing > 0);
-    if (withProbing.length === 0) {
+    const values: number[] = [];
+    for (const tooth of this.activeTeeth) {
+      for (const p of tooth.probing) {
+        if (p > 0) {
+          values.push(p);
+        }
+      }
+    }
+    if (values.length === 0) {
       return '—';
     }
 
-    const sum = withProbing.reduce((acc, tooth) => acc + tooth.probing, 0);
-    return (sum / withProbing.length).toFixed(1);
+    const sum = values.reduce((acc, p) => acc + p, 0);
+    return (sum / values.length).toFixed(1);
   }
 
   get deepSites(): number {
-    return this.activeTeeth.filter((t) => t.probing >= 6).length * 6;
+    return this.activeTeeth.reduce(
+      (acc, tooth) => acc + tooth.probing.filter((p) => p >= 6).length,
+      0
+    );
   }
 
   getNic(tooth: PerioToothMvp): number {
-    return this.clamp(tooth.probing + tooth.recession);
+    let max = 0;
+    for (let i = 0; i < 3; i++) {
+      const nic = this.clamp(tooth.probing[i] + tooth.recession[i]);
+      if (nic > max) {
+        max = nic;
+      }
+    }
+    return max;
   }
 
-  onNumberInput(tooth: PerioToothMvp, field: 'probing' | 'recession', event: Event): void {
+  onNumberInput(
+    tooth: PerioToothMvp,
+    field: 'probing' | 'recession',
+    siteIndex: 0 | 1 | 2,
+    event: Event
+  ): void {
     const input = event.target as HTMLInputElement | null;
     if (!input) {
       return;
     }
 
-    tooth[field] = this.clamp(Number(input.value));
+    tooth[field][siteIndex] = this.clamp(Number(input.value));
   }
 
   private get activeTeeth(): PerioToothMvp[] {
@@ -109,8 +131,8 @@ export class PeriodontogramaFormComponent {
     return {
       id,
       present: true,
-      probing: 0,
-      recession: 0,
+      probing: [0, 0, 0],
+      recession: [0, 0, 0],
       bleeding: [false, false, false],
       plaque: [false, false, false],
       mobility: 0,

@@ -1,10 +1,20 @@
 @use 'variables' as *;
 
+:host {
+  display: block;
+  // width: 100%;
+  padding:  0 2rem;
+
+  @media (max-width: 768px) {
+    padding: 0 1rem;
+  }
+}
+
 // Dos arcadas × rejilla 4×3 por diente: altura intrínseca muy mayor que el odontograma.
 // Limita la altura al viewport y desplaza dentro de la tarjeta para no alargar toda la página.
 .card-body {
-  max-height: min(72vh, calc(100dvh - 9rem));
-  overflow-y: auto;
+  // max-height: min(72vh, calc(100dvh - 9rem));
+  // overflow-y: auto;
   scrollbar-gutter: stable;
 }
 
@@ -15,16 +25,23 @@
   color: $text-secondary;
 }
 
+// 16 dientes por arcada: el ancho útil de la fila reparte --tooth-scale (container query units).
 .teeth-row {
+  container-type: inline-size;
+  container-name: teeth-row;
   display: flex;
+  align-items: stretch;
   // gap: 0.85rem;
   overflow-x: auto;
   padding: 0.2rem 0 0.35rem;
 }
 
 .tooth-form {
-  --tooth-scale: clamp(85px, 9vw, 100px);
+  box-sizing: border-box;
+  --tooth-scale: max(3.25rem, min(calc((100cqw - 0.25rem) / 16), 7.5rem));
+  flex: 0 0 var(--tooth-scale);
   width: var(--tooth-scale);
+  min-width: 0;
   border: 1px solid $border-color;
   // border-radius: $radius-xl;
   background: $background-color;
@@ -34,11 +51,11 @@
 }
 
 .tooth-form--compact {
-  --tooth-scale: clamp(72px, 7.5vw, 128px);
+  --tooth-scale: max(2.85rem, min(calc((100cqw - 0.25rem) / 16), 6.25rem));
 }
 
 .tooth-form--large {
-  --tooth-scale: clamp(98px, 10.5vw, 176px);
+  --tooth-scale: max(3.65rem, min(calc((100cqw - 0.25rem) / 16), 8.5rem));
 }
 
 .tooth-header {
@@ -214,11 +231,9 @@
 /*
   Sistema de escala con --tooth-scale
   -----------------------------------
-  1) .tooth-form define --tooth-scale (con clamp) y usa ese valor como ancho base.
-  2) El font-size del contenedor depende de --tooth-scale, por eso los hijos en em
-     escalan automaticamente al cambiar el tamano del diente.
-  3) Elementos como celdas y checks usan calc(var(--tooth-scale) * ratio) para
-     mantener proporciones exactas aunque cambie el ancho.
-  4) Los presets .tooth-form--compact y .tooth-form--large solo sobrescriben
-     --tooth-scale: el resto de estilos se adapta sin cambios adicionales.
+  1) .teeth-row es contenedor (container-type: inline-size); --tooth-scale sale de
+     (100cqw / 16) acotado con min/max, alineado con los 16 dientes por arcada.
+  2) .tooth-form usa flex: 0 0 var(--tooth-scale) y el mismo valor en tipografía
+     y rejilla (em + calc(ratio * --tooth-scale)).
+  3) .tooth-form--compact / --large solo cambian los límites del mismo reparto.
 */

@@ -45,19 +45,19 @@
             <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.bleeding[2]"
               [disabled]="!tooth.present" />
 
-            <input class="form-control form-control-sm" type="number" [value]="tooth.recession"
-              (change)="onNumberInput(tooth, 'recession', $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm" type="number" [value]="tooth.recession"
-              (change)="onNumberInput(tooth, 'recession', $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm" type="number" [value]="tooth.recession"
-              (change)="onNumberInput(tooth, 'recession', $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm" type="number" [value]="tooth.recession[0]"
+              (change)="onNumberInput(tooth, 'recession', 0, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm" type="number" [value]="tooth.recession[1]"
+              (change)="onNumberInput(tooth, 'recession', 1, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm" type="number" [value]="tooth.recession[2]"
+              (change)="onNumberInput(tooth, 'recession', 2, $event)" [disabled]="!tooth.present" />
 
-            <input class="form-control form-control-sm" type="number" [value]="tooth.probing"
-              (change)="onNumberInput(tooth, 'probing', $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm" type="number" [value]="tooth.probing"
-              (change)="onNumberInput(tooth, 'probing', $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm" type="number" [value]="tooth.probing"
-              (change)="onNumberInput(tooth, 'probing', $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm" type="number" [value]="tooth.probing[0]"
+              (change)="onNumberInput(tooth, 'probing', 0, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm" type="number" [value]="tooth.probing[1]"
+              (change)="onNumberInput(tooth, 'probing', 1, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm" type="number" [value]="tooth.probing[2]"
+              (change)="onNumberInput(tooth, 'probing', 2, $event)" [disabled]="!tooth.present" />
           </div>
 
           <label class="present-check">
@@ -100,30 +100,33 @@
 
           <div class="perio-grid">
             <div class="grid-row-label">Placa</div>
-            <input type="checkbox" [(ngModel)]="tooth.plaque[0]" [disabled]="!tooth.present" />
-            <input type="checkbox" [(ngModel)]="tooth.plaque[1]" [disabled]="!tooth.present" />
-            <input type="checkbox" [(ngModel)]="tooth.plaque[2]" [disabled]="!tooth.present" />
+            <input type="checkbox" class="plaque-checkbox" [(ngModel)]="tooth.plaque[0]" [disabled]="!tooth.present" />
+            <input type="checkbox" class="plaque-checkbox" [(ngModel)]="tooth.plaque[1]" [disabled]="!tooth.present" />
+            <input type="checkbox" class="plaque-checkbox" [(ngModel)]="tooth.plaque[2]" [disabled]="!tooth.present" />
 
             <div class="grid-row-label">Sangrado</div>
-            <input type="checkbox" [(ngModel)]="tooth.bleeding[0]" [disabled]="!tooth.present" />
-            <input type="checkbox" [(ngModel)]="tooth.bleeding[1]" [disabled]="!tooth.present" />
-            <input type="checkbox" [(ngModel)]="tooth.bleeding[2]" [disabled]="!tooth.present" />
+            <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.bleeding[0]"
+              [disabled]="!tooth.present" />
+            <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.bleeding[1]"
+              [disabled]="!tooth.present" />
+            <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.bleeding[2]"
+              [disabled]="!tooth.present" />
 
             <div class="grid-row-label">Recesión</div>
-            <input class="form-control form-control-sm" type="number" [value]="tooth.recession"
-              (change)="onNumberInput(tooth, 'recession', $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm" type="number" [value]="tooth.recession"
-              (change)="onNumberInput(tooth, 'recession', $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm" type="number" [value]="tooth.recession"
-              (change)="onNumberInput(tooth, 'recession', $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm" type="number" [value]="tooth.recession[0]"
+              (change)="onNumberInput(tooth, 'recession', 0, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm" type="number" [value]="tooth.recession[1]"
+              (change)="onNumberInput(tooth, 'recession', 1, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm" type="number" [value]="tooth.recession[2]"
+              (change)="onNumberInput(tooth, 'recession', 2, $event)" [disabled]="!tooth.present" />
 
             <div class="grid-row-label">PS</div>
-            <input class="form-control form-control-sm" type="number" [value]="tooth.probing"
-              (change)="onNumberInput(tooth, 'probing', $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm" type="number" [value]="tooth.probing"
-              (change)="onNumberInput(tooth, 'probing', $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm" type="number" [value]="tooth.probing"
-              (change)="onNumberInput(tooth, 'probing', $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm" type="number" [value]="tooth.probing[0]"
+              (change)="onNumberInput(tooth, 'probing', 0, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm" type="number" [value]="tooth.probing[1]"
+              (change)="onNumberInput(tooth, 'probing', 1, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm" type="number" [value]="tooth.probing[2]"
+              (change)="onNumberInput(tooth, 'probing', 2, $event)" [disabled]="!tooth.present" />
           </div>
 
           <label class="present-check">

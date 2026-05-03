@@ -5,10 +5,12 @@
       <p class="text-muted">Vista dental completa del paciente</p>
     </div> -->
 
-    <div class="odontograma-grid">
+    <div class="odontograma-grid" [class.odontograma-grid--perio]="activeForm === 'periodontograma'">
       <div class="odontograma-main-content">
         <app-odontograma-form [hidden]="activeForm !== 'odontograma'"></app-odontograma-form>
-        <app-periodontograma-form [hidden]="activeForm !== 'periodontograma'"></app-periodontograma-form>
+        <div class="periodontograma-host" [class.periodontograma-host--full]="activeForm === 'periodontograma'">
+          <app-periodontograma-form [hidden]="activeForm !== 'periodontograma'"></app-periodontograma-form>
+        </div>
         <div class="comments-row">
           <app-odontograma-comment-component title="Comentarios del turno"></app-odontograma-comment-component>
           <app-odontograma-comment-component title="Plan de tratamiento"></app-odontograma-comment-component>
@@ -33,8 +35,10 @@
           </div>
         </div>
 
-        <app-odontograma-leyend></app-odontograma-leyend>
-        <app-odontograma-actions></app-odontograma-actions>
+        <div [hidden]="activeForm === 'periodontograma'">
+          <app-odontograma-leyend></app-odontograma-leyend>
+          <app-odontograma-actions></app-odontograma-actions>
+        </div>
       </div>
 
     </div>
