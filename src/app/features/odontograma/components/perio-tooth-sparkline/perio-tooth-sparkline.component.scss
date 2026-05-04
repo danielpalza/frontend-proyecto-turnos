@@ -15,7 +15,7 @@
   height: 100%;
   border: 1px solid $border-color;
   border-bottom: 0;
-  border-radius: $radius-xl $radius-xl 0 0;
+  // border-radius: $radius-xl $radius-xl 0 0;
   background: $card-background;
   overflow: hidden;
 }
@@ -56,6 +56,12 @@
   stroke-width: 0.55;
 }
 
+.grid-line--zero {
+  stroke: #dc2626;
+  stroke-width: 0.65;
+  stroke-opacity: 1;
+}
+
 .nic-fill {
   fill: rgba($info, 0.12);
   stroke: none;
@@ -69,12 +75,13 @@
   vector-effect: non-scaling-stroke;
 }
 
-.line--recession {
-  stroke: rgba($text-secondary, 0.85);
+.line--nic {
+  stroke: #2563eb;
+  stroke-dasharray: 2.2 1.6;
 }
 
 .line--probing {
-  stroke: rgba($primary-dark, 0.95);
+  stroke: #16a34a;
 }
 
 .dot--bleeding {

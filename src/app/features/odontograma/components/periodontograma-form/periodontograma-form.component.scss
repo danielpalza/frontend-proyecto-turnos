@@ -19,11 +19,117 @@
 }
 
 .arc-toggle-wrap {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+}
+
+.arc-toggle-wrap__balance {
+  grid-column: 1;
+  min-width: 0;
+  pointer-events: none;
+}
+
+.arc-sparkline-legend-help {
+  grid-column: 3;
+  justify-self: end;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.arc-sparkline-legend-help__btn {
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
+  width: 1.65rem;
+  height: 1.65rem;
+  margin: 0;
+  padding: 0;
+  border: 1px solid $border-color;
+  border-radius: 50%;
+  cursor: help;
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1;
+  color: $text-muted;
+  background: $hover-bg;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.arc-sparkline-legend-help__btn:hover,
+.arc-sparkline-legend-help__btn:focus-visible {
+  color: $text-secondary;
+  border-color: rgba($text-muted, 0.55);
+  background: $card-background;
+}
+
+.arc-sparkline-legend-help__btn:focus-visible {
+  outline: 2px solid $info;
+  outline-offset: 2px;
+}
+
+.arc-sparkline-legend-help__panel {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 0.35rem);
+  right: 0;
+  width: min(18.5rem, calc(100vw - 2.5rem));
+  padding: 0.65rem 0.75rem;
+  border: 1px solid $border-color;
+  border-radius: $radius-xl;
+  background: $card-background;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-0.2rem);
+  transition:
+    opacity 0.15s ease,
+    visibility 0.15s ease,
+    transform 0.15s ease;
+}
+
+.arc-sparkline-legend-help:hover .arc-sparkline-legend-help__panel,
+.arc-sparkline-legend-help:focus-within .arc-sparkline-legend-help__panel {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.arc-sparkline-legend-help__title {
+  margin: 0 0 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: $primary-dark;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.arc-sparkline-legend-help__list {
+  margin: 0;
+  padding-left: 1rem;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: $text-secondary;
+
+  li + li {
+    margin-top: 0.25rem;
+  }
+
+  strong {
+    font-weight: 700;
+    color: $text-secondary;
+  }
 }
 
 .arc-toggle {
+  grid-column: 2;
+  justify-self: center;
   display: inline-flex;
   padding: 3px;
   border-radius: $radius-full;

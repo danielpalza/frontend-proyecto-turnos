@@ -5,8 +5,9 @@
       <span class="badge text-bg-light">Dentición permanente</span>
     </div> -->
 
-    <div class="arc-toggle-wrap mb-3" role="tablist" aria-label="Elegir arcada">
-      <div class="arc-toggle">
+    <div class="arc-toggle-wrap mb-3">
+      <span class="arc-toggle-wrap__balance" aria-hidden="true"></span>
+      <div class="arc-toggle" role="tablist" aria-label="Elegir arcada">
         <button type="button" class="arc-toggle__btn" role="tab" [attr.aria-selected]="activeArc === 'upper'"
           [class.arc-toggle__btn--active]="activeArc === 'upper'" (click)="activeArc = 'upper'">
           Arcada superior
@@ -15,6 +16,22 @@
           [class.arc-toggle__btn--active]="activeArc === 'lower'" (click)="activeArc = 'lower'">
           Arcada inferior
         </button>
+      </div>
+      <div class="arc-sparkline-legend-help">
+        <button type="button" class="arc-sparkline-legend-help__btn" aria-label="Leyenda del mini gráfico por diente">
+          <span aria-hidden="true">?</span>
+        </button>
+        <div class="arc-sparkline-legend-help__panel" role="tooltip">
+          <p class="arc-sparkline-legend-help__title">Mini gráfico por diente</p>
+          <ul class="arc-sparkline-legend-help__list">
+            <li><strong>Eje (mm):</strong> 0 arriba hasta 12 abajo; tres puntos = mesial, central, distal.</li>
+            <li><strong>Línea verde:</strong> profundidad de sondaje (PS).</li>
+            <li><strong>Línea azul discontinua:</strong> NIC (nivel de inserción clínica): PS + recesión, desde CEJ al fondo de bolsa.</li>
+            <li><strong>Área sombreada:</strong> bolsa entre margen gingival (recesión) y NIC.</li>
+            <li><strong>Punto rojo:</strong> sangrado en ese sitio (sobre la PS).</li>
+            <li><strong>Cuadrado amarillo:</strong> placa en ese sitio (sobre la recesión).</li>
+          </ul>
+        </div>
       </div>
     </div>
 

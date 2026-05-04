@@ -63,20 +63,24 @@ export class PerioToothSparklineComponent {
     return this.polylinePoints((i) => this.clampMm(this.probing[i]));
   }
 
-  get recessionPolyline(): string {
-    return this.polylinePoints((i) => this.clampMm(this.recession[i]));
+  /** NIC (nivel de inserción clínica) = PS + recesión (mm desde CEJ al fondo de bolsa). */
+  get nicPolyline(): string {
+    return this.polylinePoints((i) => this.clampMm(this.probing[i] + this.recession[i]));
   }
 
+  /** Relleno entre margen gingival (recesión) y NIC. */
   get nicPath(): string {
     if (!this.present) {
       return '';
     }
     const xs = this.siteXs;
-    const ptsP = xs.map((x, i) => `${x},${this.yPx(this.clampMm(this.probing[i]))}`);
-    const ptsR = xs
-      .map((x, i) => `${x},${this.yPx(this.clampMm(this.recession[i]))}`)
+    const ptsMargin = xs.map(
+      (x, i) => `${x},${this.yPx(this.clampMm(this.recession[i]))}`
+    );
+    const ptsNic = xs
+      .map((x, i) => `${x},${this.yPx(this.clampMm(this.probing[i] + this.recession[i]))}`)
       .reverse();
-    return `M ${ptsP.join(' L ')} L ${ptsR.join(' L ')} Z`;
+    return `M ${ptsMargin.join(' L ')} L ${ptsNic.join(' L ')} Z`;
   }
 
   private polylinePoints(yMmAtIndex: (i: number) => number): string {

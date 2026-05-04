@@ -6,7 +6,7 @@
     role="img"
     [attr.aria-label]="
       present
-        ? 'Mini gráfico perio: PS y recesión en mm (eje 0 a 12)'
+        ? 'Mini gráfico perio: PS (verde), NIC discontinuo (PS más recesión), eje 0 a 12 mm'
         : 'Diente no presente: mini gráfico desactivado'
     "
   >
@@ -29,6 +29,7 @@
         <line
           class="grid-line"
           [class.grid-line--major]="g.major"
+          [class.grid-line--zero]="$index === 0"
           [attr.x1]="plotLeft"
           [attr.y1]="g.y"
           [attr.x2]="plotRight"
@@ -41,8 +42,8 @@
       <path class="nic-fill" [attr.d]="nicPath" />
     }
 
-    @if (present && recessionPolyline) {
-      <polyline class="line line--recession" [attr.points]="recessionPolyline" />
+    @if (present && nicPolyline) {
+      <polyline class="line line--nic" [attr.points]="nicPolyline" />
     }
     @if (present && probingPolyline) {
       <polyline class="line line--probing" [attr.points]="probingPolyline" />
