@@ -1,11 +1,11 @@
-// Altura del navbar-container (padding 16px*2 + contenido ~40px) para cálculos de viewport
-$navbar-height: 4.75rem;
+@use 'sass:color' as color;
+@use 'variables' as *;
 
 // La barra de la página se oculta vía clase en html (seguimiento-view-active) desde el .ts y estilos en styles.scss
 
 .seguimiento-container {
   padding: 2rem;
-  background-color: #f8fafc;
+  background-color: $background-color;
   padding-bottom: 3rem;
 }
 
@@ -26,12 +26,12 @@ $navbar-height: 4.75rem;
   .section-label {
     font-size: 0.875rem;
     font-weight: 600;
-    color: #334155;
+    color: $text-primary;
     margin-bottom: 0.5rem;
   }
 
   .payment-summary {
-    background: #f8fafc;
+    background: $background-color;
     border-radius: 0.5rem;
     padding: 0.75rem 1rem;
   }
@@ -59,21 +59,21 @@ $navbar-height: 4.75rem;
 
 .header-section {
   h1 {
-    color: #0f172a;
+    color: $text-primary;
     font-size: 1.875rem;
   }
 }
 
 .search-container {
   .form-control {
-    border-radius: 0.75rem;
-    border: 1px solid #e2e8f0;
+    border-radius: $radius-lg;
+    border: 1px solid $border-color;
     padding: 0.75rem 1rem 0.75rem 2.75rem;
-    transition: all 0.2s ease;
+    transition: all $transition-base;
 
     &:focus {
-      border-color: #6366f1;
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
     }
   }
 
@@ -83,8 +83,8 @@ $navbar-height: 4.75rem;
 }
 
 .empty-state {
-  border-radius: 0.75rem;
-  border: 1px solid #e2e8f0;
+  border-radius: $radius-lg;
+  border: 1px solid $border-color;
 }
 
 // Panel formulario cliente (columna derecha)
@@ -100,23 +100,23 @@ $navbar-height: 4.75rem;
   }
 
   &::-webkit-scrollbar-track {
-    background: #f1f5f9;
+    background: $hover-bg;
     border-radius: 3px;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
+    background: color.mix($border-color, $text-muted, 55%);
     border-radius: 3px;
 
     &:hover {
-      background: #94a3b8;
+      background: $text-muted;
     }
   }
 }
 
 .patient-form-header {
   h2 {
-    color: #0f172a;
+    color: $text-primary;
     font-size: 1.25rem;
   }
 }
@@ -132,32 +132,32 @@ $navbar-height: 4.75rem;
   }
 
   &::-webkit-scrollbar-track {
-    background: #f1f5f9;
+    background: $hover-bg;
     border-radius: 3px;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
+    background: color.mix($border-color, $text-muted, 55%);
     border-radius: 3px;
 
     &:hover {
-      background: #94a3b8;
+      background: $text-muted;
     }
   }
 }
 
 .patient-card {
-  border-radius: 0.75rem;
-  border: 1px solid #e2e8f0;
-  transition: all 0.2s ease;
+  border-radius: $radius-lg;
+  border: 1px solid $border-color;
+  transition: all $transition-base;
 
   &:hover {
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    box-shadow: $shadow-lg;
     transform: translateY(-2px);
   }
 
   .card-header {
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid $border-color;
     padding: 1.25rem 1.5rem;
   }
 
@@ -170,7 +170,7 @@ $navbar-height: 4.75rem;
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background-color: rgba(99, 102, 241, 0.1);
+  background-color: rgba($primary-color, 0.1);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -180,7 +180,7 @@ $navbar-height: 4.75rem;
 .total-deuda {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #dc2626;
+  color: $danger-dark;
   white-space: nowrap;
 }
 
@@ -235,9 +235,9 @@ $navbar-height: 4.75rem;
   }
 
   &.appointment-gray {
-    background-color: #f1f5f9;
-    color: #475569;
-    border: 1px solid #e2e8f0;
+    background-color: $hover-bg;
+    color: $text-secondary;
+    border: 1px solid $border-color;
   }
 }
 

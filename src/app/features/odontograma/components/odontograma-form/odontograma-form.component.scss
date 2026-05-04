@@ -1,0 +1,153 @@
+@use 'sass:color' as color;
+@use 'variables' as *;
+
+.teeth-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  @media (max-width: 768px) {
+    gap: 2rem;
+  }
+}
+
+.section-title {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.teeth-container {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  align-items: flex-start;
+
+  @media (max-width: 768px) {
+    gap: 1.5rem;
+  }
+
+  @media (max-width: 640px) {
+    gap: 1rem;
+  }
+}
+
+.teeth-group {
+  display: flex;
+  gap: 0.75rem;
+
+  @media (max-width: 640px) {
+    gap: 0.5rem;
+  }
+}
+
+.tooth-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  cursor: pointer;
+  border-radius: 0.5rem;
+  padding: 0.25rem;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: $background-color;
+  }
+
+  &.selected {
+    background-color: color.mix(white, $info, 88%);
+    outline: 1px solid rgba($primary-color, 0.45);
+  }
+}
+
+.tooth-number {
+  font-size: 0.875rem;
+  color: $text-primary;
+  font-weight: 500;
+}
+
+.tooth-icons-top {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 1.5rem;
+  color: $text-primary;
+  font-size: 0.875rem;
+}
+
+.tooth-icons {
+  min-height: 3rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, max-content));
+  justify-content: center;
+  justify-items: center;
+  align-content: start;
+  gap: 0.25rem 0.35rem;
+  color: $text-primary;
+  font-size: 0.875rem;
+}
+
+.divider-line {
+  width: 2px;
+  background-color: $text-muted;
+  margin: 0 0.75rem;
+  align-self: stretch;
+}
+
+.legend-container {
+  p {
+    color: $text-primary;
+  }
+
+  span {
+    font-size: 0.875rem;
+    color: $text-secondary;
+  }
+}
+
+.legend-box {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 0.25rem;
+  flex-shrink: 0;
+
+  &.healthy {
+    border: 2px solid $text-primary;
+    background-color: $card-background;
+  }
+
+  &.caries {
+    background-color: $danger-light;
+  }
+
+  &.treatment {
+    background-color: $info;
+  }
+
+  &.missing {
+    background-color: #000000;
+  }
+
+  &.other {
+    background-color: $text-muted;
+  }
+}
+
+@media (max-width: 640px) {
+  .teeth-container {
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .divider-line {
+    display: none;
+  }
+
+  .teeth-group {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}

@@ -1,11 +1,5 @@
-$primary-color: #6366f1;
-$primary-dark: #4f46e5;
-$primary-light: #eef2ff;
-$text-primary: #1e293b;
-$text-secondary: #64748b;
-$border-color: #e2e8f0;
-$background-color: #f8fafc;
-$success-color: #22c55e;
+@use 'sass:color' as color;
+@use 'variables' as *;
 
 .login-container {
   display: flex;
@@ -67,7 +61,7 @@ $success-color: #22c55e;
     justify-content: center;
     font-size: 13px;
     font-weight: 600;
-    background: #f1f5f9;
+    background: $hover-bg;
     color: $text-secondary;
     border: 2px solid $border-color;
     transition: all 0.3s ease;
@@ -92,13 +86,13 @@ $success-color: #22c55e;
   }
 
   &.completed .step-number {
-    background: $success-color;
+    background: $success-light;
     color: white;
-    border-color: $success-color;
+    border-color: $success-light;
   }
 
   &.completed .step-label {
-    color: $success-color;
+    color: $success-light;
   }
 }
 
@@ -111,7 +105,7 @@ $success-color: #22c55e;
   transition: background 0.3s ease;
 
   &.active {
-    background: $success-color;
+    background: $success-light;
   }
 }
 
@@ -138,7 +132,7 @@ $success-color: #22c55e;
 
   &.selected {
     border-color: $primary-color;
-    background: $primary-light;
+    background: color.mix(white, $primary-color, 92%);
   }
 
   .role-icon {
@@ -208,21 +202,21 @@ $success-color: #22c55e;
   }
 
   &::placeholder {
-    color: #94a3b8;
+    color: $text-muted;
   }
 
   &.is-invalid {
-    border-color: #dc2626;
+    border-color: $danger-dark;
 
     &:focus {
-      box-shadow: 0 0 0 3px rgba(#dc2626, 0.15);
+      box-shadow: 0 0 0 3px rgba($danger-dark, 0.15);
     }
   }
 }
 
 .field-error {
   font-size: 12px;
-  color: #dc2626;
+  color: $danger-dark;
   margin-top: 2px;
 }
 
@@ -263,8 +257,8 @@ $success-color: #22c55e;
   padding: 0 20px;
 
   &:hover:not(:disabled) {
-    background: #f8fafc;
-    border-color: #cbd5e1;
+    background: $background-color;
+    border-color: color.mix($border-color, $text-muted, 55%);
     color: $text-primary;
   }
 }
@@ -310,7 +304,7 @@ $success-color: #22c55e;
   animation: shake 0.4s ease-in-out;
 
   i {
-    color: #dc2626;
+    color: $danger-light;
     font-size: 16px;
   }
 }

@@ -1,6 +1,9 @@
+@use 'sass:color' as color;
+@use 'variables' as *;
+
 .card-title {
   font-weight: 600;
-  color: #1e293b;
+  color: $text-primary;
 }
 
 .btn-action {
@@ -33,17 +36,21 @@
 }
 
 .btn-save {
-  background: linear-gradient(to right, #6366f1, #a855f7);
+  background: linear-gradient(to right, $primary-color, $secondary-color);
   color: white;
 
   &:hover {
-    background: linear-gradient(to right, #4f46e5, #9333ea);
-    box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);
+    background: linear-gradient(
+      to right,
+      $primary-dark,
+      color.adjust($secondary-color, $lightness: -8%)
+    );
+    box-shadow: 0 8px 16px rgba($primary-color, 0.3);
   }
 }
 
 .info-section {
-  border: 1px solid #e2e8f0;
+  border: 1px solid $border-color;
 }
 
 .info-list {
@@ -57,7 +64,7 @@
     }
 
     &::marker {
-      color: #94a3b8;
+      color: $text-muted;
     }
   }
 }
