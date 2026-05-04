@@ -2,13 +2,18 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-interface PerioToothMvp {
-  id: number;
-  present: boolean;
+interface PerioFaceMvp {
   probing: [number, number, number];
   recession: [number, number, number];
   bleeding: [boolean, boolean, boolean];
   plaque: [boolean, boolean, boolean];
+}
+
+interface PerioToothMvp {
+  id: number;
+  present: boolean;
+  vestibular: PerioFaceMvp;
+  lingual: PerioFaceMvp;
   mobility: number;
   furcation: number;
 }
@@ -23,6 +28,9 @@ interface PerioToothMvp {
 export class PeriodontogramaFormComponent {
   readonly upperIds = [18, 17, 16, 15, 14, 13, 12, 11, 21, 22, 23, 24, 25, 26, 27, 28];
   readonly lowerIds = [48, 47, 46, 45, 44, 43, 42, 41, 31, 32, 33, 34, 35, 36, 37, 38];
+
+  /** Vista activa: una arcada a la vez para reducir scroll en pantallas pequeñas. */
+  activeArc: 'upper' | 'lower' = 'upper';
 
   patientInfo = {
     name: '',
@@ -55,10 +63,11 @@ export class PeriodontogramaFormComponent {
       return 0;
     }
 
-    const bleedingSites = this.activeTeeth.reduce(
-      (acc, tooth) => acc + tooth.bleeding.filter(Boolean).length * 2,
-      0
-    );
+    const bleedingSites = this.activeTeeth.reduce((acc, tooth) => {
+      const v = tooth.vestibular.bleeding.filter(Boolean).length;
+      const l = tooth.lingual.bleeding.filter(Boolean).length;
+      return acc + v + l;
+    }, 0);
     return Math.round((bleedingSites / this.totalSites) * 100);
   }
 
@@ -67,19 +76,22 @@ export class PeriodontogramaFormComponent {
       return 0;
     }
 
-    const plaqueSites = this.activeTeeth.reduce(
-      (acc, tooth) => acc + tooth.plaque.filter(Boolean).length * 2,
-      0
-    );
+    const plaqueSites = this.activeTeeth.reduce((acc, tooth) => {
+      const v = tooth.vestibular.plaque.filter(Boolean).length;
+      const l = tooth.lingual.plaque.filter(Boolean).length;
+      return acc + v + l;
+    }, 0);
     return Math.round((plaqueSites / this.totalSites) * 100);
   }
 
   get avgProbing(): string {
     const values: number[] = [];
     for (const tooth of this.activeTeeth) {
-      for (const p of tooth.probing) {
-        if (p > 0) {
-          values.push(p);
+      for (const face of [tooth.vestibular, tooth.lingual]) {
+        for (const p of face.probing) {
+          if (p > 0) {
+            values.push(p);
+          }
         }
       }
     }
@@ -92,25 +104,28 @@ export class PeriodontogramaFormComponent {
   }
 
   get deepSites(): number {
-    return this.activeTeeth.reduce(
-      (acc, tooth) => acc + tooth.probing.filter((p) => p >= 6).length,
-      0
-    );
+    return this.activeTeeth.reduce((acc, tooth) => {
+      const v = tooth.vestibular.probing.filter((p) => p >= 6).length;
+      const l = tooth.lingual.probing.filter((p) => p >= 6).length;
+      return acc + v + l;
+    }, 0);
   }
 
   getNic(tooth: PerioToothMvp): number {
     let max = 0;
-    for (let i = 0; i < 3; i++) {
-      const nic = this.clamp(tooth.probing[i] + tooth.recession[i]);
-      if (nic > max) {
-        max = nic;
+    for (const face of [tooth.vestibular, tooth.lingual]) {
+      for (let i = 0; i < 3; i++) {
+        const nic = this.clamp(face.probing[i] + face.recession[i]);
+        if (nic > max) {
+          max = nic;
+        }
       }
     }
     return max;
   }
 
   onNumberInput(
-    tooth: PerioToothMvp,
+    face: PerioFaceMvp,
     field: 'probing' | 'recession',
     siteIndex: 0 | 1 | 2,
     event: Event
@@ -120,7 +135,7 @@ export class PeriodontogramaFormComponent {
       return;
     }
 
-    tooth[field][siteIndex] = this.clamp(Number(input.value));
+    face[field][siteIndex] = this.clamp(Number(input.value));
   }
 
   private get activeTeeth(): PerioToothMvp[] {
@@ -131,12 +146,19 @@ export class PeriodontogramaFormComponent {
     return {
       id,
       present: true,
+      vestibular: this.emptyFace(),
+      lingual: this.emptyFace(),
+      mobility: 0,
+      furcation: 0
+    };
+  }
+
+  private emptyFace(): PerioFaceMvp {
+    return {
       probing: [0, 0, 0],
       recession: [0, 0, 0],
       bleeding: [false, false, false],
-      plaque: [false, false, false],
-      mobility: 0,
-      furcation: 0
+      plaque: [false, false, false]
     };
   }
 

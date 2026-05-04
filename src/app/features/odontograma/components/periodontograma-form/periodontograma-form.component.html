@@ -5,8 +5,21 @@
       <span class="badge text-bg-light">Dentición permanente</span>
     </div> -->
 
-    <div class="mb-4">
-      <p class="arc-title">Arcada superior</p>
+    <div class="arc-toggle-wrap mb-3" role="tablist" aria-label="Elegir arcada">
+      <div class="arc-toggle">
+        <button type="button" class="arc-toggle__btn" role="tab" [attr.aria-selected]="activeArc === 'upper'"
+          [class.arc-toggle__btn--active]="activeArc === 'upper'" (click)="activeArc = 'upper'">
+          Arcada superior
+        </button>
+        <button type="button" class="arc-toggle__btn" role="tab" [attr.aria-selected]="activeArc === 'lower'"
+          [class.arc-toggle__btn--active]="activeArc === 'lower'" (click)="activeArc = 'lower'">
+          Arcada inferior
+        </button>
+      </div>
+    </div>
+
+    <div class="mb-4" *ngIf="activeArc === 'upper'">
+      <p class="arc-face-title">Vestibular</p>
       <div class="teeth-row">
         <div class="tooth-form" *ngFor="let tooth of upperTeeth">
           <div class="tooth-header">
@@ -34,42 +47,85 @@
           </div>
 
           <div class="perio-grid">
-            <input type="checkbox" class="plaque-checkbox" [(ngModel)]="tooth.plaque[0]" [disabled]="!tooth.present" />
-            <input type="checkbox" class="plaque-checkbox" [(ngModel)]="tooth.plaque[1]" [disabled]="!tooth.present" />
-            <input type="checkbox" class="plaque-checkbox" [(ngModel)]="tooth.plaque[2]" [disabled]="!tooth.present" />
-
-            <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.bleeding[0]"
+            <input type="checkbox" class="plaque-checkbox" [(ngModel)]="tooth.vestibular.plaque[0]"
               [disabled]="!tooth.present" />
-            <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.bleeding[1]"
+            <input type="checkbox" class="plaque-checkbox" [(ngModel)]="tooth.vestibular.plaque[1]"
               [disabled]="!tooth.present" />
-            <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.bleeding[2]"
+            <input type="checkbox" class="plaque-checkbox" [(ngModel)]="tooth.vestibular.plaque[2]"
               [disabled]="!tooth.present" />
 
-            <input class="form-control form-control-sm" type="number" [value]="tooth.recession[0]"
-              (change)="onNumberInput(tooth, 'recession', 0, $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm" type="number" [value]="tooth.recession[1]"
-              (change)="onNumberInput(tooth, 'recession', 1, $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm" type="number" [value]="tooth.recession[2]"
-              (change)="onNumberInput(tooth, 'recession', 2, $event)" [disabled]="!tooth.present" />
+            <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.vestibular.bleeding[0]"
+              [disabled]="!tooth.present" />
+            <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.vestibular.bleeding[1]"
+              [disabled]="!tooth.present" />
+            <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.vestibular.bleeding[2]"
+              [disabled]="!tooth.present" />
 
-            <input class="form-control form-control-sm" type="number" [value]="tooth.probing[0]"
-              (change)="onNumberInput(tooth, 'probing', 0, $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm" type="number" [value]="tooth.probing[1]"
-              (change)="onNumberInput(tooth, 'probing', 1, $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm" type="number" [value]="tooth.probing[2]"
-              (change)="onNumberInput(tooth, 'probing', 2, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm" type="number" [value]="tooth.vestibular.recession[0]"
+              (change)="onNumberInput(tooth.vestibular, 'recession', 0, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm" type="number" [value]="tooth.vestibular.recession[1]"
+              (change)="onNumberInput(tooth.vestibular, 'recession', 1, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm" type="number" [value]="tooth.vestibular.recession[2]"
+              (change)="onNumberInput(tooth.vestibular, 'recession', 2, $event)" [disabled]="!tooth.present" />
+
+            <input class="form-control form-control-sm" type="number" [value]="tooth.vestibular.probing[0]"
+              (change)="onNumberInput(tooth.vestibular, 'probing', 0, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm" type="number" [value]="tooth.vestibular.probing[1]"
+              (change)="onNumberInput(tooth.vestibular, 'probing', 1, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm" type="number" [value]="tooth.vestibular.probing[2]"
+              (change)="onNumberInput(tooth.vestibular, 'probing', 2, $event)" [disabled]="!tooth.present" />
           </div>
 
-          <label class="present-check">
+          <!-- <label class="present-check">
             <input type="checkbox" [(ngModel)]="tooth.present" />
             <span>Presente</span>
-          </label>
+          </label> -->
+        </div>
+      </div>
+
+      <p class="arc-face-title">Lingual</p>
+      <div class="teeth-row">
+        <div class="tooth-form tooth-form--lingual" *ngFor="let tooth of upperTeeth">
+          <div class="tooth-header">
+            <span class="fw-semibold">{{ tooth.id }}</span>
+            <span class="tooth-nic">NIC: {{ getNic(tooth) }}</span>
+          </div>
+
+          <div class="perio-grid">
+            <input type="checkbox" class="plaque-checkbox" [(ngModel)]="tooth.lingual.plaque[0]"
+              [disabled]="!tooth.present" />
+            <input type="checkbox" class="plaque-checkbox" [(ngModel)]="tooth.lingual.plaque[1]"
+              [disabled]="!tooth.present" />
+            <input type="checkbox" class="plaque-checkbox" [(ngModel)]="tooth.lingual.plaque[2]"
+              [disabled]="!tooth.present" />
+
+            <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.lingual.bleeding[0]"
+              [disabled]="!tooth.present" />
+            <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.lingual.bleeding[1]"
+              [disabled]="!tooth.present" />
+            <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.lingual.bleeding[2]"
+              [disabled]="!tooth.present" />
+
+            <input class="form-control form-control-sm" type="number" [value]="tooth.lingual.recession[0]"
+              (change)="onNumberInput(tooth.lingual, 'recession', 0, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm" type="number" [value]="tooth.lingual.recession[1]"
+              (change)="onNumberInput(tooth.lingual, 'recession', 1, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm" type="number" [value]="tooth.lingual.recession[2]"
+              (change)="onNumberInput(tooth.lingual, 'recession', 2, $event)" [disabled]="!tooth.present" />
+
+            <input class="form-control form-control-sm" type="number" [value]="tooth.lingual.probing[0]"
+              (change)="onNumberInput(tooth.lingual, 'probing', 0, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm" type="number" [value]="tooth.lingual.probing[1]"
+              (change)="onNumberInput(tooth.lingual, 'probing', 1, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm" type="number" [value]="tooth.lingual.probing[2]"
+              (change)="onNumberInput(tooth.lingual, 'probing', 2, $event)" [disabled]="!tooth.present" />
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="mb-4">
-      <p class="arc-title">Arcada inferior</p>
+    <div class="mb-4" *ngIf="activeArc === 'lower'">
+      <p class="arc-face-title">Vestibular</p>
       <div class="teeth-row">
         <div class="tooth-form" *ngFor="let tooth of lowerTeeth">
           <div class="tooth-header">
@@ -100,39 +156,86 @@
 
           <div class="perio-grid">
             <div class="grid-row-label">Placa</div>
-            <input type="checkbox" class="plaque-checkbox" [(ngModel)]="tooth.plaque[0]" [disabled]="!tooth.present" />
-            <input type="checkbox" class="plaque-checkbox" [(ngModel)]="tooth.plaque[1]" [disabled]="!tooth.present" />
-            <input type="checkbox" class="plaque-checkbox" [(ngModel)]="tooth.plaque[2]" [disabled]="!tooth.present" />
+            <input type="checkbox" class="plaque-checkbox" [(ngModel)]="tooth.vestibular.plaque[0]"
+              [disabled]="!tooth.present" />
+            <input type="checkbox" class="plaque-checkbox" [(ngModel)]="tooth.vestibular.plaque[1]"
+              [disabled]="!tooth.present" />
+            <input type="checkbox" class="plaque-checkbox" [(ngModel)]="tooth.vestibular.plaque[2]"
+              [disabled]="!tooth.present" />
 
             <div class="grid-row-label">Sangrado</div>
-            <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.bleeding[0]"
+            <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.vestibular.bleeding[0]"
               [disabled]="!tooth.present" />
-            <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.bleeding[1]"
+            <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.vestibular.bleeding[1]"
               [disabled]="!tooth.present" />
-            <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.bleeding[2]"
+            <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.vestibular.bleeding[2]"
               [disabled]="!tooth.present" />
 
             <div class="grid-row-label">Recesión</div>
-            <input class="form-control form-control-sm" type="number" [value]="tooth.recession[0]"
-              (change)="onNumberInput(tooth, 'recession', 0, $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm" type="number" [value]="tooth.recession[1]"
-              (change)="onNumberInput(tooth, 'recession', 1, $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm" type="number" [value]="tooth.recession[2]"
-              (change)="onNumberInput(tooth, 'recession', 2, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm" type="number" [value]="tooth.vestibular.recession[0]"
+              (change)="onNumberInput(tooth.vestibular, 'recession', 0, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm" type="number" [value]="tooth.vestibular.recession[1]"
+              (change)="onNumberInput(tooth.vestibular, 'recession', 1, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm" type="number" [value]="tooth.vestibular.recession[2]"
+              (change)="onNumberInput(tooth.vestibular, 'recession', 2, $event)" [disabled]="!tooth.present" />
 
             <div class="grid-row-label">PS</div>
-            <input class="form-control form-control-sm" type="number" [value]="tooth.probing[0]"
-              (change)="onNumberInput(tooth, 'probing', 0, $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm" type="number" [value]="tooth.probing[1]"
-              (change)="onNumberInput(tooth, 'probing', 1, $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm" type="number" [value]="tooth.probing[2]"
-              (change)="onNumberInput(tooth, 'probing', 2, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm" type="number" [value]="tooth.vestibular.probing[0]"
+              (change)="onNumberInput(tooth.vestibular, 'probing', 0, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm" type="number" [value]="tooth.vestibular.probing[1]"
+              (change)="onNumberInput(tooth.vestibular, 'probing', 1, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm" type="number" [value]="tooth.vestibular.probing[2]"
+              (change)="onNumberInput(tooth.vestibular, 'probing', 2, $event)" [disabled]="!tooth.present" />
           </div>
 
-          <label class="present-check">
+          <!-- <label class="present-check">
             <input type="checkbox" [(ngModel)]="tooth.present" />
             <span>Presente</span>
-          </label>
+          </label> -->
+        </div>
+      </div>
+
+      <p class="arc-face-title">Lingual</p>
+      <div class="teeth-row">
+        <div class="tooth-form tooth-form--lingual" *ngFor="let tooth of lowerTeeth">
+          <div class="tooth-header">
+            <span class="fw-semibold">{{ tooth.id }}</span>
+            <span class="tooth-nic">NIC: {{ getNic(tooth) }}</span>
+          </div>
+
+          <div class="perio-grid">
+            <div class="grid-row-label">Placa</div>
+            <input type="checkbox" class="plaque-checkbox" [(ngModel)]="tooth.lingual.plaque[0]"
+              [disabled]="!tooth.present" />
+            <input type="checkbox" class="plaque-checkbox" [(ngModel)]="tooth.lingual.plaque[1]"
+              [disabled]="!tooth.present" />
+            <input type="checkbox" class="plaque-checkbox" [(ngModel)]="tooth.lingual.plaque[2]"
+              [disabled]="!tooth.present" />
+
+            <div class="grid-row-label">Sangrado</div>
+            <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.lingual.bleeding[0]"
+              [disabled]="!tooth.present" />
+            <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.lingual.bleeding[1]"
+              [disabled]="!tooth.present" />
+            <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.lingual.bleeding[2]"
+              [disabled]="!tooth.present" />
+
+            <div class="grid-row-label">Recesión</div>
+            <input class="form-control form-control-sm" type="number" [value]="tooth.lingual.recession[0]"
+              (change)="onNumberInput(tooth.lingual, 'recession', 0, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm" type="number" [value]="tooth.lingual.recession[1]"
+              (change)="onNumberInput(tooth.lingual, 'recession', 1, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm" type="number" [value]="tooth.lingual.recession[2]"
+              (change)="onNumberInput(tooth.lingual, 'recession', 2, $event)" [disabled]="!tooth.present" />
+
+            <div class="grid-row-label">PS</div>
+            <input class="form-control form-control-sm" type="number" [value]="tooth.lingual.probing[0]"
+              (change)="onNumberInput(tooth.lingual, 'probing', 0, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm" type="number" [value]="tooth.lingual.probing[1]"
+              (change)="onNumberInput(tooth.lingual, 'probing', 1, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm" type="number" [value]="tooth.lingual.probing[2]"
+              (change)="onNumberInput(tooth.lingual, 'probing', 2, $event)" [disabled]="!tooth.present" />
+          </div>
         </div>
       </div>
     </div>
