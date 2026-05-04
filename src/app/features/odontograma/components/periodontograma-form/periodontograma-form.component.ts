@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { PerioToothSparklineComponent } from '../perio-tooth-sparkline/perio-tooth-sparkline.component';
 
 interface PerioFaceMvp {
   probing: [number, number, number];
@@ -21,7 +22,7 @@ interface PerioToothMvp {
 @Component({
   selector: 'app-periodontograma-form',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PerioToothSparklineComponent],
   templateUrl: './periodontograma-form.component.html',
   styleUrls: ['./periodontograma-form.component.scss']
 })

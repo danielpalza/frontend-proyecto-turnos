@@ -1,0 +1,72 @@
+<div class="perio-sparkline-wrap" [class.perio-sparkline-wrap--absent]="!present">
+  <svg
+    class="perio-sparkline-svg"
+    [attr.viewBox]="'0 0 ' + vbW + ' ' + vbH"
+    preserveAspectRatio="none"
+    role="img"
+    [attr.aria-label]="
+      present
+        ? 'Mini gráfico perio: PS y recesión en mm (eje 0 a 12)'
+        : 'Diente no presente: mini gráfico desactivado'
+    "
+  >
+    <text class="axis-unit" x="1" y="4" text-anchor="start">mm</text>
+
+    @for (mm of axisMajorMms; track mm) {
+      <text
+        class="axis-label"
+        [attr.x]="axisLabelAnchorX"
+        [attr.y]="yPx(mm)"
+        text-anchor="end"
+        dominant-baseline="middle"
+      >
+        {{ mm }}
+      </text>
+    }
+
+    <g class="grid-h">
+      @for (g of gridLines; track $index) {
+        <line
+          class="grid-line"
+          [class.grid-line--major]="g.major"
+          [attr.x1]="plotLeft"
+          [attr.y1]="g.y"
+          [attr.x2]="plotRight"
+          [attr.y2]="g.y"
+        />
+      }
+    </g>
+
+    @if (present && nicPath) {
+      <path class="nic-fill" [attr.d]="nicPath" />
+    }
+
+    @if (present && recessionPolyline) {
+      <polyline class="line line--recession" [attr.points]="recessionPolyline" />
+    }
+    @if (present && probingPolyline) {
+      <polyline class="line line--probing" [attr.points]="probingPolyline" />
+    }
+
+    @for (i of siteIndices; track i) {
+      @if (present && bleeding[i]) {
+        <circle
+          class="dot dot--bleeding"
+          [attr.cx]="siteXs[i]"
+          [attr.cy]="yPx(clampMm(probing[i]))"
+          r="1.6"
+        />
+      }
+      @if (present && plaque[i]) {
+        <rect
+          class="dot dot--plaque"
+          [attr.x]="siteXs[i] - 1.6"
+          [attr.y]="yPx(clampMm(recession[i])) - 1.6"
+          width="3.2"
+          height="3.2"
+          rx="0.6"
+        />
+      }
+    }
+  </svg>
+</div>

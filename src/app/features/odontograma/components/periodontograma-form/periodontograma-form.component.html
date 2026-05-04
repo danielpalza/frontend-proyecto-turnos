@@ -21,7 +21,15 @@
     <div class="mb-4" *ngIf="activeArc === 'upper'">
       <p class="arc-face-title">Vestibular</p>
       <div class="teeth-row">
-        <div class="tooth-form" *ngFor="let tooth of upperTeeth">
+        <div class="tooth-column" *ngFor="let tooth of upperTeeth">
+          <app-perio-tooth-sparkline
+            [probing]="tooth.vestibular.probing"
+            [recession]="tooth.vestibular.recession"
+            [bleeding]="tooth.vestibular.bleeding"
+            [plaque]="tooth.vestibular.plaque"
+            [present]="tooth.present"
+          />
+          <div class="tooth-form">
           <div class="tooth-header">
             <span class="fw-semibold">{{ tooth.id }}</span>
             <span class="tooth-nic">NIC: {{ getNic(tooth) }}</span>
@@ -80,12 +88,21 @@
             <input type="checkbox" [(ngModel)]="tooth.present" />
             <span>Presente</span>
           </label> -->
+          </div>
         </div>
       </div>
 
       <p class="arc-face-title">Lingual</p>
       <div class="teeth-row">
-        <div class="tooth-form tooth-form--lingual" *ngFor="let tooth of upperTeeth">
+        <div class="tooth-column" *ngFor="let tooth of upperTeeth">
+          <app-perio-tooth-sparkline
+            [probing]="tooth.lingual.probing"
+            [recession]="tooth.lingual.recession"
+            [bleeding]="tooth.lingual.bleeding"
+            [plaque]="tooth.lingual.plaque"
+            [present]="tooth.present"
+          />
+          <div class="tooth-form tooth-form--lingual">
           <div class="tooth-header">
             <span class="fw-semibold">{{ tooth.id }}</span>
             <span class="tooth-nic">NIC: {{ getNic(tooth) }}</span>
@@ -120,6 +137,7 @@
             <input class="form-control form-control-sm" type="number" [value]="tooth.lingual.probing[2]"
               (change)="onNumberInput(tooth.lingual, 'probing', 2, $event)" [disabled]="!tooth.present" />
           </div>
+          </div>
         </div>
       </div>
     </div>
@@ -127,7 +145,15 @@
     <div class="mb-4" *ngIf="activeArc === 'lower'">
       <p class="arc-face-title">Vestibular</p>
       <div class="teeth-row">
-        <div class="tooth-form" *ngFor="let tooth of lowerTeeth">
+        <div class="tooth-column" *ngFor="let tooth of lowerTeeth">
+          <app-perio-tooth-sparkline
+            [probing]="tooth.vestibular.probing"
+            [recession]="tooth.vestibular.recession"
+            [bleeding]="tooth.vestibular.bleeding"
+            [plaque]="tooth.vestibular.plaque"
+            [present]="tooth.present"
+          />
+          <div class="tooth-form">
           <div class="tooth-header">
             <span class="fw-semibold">{{ tooth.id }}</span>
             <span class="tooth-nic">NIC: {{ getNic(tooth) }}</span>
@@ -192,12 +218,21 @@
             <input type="checkbox" [(ngModel)]="tooth.present" />
             <span>Presente</span>
           </label> -->
+          </div>
         </div>
       </div>
 
       <p class="arc-face-title">Lingual</p>
       <div class="teeth-row">
-        <div class="tooth-form tooth-form--lingual" *ngFor="let tooth of lowerTeeth">
+        <div class="tooth-column" *ngFor="let tooth of lowerTeeth">
+          <app-perio-tooth-sparkline
+            [probing]="tooth.lingual.probing"
+            [recession]="tooth.lingual.recession"
+            [bleeding]="tooth.lingual.bleeding"
+            [plaque]="tooth.lingual.plaque"
+            [present]="tooth.present"
+          />
+          <div class="tooth-form tooth-form--lingual">
           <div class="tooth-header">
             <span class="fw-semibold">{{ tooth.id }}</span>
             <span class="tooth-nic">NIC: {{ getNic(tooth) }}</span>
@@ -235,6 +270,7 @@
               (change)="onNumberInput(tooth.lingual, 'probing', 1, $event)" [disabled]="!tooth.present" />
             <input class="form-control form-control-sm" type="number" [value]="tooth.lingual.probing[2]"
               (change)="onNumberInput(tooth.lingual, 'probing', 2, $event)" [disabled]="!tooth.present" />
+          </div>
           </div>
         </div>
       </div>
