@@ -353,6 +353,19 @@
   border: 1px solid $border-color;
   padding: 0.1em;
   box-shadow: none;
+  transition: background-color 0.15s ease;
+}
+
+.perio-grid input[type='number'].perio-val--low {
+  background: color-mix(in srgb, $success 18%, $card-background);
+}
+
+.perio-grid input[type='number'].perio-val--mid {
+  background: color-mix(in srgb, $warning 32%, $card-background);
+}
+
+.perio-grid input[type='number'].perio-val--high {
+  background: color-mix(in srgb, $danger 22%, $card-background);
 }
 
 .present-check {

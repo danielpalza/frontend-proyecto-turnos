@@ -112,6 +112,23 @@ export class PeriodontogramaFormComponent {
     }, 0);
   }
 
+  /**
+   * Clase de fondo para PS/recesión (mm): 0–3 verde, 4–5 amarillo, 6+ rojo.
+   */
+  perioValueToneClass(value: number): 'perio-val--low' | 'perio-val--mid' | 'perio-val--high' {
+    const n = Number(value);
+    if (!Number.isFinite(n)) {
+      return 'perio-val--low';
+    }
+    if (n <= 3) {
+      return 'perio-val--low';
+    }
+    if (n <= 5) {
+      return 'perio-val--mid';
+    }
+    return 'perio-val--high';
+  }
+
   getNic(tooth: PerioToothMvp): number {
     let max = 0;
     for (const face of [tooth.vestibular, tooth.lingual]) {
