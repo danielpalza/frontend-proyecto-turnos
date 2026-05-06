@@ -2,7 +2,7 @@
 
 :host {
   display: block;
-  // width: 100%;
+  // width: auto;
   padding:  0 2rem;
 
   @media (max-width: 768px) {
@@ -206,9 +206,12 @@
   flex-direction: column;
   align-items: stretch;
   box-sizing: border-box;
-  --tooth-scale: max(3.25rem, min(calc((100cqw - 0.25rem) / 16), 7.5rem));
-  flex: 0 0 var(--tooth-scale);
-  width: var(--tooth-scale);
+  --tooth-col-width: calc(100cqw / 16);
+  --tooth-min: 3.25rem;
+  --tooth-max: 6rem;
+  --tooth-scale: clamp(var(--tooth-min), var(--tooth-col-width), var(--tooth-max));
+  flex: 0 0 var(--tooth-col-width);
+  width: var(--tooth-col-width);
   min-width: 0;
 }
 
@@ -227,11 +230,13 @@
 }
 
 .tooth-column--compact {
-  --tooth-scale: max(2.85rem, min(calc((100cqw - 0.25rem) / 16), 6.25rem));
+  --tooth-min: 2.85rem;
+  --tooth-max: 6.25rem;
 }
 
 .tooth-column--large {
-  --tooth-scale: max(3.65rem, min(calc((100cqw - 0.25rem) / 16), 8.5rem));
+  --tooth-min: 3.65rem;
+  --tooth-max: 8.5rem;
 }
 
 .tooth-header {

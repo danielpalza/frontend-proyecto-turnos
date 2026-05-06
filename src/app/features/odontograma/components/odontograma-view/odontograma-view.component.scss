@@ -40,15 +40,6 @@
   @media (min-width: 1200px) {
     grid-template-columns: 1fr 280px;
   }
-
-  // Periodontograma: ancho completo y barra lateral debajo (una sola columna en todos los breakpoints)
-  &.odontograma-grid--perio {
-    grid-template-columns: 1fr;
-
-    @media (min-width: 1200px) {
-      grid-template-columns: 1fr;
-    }
-  }
 }
 
 // Sidebars
@@ -59,6 +50,11 @@
 .navigation-panel {
   flex: 1;
   padding-bottom: 1.5rem;
+}
+.navigation-panel .btn-group[aria-label='Selector de formulario'] .btn {
+  font-size: 0.85rem; // texto más chico
+  line-height: 1.2;
+  // padding: 0.35rem 0.6rem;
 }
 
 .navigation-title {
@@ -85,6 +81,10 @@
     margin-right: -2rem;
     width: calc(100% + 4rem);
   }
+}
+
+.periodontograma-layout {
+  display: block;
 }
 
 .comments-row {
@@ -139,4 +139,3 @@
     grid-template-columns: 1fr !important;
   }
 }
-
