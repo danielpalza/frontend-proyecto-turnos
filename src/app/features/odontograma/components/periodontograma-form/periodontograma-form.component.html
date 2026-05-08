@@ -25,11 +25,10 @@
           <p class="arc-sparkline-legend-help__title">Mini gráfico por diente</p>
           <ul class="arc-sparkline-legend-help__list">
             <li><strong>Eje (mm):</strong> 0 arriba hasta 12 abajo; tres puntos = mesial, central, distal.</li>
-            <li><strong>Línea verde:</strong> profundidad de sondaje (PS).</li>
-            <li><strong>Línea azul discontinua:</strong> NIC (nivel de inserción clínica): PS + recesión, desde CEJ al fondo de bolsa.</li>
-            <li><strong>Área sombreada:</strong> bolsa entre margen gingival (recesión) y NIC.</li>
-            <li><strong>Punto rojo:</strong> sangrado en ese sitio (sobre la PS).</li>
-            <li><strong>Cuadrado amarillo:</strong> placa en ese sitio (sobre la recesión).</li>
+            <li><strong>Línea verde:</strong> profundidad de sondaje (PS), input.</li>
+            <li><strong>Línea azul discontinua:</strong> NIC (nivel de inserción clínica), input — del CEJ al fondo del saco.</li>
+            <li><strong>Línea roja:</strong> margen gingival (MG = NIC − PS), calculado — posición del margen de la encía respecto al CEJ.</li>
+            <li><strong>Área sombreada:</strong> bolsa entre MG y NIC.</li>
           </ul>
         </div>
       </div>
@@ -38,13 +37,20 @@
     <div class="mb-4" *ngIf="activeArc === 'upper'">
       <p class="arc-face-title">Vestibular</p>
       <div class="teeth-row">
-        <div class="tooth-column" *ngFor="let tooth of upperTeeth">
+        <div class="tooth-column" *ngFor="let tooth of upperTeeth; let isFirstTooth = first; let i = index">
           <app-perio-tooth-sparkline
+            [showAxisLabels]="isFirstTooth"
             [probing]="tooth.vestibular.probing"
-            [recession]="tooth.vestibular.recession"
+            [nic]="tooth.vestibular.nic"
             [bleeding]="tooth.vestibular.bleeding"
             [plaque]="tooth.vestibular.plaque"
+            [suppuration]="tooth.vestibular.suppuration"
+            [calculus]="tooth.vestibular.calculus"
             [present]="tooth.present"
+            [prevDistalProbing]="neighborFace(upperTeeth, i, 'prev', 'vestibular')?.probing?.[2] ?? null"
+            [prevDistalNic]="neighborFace(upperTeeth, i, 'prev', 'vestibular')?.nic?.[2] ?? null"
+            [nextMesialProbing]="neighborFace(upperTeeth, i, 'next', 'vestibular')?.probing?.[0] ?? null"
+            [nextMesialNic]="neighborFace(upperTeeth, i, 'next', 'vestibular')?.nic?.[0] ?? null"
           />
           <div class="tooth-form">
           <div class="tooth-header">
@@ -86,19 +92,37 @@
             <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.vestibular.bleeding[2]"
               [disabled]="!tooth.present" />
 
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.recession[0])" [value]="tooth.vestibular.recession[0]"
-              (change)="onNumberInput(tooth.vestibular, 'recession', 0, $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.recession[1])" [value]="tooth.vestibular.recession[1]"
-              (change)="onNumberInput(tooth.vestibular, 'recession', 1, $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.recession[2])" [value]="tooth.vestibular.recession[2]"
-              (change)="onNumberInput(tooth.vestibular, 'recession', 2, $event)" [disabled]="!tooth.present" />
+            <input type="checkbox" class="suppuration-checkbox" [(ngModel)]="tooth.vestibular.suppuration[0]"
+              [disabled]="!tooth.present" />
+            <input type="checkbox" class="suppuration-checkbox" [(ngModel)]="tooth.vestibular.suppuration[1]"
+              [disabled]="!tooth.present" />
+            <input type="checkbox" class="suppuration-checkbox" [(ngModel)]="tooth.vestibular.suppuration[2]"
+              [disabled]="!tooth.present" />
+
+            <input type="checkbox" class="calculus-checkbox" [(ngModel)]="tooth.vestibular.calculus[0]"
+              [disabled]="!tooth.present" />
+            <input type="checkbox" class="calculus-checkbox" [(ngModel)]="tooth.vestibular.calculus[1]"
+              [disabled]="!tooth.present" />
+            <input type="checkbox" class="calculus-checkbox" [(ngModel)]="tooth.vestibular.calculus[2]"
+              [disabled]="!tooth.present" />
+
+            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.nic[0])" [value]="tooth.vestibular.nic[0]"
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'nic', 0, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.nic[1])" [value]="tooth.vestibular.nic[1]"
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'nic', 1, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.nic[2])" [value]="tooth.vestibular.nic[2]"
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'nic', 2, $event)" [disabled]="!tooth.present" />
 
             <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.probing[0])" [value]="tooth.vestibular.probing[0]"
-              (change)="onNumberInput(tooth.vestibular, 'probing', 0, $event)" [disabled]="!tooth.present" />
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'probing', 0, $event)" [disabled]="!tooth.present" />
             <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.probing[1])" [value]="tooth.vestibular.probing[1]"
-              (change)="onNumberInput(tooth.vestibular, 'probing', 1, $event)" [disabled]="!tooth.present" />
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'probing', 1, $event)" [disabled]="!tooth.present" />
             <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.probing[2])" [value]="tooth.vestibular.probing[2]"
-              (change)="onNumberInput(tooth.vestibular, 'probing', 2, $event)" [disabled]="!tooth.present" />
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'probing', 2, $event)" [disabled]="!tooth.present" />
+
+            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [value]="getMg(tooth.vestibular, 0)" tabindex="-1" readonly disabled aria-label="Margen gingival mesial (calculado)" />
+            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [value]="getMg(tooth.vestibular, 1)" tabindex="-1" readonly disabled aria-label="Margen gingival central (calculado)" />
+            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [value]="getMg(tooth.vestibular, 2)" tabindex="-1" readonly disabled aria-label="Margen gingival distal (calculado)" />
           </div>
 
           <!-- <label class="present-check">
@@ -111,13 +135,20 @@
 
       <p class="arc-face-title">Lingual</p>
       <div class="teeth-row">
-        <div class="tooth-column" *ngFor="let tooth of upperTeeth">
+        <div class="tooth-column" *ngFor="let tooth of upperTeeth; let isFirstTooth = first; let i = index">
           <app-perio-tooth-sparkline
+            [showAxisLabels]="isFirstTooth"
             [probing]="tooth.lingual.probing"
-            [recession]="tooth.lingual.recession"
+            [nic]="tooth.lingual.nic"
             [bleeding]="tooth.lingual.bleeding"
             [plaque]="tooth.lingual.plaque"
+            [suppuration]="tooth.lingual.suppuration"
+            [calculus]="tooth.lingual.calculus"
             [present]="tooth.present"
+            [prevDistalProbing]="neighborFace(upperTeeth, i, 'prev', 'lingual')?.probing?.[2] ?? null"
+            [prevDistalNic]="neighborFace(upperTeeth, i, 'prev', 'lingual')?.nic?.[2] ?? null"
+            [nextMesialProbing]="neighborFace(upperTeeth, i, 'next', 'lingual')?.probing?.[0] ?? null"
+            [nextMesialNic]="neighborFace(upperTeeth, i, 'next', 'lingual')?.nic?.[0] ?? null"
           />
           <div class="tooth-form tooth-form--lingual">
           <div class="tooth-header">
@@ -140,19 +171,37 @@
             <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.lingual.bleeding[2]"
               [disabled]="!tooth.present" />
 
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.recession[0])" [value]="tooth.lingual.recession[0]"
-              (change)="onNumberInput(tooth.lingual, 'recession', 0, $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.recession[1])" [value]="tooth.lingual.recession[1]"
-              (change)="onNumberInput(tooth.lingual, 'recession', 1, $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.recession[2])" [value]="tooth.lingual.recession[2]"
-              (change)="onNumberInput(tooth.lingual, 'recession', 2, $event)" [disabled]="!tooth.present" />
+            <input type="checkbox" class="suppuration-checkbox" [(ngModel)]="tooth.lingual.suppuration[0]"
+              [disabled]="!tooth.present" />
+            <input type="checkbox" class="suppuration-checkbox" [(ngModel)]="tooth.lingual.suppuration[1]"
+              [disabled]="!tooth.present" />
+            <input type="checkbox" class="suppuration-checkbox" [(ngModel)]="tooth.lingual.suppuration[2]"
+              [disabled]="!tooth.present" />
+
+            <input type="checkbox" class="calculus-checkbox" [(ngModel)]="tooth.lingual.calculus[0]"
+              [disabled]="!tooth.present" />
+            <input type="checkbox" class="calculus-checkbox" [(ngModel)]="tooth.lingual.calculus[1]"
+              [disabled]="!tooth.present" />
+            <input type="checkbox" class="calculus-checkbox" [(ngModel)]="tooth.lingual.calculus[2]"
+              [disabled]="!tooth.present" />
+
+            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.nic[0])" [value]="tooth.lingual.nic[0]"
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'nic', 0, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.nic[1])" [value]="tooth.lingual.nic[1]"
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'nic', 1, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.nic[2])" [value]="tooth.lingual.nic[2]"
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'nic', 2, $event)" [disabled]="!tooth.present" />
 
             <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.probing[0])" [value]="tooth.lingual.probing[0]"
-              (change)="onNumberInput(tooth.lingual, 'probing', 0, $event)" [disabled]="!tooth.present" />
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'probing', 0, $event)" [disabled]="!tooth.present" />
             <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.probing[1])" [value]="tooth.lingual.probing[1]"
-              (change)="onNumberInput(tooth.lingual, 'probing', 1, $event)" [disabled]="!tooth.present" />
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'probing', 1, $event)" [disabled]="!tooth.present" />
             <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.probing[2])" [value]="tooth.lingual.probing[2]"
-              (change)="onNumberInput(tooth.lingual, 'probing', 2, $event)" [disabled]="!tooth.present" />
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'probing', 2, $event)" [disabled]="!tooth.present" />
+
+            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [value]="getMg(tooth.lingual, 0)" tabindex="-1" readonly disabled aria-label="Margen gingival mesial (calculado)" />
+            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [value]="getMg(tooth.lingual, 1)" tabindex="-1" readonly disabled aria-label="Margen gingival central (calculado)" />
+            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [value]="getMg(tooth.lingual, 2)" tabindex="-1" readonly disabled aria-label="Margen gingival distal (calculado)" />
           </div>
           </div>
         </div>
@@ -162,13 +211,20 @@
     <div class="mb-4" *ngIf="activeArc === 'lower'">
       <p class="arc-face-title">Vestibular</p>
       <div class="teeth-row">
-        <div class="tooth-column" *ngFor="let tooth of lowerTeeth">
+        <div class="tooth-column" *ngFor="let tooth of lowerTeeth; let isFirstTooth = first; let i = index">
           <app-perio-tooth-sparkline
+            [showAxisLabels]="isFirstTooth"
             [probing]="tooth.vestibular.probing"
-            [recession]="tooth.vestibular.recession"
+            [nic]="tooth.vestibular.nic"
             [bleeding]="tooth.vestibular.bleeding"
             [plaque]="tooth.vestibular.plaque"
+            [suppuration]="tooth.vestibular.suppuration"
+            [calculus]="tooth.vestibular.calculus"
             [present]="tooth.present"
+            [prevDistalProbing]="neighborFace(lowerTeeth, i, 'prev', 'vestibular')?.probing?.[2] ?? null"
+            [prevDistalNic]="neighborFace(lowerTeeth, i, 'prev', 'vestibular')?.nic?.[2] ?? null"
+            [nextMesialProbing]="neighborFace(lowerTeeth, i, 'next', 'vestibular')?.probing?.[0] ?? null"
+            [nextMesialNic]="neighborFace(lowerTeeth, i, 'next', 'vestibular')?.nic?.[0] ?? null"
           />
           <div class="tooth-form">
           <div class="tooth-header">
@@ -214,21 +270,42 @@
             <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.vestibular.bleeding[2]"
               [disabled]="!tooth.present" />
 
-            <div class="grid-row-label">Recesión</div>
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.recession[0])" [value]="tooth.vestibular.recession[0]"
-              (change)="onNumberInput(tooth.vestibular, 'recession', 0, $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.recession[1])" [value]="tooth.vestibular.recession[1]"
-              (change)="onNumberInput(tooth.vestibular, 'recession', 1, $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.recession[2])" [value]="tooth.vestibular.recession[2]"
-              (change)="onNumberInput(tooth.vestibular, 'recession', 2, $event)" [disabled]="!tooth.present" />
+            <div class="grid-row-label">Supuración</div>
+            <input type="checkbox" class="suppuration-checkbox" [(ngModel)]="tooth.vestibular.suppuration[0]"
+              [disabled]="!tooth.present" />
+            <input type="checkbox" class="suppuration-checkbox" [(ngModel)]="tooth.vestibular.suppuration[1]"
+              [disabled]="!tooth.present" />
+            <input type="checkbox" class="suppuration-checkbox" [(ngModel)]="tooth.vestibular.suppuration[2]"
+              [disabled]="!tooth.present" />
+
+            <div class="grid-row-label">Cálculo</div>
+            <input type="checkbox" class="calculus-checkbox" [(ngModel)]="tooth.vestibular.calculus[0]"
+              [disabled]="!tooth.present" />
+            <input type="checkbox" class="calculus-checkbox" [(ngModel)]="tooth.vestibular.calculus[1]"
+              [disabled]="!tooth.present" />
+            <input type="checkbox" class="calculus-checkbox" [(ngModel)]="tooth.vestibular.calculus[2]"
+              [disabled]="!tooth.present" />
+
+            <div class="grid-row-label">NIC</div>
+            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.nic[0])" [value]="tooth.vestibular.nic[0]"
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'nic', 0, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.nic[1])" [value]="tooth.vestibular.nic[1]"
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'nic', 1, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.nic[2])" [value]="tooth.vestibular.nic[2]"
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'nic', 2, $event)" [disabled]="!tooth.present" />
 
             <div class="grid-row-label">PS</div>
             <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.probing[0])" [value]="tooth.vestibular.probing[0]"
-              (change)="onNumberInput(tooth.vestibular, 'probing', 0, $event)" [disabled]="!tooth.present" />
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'probing', 0, $event)" [disabled]="!tooth.present" />
             <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.probing[1])" [value]="tooth.vestibular.probing[1]"
-              (change)="onNumberInput(tooth.vestibular, 'probing', 1, $event)" [disabled]="!tooth.present" />
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'probing', 1, $event)" [disabled]="!tooth.present" />
             <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.probing[2])" [value]="tooth.vestibular.probing[2]"
-              (change)="onNumberInput(tooth.vestibular, 'probing', 2, $event)" [disabled]="!tooth.present" />
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'probing', 2, $event)" [disabled]="!tooth.present" />
+
+            <div class="grid-row-label">MG</div>
+            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [value]="getMg(tooth.vestibular, 0)" tabindex="-1" readonly disabled aria-label="Margen gingival mesial (calculado)" />
+            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [value]="getMg(tooth.vestibular, 1)" tabindex="-1" readonly disabled aria-label="Margen gingival central (calculado)" />
+            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [value]="getMg(tooth.vestibular, 2)" tabindex="-1" readonly disabled aria-label="Margen gingival distal (calculado)" />
           </div>
 
           <!-- <label class="present-check">
@@ -241,13 +318,20 @@
 
       <p class="arc-face-title">Lingual</p>
       <div class="teeth-row">
-        <div class="tooth-column" *ngFor="let tooth of lowerTeeth">
+        <div class="tooth-column" *ngFor="let tooth of lowerTeeth; let isFirstTooth = first; let i = index">
           <app-perio-tooth-sparkline
+            [showAxisLabels]="isFirstTooth"
             [probing]="tooth.lingual.probing"
-            [recession]="tooth.lingual.recession"
+            [nic]="tooth.lingual.nic"
             [bleeding]="tooth.lingual.bleeding"
             [plaque]="tooth.lingual.plaque"
+            [suppuration]="tooth.lingual.suppuration"
+            [calculus]="tooth.lingual.calculus"
             [present]="tooth.present"
+            [prevDistalProbing]="neighborFace(lowerTeeth, i, 'prev', 'lingual')?.probing?.[2] ?? null"
+            [prevDistalNic]="neighborFace(lowerTeeth, i, 'prev', 'lingual')?.nic?.[2] ?? null"
+            [nextMesialProbing]="neighborFace(lowerTeeth, i, 'next', 'lingual')?.probing?.[0] ?? null"
+            [nextMesialNic]="neighborFace(lowerTeeth, i, 'next', 'lingual')?.nic?.[0] ?? null"
           />
           <div class="tooth-form tooth-form--lingual">
           <div class="tooth-header">
@@ -272,21 +356,42 @@
             <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.lingual.bleeding[2]"
               [disabled]="!tooth.present" />
 
-            <div class="grid-row-label">Recesión</div>
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.recession[0])" [value]="tooth.lingual.recession[0]"
-              (change)="onNumberInput(tooth.lingual, 'recession', 0, $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.recession[1])" [value]="tooth.lingual.recession[1]"
-              (change)="onNumberInput(tooth.lingual, 'recession', 1, $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.recession[2])" [value]="tooth.lingual.recession[2]"
-              (change)="onNumberInput(tooth.lingual, 'recession', 2, $event)" [disabled]="!tooth.present" />
+            <div class="grid-row-label">Supuración</div>
+            <input type="checkbox" class="suppuration-checkbox" [(ngModel)]="tooth.lingual.suppuration[0]"
+              [disabled]="!tooth.present" />
+            <input type="checkbox" class="suppuration-checkbox" [(ngModel)]="tooth.lingual.suppuration[1]"
+              [disabled]="!tooth.present" />
+            <input type="checkbox" class="suppuration-checkbox" [(ngModel)]="tooth.lingual.suppuration[2]"
+              [disabled]="!tooth.present" />
+
+            <div class="grid-row-label">Cálculo</div>
+            <input type="checkbox" class="calculus-checkbox" [(ngModel)]="tooth.lingual.calculus[0]"
+              [disabled]="!tooth.present" />
+            <input type="checkbox" class="calculus-checkbox" [(ngModel)]="tooth.lingual.calculus[1]"
+              [disabled]="!tooth.present" />
+            <input type="checkbox" class="calculus-checkbox" [(ngModel)]="tooth.lingual.calculus[2]"
+              [disabled]="!tooth.present" />
+
+            <div class="grid-row-label">NIC</div>
+            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.nic[0])" [value]="tooth.lingual.nic[0]"
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'nic', 0, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.nic[1])" [value]="tooth.lingual.nic[1]"
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'nic', 1, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.nic[2])" [value]="tooth.lingual.nic[2]"
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'nic', 2, $event)" [disabled]="!tooth.present" />
 
             <div class="grid-row-label">PS</div>
             <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.probing[0])" [value]="tooth.lingual.probing[0]"
-              (change)="onNumberInput(tooth.lingual, 'probing', 0, $event)" [disabled]="!tooth.present" />
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'probing', 0, $event)" [disabled]="!tooth.present" />
             <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.probing[1])" [value]="tooth.lingual.probing[1]"
-              (change)="onNumberInput(tooth.lingual, 'probing', 1, $event)" [disabled]="!tooth.present" />
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'probing', 1, $event)" [disabled]="!tooth.present" />
             <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.probing[2])" [value]="tooth.lingual.probing[2]"
-              (change)="onNumberInput(tooth.lingual, 'probing', 2, $event)" [disabled]="!tooth.present" />
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'probing', 2, $event)" [disabled]="!tooth.present" />
+
+            <div class="grid-row-label">MG</div>
+            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [value]="getMg(tooth.lingual, 0)" tabindex="-1" readonly disabled aria-label="Margen gingival mesial (calculado)" />
+            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [value]="getMg(tooth.lingual, 1)" tabindex="-1" readonly disabled aria-label="Margen gingival central (calculado)" />
+            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [value]="getMg(tooth.lingual, 2)" tabindex="-1" readonly disabled aria-label="Margen gingival distal (calculado)" />
           </div>
           </div>
         </div>

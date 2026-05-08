@@ -6,37 +6,40 @@
     role="img"
     [attr.aria-label]="
       present
-        ? 'Mini gráfico perio: PS (verde), NIC discontinuo (PS más recesión), eje 0 a 12 mm'
+        ? 'Mini gráfico perio: PS (verde), NIC discontinuo (azul), margen gingival (rojo, NIC menos PS), eje 0 a 12 mm'
         : 'Diente no presente: mini gráfico desactivado'
     "
   >
-    <text class="axis-unit" x="1" y="4" text-anchor="start">mm</text>
-
-    @for (mm of axisMajorMms; track mm) {
-      <text
-        class="axis-label"
-        [attr.x]="axisLabelAnchorX"
-        [attr.y]="yPx(mm)"
-        text-anchor="end"
-        dominant-baseline="middle"
-      >
-        {{ mm }}
-      </text>
-    }
-
+    <!-- Rejilla a ancho completo del viewBox y debajo del eje, para alinear líneas entre dientes adyacentes -->
     <g class="grid-h">
       @for (g of gridLines; track $index) {
         <line
           class="grid-line"
           [class.grid-line--major]="g.major"
           [class.grid-line--zero]="$index === 0"
-          [attr.x1]="plotLeft"
+          x1="0"
           [attr.y1]="g.y"
-          [attr.x2]="plotRight"
+          [attr.x2]="vbW"
           [attr.y2]="g.y"
         />
       }
     </g>
+
+    <!-- <text class="axis-unit" x="1" y="4" text-anchor="start">mm</text> -->
+
+    @if (showAxisLabels) {
+      @for (mm of axisMajorMms; track mm) {
+        <text
+          class="axis-label"
+          [attr.x]="axisLabelAnchorX"
+          [attr.y]="yPx(mm)"
+          text-anchor="end"
+          dominant-baseline="middle"
+        >
+          {{ mm }}
+        </text>
+      }
+    }
 
     @if (present && nicPath) {
       <path class="nic-fill" [attr.d]="nicPath" />
@@ -48,26 +51,8 @@
     @if (present && probingPolyline) {
       <polyline class="line line--probing" [attr.points]="probingPolyline" />
     }
-
-    @for (i of siteIndices; track i) {
-      @if (present && bleeding[i]) {
-        <circle
-          class="dot dot--bleeding"
-          [attr.cx]="siteXs[i]"
-          [attr.cy]="yPx(clampMm(probing[i]))"
-          r="1.6"
-        />
-      }
-      @if (present && plaque[i]) {
-        <rect
-          class="dot dot--plaque"
-          [attr.x]="siteXs[i] - 1.6"
-          [attr.y]="yPx(clampMm(recession[i])) - 1.6"
-          width="3.2"
-          height="3.2"
-          rx="0.6"
-        />
-      }
+    @if (present && marginPolyline) {
+      <polyline class="line line--margin" [attr.points]="marginPolyline" />
     }
   </svg>
 </div>

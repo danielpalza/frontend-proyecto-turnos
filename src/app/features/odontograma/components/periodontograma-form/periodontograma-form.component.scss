@@ -347,6 +347,18 @@
   border-color: $border-color;
 }
 
+.perio-grid .suppuration-checkbox:checked {
+  background: radial-gradient(circle at center, #7c3aed 0 32%, transparent 36%);
+  border-radius: 0;
+  border-color: $border-color;
+}
+
+.perio-grid .calculus-checkbox:checked {
+  background: radial-gradient(circle at center, #8B4513 0 32%, transparent 36%);
+  border-radius: 0;
+  border-color: $border-color;
+}
+
 .perio-grid input[type='number'] {
   min-height: calc(var(--tooth-scale) * 0.24);
   text-align: center;
@@ -371,6 +383,20 @@
 
 .perio-grid input[type='number'].perio-val--high {
   background: color-mix(in srgb, $danger 22%, $card-background);
+}
+
+// MG es un campo derivado (NIC − PS): no editable, fondo neutro y color
+// rojo para alinearse visualmente con la línea roja del sparkline.
+.perio-grid input[type='number'].perio-val--mg {
+  color: #dc2626;
+  background: color-mix(in srgb, #dc2626 8%, $card-background);
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+.perio-grid input[type='number'].perio-val--mg:disabled {
+  opacity: 1;
+  color: #dc2626;
 }
 
 .present-check {

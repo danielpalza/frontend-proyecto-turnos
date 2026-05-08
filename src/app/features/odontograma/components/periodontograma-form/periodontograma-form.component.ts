@@ -4,10 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { PerioToothSparklineComponent } from '../perio-tooth-sparkline/perio-tooth-sparkline.component';
 
 interface PerioFaceMvp {
+  /** Profundidad de sondaje (PS), en mm. Se mide del margen gingival al fondo del saco. */
   probing: [number, number, number];
-  recession: [number, number, number];
+  /** Nivel de Inserción Clínica (NIC), en mm. Se mide del CEJ al fondo del saco; es el input principal. */
+  nic: [number, number, number];
   bleeding: [boolean, boolean, boolean];
   plaque: [boolean, boolean, boolean];
+  suppuration: [boolean, boolean, boolean];
+  calculus: [boolean, boolean, boolean];
 }
 
 interface PerioToothMvp {
@@ -85,6 +89,32 @@ export class PeriodontogramaFormComponent {
     return Math.round((plaqueSites / this.totalSites) * 100);
   }
 
+  get suppurationPercent(): number {
+    if (this.totalSites === 0) {
+      return 0;
+    }
+
+    const suppurationSites = this.activeTeeth.reduce((acc, tooth) => {
+      const v = tooth.vestibular.suppuration.filter(Boolean).length;
+      const l = tooth.lingual.suppuration.filter(Boolean).length;
+      return acc + v + l;
+    }, 0);
+    return Math.round((suppurationSites / this.totalSites) * 100);
+  }
+
+  get calculusPercent(): number {
+    if (this.totalSites === 0) {
+      return 0;
+    }
+
+    const calculusSites = this.activeTeeth.reduce((acc, tooth) => {
+      const v = tooth.vestibular.calculus.filter(Boolean).length;
+      const l = tooth.lingual.calculus.filter(Boolean).length;
+      return acc + v + l;
+    }, 0);
+    return Math.round((calculusSites / this.totalSites) * 100);
+  }
+
   get avgProbing(): string {
     const values: number[] = [];
     for (const tooth of this.activeTeeth) {
@@ -113,7 +143,7 @@ export class PeriodontogramaFormComponent {
   }
 
   /**
-   * Clase de fondo para PS/recesión (mm): 0–3 verde, 4–5 amarillo, 6+ rojo.
+   * Clase de fondo para valores en mm (PS, NIC): 0–3 verde, 4–5 amarillo, 6+ rojo.
    */
   perioValueToneClass(value: number): 'perio-val--low' | 'perio-val--mid' | 'perio-val--high' {
     const n = Number(value);
@@ -129,11 +159,23 @@ export class PeriodontogramaFormComponent {
     return 'perio-val--high';
   }
 
+  /**
+   * Margen gingival (MG) de un sitio = NIC − PS. Es derivado, no se carga.
+   * Se clampa a 0 si la combinación es inválida (NIC < PS) para no
+   * representar valores negativos en el gráfico.
+   */
+  getMg(face: PerioFaceMvp, siteIndex: 0 | 1 | 2): number {
+    const ps = Number(face.probing[siteIndex]) || 0;
+    const nic = Number(face.nic[siteIndex]) || 0;
+    return Math.max(0, nic - ps);
+  }
+
+  /** Máximo NIC de la pieza (cualquier cara/sitio); usado en el header del tooth-form. */
   getNic(tooth: PerioToothMvp): number {
     let max = 0;
     for (const face of [tooth.vestibular, tooth.lingual]) {
       for (let i = 0; i < 3; i++) {
-        const nic = this.clamp(face.probing[i] + face.recession[i]);
+        const nic = this.clamp(face.nic[i]);
         if (nic > max) {
           max = nic;
         }
@@ -144,7 +186,7 @@ export class PeriodontogramaFormComponent {
 
   onNumberInput(
     face: PerioFaceMvp,
-    field: 'probing' | 'recession',
+    field: 'probing' | 'nic',
     siteIndex: 0 | 1 | 2,
     event: Event
   ): void {
@@ -154,6 +196,57 @@ export class PeriodontogramaFormComponent {
     }
 
     face[field][siteIndex] = this.clamp(Number(input.value));
+  }
+
+  /**
+   * Al enfocar (click o tab) un input numérico cuyo valor es 0, lo deja
+   * vacío para que el usuario tipee directamente sin tener que borrar el
+   * 0 previo. Marca el input con un dataset flag para poder restaurarlo
+   * en `onBlurRestoreZero` si el usuario sale sin tipear nada.
+   */
+  onFocusClearIfZero(event: FocusEvent): void {
+    const input = event.target as HTMLInputElement | null;
+    if (!input) {
+      return;
+    }
+
+    if (Number(input.value) === 0) {
+      input.dataset['perioWasZero'] = '1';
+      input.value = '';
+    }
+  }
+
+  /**
+   * Si el input quedó vacío y al enfocarlo era 0, repone el "0" visual al
+   * salir para que la celda no aparezca en blanco.
+   */
+  onBlurRestoreZero(event: FocusEvent): void {
+    const input = event.target as HTMLInputElement | null;
+    if (!input) {
+      return;
+    }
+
+    if (input.dataset['perioWasZero'] === '1' && input.value === '') {
+      input.value = '0';
+    }
+    delete input.dataset['perioWasZero'];
+  }
+
+  /**
+   * Devuelve la cara (vestibular/lingual) de la pieza vecina (anterior o
+   * siguiente) si existe y está presente; sino, null. Sirve para que el
+   * sparkline de cada diente pueda extender sus polilíneas hasta el borde
+   * compartido con sus vecinos.
+   */
+  neighborFace(
+    teeth: PerioToothMvp[],
+    i: number,
+    side: 'prev' | 'next',
+    face: 'vestibular' | 'lingual'
+  ): PerioFaceMvp | null {
+    const idx = side === 'prev' ? i - 1 : i + 1;
+    const t = teeth[idx];
+    return t?.present ? t[face] : null;
   }
 
   private get activeTeeth(): PerioToothMvp[] {
@@ -174,9 +267,11 @@ export class PeriodontogramaFormComponent {
   private emptyFace(): PerioFaceMvp {
     return {
       probing: [0, 0, 0],
-      recession: [0, 0, 0],
+      nic: [0, 0, 0],
       bleeding: [false, false, false],
-      plaque: [false, false, false]
+      plaque: [false, false, false],
+      suppuration: [false, false, false],
+      calculus: [false, false, false]
     };
   }
 
