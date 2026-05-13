@@ -61,6 +61,19 @@
   stroke-opacity: 1;
 }
 
+.site-guide-line {
+  stroke: rgba($text-muted, 0.42);
+  stroke-width: 0.4;
+  stroke-dasharray: 1.4 1.1;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
+.site-guide-line--central {
+  stroke-dasharray: none;
+  stroke-opacity: 0.55;
+}
+
 .nic-fill {
   fill: rgba($info, 0.12);
   stroke: none;

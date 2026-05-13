@@ -70,13 +70,13 @@ export class PerioToothSparklineComponent {
   readonly axisMajorMms: readonly number[] = [-6, -3, 0, 3, 6, 9, 12];
 
   /** Posición X del borde derecho de las etiquetas (text-anchor: end). */
-  readonly axisLabelAnchorX = 9.2;
+  readonly axisLabelAnchorX = 5.2;
 
-  /** viewBox interno: margen izquierdo reservado para etiquetas del eje Y. */
-  readonly vbW = 58;
+  /** viewBox interno (ancho reducido: sin franja vacía solo para números del eje). */
+  readonly vbW = 52;
   readonly vbH = 56;
 
-  readonly plot = { left: 11.5, right: 55.5, top: 5.5, bottom: 50.5 };
+  readonly plot = { left: 5.5, right: 49.5, top: 5.5, bottom: 50.5 };
 
   get plotLeft(): number {
     return this.plot.left;
@@ -102,8 +102,7 @@ export class PerioToothSparklineComponent {
   /**
    * Posición relativa (0–1) del borde físico entre dos columnas vecinas,
    * medida desde el distal de la pieza izquierda hacia el mesial de la pieza
-   * derecha. Como el plot deja un margen mayor a la izquierda (etiquetas)
-   * que a la derecha, el borde queda más cerca del distal.
+   * derecha. Depende de los márgenes horizontales (vbW − plot.right vs plot.left).
    */
   get boundaryT(): number {
     const rightTail = this.vbW - this.plot.right;

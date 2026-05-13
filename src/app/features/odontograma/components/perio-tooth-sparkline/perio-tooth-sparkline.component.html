@@ -21,6 +21,20 @@
       }
     </g>
 
+    <!-- Guías verticales: mesial (0), central (1), distal (2) — mismas X que siteXs -->
+    <g class="site-guides" aria-hidden="true">
+      @for (x of siteXs; track $index) {
+        <line
+          class="site-guide-line"
+          [class.site-guide-line--central]="$index === 1"
+          [attr.x1]="x"
+          [attr.x2]="x"
+          [attr.y1]="plot.top"
+          [attr.y2]="plot.bottom"
+        />
+      }
+    </g>
+
     <!-- <text class="axis-unit" x="1" y="4" text-anchor="start">mm</text> -->
 
     @if (showAxisLabels) {
