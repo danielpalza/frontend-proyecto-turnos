@@ -1,9 +1,10 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-/** Eje vertical fijo 0–12 mm (0 arriba, 12 abajo). */
-const Y_MIN = 0;
-const Y_MAX = 12;
+/** Eje vertical fijo −7…12 mm (siete divisiones por debajo del CEJ); 12 mm = fondo de saco. */
+const Y_AXIS_MIN = -7;
+const Y_AXIS_MAX = 12;
+const Y_SPAN = Y_AXIS_MAX - Y_AXIS_MIN;
 
 @Component({
   selector: 'app-perio-tooth-sparkline',
@@ -14,16 +15,24 @@ const Y_MAX = 12;
 })
 export class PerioToothSparklineComponent {
   @Input({ required: true }) probing!: [number, number, number];
-  /** NIC (nivel de inserción clínica), en mm desde el CEJ al fondo del saco. Es input directo. */
+  /** NIC (nivel de inserción clínica), en mm desde el CEJ al fondo del saco. Derivado: PS + MG. */
   @Input({ required: true }) nic!: [number, number, number];
+  /** Margen gingival (MG), en mm respecto al CEJ; input manual (misma escala que PS/NIC). */
+  @Input({ required: true }) mg!: [number, number, number];
   @Input({ required: true }) bleeding!: [boolean, boolean, boolean];
   @Input({ required: true }) plaque!: [boolean, boolean, boolean];
   @Input({ required: true }) suppuration!: [boolean, boolean, boolean];
   @Input({ required: true }) calculus!: [boolean, boolean, boolean];
   @Input({ required: true }) present!: boolean;
 
-  /** Si true, muestra las marcas del eje Y (0, 3, 6, 9, 12 mm). Útil solo en el primer diente de cada fila. */
+  /** Si true, muestra marcas del eje Y cada 3 mm (incluye negativos). Útil solo en el primer diente de cada fila. */
   @Input() showAxisLabels = false;
+
+  /**
+   * Si true, el CEJ (0 mm) queda abajo y 12 mm arriba (útil en arcada superior,
+   * coherente con mirar el maxilar desde abajo).
+   */
+  @Input() zeroAtBottom = false;
 
   /**
    * Datos del sitio distal de la pieza vecina anterior (mismo arco y misma cara).
@@ -32,18 +41,33 @@ export class PerioToothSparklineComponent {
    */
   @Input() prevDistalProbing: number | null = null;
   @Input() prevDistalNic: number | null = null;
+  @Input() prevDistalMg: number | null = null;
 
   /** Datos del sitio mesial de la pieza vecina siguiente (mismo arco y misma cara). */
   @Input() nextMesialProbing: number | null = null;
   @Input() nextMesialNic: number | null = null;
+  @Input() nextMesialMg: number | null = null;
 
-  /** Marcas horizontales cada 1 mm (0 … 12). */
-  readonly mmTicks: readonly number[] = Array.from({ length: Y_MAX - Y_MIN + 1 }, (_, i) => i);
+  /** Marcas horizontales cada 1 mm (−7 … 12). */
+  readonly mmTicks: readonly number[] = Array.from(
+    { length: Y_AXIS_MAX - Y_AXIS_MIN + 1 },
+    (_, i) => Y_AXIS_MIN + i
+  );
 
   readonly siteIndices: readonly [0, 1, 2] = [0, 1, 2];
 
+  get sparklineAriaLabel(): string {
+    if (!this.present) {
+      return 'Diente no presente: mini gráfico desactivado';
+    }
+    const axis = this.zeroAtBottom
+      ? 'eje −7 a 12 mm (0 abajo, 12 arriba)'
+      : 'eje −7 a 12 mm (0 arriba, 12 abajo)';
+    return `Mini gráfico perio: PS (rojo), MG (verde), NIC (azul, PS + MG), ${axis}`;
+  }
+
   /** Etiquetas del eje Y (mm), alineadas con la rejilla mayor cada 3 mm. */
-  readonly axisMajorMms: readonly number[] = [0, 3, 6, 9, 12];
+  readonly axisMajorMms: readonly number[] = [-6, -3, 0, 3, 6, 9, 12];
 
   /** Posición X del borde derecho de las etiquetas (text-anchor: end). */
   readonly axisLabelAnchorX = 9.2;
@@ -62,11 +86,10 @@ export class PerioToothSparklineComponent {
     return this.plot.right;
   }
 
-  get gridLines(): { y: number; major: boolean }[] {
-    const { top, bottom } = this.plot;
-    const h = bottom - top;
+  get gridLines(): { mm: number; y: number; major: boolean }[] {
     return this.mmTicks.map((mm) => ({
-      y: top + (mm / Y_MAX) * h,
+      mm,
+      y: this.yPx(mm),
       major: mm % 3 === 0
     }));
   }
@@ -90,9 +113,9 @@ export class PerioToothSparklineComponent {
 
   get probingPolyline(): string {
     return this.polylinePoints(
-      (i) => this.clampMm(this.probing[i]),
-      this.hasPrevConnectorPS ? this.prevDistalProbing : null,
-      this.hasNextConnectorPS ? this.nextMesialProbing : null
+      (i) => this.clampMm(Math.max(0, Number(this.probing[i]) || 0)),
+      this.hasPrevConnectorPS ? this.clampMm(Math.max(0, this.prevDistalProbing!)) : null,
+      this.hasNextConnectorPS ? this.clampMm(Math.max(0, this.nextMesialProbing!)) : null
     );
   }
 
@@ -106,9 +129,8 @@ export class PerioToothSparklineComponent {
   }
 
   /**
-   * Línea del margen gingival (MG) = NIC − PS. Representa la posición del
-   * margen de la encía respecto al CEJ. Es derivada: solo se mueve cuando
-   * cambian NIC o PS.
+   * Línea del margen gingival (MG), mm respecto al CEJ; coincide con el
+   * valor ingresado (NIC = PS + MG).
    */
   get marginPolyline(): string {
     return this.polylinePoints(
@@ -160,11 +182,12 @@ export class PerioToothSparklineComponent {
     return `M ${ptsMargin.join(' L ')} L ${ptsNic.join(' L ')} Z`;
   }
 
-  /** MG (mm) propio del sitio i, derivado como NIC − PS, clampeado a 0. */
+  /**
+   * MG (mm) del sitio i (input manual), clampa al rango visible del eje
+   * (−7…12 mm).
+   */
   private mgAtSite(i: number): number {
-    const ps = Number(this.probing[i]) || 0;
-    const nic = Number(this.nic[i]) || 0;
-    return this.clampMm(Math.max(0, nic - ps));
+    return this.clampMm(Number(this.mg[i]) || 0);
   }
 
   private polylinePoints(
@@ -226,25 +249,25 @@ export class PerioToothSparklineComponent {
     return this.nic[2] !== 0 && this.nonZero(this.nextMesialNic);
   }
 
-  /** MG (mm) del distal vecino anterior = NIC vecino − PS vecino. */
+  /** MG (mm) en el distal del vecino anterior (input del vecino, clampado al eje). */
   private get prevDistalMgMm(): number | null {
-    if (this.prevDistalNic == null || this.prevDistalProbing == null) {
+    if (this.prevDistalMg == null) {
       return null;
     }
-    return Math.max(0, this.prevDistalNic - this.prevDistalProbing);
+    return this.clampMm(this.prevDistalMg);
   }
 
-  /** MG (mm) del mesial vecino siguiente = NIC vecino − PS vecino. */
+  /** MG (mm) en el mesial del vecino siguiente (input del vecino, clampado al eje). */
   private get nextMesialMgMm(): number | null {
-    if (this.nextMesialNic == null || this.nextMesialProbing == null) {
+    if (this.nextMesialMg == null) {
       return null;
     }
-    return Math.max(0, this.nextMesialNic - this.nextMesialProbing);
+    return this.clampMm(this.nextMesialMg);
   }
 
   /**
-   * Unión de la línea del margen gingival con la pieza anterior: hay MG en
-   * el distal del vecino y en el mesial propio (es decir, NIC > PS en ambos).
+   * Unión de la línea del margen gingival con la pieza anterior: MG distal
+   * del vecino y MG mesial propio distintos de cero.
    */
   private get hasPrevConnectorMargin(): boolean {
     const ownMg = this.mgAtSite(0);
@@ -259,14 +282,16 @@ export class PerioToothSparklineComponent {
 
   yPx(mm: number): number {
     const { top, bottom } = this.plot;
-    return top + (mm / Y_MAX) * (bottom - top);
+    const h = bottom - top;
+    const t = (mm - Y_AXIS_MIN) / Y_SPAN;
+    return this.zeroAtBottom ? bottom - t * h : top + t * h;
   }
 
   clampMm(v: number): number {
     if (!Number.isFinite(v)) {
       return 0;
     }
-    return Math.min(Y_MAX, Math.max(Y_MIN, v));
+    return Math.min(Y_AXIS_MAX, Math.max(Y_AXIS_MIN, v));
   }
 
   /**
@@ -275,18 +300,20 @@ export class PerioToothSparklineComponent {
    */
   suppurationPoints(i: number): string {
     const cx = this.siteXs[i];
-    const cy = this.yPx(this.clampMm(this.probing[i])) + 3;
+    const off = this.zeroAtBottom ? -3 : 3;
+    const cy = this.yPx(this.clampMm(Math.max(0, Number(this.probing[i]) || 0))) + off;
     const half = 1.5;
     return `${cx - half},${cy - 1.2} ${cx + half},${cy - 1.2} ${cx},${cy + 1.6}`;
   }
 
   /**
    * Rombo (cuadrado rotado 45°) dibujado justo por debajo del margen
-   * gingival (MG = NIC − PS) en el sitio i. Marca cálculo subgingival.
+   * gingival (MG) en el sitio i. Marca cálculo subgingival.
    */
   calculusPoints(i: number): string {
     const cx = this.siteXs[i];
-    const cy = this.yPx(this.mgAtSite(i)) + 3;
+    const off = this.zeroAtBottom ? -3 : 3;
+    const cy = this.yPx(this.mgAtSite(i)) + off;
     const half = 1.5;
     return `${cx},${cy - half} ${cx + half},${cy} ${cx},${cy + half} ${cx - half},${cy}`;
   }

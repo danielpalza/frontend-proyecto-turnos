@@ -24,11 +24,26 @@
         <div class="arc-sparkline-legend-help__panel" role="tooltip">
           <p class="arc-sparkline-legend-help__title">Mini gráfico por diente</p>
           <ul class="arc-sparkline-legend-help__list">
-            <li><strong>Eje (mm):</strong> 0 arriba hasta 12 abajo; tres puntos = mesial, central, distal.</li>
-            <li><strong>Línea verde:</strong> profundidad de sondaje (PS), input.</li>
-            <li><strong>Línea azul discontinua:</strong> NIC (nivel de inserción clínica), input — del CEJ al fondo del saco.</li>
-            <li><strong>Línea roja:</strong> margen gingival (MG = NIC − PS), calculado — posición del margen de la encía respecto al CEJ.</li>
-            <li><strong>Área sombreada:</strong> bolsa entre MG y NIC.</li>
+            <li>
+              <span class="legend-swatch legend-swatch--axis" aria-hidden="true"></span>
+              <span><strong>Eje (mm):</strong> de −7 a 12 (siete mm por debajo del CEJ para MG negativo); en arcada superior 0 abajo y 12 arriba, en inferior 0 arriba y 12 abajo. Tres puntos por cara = mesial, central y distal.</span>
+            </li>
+            <li>
+              <span class="legend-swatch legend-swatch--ps" aria-hidden="true"></span>
+              <span><strong>PS (rojo):</strong> profundidad de sondaje, <em>input manual</em> — del margen gingival al fondo del saco.</span>
+            </li>
+            <li>
+              <span class="legend-swatch legend-swatch--mg" aria-hidden="true"></span>
+              <span><strong>MG (verde):</strong> margen gingival, <em>input manual</em> — posición del margen de la encía respecto al CEJ. <strong>Positivo</strong> = recesión (margen apical al CEJ); <strong>negativo</strong> = hiperplasia o edema (margen coronal al CEJ).</span>
+            </li>
+            <li>
+              <span class="legend-swatch legend-swatch--nic" aria-hidden="true"></span>
+              <span><strong>NIC (azul):</strong> nivel de inserción clínica, <em>calculado</em> — <strong>NIC = PS + MG</strong>; del CEJ al fondo del saco.</span>
+            </li>
+            <li>
+              <span class="legend-swatch legend-swatch--pocket" aria-hidden="true"></span>
+              <span><strong>Área sombreada:</strong> bolsa periodontal entre MG y NIC.</span>
+            </li>
           </ul>
         </div>
       </div>
@@ -39,18 +54,22 @@
       <div class="teeth-row">
         <div class="tooth-column" *ngFor="let tooth of upperTeeth; let isFirstTooth = first; let i = index">
           <app-perio-tooth-sparkline
+            [zeroAtBottom]="true"
             [showAxisLabels]="isFirstTooth"
             [probing]="tooth.vestibular.probing"
-            [nic]="tooth.vestibular.nic"
+            [nic]="nicTuple(tooth.vestibular)"
+            [mg]="tooth.vestibular.mg"
             [bleeding]="tooth.vestibular.bleeding"
             [plaque]="tooth.vestibular.plaque"
             [suppuration]="tooth.vestibular.suppuration"
             [calculus]="tooth.vestibular.calculus"
             [present]="tooth.present"
             [prevDistalProbing]="neighborFace(upperTeeth, i, 'prev', 'vestibular')?.probing?.[2] ?? null"
-            [prevDistalNic]="neighborFace(upperTeeth, i, 'prev', 'vestibular')?.nic?.[2] ?? null"
+            [prevDistalNic]="prevDistalNic(upperTeeth, i, 'vestibular')"
+            [prevDistalMg]="neighborFace(upperTeeth, i, 'prev', 'vestibular')?.mg?.[2] ?? null"
             [nextMesialProbing]="neighborFace(upperTeeth, i, 'next', 'vestibular')?.probing?.[0] ?? null"
-            [nextMesialNic]="neighborFace(upperTeeth, i, 'next', 'vestibular')?.nic?.[0] ?? null"
+            [nextMesialNic]="nextMesialNic(upperTeeth, i, 'vestibular')"
+            [nextMesialMg]="neighborFace(upperTeeth, i, 'next', 'vestibular')?.mg?.[0] ?? null"
           />
           <div class="tooth-form">
           <div class="tooth-header">
@@ -106,23 +125,30 @@
             <input type="checkbox" class="calculus-checkbox" [(ngModel)]="tooth.vestibular.calculus[2]"
               [disabled]="!tooth.present" />
 
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.nic[0])" [value]="tooth.vestibular.nic[0]"
-              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'nic', 0, $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.nic[1])" [value]="tooth.vestibular.nic[1]"
-              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'nic', 1, $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.nic[2])" [value]="tooth.vestibular.nic[2]"
-              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'nic', 2, $event)" [disabled]="!tooth.present" />
+              <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.mg[0])" min="-10" max="12" step="1" [value]="tooth.vestibular.mg[0]" data-field="mg" data-site="0"
+                (keydown.tab)="onMgTabToMatchingPs($event)"
+                (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'mg', 0, $event)" [disabled]="!tooth.present" />
+              <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.mg[1])" min="-10" max="12" step="1" [value]="tooth.vestibular.mg[1]" data-field="mg" data-site="1"
+                (keydown.tab)="onMgTabToMatchingPs($event)"
+                (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'mg', 1, $event)" [disabled]="!tooth.present" />
+              <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.mg[2])" min="-10" max="12" step="1" [value]="tooth.vestibular.mg[2]" data-field="mg" data-site="2"
+                (keydown.tab)="onMgTabToMatchingPs($event)"
+                (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'mg', 2, $event)" [disabled]="!tooth.present" />
 
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.probing[0])" [value]="tooth.vestibular.probing[0]"
+            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.probing[0])" min="0" max="12" step="1" [value]="tooth.vestibular.probing[0]" data-field="probing" data-site="0"
+              (keydown.tab)="onPerioTabPath($event)"
               (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'probing', 0, $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.probing[1])" [value]="tooth.vestibular.probing[1]"
+            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.probing[1])" min="0" max="12" step="1" [value]="tooth.vestibular.probing[1]" data-field="probing" data-site="1"
+              (keydown.tab)="onPerioTabPath($event)"
               (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'probing', 1, $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.probing[2])" [value]="tooth.vestibular.probing[2]"
+            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.probing[2])" min="0" max="12" step="1" [value]="tooth.vestibular.probing[2]" data-field="probing" data-site="2"
+              (keydown.tab)="onPerioTabPath($event)"
               (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'probing', 2, $event)" [disabled]="!tooth.present" />
 
-            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [value]="getMg(tooth.vestibular, 0)" tabindex="-1" readonly disabled aria-label="Margen gingival mesial (calculado)" />
-            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [value]="getMg(tooth.vestibular, 1)" tabindex="-1" readonly disabled aria-label="Margen gingival central (calculado)" />
-            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [value]="getMg(tooth.vestibular, 2)" tabindex="-1" readonly disabled aria-label="Margen gingival distal (calculado)" />
+
+            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [ngClass]="perioValueToneClass(nicAt(tooth.vestibular, 0))" [value]="nicAt(tooth.vestibular, 0)" tabindex="-1" readonly disabled aria-label="NIC mesial (PS + MG)" />
+            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [ngClass]="perioValueToneClass(nicAt(tooth.vestibular, 1))" [value]="nicAt(tooth.vestibular, 1)" tabindex="-1" readonly disabled aria-label="NIC central (PS + MG)" />
+            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [ngClass]="perioValueToneClass(nicAt(tooth.vestibular, 2))" [value]="nicAt(tooth.vestibular, 2)" tabindex="-1" readonly disabled aria-label="NIC distal (PS + MG)" />
           </div>
 
           <!-- <label class="present-check">
@@ -137,18 +163,22 @@
       <div class="teeth-row">
         <div class="tooth-column" *ngFor="let tooth of upperTeeth; let isFirstTooth = first; let i = index">
           <app-perio-tooth-sparkline
+            [zeroAtBottom]="true"
             [showAxisLabels]="isFirstTooth"
             [probing]="tooth.lingual.probing"
-            [nic]="tooth.lingual.nic"
+            [nic]="nicTuple(tooth.lingual)"
+            [mg]="tooth.lingual.mg"
             [bleeding]="tooth.lingual.bleeding"
             [plaque]="tooth.lingual.plaque"
             [suppuration]="tooth.lingual.suppuration"
             [calculus]="tooth.lingual.calculus"
             [present]="tooth.present"
             [prevDistalProbing]="neighborFace(upperTeeth, i, 'prev', 'lingual')?.probing?.[2] ?? null"
-            [prevDistalNic]="neighborFace(upperTeeth, i, 'prev', 'lingual')?.nic?.[2] ?? null"
+            [prevDistalNic]="prevDistalNic(upperTeeth, i, 'lingual')"
+            [prevDistalMg]="neighborFace(upperTeeth, i, 'prev', 'lingual')?.mg?.[2] ?? null"
             [nextMesialProbing]="neighborFace(upperTeeth, i, 'next', 'lingual')?.probing?.[0] ?? null"
-            [nextMesialNic]="neighborFace(upperTeeth, i, 'next', 'lingual')?.nic?.[0] ?? null"
+            [nextMesialNic]="nextMesialNic(upperTeeth, i, 'lingual')"
+            [nextMesialMg]="neighborFace(upperTeeth, i, 'next', 'lingual')?.mg?.[0] ?? null"
           />
           <div class="tooth-form tooth-form--lingual">
           <div class="tooth-header">
@@ -185,23 +215,29 @@
             <input type="checkbox" class="calculus-checkbox" [(ngModel)]="tooth.lingual.calculus[2]"
               [disabled]="!tooth.present" />
 
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.nic[0])" [value]="tooth.lingual.nic[0]"
-              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'nic', 0, $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.nic[1])" [value]="tooth.lingual.nic[1]"
-              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'nic', 1, $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.nic[2])" [value]="tooth.lingual.nic[2]"
-              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'nic', 2, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.mg[0])" min="-10" max="12" step="1" [value]="tooth.lingual.mg[0]" data-field="mg" data-site="0"
+              (keydown.tab)="onMgTabToMatchingPs($event)"
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'mg', 0, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.mg[1])" min="-10" max="12" step="1" [value]="tooth.lingual.mg[1]" data-field="mg" data-site="1"
+              (keydown.tab)="onMgTabToMatchingPs($event)"
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'mg', 1, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.mg[2])" min="-10" max="12" step="1" [value]="tooth.lingual.mg[2]" data-field="mg" data-site="2"
+              (keydown.tab)="onMgTabToMatchingPs($event)"
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'mg', 2, $event)" [disabled]="!tooth.present" />
 
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.probing[0])" [value]="tooth.lingual.probing[0]"
+            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.probing[0])" min="0" max="12" step="1" [value]="tooth.lingual.probing[0]" data-field="probing" data-site="0"
+              (keydown.tab)="onPerioTabPath($event)"
               (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'probing', 0, $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.probing[1])" [value]="tooth.lingual.probing[1]"
+            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.probing[1])" min="0" max="12" step="1" [value]="tooth.lingual.probing[1]" data-field="probing" data-site="1"
+              (keydown.tab)="onPerioTabPath($event)"
               (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'probing', 1, $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.probing[2])" [value]="tooth.lingual.probing[2]"
+            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.probing[2])" min="0" max="12" step="1" [value]="tooth.lingual.probing[2]" data-field="probing" data-site="2"
+              (keydown.tab)="onPerioTabPath($event)"
               (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'probing', 2, $event)" [disabled]="!tooth.present" />
 
-            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [value]="getMg(tooth.lingual, 0)" tabindex="-1" readonly disabled aria-label="Margen gingival mesial (calculado)" />
-            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [value]="getMg(tooth.lingual, 1)" tabindex="-1" readonly disabled aria-label="Margen gingival central (calculado)" />
-            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [value]="getMg(tooth.lingual, 2)" tabindex="-1" readonly disabled aria-label="Margen gingival distal (calculado)" />
+            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [ngClass]="perioValueToneClass(nicAt(tooth.lingual, 0))" [value]="nicAt(tooth.lingual, 0)" tabindex="-1" readonly disabled aria-label="NIC mesial (PS + MG)" />
+            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [ngClass]="perioValueToneClass(nicAt(tooth.lingual, 1))" [value]="nicAt(tooth.lingual, 1)" tabindex="-1" readonly disabled aria-label="NIC central (PS + MG)" />
+            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [ngClass]="perioValueToneClass(nicAt(tooth.lingual, 2))" [value]="nicAt(tooth.lingual, 2)" tabindex="-1" readonly disabled aria-label="NIC distal (PS + MG)" />
           </div>
           </div>
         </div>
@@ -215,16 +251,19 @@
           <app-perio-tooth-sparkline
             [showAxisLabels]="isFirstTooth"
             [probing]="tooth.vestibular.probing"
-            [nic]="tooth.vestibular.nic"
+            [nic]="nicTuple(tooth.vestibular)"
+            [mg]="tooth.vestibular.mg"
             [bleeding]="tooth.vestibular.bleeding"
             [plaque]="tooth.vestibular.plaque"
             [suppuration]="tooth.vestibular.suppuration"
             [calculus]="tooth.vestibular.calculus"
             [present]="tooth.present"
             [prevDistalProbing]="neighborFace(lowerTeeth, i, 'prev', 'vestibular')?.probing?.[2] ?? null"
-            [prevDistalNic]="neighborFace(lowerTeeth, i, 'prev', 'vestibular')?.nic?.[2] ?? null"
+            [prevDistalNic]="prevDistalNic(lowerTeeth, i, 'vestibular')"
+            [prevDistalMg]="neighborFace(lowerTeeth, i, 'prev', 'vestibular')?.mg?.[2] ?? null"
             [nextMesialProbing]="neighborFace(lowerTeeth, i, 'next', 'vestibular')?.probing?.[0] ?? null"
-            [nextMesialNic]="neighborFace(lowerTeeth, i, 'next', 'vestibular')?.nic?.[0] ?? null"
+            [nextMesialNic]="nextMesialNic(lowerTeeth, i, 'vestibular')"
+            [nextMesialMg]="neighborFace(lowerTeeth, i, 'next', 'vestibular')?.mg?.[0] ?? null"
           />
           <div class="tooth-form">
           <div class="tooth-header">
@@ -286,26 +325,32 @@
             <input type="checkbox" class="calculus-checkbox" [(ngModel)]="tooth.vestibular.calculus[2]"
               [disabled]="!tooth.present" />
 
-            <div class="grid-row-label">NIC</div>
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.nic[0])" [value]="tooth.vestibular.nic[0]"
-              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'nic', 0, $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.nic[1])" [value]="tooth.vestibular.nic[1]"
-              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'nic', 1, $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.nic[2])" [value]="tooth.vestibular.nic[2]"
-              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'nic', 2, $event)" [disabled]="!tooth.present" />
+            <div class="grid-row-label">MG</div>
+            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.mg[0])" min="-10" max="12" step="1" [value]="tooth.vestibular.mg[0]" data-field="mg" data-site="0"
+              (keydown.tab)="onMgTabToMatchingPs($event)"
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'mg', 0, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.mg[1])" min="-10" max="12" step="1" [value]="tooth.vestibular.mg[1]" data-field="mg" data-site="1"
+              (keydown.tab)="onMgTabToMatchingPs($event)"
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'mg', 1, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.mg[2])" min="-10" max="12" step="1" [value]="tooth.vestibular.mg[2]" data-field="mg" data-site="2"
+              (keydown.tab)="onMgTabToMatchingPs($event)"
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'mg', 2, $event)" [disabled]="!tooth.present" />
 
             <div class="grid-row-label">PS</div>
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.probing[0])" [value]="tooth.vestibular.probing[0]"
+            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.probing[0])" min="0" max="12" step="1" [value]="tooth.vestibular.probing[0]" data-field="probing" data-site="0"
+              (keydown.tab)="onPerioTabPath($event)"
               (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'probing', 0, $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.probing[1])" [value]="tooth.vestibular.probing[1]"
+            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.probing[1])" min="0" max="12" step="1" [value]="tooth.vestibular.probing[1]" data-field="probing" data-site="1"
+              (keydown.tab)="onPerioTabPath($event)"
               (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'probing', 1, $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.probing[2])" [value]="tooth.vestibular.probing[2]"
+            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.probing[2])" min="0" max="12" step="1" [value]="tooth.vestibular.probing[2]" data-field="probing" data-site="2"
+              (keydown.tab)="onPerioTabPath($event)"
               (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'probing', 2, $event)" [disabled]="!tooth.present" />
 
-            <div class="grid-row-label">MG</div>
-            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [value]="getMg(tooth.vestibular, 0)" tabindex="-1" readonly disabled aria-label="Margen gingival mesial (calculado)" />
-            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [value]="getMg(tooth.vestibular, 1)" tabindex="-1" readonly disabled aria-label="Margen gingival central (calculado)" />
-            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [value]="getMg(tooth.vestibular, 2)" tabindex="-1" readonly disabled aria-label="Margen gingival distal (calculado)" />
+            <div class="grid-row-label">NIC</div>
+            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [ngClass]="perioValueToneClass(nicAt(tooth.vestibular, 0))" [value]="nicAt(tooth.vestibular, 0)" tabindex="-1" readonly disabled aria-label="NIC mesial (PS + MG)" />
+            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [ngClass]="perioValueToneClass(nicAt(tooth.vestibular, 1))" [value]="nicAt(tooth.vestibular, 1)" tabindex="-1" readonly disabled aria-label="NIC central (PS + MG)" />
+            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [ngClass]="perioValueToneClass(nicAt(tooth.vestibular, 2))" [value]="nicAt(tooth.vestibular, 2)" tabindex="-1" readonly disabled aria-label="NIC distal (PS + MG)" />
           </div>
 
           <!-- <label class="present-check">
@@ -322,16 +367,19 @@
           <app-perio-tooth-sparkline
             [showAxisLabels]="isFirstTooth"
             [probing]="tooth.lingual.probing"
-            [nic]="tooth.lingual.nic"
+            [nic]="nicTuple(tooth.lingual)"
+            [mg]="tooth.lingual.mg"
             [bleeding]="tooth.lingual.bleeding"
             [plaque]="tooth.lingual.plaque"
             [suppuration]="tooth.lingual.suppuration"
             [calculus]="tooth.lingual.calculus"
             [present]="tooth.present"
             [prevDistalProbing]="neighborFace(lowerTeeth, i, 'prev', 'lingual')?.probing?.[2] ?? null"
-            [prevDistalNic]="neighborFace(lowerTeeth, i, 'prev', 'lingual')?.nic?.[2] ?? null"
+            [prevDistalNic]="prevDistalNic(lowerTeeth, i, 'lingual')"
+            [prevDistalMg]="neighborFace(lowerTeeth, i, 'prev', 'lingual')?.mg?.[2] ?? null"
             [nextMesialProbing]="neighborFace(lowerTeeth, i, 'next', 'lingual')?.probing?.[0] ?? null"
-            [nextMesialNic]="neighborFace(lowerTeeth, i, 'next', 'lingual')?.nic?.[0] ?? null"
+            [nextMesialNic]="nextMesialNic(lowerTeeth, i, 'lingual')"
+            [nextMesialMg]="neighborFace(lowerTeeth, i, 'next', 'lingual')?.mg?.[0] ?? null"
           />
           <div class="tooth-form tooth-form--lingual">
           <div class="tooth-header">
@@ -372,26 +420,34 @@
             <input type="checkbox" class="calculus-checkbox" [(ngModel)]="tooth.lingual.calculus[2]"
               [disabled]="!tooth.present" />
 
-            <div class="grid-row-label">NIC</div>
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.nic[0])" [value]="tooth.lingual.nic[0]"
-              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'nic', 0, $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.nic[1])" [value]="tooth.lingual.nic[1]"
-              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'nic', 1, $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.nic[2])" [value]="tooth.lingual.nic[2]"
-              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'nic', 2, $event)" [disabled]="!tooth.present" />
+            <div class="grid-row-label">MG + PS distal</div>
+            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.mg[0])" min="-10" max="12" step="1" [value]="tooth.lingual.mg[0]" data-field="mg" data-site="0"
+              (keydown.tab)="onMgTabToMatchingPs($event)"
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'mg', 0, $event)" [disabled]="!tooth.present" />
+              <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.probing[0])" min="0" max="12" step="1" [value]="tooth.lingual.probing[0]" data-field="probing" data-site="0"
+                (keydown.tab)="onPerioTabPath($event)"
+                (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'probing', 0, $event)" [disabled]="!tooth.present" />
 
-            <div class="grid-row-label">PS</div>
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.probing[0])" [value]="tooth.lingual.probing[0]"
-              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'probing', 0, $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.probing[1])" [value]="tooth.lingual.probing[1]"
-              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'probing', 1, $event)" [disabled]="!tooth.present" />
-            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.probing[2])" [value]="tooth.lingual.probing[2]"
+            <div class="grid-row-label">MG + PS mesial</div>
+            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.mg[1])" min="-10" max="12" step="1" [value]="tooth.lingual.mg[1]" data-field="mg" data-site="1"
+              (keydown.tab)="onMgTabToMatchingPs($event)"
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'mg', 1, $event)" [disabled]="!tooth.present" />
+              <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.probing[1])" min="0" max="12" step="1" [value]="tooth.lingual.probing[1]" data-field="probing" data-site="1"
+                (keydown.tab)="onPerioTabPath($event)"
+                (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'probing', 1, $event)" [disabled]="!tooth.present" />
+   
+            <div class="grid-row-label">MG + PS central</div>
+            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.mg[2])" min="-10" max="12" step="1" [value]="tooth.lingual.mg[2]" data-field="mg" data-site="2"
+              (keydown.tab)="onMgTabToMatchingPs($event)"
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'mg', 2, $event)" [disabled]="!tooth.present" />
+            <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.probing[2])" min="0" max="12" step="1" [value]="tooth.lingual.probing[2]" data-field="probing" data-site="2"
+              (keydown.tab)="onPerioTabPath($event)"
               (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'probing', 2, $event)" [disabled]="!tooth.present" />
 
-            <div class="grid-row-label">MG</div>
-            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [value]="getMg(tooth.lingual, 0)" tabindex="-1" readonly disabled aria-label="Margen gingival mesial (calculado)" />
-            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [value]="getMg(tooth.lingual, 1)" tabindex="-1" readonly disabled aria-label="Margen gingival central (calculado)" />
-            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [value]="getMg(tooth.lingual, 2)" tabindex="-1" readonly disabled aria-label="Margen gingival distal (calculado)" />
+            <div class="grid-row-label">NIC</div>
+            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [ngClass]="perioValueToneClass(nicAt(tooth.lingual, 0))" [value]="nicAt(tooth.lingual, 0)" tabindex="-1" readonly disabled aria-label="NIC mesial (PS + MG)" />
+            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [ngClass]="perioValueToneClass(nicAt(tooth.lingual, 1))" [value]="nicAt(tooth.lingual, 1)" tabindex="-1" readonly disabled aria-label="NIC central (PS + MG)" />
+            <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [ngClass]="perioValueToneClass(nicAt(tooth.lingual, 2))" [value]="nicAt(tooth.lingual, 2)" tabindex="-1" readonly disabled aria-label="NIC distal (PS + MG)" />
           </div>
           </div>
         </div>

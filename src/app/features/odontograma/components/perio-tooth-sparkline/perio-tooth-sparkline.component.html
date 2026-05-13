@@ -4,19 +4,15 @@
     [attr.viewBox]="'0 0 ' + vbW + ' ' + vbH"
     preserveAspectRatio="none"
     role="img"
-    [attr.aria-label]="
-      present
-        ? 'Mini gráfico perio: PS (verde), NIC discontinuo (azul), margen gingival (rojo, NIC menos PS), eje 0 a 12 mm'
-        : 'Diente no presente: mini gráfico desactivado'
-    "
+    [attr.aria-label]="sparklineAriaLabel"
   >
     <!-- Rejilla a ancho completo del viewBox y debajo del eje, para alinear líneas entre dientes adyacentes -->
     <g class="grid-h">
-      @for (g of gridLines; track $index) {
+      @for (g of gridLines; track g.mm) {
         <line
           class="grid-line"
           [class.grid-line--major]="g.major"
-          [class.grid-line--zero]="$index === 0"
+          [class.grid-line--zero]="g.mm === 0"
           x1="0"
           [attr.y1]="g.y"
           [attr.x2]="vbW"

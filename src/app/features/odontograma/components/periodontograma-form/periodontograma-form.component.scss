@@ -111,19 +111,82 @@
 }
 
 .arc-sparkline-legend-help__list {
+  list-style: none;
   margin: 0;
-  padding-left: 1rem;
+  padding-left: 0;
   font-size: 0.72rem;
   line-height: 1.45;
   color: $text-secondary;
 
+  li {
+    display: grid;
+    grid-template-columns: 0.85rem 1fr;
+    align-items: start;
+    gap: 0.45rem;
+  }
+
   li + li {
-    margin-top: 0.25rem;
+    margin-top: 0.3rem;
   }
 
   strong {
     font-weight: 700;
     color: $text-secondary;
+  }
+
+  em {
+    font-style: italic;
+    color: $text-muted;
+  }
+}
+
+.legend-swatch {
+  display: inline-block;
+  width: 0.85rem;
+  height: 0.85rem;
+  margin-top: 0.18rem;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.legend-swatch--ps {
+  background: #dc2626;
+}
+
+.legend-swatch--mg {
+  background: #16a34a;
+}
+
+.legend-swatch--nic {
+  background: #2563eb;
+}
+
+.legend-swatch--pocket {
+  background: rgba(#2563eb, 0.14);
+  border: 1px solid rgba(#2563eb, 0.35);
+}
+
+.legend-swatch--axis {
+  position: relative;
+  background: transparent;
+  border: 1px solid rgba($text-muted, 0.45);
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    left: 1px;
+    right: 1px;
+    height: 0;
+    border-top: 1px dashed rgba($text-muted, 0.55);
+  }
+
+  &::before {
+    top: 30%;
+  }
+
+  &::after {
+    top: 65%;
   }
 }
 
