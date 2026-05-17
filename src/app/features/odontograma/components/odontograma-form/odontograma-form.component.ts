@@ -1,3 +1,7 @@
+/**
+ * Grilla del odontograma (permanente y temporal): selección de piezas,
+ * caras SVG e iconos de leyenda por diente.
+ */
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ToothFacesComponent } from '../tooth-faces/tooth-faces.component';
@@ -20,6 +24,7 @@ interface TeethLayout {
 export class OdontogramaFormComponent {
   selectedTooth: number | null = null;
 
+  /** Sincroniza la pieza seleccionada con el servicio compartido. */
   constructor(private readonly odontogramaSelectionService: OdontogramaSelectionService) {
     this.odontogramaSelectionService.selectedTooth$.subscribe(tooth => {
       this.selectedTooth = tooth;
@@ -40,11 +45,13 @@ export class OdontogramaFormComponent {
     bottomLeft: [71, 72, 73, 74, 75],
   };
 
+  /** Selecciona la pieza o la deselecciona si ya estaba activa. */
   selectTooth(tooth: number): void {
     const nextTooth = this.selectedTooth === tooth ? null : tooth;
     this.odontogramaSelectionService.selectTooth(nextTooth);
   }
 
+  /** Indica si la pieza está seleccionada en la grilla. */
   isToothSelected(tooth: number): boolean {
     return this.selectedTooth === tooth;
   }
@@ -52,18 +59,22 @@ export class OdontogramaFormComponent {
   private readonly movilidadLabels = new Set(['M0', 'M1', 'M2', 'M3']);
   private readonly furcaLabels = new Set(['F0', 'F1', 'F2', 'F3']);
 
+  /** Iconos de leyenda asociados a una pieza. */
   getToothIcons(tooth: number): LeyendaItem[] {
     return this.odontogramaSelectionService.getIconsForTooth(tooth);
   }
 
+  /** Icono M0–M3 de la pieza, si existe. */
   getMovilidadIconForTooth(tooth: number): LeyendaItem | null {
     return this.getToothIcons(tooth).find(item => this.movilidadLabels.has(item.label)) ?? null;
   }
 
+  /** Icono F0–F3 de la pieza, si existe. */
   getFurcaIconForTooth(tooth: number): LeyendaItem | null {
     return this.getToothIcons(tooth).find(item => this.furcaLabels.has(item.label)) ?? null;
   }
 
+  /** Iconos de leyenda sin movilidad ni furca (se muestran aparte). */
   getToothIconsExcludingMovilidad(tooth: number): LeyendaItem[] {
     return this.getToothIcons(tooth).filter(
       item => !this.movilidadLabels.has(item.label) && !this.furcaLabels.has(item.label)

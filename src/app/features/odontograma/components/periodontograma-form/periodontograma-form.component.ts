@@ -1,3 +1,7 @@
+/**
+ * Formulario de periodontograma: datos por pieza (PS, MG, índices),
+ * KPIs de la arcada, tabulación clínica y sparklines por cara.
+ */
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -45,24 +49,29 @@ export class PeriodontogramaFormComponent {
 
   readonly teethMap = new Map<number, PerioToothMvp>();
 
+  /** Inicializa el mapa de piezas con valores vacíos. */
   constructor() {
     [...this.upperIds, ...this.lowerIds].forEach((id) => {
       this.teethMap.set(id, this.makeTooth(id));
     });
   }
 
+  /** Piezas de la arcada superior en orden FDI. */
   get upperTeeth(): PerioToothMvp[] {
     return this.upperIds.map((id) => this.teethMap.get(id)!).filter(Boolean);
   }
 
+  /** Piezas de la arcada inferior en orden FDI. */
   get lowerTeeth(): PerioToothMvp[] {
     return this.lowerIds.map((id) => this.teethMap.get(id)!).filter(Boolean);
   }
 
+  /** Total de sitios (6 por pieza presente) para porcentajes. */
   get totalSites(): number {
     return this.activeTeeth.length * 6;
   }
 
+  /** Porcentaje de sitios con sangrado al sondaje. */
   get bleedingPercent(): number {
     if (this.totalSites === 0) {
       return 0;
@@ -76,6 +85,7 @@ export class PeriodontogramaFormComponent {
     return Math.round((bleedingSites / this.totalSites) * 100);
   }
 
+  /** Porcentaje de sitios con placa. */
   get plaquePercent(): number {
     if (this.totalSites === 0) {
       return 0;
@@ -89,6 +99,7 @@ export class PeriodontogramaFormComponent {
     return Math.round((plaqueSites / this.totalSites) * 100);
   }
 
+  /** Porcentaje de sitios con supuración. */
   get suppurationPercent(): number {
     if (this.totalSites === 0) {
       return 0;
@@ -102,6 +113,7 @@ export class PeriodontogramaFormComponent {
     return Math.round((suppurationSites / this.totalSites) * 100);
   }
 
+  /** Porcentaje de sitios con cálculo. */
   get calculusPercent(): number {
     if (this.totalSites === 0) {
       return 0;
@@ -115,6 +127,7 @@ export class PeriodontogramaFormComponent {
     return Math.round((calculusSites / this.totalSites) * 100);
   }
 
+  /** Promedio de PS (mm) en sitios con valor > 0; "—" si no hay datos. */
   get avgProbing(): string {
     const values: number[] = [];
     for (const tooth of this.activeTeeth) {
@@ -134,6 +147,7 @@ export class PeriodontogramaFormComponent {
     return (sum / values.length).toFixed(1);
   }
 
+  /** Cantidad de sitios con PS ≥ 6 mm. */
   get deepSites(): number {
     return this.activeTeeth.reduce((acc, tooth) => {
       const v = tooth.vestibular.probing.filter((p) => p >= 6).length;
@@ -197,6 +211,7 @@ export class PeriodontogramaFormComponent {
     return max;
   }
 
+  /** Normaliza PS/MG al escribir (rango y mínimos según campo). */
   onNumberInput(
     face: PerioFaceMvp,
     field: 'probing' | 'mg',
@@ -296,11 +311,12 @@ export class PeriodontogramaFormComponent {
     nextInput.select();
   }
 
-  // Compatibilidad con bindings existentes en el template.
+  /** Alias de onPerioTabPath para bindings legacy del template. */
   onMgTabToMatchingPs(event: Event): void {
     this.onPerioTabPath(event);
   }
 
+  /** Siguiente MG mesial (sitio 0) en la columna del diente siguiente. */
   private findNextToothMesialMg(currentInput: HTMLInputElement): HTMLInputElement | null {
     let currentColumn = currentInput.closest('.tooth-column') as HTMLElement | null;
     while (currentColumn?.nextElementSibling) {
@@ -332,10 +348,12 @@ export class PeriodontogramaFormComponent {
     return t?.present ? t[face] : null;
   }
 
+  /** Solo piezas marcadas como presentes (para KPIs). */
   private get activeTeeth(): PerioToothMvp[] {
     return [...this.teethMap.values()].filter((tooth) => tooth.present);
   }
 
+  /** Modelo inicial de una pieza con caras vacías. */
   private makeTooth(id: number): PerioToothMvp {
     return {
       id,
@@ -347,6 +365,7 @@ export class PeriodontogramaFormComponent {
     };
   }
 
+  /** Cara vestibular/lingual con ceros y flags en false. */
   private emptyFace(): PerioFaceMvp {
     return {
       probing: [0, 0, 0],
@@ -358,6 +377,7 @@ export class PeriodontogramaFormComponent {
     };
   }
 
+  /** Limita un valor numérico al rango permitido. */
   private clamp(value: number, min = 0, max = 12): number {
     if (Number.isNaN(value)) {
       return min;

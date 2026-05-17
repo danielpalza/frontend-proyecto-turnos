@@ -1,3 +1,7 @@
+/**
+ * Mini gráfico SVG por cara dental: PS, MG, NIC, relleno del saco
+ * y marcas de sangrado/placa/supuración/cálculo; enlaza con vecinos.
+ */
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
@@ -56,6 +60,7 @@ export class PerioToothSparklineComponent {
 
   readonly siteIndices: readonly [0, 1, 2] = [0, 1, 2];
 
+  /** Texto accesible que describe curvas y orientación del eje. */
   get sparklineAriaLabel(): string {
     if (!this.present) {
       return 'Diente no presente: mini gráfico desactivado';
@@ -78,14 +83,17 @@ export class PerioToothSparklineComponent {
 
   readonly plot = { left: 5.5, right: 49.5, top: 5.5, bottom: 50.5 };
 
+  /** Borde izquierdo del área de trazado (viewBox). */
   get plotLeft(): number {
     return this.plot.left;
   }
 
+  /** Borde derecho del área de trazado (viewBox). */
   get plotRight(): number {
     return this.plot.right;
   }
 
+  /** Líneas horizontales de la rejilla (mayores cada 3 mm). */
   get gridLines(): { mm: number; y: number; major: boolean }[] {
     return this.mmTicks.map((mm) => ({
       mm,
@@ -94,6 +102,7 @@ export class PerioToothSparklineComponent {
     }));
   }
 
+  /** Coordenadas X de los tres sitios (distal, central, mesial). */
   get siteXs(): number[] {
     const { left, right } = this.plot;
     return [left, (left + right) / 2, right];
@@ -110,6 +119,7 @@ export class PerioToothSparklineComponent {
     return rightTail / (rightTail + leftTail);
   }
 
+  /** Atributo points de la polilínea de profundidad de sondaje (PS). */
   get probingPolyline(): string {
     return this.polylinePoints(
       (i) => this.clampMm(Math.max(0, Number(this.probing[i]) || 0)),
@@ -189,6 +199,7 @@ export class PerioToothSparklineComponent {
     return this.clampMm(Number(this.mg[i]) || 0);
   }
 
+  /** Construye puntos SVG con conectores opcionales a piezas vecinas. */
   private polylinePoints(
     yMmAtIndex: (i: number) => number,
     prevValueMm: number | null,
@@ -279,6 +290,7 @@ export class PerioToothSparklineComponent {
     return ownMg !== 0 && this.nonZero(this.nextMesialMgMm);
   }
 
+  /** Convierte mm clínicos a coordenada Y en el viewBox. */
   yPx(mm: number): number {
     const { top, bottom } = this.plot;
     const h = bottom - top;
@@ -286,6 +298,7 @@ export class PerioToothSparklineComponent {
     return this.zeroAtBottom ? bottom - t * h : top + t * h;
   }
 
+  /** Acota un valor al rango visible del eje (−7…12 mm). */
   clampMm(v: number): number {
     if (!Number.isFinite(v)) {
       return 0;

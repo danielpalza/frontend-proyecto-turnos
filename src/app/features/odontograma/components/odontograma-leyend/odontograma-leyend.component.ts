@@ -1,3 +1,7 @@
+/**
+ * Panel lateral de leyenda: estados, condiciones, movilidad y furca
+ * aplicados al diente seleccionado vía OdontogramaSelectionService.
+ */
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OdontogramaSelectionService, LeyendaItem } from '../../services/odontograma-selection.service';
@@ -13,6 +17,7 @@ export class OdontogramaLeyendComponent {
   selectedTooth: number | null = null;
   legendOpen = true;
 
+  /** Refleja en el panel la pieza seleccionada en la grilla. */
   constructor(private readonly odontogramaSelectionService: OdontogramaSelectionService) {
     this.odontogramaSelectionService.selectedTooth$.subscribe(tooth => {
       this.selectedTooth = tooth;
@@ -53,20 +58,24 @@ export class OdontogramaLeyendComponent {
     { label: 'F3', icono: 'bi bi-3-square-fill' },
   ];
 
+  /** Activa o quita un estado (ausencia, corona, etc.) del diente seleccionado. */
   onToggleEstado(estado: LeyendaItem, event: Event): void {
     const checked = (event.target as HTMLInputElement).checked;
     this.odontogramaSelectionService.toggleItemForSelectedTooth(estado, checked);
   }
 
+  /** Activa o quita una condición (endodoncia, fractura, etc.) del diente seleccionado. */
   onToggleCondicion(condicion: LeyendaItem, event: Event): void {
     const checked = (event.target as HTMLInputElement).checked;
     this.odontogramaSelectionService.toggleItemForSelectedTooth(condicion, checked);
   }
 
+  /** Indica si la etiqueta está marcada en el diente actual. */
   isItemSelected(label: string): boolean {
     return this.odontogramaSelectionService.isItemSelectedForCurrentTooth(label);
   }
 
+  /** Reemplaza la opción de movilidad (M0–M3) del diente seleccionado. */
   onMovilidadChange(event: Event): void {
     const selectedLabel = (event.target as HTMLSelectElement).value;
     const movilidadLabels = this.movilidadOpciones.map(opcion => opcion.label);
@@ -78,11 +87,13 @@ export class OdontogramaLeyendComponent {
     }
   }
 
+  /** Etiqueta de movilidad activa para enlazar el select del template. */
   getSelectedMovilidadLabel(): string {
     const movilidadActual = this.movilidadOpciones.find(opcion => this.isItemSelected(opcion.label));
     return movilidadActual?.label ?? '';
   }
 
+  /** Reemplaza la opción de furca (F0–F3) del diente seleccionado. */
   onFurcaChange(event: Event): void {
     const selectedLabel = (event.target as HTMLSelectElement).value;
     const furcaLabels = this.furcaOpciones.map(opcion => opcion.label);
@@ -94,6 +105,7 @@ export class OdontogramaLeyendComponent {
     }
   }
 
+  /** Etiqueta de furca activa para enlazar el select del template. */
   getSelectedFurcaLabel(): string {
     const furcaActual = this.furcaOpciones.find(opcion => this.isItemSelected(opcion.label));
     return furcaActual?.label ?? '';
