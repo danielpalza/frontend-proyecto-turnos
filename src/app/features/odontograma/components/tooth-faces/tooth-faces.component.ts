@@ -1,3 +1,7 @@
+/**
+ * Diente en vista SVG: cinco caras clicables que ciclan estado clínico
+ * (normal → caries → obturación → ausente) y definen color/tamaño del círculo.
+ */
 import { Component, Input, signal } from '@angular/core';
 
 type FaceState = 'normal' | 'caries' | 'obturacion' | 'ausente';
@@ -27,6 +31,7 @@ export class ToothFacesComponent {
     bottom: 'normal',
   });
 
+  /** Avanza al siguiente estado clínico de una cara. */
   cycleState(current: FaceState): FaceState {
     switch (current) {
       case 'normal': return 'caries';
@@ -36,6 +41,7 @@ export class ToothFacesComponent {
     }
   }
 
+  /** Click en una cara: actualiza su estado sin propagar al diente padre. */
   handleFaceClick(face: keyof FaceStates, event: MouseEvent) {
     event.stopPropagation();
 
@@ -45,6 +51,7 @@ export class ToothFacesComponent {
     }));
   }
 
+  /** Color de relleno SVG según el estado de la cara. */
   getFaceColor(state: FaceState): string {
     switch (state) {
       case 'caries': return '#ef4444';   // red-500
@@ -54,10 +61,12 @@ export class ToothFacesComponent {
     }
   }
 
+  /** Diámetro del círculo central según tamaño sm/md. */
   get circleSize() {
     return this.size === 'sm' ? 35 : 40;
   }
 
+  /** Grosor del trazo del círculo según tamaño sm/md. */
   get strokeWidth() {
     return this.size === 'sm' ? 1.5 : 2;
   }

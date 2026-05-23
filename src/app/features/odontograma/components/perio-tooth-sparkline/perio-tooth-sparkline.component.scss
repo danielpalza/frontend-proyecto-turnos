@@ -1,0 +1,128 @@
+@use 'variables' as *;
+
+:host {
+  display: block;
+  align-self: stretch;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  height: calc(var(--tooth-scale, 4rem) * 0.36);
+  min-height: 8rem;
+}
+
+.perio-sparkline-wrap {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  // border-top: 1px solid $border-color;
+  background: $card-background;
+  overflow: hidden;
+}
+
+.perio-sparkline-wrap--absent {
+  opacity: 0.45;
+}
+
+.perio-sparkline-svg {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+}
+
+.axis-unit {
+  fill: rgba($text-muted, 0.75);
+  font-size: 3px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.axis-label {
+  fill: rgba($text-secondary, 0.92);
+  font-size: 3.4px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.grid-line {
+  stroke: rgba($text-muted, 0.22);
+  stroke-width: 0.35;
+  vector-effect: non-scaling-stroke;
+}
+
+.grid-line--major {
+  stroke: rgba($text-muted, 0.38);
+  stroke-width: 0.55;
+}
+
+.grid-line--zero {
+  stroke: rgba($text-muted, 0.55);
+  stroke-width: 0.55;
+  stroke-opacity: 1;
+}
+
+.site-guide-line {
+  stroke: rgba($text-muted, 0.42);
+  stroke-width: 0.4;
+  stroke-dasharray: 1.4 1.1;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
+.site-guide-line--central {
+  stroke-dasharray: none;
+  stroke-opacity: 0.55;
+}
+
+.nic-fill {
+  fill: rgba($info, 0.12);
+  stroke: none;
+}
+
+.line {
+  fill: none;
+  stroke-width: 1.15;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.line--nic {
+  stroke: #2563eb;
+}
+
+.line--probing {
+  stroke: #dc2626;
+}
+
+.line--margin {
+  stroke: #16a34a;
+}
+
+.dot--bleeding {
+  fill: $danger;
+  stroke: $card-background;
+  stroke-width: 0.35;
+  vector-effect: non-scaling-stroke;
+}
+
+.dot--plaque {
+  fill: rgba($warning, 0.95);
+  stroke: rgba($text-secondary, 0.35);
+  stroke-width: 0.25;
+  vector-effect: non-scaling-stroke;
+}
+
+.dot--suppuration {
+  fill: #7c3aed;
+  stroke: $card-background;
+  stroke-width: 0.35;
+  vector-effect: non-scaling-stroke;
+}
+
+.dot--calculus {
+  fill: #8B4513;
+  stroke: $card-background;
+  stroke-width: 0.3;
+  vector-effect: non-scaling-stroke;
+}

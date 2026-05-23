@@ -1,0 +1,68 @@
+<div class="perio-sparkline-wrap" [class.perio-sparkline-wrap--absent]="!present">
+  <svg
+    class="perio-sparkline-svg"
+    [attr.viewBox]="'0 0 ' + vbW + ' ' + vbH"
+    preserveAspectRatio="none"
+    role="img"
+    [attr.aria-label]="sparklineAriaLabel"
+  >
+    <!-- Rejilla a ancho completo del viewBox y debajo del eje, para alinear líneas entre dientes adyacentes -->
+    <g class="grid-h">
+      @for (g of gridLines; track g.mm) {
+        <line
+          class="grid-line"
+          [class.grid-line--major]="g.major"
+          [class.grid-line--zero]="g.mm === 0"
+          x1="0"
+          [attr.y1]="g.y"
+          [attr.x2]="vbW"
+          [attr.y2]="g.y"
+        />
+      }
+    </g>
+
+    <!-- Guías verticales: mesial (0), central (1), distal (2) — mismas X que siteXs -->
+    <g class="site-guides" aria-hidden="true">
+      @for (x of siteXs; track $index) {
+        <line
+          class="site-guide-line"
+          [class.site-guide-line--central]="$index === 1"
+          [attr.x1]="x"
+          [attr.x2]="x"
+          [attr.y1]="plot.top"
+          [attr.y2]="plot.bottom"
+        />
+      }
+    </g>
+
+    <!-- <text class="axis-unit" x="1" y="4" text-anchor="start">mm</text> -->
+
+    @if (showAxisLabels) {
+      @for (mm of axisMajorMms; track mm) {
+        <text
+          class="axis-label"
+          [attr.x]="axisLabelAnchorX"
+          [attr.y]="yPx(mm)"
+          text-anchor="end"
+          dominant-baseline="middle"
+        >
+          {{ mm }}
+        </text>
+      }
+    }
+
+    @if (present && nicPath) {
+      <path class="nic-fill" [attr.d]="nicPath" />
+    }
+
+    @if (present && nicPolyline) {
+      <polyline class="line line--nic" [attr.points]="nicPolyline" />
+    }
+    @if (present && probingPolyline) {
+      <polyline class="line line--probing" [attr.points]="probingPolyline" />
+    }
+    @if (present && marginPolyline) {
+      <polyline class="line line--margin" [attr.points]="marginPolyline" />
+    }
+  </svg>
+</div>

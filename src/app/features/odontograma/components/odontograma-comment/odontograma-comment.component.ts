@@ -1,3 +1,4 @@
+/** Bloque reutilizable de título + textarea para observaciones del odontograma. */
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 
@@ -9,7 +10,7 @@ import { Component, Input } from '@angular/core';
   styleUrls: ['./odontograma-comment.component.scss']
 })
 export class OdontogramaCommentComponent {
-  @Input() title = '';
-  @Input() text = '';
-  @Input() rows = 3;
+  @Input() title = '';   // Encabezado del bloque
+  @Input() text = '';    // Contenido del textarea (two-way desde el padre)
+  @Input() rows = 3;     // Filas visibles del textarea
 }

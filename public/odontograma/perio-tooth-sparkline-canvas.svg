@@ -1,0 +1,113 @@
+<svg
+  viewBox="0 0 52 56"
+  xmlns="http://www.w3.org/2000/svg"
+  aria-label="Plantilla CEJ corona raiz alineada al mini periodontograma"
+>
+  <title>Canvas periodontograma viewBox 52x56</title>
+  <desc>
+    Constantes alineadas a perio-tooth-sparkline.component.ts: vbW=52, vbH=56,
+    plot left=5.5 right=49.5 top=5.5 bottom=50.5, eje mm de -7 a 12, CEJ=0 mm.
+    Inferior (zeroAtBottom=false): CEJ y=22.07894737.
+    Superior (zeroAtBottom=true): CEJ y=33.92105263.
+  </desc>
+
+  <defs>
+    <!-- Inferior: corona encima del CEJ (Y menor), raiz debajo -->
+    <clipPath id="crown-lower" clipPathUnits="userSpaceOnUse">
+      <rect x="0" y="0" width="52" height="22.07894737" />
+    </clipPath>
+    <clipPath id="root-lower" clipPathUnits="userSpaceOnUse">
+      <rect x="0" y="22.07894737" width="52" height="33.92105263" />
+    </clipPath>
+
+    <!-- Superior: CEJ mas abajo en Y -->
+    <clipPath id="crown-upper" clipPathUnits="userSpaceOnUse">
+      <rect x="0" y="0" width="52" height="33.92105263" />
+    </clipPath>
+    <clipPath id="root-upper" clipPathUnits="userSpaceOnUse">
+      <rect x="0" y="33.92105263" width="52" height="22.07894737" />
+    </clipPath>
+  </defs>
+
+  <!-- Ocultar: style="display:none" en g#debug-grid -->
+  <g id="debug-grid" fill="none" stroke="#94a3b8" stroke-width="0.2" opacity="0.85">
+    <rect x="5.5" y="5.5" width="44" height="45" stroke-dasharray="1.2 0.8" stroke="#64748b" />
+    <line x1="5.5" y1="0" x2="5.5" y2="56" stroke="#cbd5e1" />
+    <line x1="27.5" y1="0" x2="27.5" y2="56" stroke="#cbd5e1" />
+    <line x1="49.5" y1="0" x2="49.5" y2="56" stroke="#cbd5e1" />
+  </g>
+
+  <!-- Arcada inferior (lowerTeeth, sin zeroAtBottom) -->
+  <g id="layout-lower" style="display:inline">
+    <line
+      id="cej-line-lower"
+      x1="0"
+      y1="22.07894737"
+      x2="52"
+      y2="22.07894737"
+      stroke="#0f172a"
+      stroke-width="0.55"
+      stroke-opacity="0.55"
+    />
+
+    <g clip-path="url(#crown-lower)">
+      <g id="crown-lower-content" fill="none" stroke="none">
+        <!-- Corona: paths o image; userSpace 52x56 -->
+      </g>
+    </g>
+
+    <g clip-path="url(#root-lower)">
+      <g id="root-lower-content" fill="none" stroke="none">
+        <!-- Raiz -->
+      </g>
+    </g>
+
+    <!--
+      Ajustar transform para alinear CEJ del arte con y=22.07894737
+      y ancho entre x=5.5 y x=49.5 (mesial a distal).
+    -->
+    <g
+      id="tooth-lower"
+      transform="translate(0, 0) scale(1)"
+      fill="none"
+      stroke="#0f172a"
+      stroke-width="2"
+      vector-effect="non-scaling-stroke"
+    >
+      <!-- Path completo del diente (alternativa a clips) -->
+    </g>
+  </g>
+
+  <!-- Superior: poner layout-lower display:none y este display:inline -->
+  <g id="layout-upper" style="display:none">
+    <line
+      id="cej-line-upper"
+      x1="0"
+      y1="33.92105263"
+      x2="52"
+      y2="33.92105263"
+      stroke="#0f172a"
+      stroke-width="0.55"
+      stroke-opacity="0.55"
+    />
+
+    <g clip-path="url(#crown-upper)">
+      <g id="crown-upper-content" fill="none" stroke="none"></g>
+    </g>
+
+    <g clip-path="url(#root-upper)">
+      <g id="root-upper-content" fill="none" stroke="none"></g>
+    </g>
+
+    <g
+      id="tooth-upper"
+      transform="translate(0, 0) scale(1)"
+      fill="none"
+      stroke="#0f172a"
+      stroke-width="2"
+      vector-effect="non-scaling-stroke"
+    >
+      <!-- Path completo o subgrupos crown/root -->
+    </g>
+  </g>
+</svg>

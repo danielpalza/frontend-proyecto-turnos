@@ -1,3 +1,7 @@
+/**
+ * Contenedor principal del módulo dental: alterna odontograma / periodontograma
+ * y agrupa leyenda, formulario, acciones y comentarios.
+ */
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OdontogramaActionsComponent } from '../odontograma-actions/odontograma-actions.component';
@@ -25,6 +29,7 @@ type DentalFormMode = 'odontograma' | 'periodontograma';
 export class OdontogramaViewComponent {
   activeForm: DentalFormMode = 'odontograma';
 
+  /** Cambia el formulario visible (odontograma o periodontograma). */
   setActiveForm(mode: DentalFormMode): void {
     this.activeForm = mode;
   }
