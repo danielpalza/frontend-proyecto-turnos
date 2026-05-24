@@ -1,9 +1,13 @@
 /**
- * Barra de acciones: imprimir y abrir el diálogo de guardado del odontograma.
+ * Barra de acciones: imprimir y guardar odontograma o periodontograma.
  */
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SaveOdontogramaDialogComponent } from '../save-odontograma-dialog/save-odontograma-dialog.component';
+import { OdontogramaStateService } from '../../services/odontograma-state.service';
+import { NotificationService } from '../../../../core/services/notification.service';
+
+type DentalFormMode = 'odontograma' | 'periodontograma';
 
 @Component({
   selector: 'app-odontograma-actions',
@@ -13,11 +17,21 @@ import { SaveOdontogramaDialogComponent } from '../save-odontograma-dialog/save-
   styleUrls: ['./odontograma-actions.component.scss']
 })
 export class OdontogramaActionsComponent {
+  @Input() activeForm: DentalFormMode = 'odontograma';
   @Output() print = new EventEmitter<void>();
-  
-  showSaveDialog = false;
 
-  /** Emite print al padre o usa window.print() si no hay listener. */
+  showSaveDialog = false;
+  savingPerio = false;
+
+  constructor(
+    private readonly stateService: OdontogramaStateService,
+    private readonly notification: NotificationService
+  ) {}
+
+  get saveLabel(): string {
+    return this.activeForm === 'periodontograma' ? 'Guardar Periodontograma' : 'Guardar';
+  }
+
   handlePrint(): void {
     if (this.print.observers.length > 0) {
       this.print.emit();
@@ -26,14 +40,31 @@ export class OdontogramaActionsComponent {
     }
   }
 
-  /** Muestra el modal de guardar odontograma. */
   openSaveDialog(): void {
+    if (this.activeForm === 'periodontograma') {
+      this.savePeriodontogram();
+      return;
+    }
     this.showSaveDialog = true;
   }
 
-  /** Sincroniza visibilidad del modal cuando el hijo lo cierra. */
   onDialogChange(isOpen: boolean): void {
     this.showSaveDialog = isOpen;
   }
-}
 
+  private savePeriodontogram(): void {
+    if (this.savingPerio) {
+      return;
+    }
+    this.savingPerio = true;
+    this.stateService.savePeriodontogram().subscribe({
+      next: () => {
+        this.notification.showSuccess('Periodontograma guardado correctamente');
+        this.savingPerio = false;
+      },
+      error: () => {
+        this.savingPerio = false;
+      }
+    });
+  }
+}

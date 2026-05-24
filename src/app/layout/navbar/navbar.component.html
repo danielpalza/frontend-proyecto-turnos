@@ -1,10 +1,13 @@
 <nav class="navbar-container">
   <div class="nav-tabs">
-    <a 
+    <a
       *ngFor="let item of menuItems"
       class="nav-tab"
-      [routerLink]="item.route"
+      [routerLink]="item.requiresAppointment ? null : item.route"
       routerLinkActive="active"
+      [class.active]="item.requiresAppointment && isOdontogramaActive()"
+      (click)="onNavClick(item, $event)"
+      [attr.href]="item.requiresAppointment ? null : item.route"
     >
       <i class="bi" [ngClass]="item.icon"></i>
       <span>{{ item.title }}</span>
@@ -16,4 +19,3 @@
     <span>Salir</span>
   </button>
 </nav>
-

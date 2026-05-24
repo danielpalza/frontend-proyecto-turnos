@@ -1,4 +1,10 @@
 <div class="odontograma-comment">
   <p class="odontograma-comment__title">{{ title }}</p>
-  <textarea class="odontograma-comment__textarea" [rows]="rows">{{ text }}</textarea>
+  <textarea
+    class="odontograma-comment__textarea"
+    [rows]="rows"
+    [readonly]="!isEditable"
+    [(ngModel)]="value"
+    (ngModelChange)="onValueChange($event)"
+  ></textarea>
 </div>

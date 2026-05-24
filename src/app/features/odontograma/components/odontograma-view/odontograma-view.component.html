@@ -1,35 +1,26 @@
 <div class="odontograma-container">
   <div class="odontograma-content">
-    <!-- <div class="odontograma-header">
-      <h1><i class="bi bi-clipboard2-pulse me-2"></i>Odontología</h1>
-      <p class="text-muted">Vista dental completa del paciente</p>
-    </div> -->
+    <div *ngIf="loading" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status"></div>
+      <p class="mt-2 text-muted">Cargando datos clínicos...</p>
+    </div>
 
-    <div class="odontograma-grid">
+    <div *ngIf="loadError" class="alert alert-danger">{{ loadError }}</div>
+
+    <div class="odontograma-grid" *ngIf="!loading && !loadError" [class.odontograma-grid--perio]="activeForm === 'periodontograma'">
       <div class="odontograma-main-content">
         <app-odontograma-form [hidden]="activeForm !== 'odontograma'"></app-odontograma-form>
-        <div
-          class="periodontograma-host"
-          [class.periodontograma-host--full]="activeForm === 'periodontograma'"
-        >
+        <div class="periodontograma-host" [class.periodontograma-host--full]="activeForm === 'periodontograma'">
           <div class="periodontograma-layout" [hidden]="activeForm !== 'periodontograma'">
             <app-periodontograma-form></app-periodontograma-form>
           </div>
         </div>
         <div class="comments-row">
-          <app-odontograma-comment-component
-            title="Comentarios del turno"
-          ></app-odontograma-comment-component>
-          <app-odontograma-comment-component
-            title="Plan de tratamiento"
-          ></app-odontograma-comment-component>
+          <app-odontograma-comment-component title="Comentarios del turno"></app-odontograma-comment-component>
+          <app-odontograma-comment-component title="Plan de tratamiento"></app-odontograma-comment-component>
         </div>
-        <app-odontograma-comment-component
-          title="Comentarios del turno anterior"
-        ></app-odontograma-comment-component>
-        <app-odontograma-comment-component
-          title="Historia clinica del paciente"
-        ></app-odontograma-comment-component>
+        <app-odontograma-comment-component title="Comentarios del turno anterior"></app-odontograma-comment-component>
+        <app-odontograma-comment-component title="Historia clinica del paciente"></app-odontograma-comment-component>
       </div>
 
       <div class="sidebar-right">
@@ -57,68 +48,8 @@
         <div [hidden]="activeForm === 'periodontograma'">
           <app-odontograma-leyend></app-odontograma-leyend>
         </div>
-        <app-odontograma-actions></app-odontograma-actions>
+        <app-odontograma-actions [activeForm]="activeForm"></app-odontograma-actions>
       </div>
     </div>
   </div>
-
-  <ul>
-    <li>
-      Periodontograma:
-      <br />Permitir recesión negativa
-      <br />Agregar cálculo y supuración
-      <br />Ajustar un poco la lógica visual
-      <br />(Opcional) mejorar furcación
-    </li>
-    <strong>Tareas</strong
-    ><br />
-    Básicamente necesitaría un odontograma con representación de las 5 caras de cada diente para:
-
-    <li>
-      colocar rojo para patologías, azul para tratamientos (especificar si es resina, amalgama,
-      provisorio), amarillo para otras cosas.
-    </li>
-
-    <li>
-      un selector para agregar estados sobre la representación del diente para representar:
-      ausencias, implantes, coronas, puentes, erupciones, retenciones/inclusiones, necesidad de
-      extracción, puente con diente contiguo
-    </li>
-
-    <li>
-      un sector para agregar condiciones clínicas adicionales del diente: endodoncia, movilidad(I,
-      II, III), fracturas, lesiones, dolor/sensibilidad, indicaciones
-    </li>
-
-    <li>
-      un formulario de planificación de tratamiento para seguir turno por turno lo que se hace.
-      Editable.
-    </li>
-    <hr />
-    <li>Estilos: adaptar a los estilos de la app</li>
-    <li>Leyenda de estado: agregar "Tratamiento", "Otro"</li>
-    <li>
-      Funcionalidad: difuminar la pantalla hasta seleccionar paciente o nuevo paciente (agregar
-      buscador de pacientes con sus turnos + crear nuevo paciente en el momento)
-    </li>
-    <li>
-      Emprolijar impresion del odontograma para que solo se vea el odontograma, la leyenda de estado
-      y la observacion de profesional
-    </li>
-    <li>
-      Estilos: emprolijar selector de caras de diente para que sea igual al de un odontograma real
-    </li>
-    <li>
-      Investigar: como se señalizan los estados y procedimientos en los dientes en un odontograma
-      real
-    </li>
-    <li>Investigar: como se señalan estados del diente para la leyenda de estados</li>
-    <li>Agregar: Vinculacion entre odontograma y turno (no existe tabla de odontogramas en BD)</li>
-    <li>Agregar: observaciones de turno y antecedentes medicos</li>
-    <li>
-      Agregar: Flechas de navegacion para cargar odontogramas pasados que sean solo de lectura
-      (inhabilitando su edicion o guardado, impresion me chupa un huevo). Revisar si esto vuelve
-      inutl la tabla de <strong>"Historial de Turnos"</strong>
-    </li>
-  </ul>
 </div>
