@@ -58,9 +58,15 @@
           </p>
 
           <div class="hero-buttons">
-            <button class="btn btn-primary">Solicitar demo</button>
+            <button class="btn btn-primary">
+              Solicitar demo
+              <i class="fa-solid fa-arrow-right"></i>
+            </button>
 
-            <button class="btn btn-outline">Hablar por WhatsApp</button>
+            <button class="btn btn-outline btn-whatsapp">
+              <i class="fa-brands fa-whatsapp"></i>
+              Hablar por WhatsApp
+            </button>
           </div>
 
           <div class="hero-stats">
@@ -83,35 +89,7 @@
 
         <div class="hero-right">
           <div class="dashboard-card">
-            <div class="dashboard-top">
-              <div class="dashboard-title">Dashboard</div>
-
-              <div class="dashboard-user">Dra. Valeria</div>
-            </div>
-
-            <div class="dashboard-grid">
-              <div class="mini-card">
-                <span>Turnos hoy</span>
-                <h3>24</h3>
-              </div>
-
-              <div class="mini-card">
-                <span>Nuevos pacientes</span>
-                <h3>8</h3>
-              </div>
-
-              <div class="mini-card">
-                <span>Ingresos</span>
-                <h3>$2.450.000</h3>
-              </div>
-
-              <div class="mini-card">
-                <span>Recordatorios</span>
-                <h3>156</h3>
-              </div>
-            </div>
-
-            <div class="chart-placeholder"></div>
+            <div class="chart-placeholder"><p>ACA VA SCREENSHOT DE LA AGENDA</p></div>
           </div>
         </div>
       </div>
@@ -131,108 +109,65 @@
         <div class="features-layout">
           <div class="features-menu">
             <button class="feature-btn active" data-feature="agenda">
-              <i class="fa-regular fa-calendar"></i>
-              Agenda inteligente
-              <br />
-              <p>Gestiona turnos, recursos y pacientes.</p>
+              <span class="feature-icon feature-icon--agenda" aria-hidden="true"></span>
+              <div class="feature-btn-content">
+                <span class="feature-btn-title">Agenda inteligente</span>
+                <p>Gestiona turnos, recursos y pacientes.</p>
+              </div>
             </button>
 
             <button class="feature-btn" data-feature="historial">
-              <i class="fa-regular fa-folder-open"></i>
-              Historias clínicas
-              <p>Centralizá toda la información de tus pacientes.</p>
+              <span class="feature-icon feature-icon--historial" aria-hidden="true"></span>
+              <div class="feature-btn-content">
+                <span class="feature-btn-title">Historias clínicas</span>
+                <p>Centralizá toda la información.</p>
+              </div>
             </button>
 
             <button class="feature-btn" data-feature="odontograma">
-              <i class="fa-solid fa-tooth"></i>
-              Odontograma
-              <p>Registrá tratamientos de forma visual e intuitiva.</p>
+              <span class="feature-icon feature-icon--odontograma" aria-hidden="true"></span>
+              <div class="feature-btn-content">
+                <span class="feature-btn-title">Odontograma</span>
+                <p>Registrá tratamientos facilmente.</p>
+              </div>
             </button>
 
             <button class="feature-btn" data-feature="finanzas">
-              <i class="fa-solid fa-chart-column"></i>
-              Finanzas
-              <p>Controlá ingresos, gastos y cobros pendientes.</p>
+              <span class="feature-icon feature-icon--finanzas" aria-hidden="true"></span>
+              <div class="feature-btn-content">
+                <span class="feature-btn-title">Finanzas</span>
+                <p>Controlá ingresos, gastos y cobros pendientes.</p>
+              </div>
             </button>
 
             <button class="feature-btn" data-feature="whatsapp">
-              <i class="fa-brands fa-whatsapp"></i>
-              Comunicación
-              <p>Ponete en contacto con tus pacientes con sólo un click.</p>
+              <span class="feature-icon feature-icon--comunicacion" aria-hidden="true"></span>
+              <div class="feature-btn-content">
+                <span class="feature-btn-title">Comunicación</span>
+                <p>Contactá a tus pacientes en un click.</p>
+              </div>
             </button>
           </div>
 
           <div class="feature-preview">
             <div class="feature-content active" id="agenda">
-              <div class="preview-header">Agenda inteligente</div>
-
-              <div class="calendar-grid">
-                <div class="event green"></div>
-                <div class="event purple"></div>
-                <div class="event orange"></div>
-                <div class="event blue"></div>
-              </div>
+              <div class="preview-header">Agenda imagen</div>
             </div>
 
             <div class="feature-content" id="historial">
-              <div class="preview-header">Historial clínico completo</div>
+              <div class="preview-header">Historial clínico imagen</div>
             </div>
 
             <div class="feature-content" id="odontograma">
-              <div class="preview-header">Odontograma visual</div>
+              <div class="preview-header">Odontograma/periodontograma imagen</div>
             </div>
 
             <div class="feature-content" id="finanzas">
-              <div class="preview-header">Dashboard financiero</div>
+              <div class="preview-header">Finanzas/caja imagen</div>
             </div>
 
             <div class="feature-content" id="whatsapp">
-              <div class="preview-header">Automatizaciones WhatsApp</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- TESTIMONIOS -->
-    <section class="testimonials section" id="clientes">
-      <div class="container">
-        <div class="section-header">
-          <span class="section-badge"> Clientes </span>
-
-          <h2>Profesionales que confían en <span class="hero-accent">Gestia</span></h2>
-        </div>
-
-        <div class="swiper testimonial-swiper">
-          <div class="swiper-wrapper">
-            <div class="swiper-slide">
-              <div class="testimonial-card">
-                <p>“La agenda inteligente nos ahorra horas de trabajo cada semana.”</p>
-
-                <div class="testimonial-user">
-                  <div class="avatar"></div>
-
-                  <div>
-                    <strong>Dra. Paula Fernández</strong>
-                    <span>Dental Plus</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="swiper-slide">
-              <div class="testimonial-card">
-                <p>“El historial clínico y el odontograma son increíbles.”</p>
-
-                <div class="testimonial-user">
-                  <div class="avatar"></div>
-
-                  <div>
-                    <strong>Dr. Martín López</strong>
-                    <span>Smile Center</span>
-                  </div>
-                </div>
-              </div>
+              <div class="preview-header">WhatsApp imagen</div>
             </div>
           </div>
         </div>
@@ -332,6 +267,51 @@
             </div>
             <h3>Seguimiento y fidelización</h3>
             <p>Mantené el contacto con tus pacientes a tan solo un click.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TESTIMONIOS -->
+    <section class="testimonials section" id="clientes">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-badge"> Clientes </span>
+
+          <h2>Profesionales que confían en <span class="hero-accent">Gestia</span></h2>
+        </div>
+
+        <div class="swiper testimonial-swiper">
+          <div class="swiper-wrapper">
+            <div class="swiper-slide">
+              <div class="testimonial-card">
+                <p>“La agenda inteligente nos ahorra horas de trabajo cada semana.”</p>
+
+                <div class="testimonial-user">
+                  <div class="avatar"></div>
+
+                  <div>
+                    <strong>Dra. Paula Fernández</strong>
+                    <span>Dental Plus</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="swiper-slide">
+              <div class="testimonial-card">
+                <p>“El historial clínico y el odontograma son increíbles.”</p>
+
+                <div class="testimonial-user">
+                  <div class="avatar"></div>
+
+                  <div>
+                    <strong>Dr. Martín López</strong>
+                    <span>Smile Center</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

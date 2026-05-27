@@ -21,6 +21,17 @@
 
   --transition: .3s ease;
 
+  --feature-agenda: #4338ca;
+  --feature-agenda-bg: rgba(67, 56, 202, 0.12);
+  --feature-historial: #f567d9;
+  --feature-historial-bg: rgba(245, 103, 217, 0.12);
+  --feature-odontograma: #60bad5;
+  --feature-odontograma-bg: rgba(96, 186, 213, 0.15);
+  --feature-finanzas: #7c3aed;
+  --feature-finanzas-bg: rgba(124, 58, 237, 0.12);
+  --feature-comunicacion: #fa8c51;
+  --feature-comunicacion-bg: rgba(250, 140, 81, 0.15);
+
   --navbar-height: 76px;
 }
 
@@ -119,6 +130,10 @@ body{
 /* BUTTONS */
 
 .btn{
+  display:inline-flex;
+  align-items:center;
+  gap:.5rem;
+
   border:none;
   cursor:pointer;
 
@@ -156,6 +171,16 @@ body{
 .btn-outline{
   border:1px solid var(--border);
   background:white;
+}
+
+.btn-whatsapp{
+  color:var(--primary);
+}
+
+.btn-whatsapp:hover{
+  background:#25D366;
+  border-color:#25D366;
+  color:white;
 }
 
 /* HERO */
@@ -221,7 +246,7 @@ body{
 }
 
 .hero-left h1{
-  font-size:3rem;
+  font-size:3.02rem;
   line-height:1.05;
 
   margin-bottom:1.5rem;
@@ -242,6 +267,7 @@ body{
 .hero-buttons{
   display:flex;
   gap:1rem;
+  border-radius: 20px;
 
   margin-bottom:2rem;
 }
@@ -336,7 +362,7 @@ body{
 
 .features-layout{
   display:grid;
-  grid-template-columns:320px 1fr;
+  grid-template-columns:1fr 2fr;
   gap:2rem;
 }
 
@@ -351,7 +377,7 @@ body{
 
   background:white;
 
-  padding:1.25rem;
+  padding: .6rem 1.1rem;
 
   border-radius:1rem;
 
@@ -360,7 +386,7 @@ body{
   cursor:pointer;
 
   display:flex;
-  align-items:center;
+  align-items:flex-start;
   gap:1rem;
 
   border:1px solid transparent;
@@ -368,16 +394,122 @@ body{
   transition:var(--transition);
 }
 
+.feature-btn-content{
+  display:flex;
+  flex-direction:column;
+  gap:.25rem;
+
+  min-width:0;
+}
+
+.feature-btn-title{
+  color:var(--primary);
+  font-size:1rem;
+  font-weight:700;
+}
+
+.feature-btn-content p{
+  margin:0;
+
+  color:var(--text-secondary);
+
+  font-size:.875rem;
+  line-height:1.4;
+}
+
 .feature-btn:hover{
   transform:translateY(-2px);
 }
 
 .feature-btn.active{
-  border-color:
-    rgba(99,102,241,.2);
+  border:1px solid var(--primary);
 
   background:
     rgba(99,102,241,.08);
+}
+
+.feature-icon{
+  flex-shrink:0;
+
+  width:2.75rem;
+  height:2.75rem;
+
+  display:grid;
+  place-items:center;
+
+  border-radius:.625rem;
+
+  background-color:var(--feature-icon-bg);
+}
+
+.feature-icon::before{
+  content:'';
+
+  width:1.35rem;
+  height:1.35rem;
+
+  -webkit-mask:no-repeat center / contain;
+  mask:no-repeat center / contain;
+
+  background-color:var(--feature-icon-color);
+}
+
+.feature-btn.active .feature-icon{
+  background-color:var(--feature-icon-color);
+}
+
+.feature-btn.active .feature-icon::before{
+  background-color:#fff;
+}
+
+.feature-icon--agenda{
+  --feature-icon-color:var(--feature-agenda);
+  --feature-icon-bg:var(--feature-agenda-bg);
+}
+
+.feature-icon--agenda::before{
+  -webkit-mask-image:url('images/features/calendario.svg');
+  mask-image:url('images/features/calendario.svg');
+}
+
+.feature-icon--historial{
+  --feature-icon-color:var(--feature-historial);
+  --feature-icon-bg:var(--feature-historial-bg);
+}
+
+.feature-icon--historial::before{
+  -webkit-mask-image:url('images/features/historia_clinica.svg');
+  mask-image:url('images/features/historia_clinica.svg');
+}
+
+.feature-icon--odontograma{
+  --feature-icon-color:var(--feature-odontograma);
+  --feature-icon-bg:var(--feature-odontograma-bg);
+}
+
+.feature-icon--odontograma::before{
+  -webkit-mask-image:url('images/features/odontograma.svg');
+  mask-image:url('images/features/odontograma.svg');
+}
+
+.feature-icon--finanzas{
+  --feature-icon-color:var(--feature-finanzas);
+  --feature-icon-bg:var(--feature-finanzas-bg);
+}
+
+.feature-icon--finanzas::before{
+  -webkit-mask-image:url('images/features/finanzas.svg');
+  mask-image:url('images/features/finanzas.svg');
+}
+
+.feature-icon--comunicacion{
+  --feature-icon-color:var(--feature-comunicacion);
+  --feature-icon-bg:var(--feature-comunicacion-bg);
+}
+
+.feature-icon--comunicacion::before{
+  -webkit-mask-image:url('images/features/comunicacion.svg');
+  mask-image:url('images/features/comunicacion.svg');
 }
 
 .feature-preview{
