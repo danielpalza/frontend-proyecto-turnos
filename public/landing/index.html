@@ -19,10 +19,12 @@
     <!-- NAVBAR -->
     <nav class="navbar">
       <div class="container nav-content">
-        <div class="logo">
-          <i class="fa-solid fa-heart-pulse"></i>
-          <span>Gestia</span>
-        </div>
+        <a href="#landing" style="text-decoration: none; color: inherit;">
+          <div class="logo">
+            <i class="fa-solid fa-heart-pulse"></i>
+            <span>Gestia</span>
+          </div>
+        </a>
 
         <div class="nav-links">
           <a href="#features">Features</a>
@@ -40,7 +42,7 @@
     </nav>
 
     <!-- HERO -->
-    <section class="hero">
+    <section class="hero" id="landing">
       <div class="hero-bg"></div>
 
       <div class="container hero-content">
@@ -54,14 +56,16 @@
 
           <p>
             Turnos, historias clínicas, tratamientos, pagos y comunicación con pacientes. Automatizá
-            tu clinica y enfocate en lo más importante: tus pacientes/clientes.
+            tu clínica y enfocate en lo más importante: tus pacientes/clientes.
           </p>
 
           <div class="hero-buttons">
-            <button class="btn btn-primary">
-              Solicitar demo
-              <i class="fa-solid fa-arrow-right"></i>
-            </button>
+            <a href="#contacto">
+              <button class="btn btn-primary">
+                Solicitar demo
+                <i class="fa-solid fa-arrow-right"></i>
+              </button>
+            </a>
 
             <button class="btn btn-outline btn-whatsapp">
               <i class="fa-brands fa-whatsapp"></i>
@@ -326,6 +330,32 @@
           <h2>¿Querés llevar tu clínica al siguiente nivel?</h2>
 
           <p>Dejanos tus datos y te contactaremos para una demo personalizada.</p>
+
+          <div class="contact-highlights">
+            <div class="contact-highlight">
+              <span class="contact-highlight-icon contact-highlight-icon--demo" aria-hidden="true"></span>
+              <div class="contact-highlight-content">
+                <span class="contact-highlight-title">Demo personalizada</span>
+                <p>Te mostramos el sistema adaptado a tus necesidades.</p>
+              </div>
+            </div>
+
+            <div class="contact-highlight">
+              <span class="contact-highlight-icon contact-highlight-icon--implementacion" aria-hidden="true"></span>
+              <div class="contact-highlight-content">
+                <span class="contact-highlight-title">Implementación rápida</span>
+                <p>En pocos minutos ya podras usar el sistema.</p>
+              </div>
+            </div>
+
+            <div class="contact-highlight">
+              <span class="contact-highlight-icon contact-highlight-icon--acompanamiento" aria-hidden="true"></span>
+              <div class="contact-highlight-content">
+                <span class="contact-highlight-title">Acompañamiento constante</span>
+                <p>Estamos para ayudarte siempre que lo necesites.</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <form class="contact-form">
@@ -335,6 +365,10 @@
 
           <div class="input-group">
             <input type="text" placeholder="Nombre de tu clínica" />
+          </div>
+          
+          <div class="input-group">
+            <input type="text" placeholder="Tu numero de telefono (te contactamos por whatsapp)" />
           </div>
 
           <div class="input-group">
@@ -353,16 +387,35 @@
     <!-- FOOTER -->
     <footer class="footer">
       <div class="container footer-content">
-        <div>
-          <h3><span class="hero-accent">Gestia</span></h3>
+        <div class="footer-brand">
+          <div class="footer-brand-header">
+            <img
+              src="images/contacto/demo-personalizada.svg"
+              alt="Logo Gestia"
+              class="footer-logo"
+            />
+            <h3><span class="hero-accent">Gestia</span></h3>
+          </div>
 
           <p>Software de gestión clínica moderno, simple y seguro.</p>
         </div>
 
-        <div class="footer-links">
-          <a href="#">Privacidad</a>
-          <a href="#">Términos</a>
-          <a href="#">Contacto</a>
+        <div class="footer-column">
+          <h4 class="footer-column-title">Producto</h4>
+          <nav class="footer-column-links">
+            <a href="#features">Features</a>
+            <a href="#workflow">Workflow</a>
+            <a href="#clientes">Clientes</a>
+            <a href="#contacto">Contacto</a>
+          </nav>
+        </div>
+
+        <div class="footer-column">
+          <h4 class="footer-column-title">Legal</h4>
+          <nav class="footer-column-links">
+            <a href="#">Términos y condiciones</a>
+            <a href="#">Política de privacidad</a>
+          </nav>
         </div>
       </div>
     </footer>
