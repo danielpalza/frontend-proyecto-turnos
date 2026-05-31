@@ -1,0 +1,164 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+.panel-container {
+  padding: 1.5rem 0 2rem;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: $spacing-lg;
+  padding-bottom: $spacing-xl;
+  border-bottom: 1px solid $border-color;
+}
+
+.panel-header-left {
+  .title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: $text-primary;
+    margin-bottom: $spacing-xs;
+  }
+
+  .subtitle {
+    font-size: 0.875rem;
+    color: $text-secondary;
+    margin: 0;
+  }
+}
+
+.panel-header-right {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: $spacing-md;
+}
+
+.btn-today {
+  padding: 0.625rem 1.25rem;
+  border: 1px solid $border-color;
+  background-color: $card-background;
+  color: $text-primary;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover {
+    background-color: $hover-bg;
+    border-color: $primary-color;
+    color: $primary-color;
+  }
+}
+
+.month-navigation {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.nav-arrow {
+  width: 2.25rem;
+  height: 2.25rem;
+  border: none;
+  background-color: transparent;
+  color: $text-secondary;
+  font-size: 1rem;
+  border-radius: $radius-md;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-base;
+
+  &:hover {
+    background-color: $hover-bg;
+    color: $primary-color;
+  }
+}
+
+.month-selector {
+  @include button-gradient-primary($radius-md);
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  cursor: default;
+}
+
+.date-range-selectors {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.date-field {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: $spacing-sm;
+
+  label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: $text-secondary;
+    margin: 0;
+    white-space: nowrap;
+  }
+}
+
+.panel-section {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+}
+
+.section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.metric-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  background: #f8f9fa;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  height: 100%;
+}
+
+.metric-label {
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+.metric-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #212529;
+}
+
+.chart-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  background: #f8f9fa;
+  border-radius: 0.5rem;
+}
+
+@include tablet {
+  .panel-header {
+    flex-direction: column;
+  }
+
+  .panel-header-right {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
