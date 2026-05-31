@@ -22,7 +22,7 @@ export class MonthCalendarComponent implements OnInit, OnChanges {
 
   @Output() dateClick = new EventEmitter<string>();
   @Output() monthChange = new EventEmitter<Date>();
-  @Output() filterChange = new EventEmitter<{ type: 'patient' | 'profesional'; term: string }>();
+  @Output() filterChange = new EventEmitter<{ type: 'patient' | 'profesional' | 'both'; term: string }>();
   @Output() pendingOnlyChange = new EventEmitter<boolean>();
 
   calendarDays: any[] = [];
@@ -34,9 +34,7 @@ export class MonthCalendarComponent implements OnInit, OnChanges {
     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
   ];
 
-  filterType: 'patient' | 'profesional' = 'patient';
   filterTerm = '';
-  showProfesionalDropdown = false;
 
   ngOnInit(): void {
     this.generateCalendar();
@@ -139,29 +137,21 @@ export class MonthCalendarComponent implements OnInit, OnChanges {
     this.dateClick.emit(dateStr);
   }
 
-  onSearchTypeChange(type: 'patient' | 'profesional'): void {
-    this.filterType = type;
-    this.filterTerm = '';
-    this.filterChange.emit({ type: this.filterType, term: '' });
-  }
-
   onSearchSelect(result: SearchResult): void {
-    this.filterType = result.type;
-    this.filterTerm = result.type === 'patient' 
-      ? (result.item as Patient).nombreApellido 
+    this.filterTerm = result.type === 'patient'
+      ? (result.item as Patient).nombreApellido
       : (result.item as Profesional).nombre;
-    this.filterChange.emit({ type: this.filterType, term: this.filterTerm });
+    this.filterChange.emit({ type: result.type, term: this.filterTerm });
   }
 
   onSearchClear(): void {
     this.filterTerm = '';
-    this.filterChange.emit({ type: this.filterType, term: '' });
+    this.filterChange.emit({ type: 'both', term: '' });
   }
 
   onSearchChange(term: string): void {
     this.filterTerm = term;
-    // Emitir el cambio de filtro con el tipo actual
-    this.filterChange.emit({ type: this.filterType, term });
+    this.filterChange.emit({ type: 'both', term });
   }
 
   onPendingOnlyChange(checked: boolean): void {

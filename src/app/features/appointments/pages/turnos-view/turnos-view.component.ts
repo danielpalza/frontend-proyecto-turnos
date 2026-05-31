@@ -157,7 +157,7 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
   /**
    * Maneja cambios en el filtro de calendario (paciente / profesional)
    */
-  onFilterChange(filter: { type: 'patient' | 'profesional'; term: string }): void {
+  onFilterChange(filter: { type: 'patient' | 'profesional' | 'both'; term: string }): void {
     const type = filter.term ? filter.type : 'none';
     this.appointmentsService.setFilter(type, filter.term);
   }

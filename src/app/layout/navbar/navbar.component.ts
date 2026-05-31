@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 
-export type ViewType = 'turnos' | 'odontograma' | 'seguimiento' | 'configuraciones';
+export type ViewType = 'panel' | 'turnos' | 'odontograma' | 'seguimiento' | 'configuraciones';
 
 @Component({
   selector: 'app-navbar',
@@ -19,6 +19,7 @@ export class NavbarComponent {
   ) {}
 
   menuItems = [
+    { title: 'Panel', icon: 'bi-speedometer2', route: '/panel' },
     { title: 'Turnos', icon: 'bi-calendar', route: '/turnos' },
     { title: 'Odontograma', icon: 'bi-heart-pulse', route: '/odontograma' },
     { title: 'Seguimiento', icon: 'bi-clipboard-data', route: '/seguimiento' },

@@ -16,7 +16,7 @@ export class AppointmentsService {
   private appointmentsCache$ = new BehaviorSubject<Appointment[]>([]);
 
   // Estado de filtro para calendario (paciente / profesional)
-  private filterType$ = new BehaviorSubject<'patient' | 'profesional' | 'none'>('none');
+  private filterType$ = new BehaviorSubject<'patient' | 'profesional' | 'both' | 'none'>('none');
   private filterTerm$ = new BehaviorSubject<string>('');
   // Filtro saldo pendiente de pago
   private filterPendingOnly$ = new BehaviorSubject<boolean>(false);
@@ -73,7 +73,7 @@ export class AppointmentsService {
    * @param type Tipo de filtro: patient | profesional | none
    * @param term Texto a buscar
    */
-  setFilter(type: 'patient' | 'profesional' | 'none', term: string): void {
+  setFilter(type: 'patient' | 'profesional' | 'both' | 'none', term: string): void {
     this.filterType$.next(type);
     this.filterTerm$.next((term || '').toLowerCase());
   }
@@ -105,6 +105,18 @@ export class AppointmentsService {
             }
             return appointments.filter(app => {
               const t = term.toLowerCase();
+              if (type === 'both') {
+                const name = (app.patientName || '').toLowerCase();
+                const dni = (app.patientDni || '').toLowerCase();
+                const obraSocial = (app.patientObraSocialNumero || '').toLowerCase();
+                const profesionalName = (app.profesionalName || '').toLowerCase();
+                return (
+                  name.includes(t) ||
+                  dni.includes(t) ||
+                  obraSocial.includes(t) ||
+                  profesionalName.includes(t)
+                );
+              }
               if (type === 'patient') {
                 const name = (app.patientName || '').toLowerCase();
                 const dni = (app.patientDni || '').toLowerCase();

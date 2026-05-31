@@ -12,6 +12,7 @@
 
 // Exportar componentes compartidos
 export * from './components/search-input/search-input.component';
+export * from './components/mini-calendar-picker/mini-calendar-picker.component';
 export {
   PatientFormComponent,
   getPatientFormConfig,

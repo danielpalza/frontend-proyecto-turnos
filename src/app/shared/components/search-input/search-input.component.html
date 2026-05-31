@@ -10,40 +10,8 @@
         (change)="onPendingOnlyChange($event)"
       />
       <label class="form-check-label" for="pendingOnlyFilter">
-        Solo con saldo pendiente
+        Con saldo pendiente
       </label>
-    </div>
-
-    <!-- Radio buttons para seleccionar tipo de búsqueda (opcional, solo si searchType es 'both') -->
-    <div *ngIf="showTypeSelector && searchType === 'both'" class="d-flex flex-column gap-2">
-      <div class="form-check">
-        <input
-          class="form-check-input"
-          type="radio"
-          name="searchType"
-          id="searchPatient"
-          value="patient"
-          [(ngModel)]="currentSearchType"
-          (change)="onSearchTypeChange('patient')"
-        />
-        <label class="form-check-label" for="searchPatient">
-          Pacientes
-        </label>
-      </div>
-      <div class="form-check">
-        <input
-          class="form-check-input"
-          type="radio"
-          name="searchType"
-          id="searchProfesional"
-          value="profesional"
-          [(ngModel)]="currentSearchType"
-          (change)="onSearchTypeChange('profesional')"
-        />
-        <label class="form-check-label" for="searchProfesional">
-          Profesionales
-        </label>
-      </div>
     </div>
 
     <!-- Input de búsqueda -->

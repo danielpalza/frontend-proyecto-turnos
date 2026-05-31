@@ -24,7 +24,6 @@ export class SearchInputComponent implements OnInit, OnChanges, OnDestroy {
   @Input() profesionales: Profesional[] = [];
   @Input() searchType: SearchType = 'both'; // 'patient' | 'profesional' | 'both'
   @Input() placeholder: string = 'Buscar por nombre, DNI o email...';
-  @Input() showTypeSelector: boolean = false; // Si mostrar radio buttons para seleccionar tipo
   @Input() selectedValue: string = ''; // Valor inicial del input
   @Input() showIcon: boolean = false; // Si mostrar icono en input-group
   @Input() debounceTime: number = 0; // Tiempo de debounce (0 = sin debounce)
@@ -34,10 +33,8 @@ export class SearchInputComponent implements OnInit, OnChanges, OnDestroy {
   @Output() select = new EventEmitter<SearchResult>();
   @Output() clear = new EventEmitter<void>();
   @Output() searchChange = new EventEmitter<string>(); // Emite el término de búsqueda
-  @Output() typeChange = new EventEmitter<'patient' | 'profesional'>(); // Emite cuando cambia el tipo de búsqueda
   @Output() pendingOnlyChange = new EventEmitter<boolean>(); // Emite cuando cambia el filtro saldo pendiente
 
-  currentSearchType: 'patient' | 'profesional' = 'patient';
   searchTerm = '';
   showDropdown = false;
   private searchSubject = new Subject<string>();
@@ -47,17 +44,7 @@ export class SearchInputComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnInit(): void {
     this.searchTerm = this.selectedValue || '';
-    
-    // Inicializar el tipo de búsqueda según searchType
-    if (this.searchType === 'patient') {
-      this.currentSearchType = 'patient';
-    } else if (this.searchType === 'profesional') {
-      this.currentSearchType = 'profesional';
-    } else {
-      // 'both' - por defecto 'patient'
-      this.currentSearchType = 'patient';
-    }
-    
+
     if (this.debounceTime > 0) {
       this.setupSearchDebounce();
     }
@@ -85,14 +72,6 @@ export class SearchInputComponent implements OnInit, OnChanges, OnDestroy {
     ).subscribe(searchValue => {
       this.searchChange.emit(searchValue);
     });
-  }
-
-  onSearchTypeChange(type: 'patient' | 'profesional'): void {
-    this.currentSearchType = type;
-    this.searchTerm = '';
-    this.showDropdown = false;
-    this.typeChange.emit(type);
-    this.searchChange.emit('');
   }
 
   onPendingOnlyChange(event: Event): void {
@@ -151,10 +130,6 @@ export class SearchInputComponent implements OnInit, OnChanges, OnDestroy {
       return [];
     }
 
-    if (this.searchType === 'both' && this.currentSearchType !== 'patient') {
-      return [];
-    }
-
     // Si no hay término, devolver todos los pacientes
     if (!this.searchTerm) {
       return this.patients;
@@ -175,10 +150,6 @@ export class SearchInputComponent implements OnInit, OnChanges, OnDestroy {
       return [];
     }
 
-    if (this.searchType === 'both' && this.currentSearchType !== 'profesional') {
-      return [];
-    }
-
     // Si no hay término, devolver todos los profesionales
     if (!this.searchTerm) {
       return this.profesionales;
@@ -196,13 +167,13 @@ export class SearchInputComponent implements OnInit, OnChanges, OnDestroy {
   getFilteredResults(): SearchResult[] {
     const results: SearchResult[] = [];
 
-    if (this.searchType === 'patient' || (this.searchType === 'both' && this.currentSearchType === 'patient')) {
+    if (this.searchType === 'patient' || this.searchType === 'both') {
       this.filteredPatients.forEach(patient => {
         results.push({ type: 'patient', item: patient });
       });
     }
 
-    if (this.searchType === 'profesional' || (this.searchType === 'both' && this.currentSearchType === 'profesional')) {
+    if (this.searchType === 'profesional' || this.searchType === 'both') {
       this.filteredProfesionales.forEach(prof => {
         results.push({ type: 'profesional', item: prof });
       });
