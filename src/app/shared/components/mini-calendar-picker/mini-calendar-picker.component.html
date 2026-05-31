@@ -1,0 +1,40 @@
+<div class="mini-calendar-picker">
+  <button
+    type="button"
+    class="picker-trigger"
+    [id]="inputId || null"
+    [attr.aria-expanded]="isOpen"
+    [attr.aria-haspopup]="true"
+    (click)="toggleOpen()"
+  >
+    <span class="picker-value">{{ getDisplayLabel() }}</span>
+    <i class="bi bi-calendar3 picker-icon"></i>
+  </button>
+
+  <div *ngIf="isOpen" class="picker-dropdown" role="dialog" aria-label="Seleccionar fecha">
+    <div class="picker-month-label">{{ getMonthLabel() }}</div>
+
+    <div class="picker-weekdays">
+      <span *ngFor="let weekday of weekDays" class="picker-weekday">{{ weekday }}</span>
+    </div>
+
+    <div class="picker-days">
+      <ng-container *ngFor="let day of calendarDays">
+        <span *ngIf="day.type === 'empty'" class="picker-day empty"></span>
+
+        <button
+          *ngIf="day.type === 'day'"
+          type="button"
+          class="picker-day"
+          [class.today]="day.isToday"
+          [class.selected]="day.isSelected"
+          [class.disabled]="day.isDisabled"
+          [disabled]="day.isDisabled"
+          (click)="onDaySelect(day)"
+        >
+          {{ day.day }}
+        </button>
+      </ng-container>
+    </div>
+  </div>
+</div>

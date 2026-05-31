@@ -4,4 +4,5 @@ export * from './profesional.model';
 export * from './appointment.model';
 export * from './estado-profesional.model';
 export * from './auth.model';
+export * from './dashboard.model';
 

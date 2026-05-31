@@ -9,8 +9,14 @@ export const routes: Routes = [
   },
   {
     path: '',
-    redirectTo: 'turnos',
+    redirectTo: 'panel',
     pathMatch: 'full'
+  },
+  {
+    path: 'panel',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/panel/panel-view/panel-view.component').then(m => m.PanelViewComponent)
   },
   {
     path: 'turnos',
@@ -46,6 +52,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: 'turnos'
+    redirectTo: 'panel'
   }
 ];
