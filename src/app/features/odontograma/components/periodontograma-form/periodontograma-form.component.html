@@ -79,7 +79,7 @@
 
           <div class="selectors-row">
             <div>
-              <select class="form-select form-select-sm" [(ngModel)]="tooth.mobility" [disabled]="!tooth.present">
+              <select class="form-select form-select-sm" [(ngModel)]="tooth.mobility" (ngModelChange)="syncPerio()" [disabled]="!tooth.present">
                 <option [ngValue]="0">M0</option>
                 <option [ngValue]="1">M1</option>
                 <option [ngValue]="2">M2</option>
@@ -87,7 +87,7 @@
               </select>
             </div>
             <div>
-              <select class="form-select form-select-sm" [(ngModel)]="tooth.furcation" [disabled]="!tooth.present">
+              <select class="form-select form-select-sm" [(ngModel)]="tooth.furcation" (ngModelChange)="syncPerio()" [disabled]="!tooth.present">
                 <option [ngValue]="0">F0</option>
                 <option [ngValue]="1">F1</option>
                 <option [ngValue]="2">F2</option>
@@ -98,52 +98,52 @@
 
           <div class="perio-grid">
             <input type="checkbox" class="plaque-checkbox" [(ngModel)]="tooth.vestibular.plaque[0]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
             <input type="checkbox" class="plaque-checkbox" [(ngModel)]="tooth.vestibular.plaque[1]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
             <input type="checkbox" class="plaque-checkbox" [(ngModel)]="tooth.vestibular.plaque[2]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
 
             <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.vestibular.bleeding[0]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
             <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.vestibular.bleeding[1]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
             <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.vestibular.bleeding[2]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
 
             <input type="checkbox" class="suppuration-checkbox" [(ngModel)]="tooth.vestibular.suppuration[0]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
             <input type="checkbox" class="suppuration-checkbox" [(ngModel)]="tooth.vestibular.suppuration[1]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
             <input type="checkbox" class="suppuration-checkbox" [(ngModel)]="tooth.vestibular.suppuration[2]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
 
             <input type="checkbox" class="calculus-checkbox" [(ngModel)]="tooth.vestibular.calculus[0]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
             <input type="checkbox" class="calculus-checkbox" [(ngModel)]="tooth.vestibular.calculus[1]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
             <input type="checkbox" class="calculus-checkbox" [(ngModel)]="tooth.vestibular.calculus[2]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
 
               <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.mg[0])" min="-10" max="12" step="1" [value]="tooth.vestibular.mg[0]" data-field="mg" data-site="0"
                 (keydown.tab)="onMgTabToMatchingPs($event)"
-                (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'mg', 0, $event)" [disabled]="!tooth.present" />
+                (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.id, 'vestibular', 'mg', 0, $event)" [disabled]="!tooth.present" />
               <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.mg[1])" min="-10" max="12" step="1" [value]="tooth.vestibular.mg[1]" data-field="mg" data-site="1"
                 (keydown.tab)="onMgTabToMatchingPs($event)"
-                (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'mg', 1, $event)" [disabled]="!tooth.present" />
+                (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.id, 'vestibular', 'mg', 1, $event)" [disabled]="!tooth.present" />
               <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.mg[2])" min="-10" max="12" step="1" [value]="tooth.vestibular.mg[2]" data-field="mg" data-site="2"
                 (keydown.tab)="onMgTabToMatchingPs($event)"
-                (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'mg', 2, $event)" [disabled]="!tooth.present" />
+                (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.id, 'vestibular', 'mg', 2, $event)" [disabled]="!tooth.present" />
 
             <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.probing[0])" min="0" max="12" step="1" [value]="tooth.vestibular.probing[0]" data-field="probing" data-site="0"
               (keydown.tab)="onPerioTabPath($event)"
-              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'probing', 0, $event)" [disabled]="!tooth.present" />
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.id, 'vestibular', 'probing', 0, $event)" [disabled]="!tooth.present" />
             <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.probing[1])" min="0" max="12" step="1" [value]="tooth.vestibular.probing[1]" data-field="probing" data-site="1"
               (keydown.tab)="onPerioTabPath($event)"
-              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'probing', 1, $event)" [disabled]="!tooth.present" />
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.id, 'vestibular', 'probing', 1, $event)" [disabled]="!tooth.present" />
             <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.probing[2])" min="0" max="12" step="1" [value]="tooth.vestibular.probing[2]" data-field="probing" data-site="2"
               (keydown.tab)="onPerioTabPath($event)"
-              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'probing', 2, $event)" [disabled]="!tooth.present" />
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.id, 'vestibular', 'probing', 2, $event)" [disabled]="!tooth.present" />
 
 
             <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [ngClass]="perioValueToneClass(nicAt(tooth.vestibular, 0))" [value]="nicAt(tooth.vestibular, 0)" tabindex="-1" readonly disabled aria-label="NIC mesial (PS + MG)" />
@@ -152,7 +152,7 @@
           </div>
 
           <!-- <label class="present-check">
-            <input type="checkbox" [(ngModel)]="tooth.present" />
+            <input type="checkbox" [(ngModel)]="tooth.present" (ngModelChange)="syncPerio()" />
             <span>Presente</span>
           </label> -->
           </div>
@@ -188,52 +188,52 @@
 
           <div class="perio-grid">
             <input type="checkbox" class="plaque-checkbox" [(ngModel)]="tooth.lingual.plaque[0]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
             <input type="checkbox" class="plaque-checkbox" [(ngModel)]="tooth.lingual.plaque[1]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
             <input type="checkbox" class="plaque-checkbox" [(ngModel)]="tooth.lingual.plaque[2]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
 
             <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.lingual.bleeding[0]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
             <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.lingual.bleeding[1]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
             <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.lingual.bleeding[2]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
 
             <input type="checkbox" class="suppuration-checkbox" [(ngModel)]="tooth.lingual.suppuration[0]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
             <input type="checkbox" class="suppuration-checkbox" [(ngModel)]="tooth.lingual.suppuration[1]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
             <input type="checkbox" class="suppuration-checkbox" [(ngModel)]="tooth.lingual.suppuration[2]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
 
             <input type="checkbox" class="calculus-checkbox" [(ngModel)]="tooth.lingual.calculus[0]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
             <input type="checkbox" class="calculus-checkbox" [(ngModel)]="tooth.lingual.calculus[1]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
             <input type="checkbox" class="calculus-checkbox" [(ngModel)]="tooth.lingual.calculus[2]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
 
             <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.mg[0])" min="-10" max="12" step="1" [value]="tooth.lingual.mg[0]" data-field="mg" data-site="0"
               (keydown.tab)="onMgTabToMatchingPs($event)"
-              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'mg', 0, $event)" [disabled]="!tooth.present" />
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.id, 'lingual', 'mg', 0, $event)" [disabled]="!tooth.present" />
             <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.mg[1])" min="-10" max="12" step="1" [value]="tooth.lingual.mg[1]" data-field="mg" data-site="1"
               (keydown.tab)="onMgTabToMatchingPs($event)"
-              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'mg', 1, $event)" [disabled]="!tooth.present" />
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.id, 'lingual', 'mg', 1, $event)" [disabled]="!tooth.present" />
             <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.mg[2])" min="-10" max="12" step="1" [value]="tooth.lingual.mg[2]" data-field="mg" data-site="2"
               (keydown.tab)="onMgTabToMatchingPs($event)"
-              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'mg', 2, $event)" [disabled]="!tooth.present" />
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.id, 'lingual', 'mg', 2, $event)" [disabled]="!tooth.present" />
 
             <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.probing[0])" min="0" max="12" step="1" [value]="tooth.lingual.probing[0]" data-field="probing" data-site="0"
               (keydown.tab)="onPerioTabPath($event)"
-              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'probing', 0, $event)" [disabled]="!tooth.present" />
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.id, 'lingual', 'probing', 0, $event)" [disabled]="!tooth.present" />
             <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.probing[1])" min="0" max="12" step="1" [value]="tooth.lingual.probing[1]" data-field="probing" data-site="1"
               (keydown.tab)="onPerioTabPath($event)"
-              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'probing', 1, $event)" [disabled]="!tooth.present" />
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.id, 'lingual', 'probing', 1, $event)" [disabled]="!tooth.present" />
             <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.probing[2])" min="0" max="12" step="1" [value]="tooth.lingual.probing[2]" data-field="probing" data-site="2"
               (keydown.tab)="onPerioTabPath($event)"
-              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'probing', 2, $event)" [disabled]="!tooth.present" />
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.id, 'lingual', 'probing', 2, $event)" [disabled]="!tooth.present" />
 
             <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [ngClass]="perioValueToneClass(nicAt(tooth.lingual, 0))" [value]="nicAt(tooth.lingual, 0)" tabindex="-1" readonly disabled aria-label="NIC mesial (PS + MG)" />
             <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [ngClass]="perioValueToneClass(nicAt(tooth.lingual, 1))" [value]="nicAt(tooth.lingual, 1)" tabindex="-1" readonly disabled aria-label="NIC central (PS + MG)" />
@@ -274,7 +274,7 @@
           <div class="selectors-row">
             <div>
               <label class="field-label">Movilidad</label>
-              <select class="form-select form-select-sm" [(ngModel)]="tooth.mobility" [disabled]="!tooth.present">
+              <select class="form-select form-select-sm" [(ngModel)]="tooth.mobility" (ngModelChange)="syncPerio()" [disabled]="!tooth.present">
                 <option [ngValue]="0">M0</option>
                 <option [ngValue]="1">M1</option>
                 <option [ngValue]="2">M2</option>
@@ -283,7 +283,7 @@
             </div>
             <div>
               <label class="field-label">Furca</label>
-              <select class="form-select form-select-sm" [(ngModel)]="tooth.furcation" [disabled]="!tooth.present">
+              <select class="form-select form-select-sm" [(ngModel)]="tooth.furcation" (ngModelChange)="syncPerio()" [disabled]="!tooth.present">
                 <option [ngValue]="0">F0</option>
                 <option [ngValue]="1">F1</option>
                 <option [ngValue]="2">F2</option>
@@ -295,57 +295,57 @@
           <div class="perio-grid">
             <div class="grid-row-label">Placa</div>
             <input type="checkbox" class="plaque-checkbox" [(ngModel)]="tooth.vestibular.plaque[0]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
             <input type="checkbox" class="plaque-checkbox" [(ngModel)]="tooth.vestibular.plaque[1]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
             <input type="checkbox" class="plaque-checkbox" [(ngModel)]="tooth.vestibular.plaque[2]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
 
             <div class="grid-row-label">Sangrado</div>
             <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.vestibular.bleeding[0]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
             <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.vestibular.bleeding[1]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
             <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.vestibular.bleeding[2]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
 
             <div class="grid-row-label">Supuración</div>
             <input type="checkbox" class="suppuration-checkbox" [(ngModel)]="tooth.vestibular.suppuration[0]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
             <input type="checkbox" class="suppuration-checkbox" [(ngModel)]="tooth.vestibular.suppuration[1]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
             <input type="checkbox" class="suppuration-checkbox" [(ngModel)]="tooth.vestibular.suppuration[2]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
 
             <div class="grid-row-label">Cálculo</div>
             <input type="checkbox" class="calculus-checkbox" [(ngModel)]="tooth.vestibular.calculus[0]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
             <input type="checkbox" class="calculus-checkbox" [(ngModel)]="tooth.vestibular.calculus[1]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
             <input type="checkbox" class="calculus-checkbox" [(ngModel)]="tooth.vestibular.calculus[2]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
 
             <div class="grid-row-label">MG</div>
             <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.mg[0])" min="-10" max="12" step="1" [value]="tooth.vestibular.mg[0]" data-field="mg" data-site="0"
               (keydown.tab)="onMgTabToMatchingPs($event)"
-              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'mg', 0, $event)" [disabled]="!tooth.present" />
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.id, 'vestibular', 'mg', 0, $event)" [disabled]="!tooth.present" />
             <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.mg[1])" min="-10" max="12" step="1" [value]="tooth.vestibular.mg[1]" data-field="mg" data-site="1"
               (keydown.tab)="onMgTabToMatchingPs($event)"
-              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'mg', 1, $event)" [disabled]="!tooth.present" />
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.id, 'vestibular', 'mg', 1, $event)" [disabled]="!tooth.present" />
             <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.mg[2])" min="-10" max="12" step="1" [value]="tooth.vestibular.mg[2]" data-field="mg" data-site="2"
               (keydown.tab)="onMgTabToMatchingPs($event)"
-              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'mg', 2, $event)" [disabled]="!tooth.present" />
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.id, 'vestibular', 'mg', 2, $event)" [disabled]="!tooth.present" />
 
             <div class="grid-row-label">PS</div>
             <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.probing[0])" min="0" max="12" step="1" [value]="tooth.vestibular.probing[0]" data-field="probing" data-site="0"
               (keydown.tab)="onPerioTabPath($event)"
-              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'probing', 0, $event)" [disabled]="!tooth.present" />
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.id, 'vestibular', 'probing', 0, $event)" [disabled]="!tooth.present" />
             <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.probing[1])" min="0" max="12" step="1" [value]="tooth.vestibular.probing[1]" data-field="probing" data-site="1"
               (keydown.tab)="onPerioTabPath($event)"
-              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'probing', 1, $event)" [disabled]="!tooth.present" />
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.id, 'vestibular', 'probing', 1, $event)" [disabled]="!tooth.present" />
             <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.vestibular.probing[2])" min="0" max="12" step="1" [value]="tooth.vestibular.probing[2]" data-field="probing" data-site="2"
               (keydown.tab)="onPerioTabPath($event)"
-              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.vestibular, 'probing', 2, $event)" [disabled]="!tooth.present" />
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.id, 'vestibular', 'probing', 2, $event)" [disabled]="!tooth.present" />
 
             <div class="grid-row-label">NIC</div>
             <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [ngClass]="perioValueToneClass(nicAt(tooth.vestibular, 0))" [value]="nicAt(tooth.vestibular, 0)" tabindex="-1" readonly disabled aria-label="NIC mesial (PS + MG)" />
@@ -354,7 +354,7 @@
           </div>
 
           <!-- <label class="present-check">
-            <input type="checkbox" [(ngModel)]="tooth.present" />
+            <input type="checkbox" [(ngModel)]="tooth.present" (ngModelChange)="syncPerio()" />
             <span>Presente</span>
           </label> -->
           </div>
@@ -390,59 +390,59 @@
           <div class="perio-grid">
             <div class="grid-row-label">Placa</div>
             <input type="checkbox" class="plaque-checkbox" [(ngModel)]="tooth.lingual.plaque[0]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
             <input type="checkbox" class="plaque-checkbox" [(ngModel)]="tooth.lingual.plaque[1]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
             <input type="checkbox" class="plaque-checkbox" [(ngModel)]="tooth.lingual.plaque[2]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
 
             <div class="grid-row-label">Sangrado</div>
             <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.lingual.bleeding[0]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
             <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.lingual.bleeding[1]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
             <input type="checkbox" class="bleeding-checkbox" [(ngModel)]="tooth.lingual.bleeding[2]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
 
             <div class="grid-row-label">Supuración</div>
             <input type="checkbox" class="suppuration-checkbox" [(ngModel)]="tooth.lingual.suppuration[0]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
             <input type="checkbox" class="suppuration-checkbox" [(ngModel)]="tooth.lingual.suppuration[1]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
             <input type="checkbox" class="suppuration-checkbox" [(ngModel)]="tooth.lingual.suppuration[2]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
 
             <div class="grid-row-label">Cálculo</div>
             <input type="checkbox" class="calculus-checkbox" [(ngModel)]="tooth.lingual.calculus[0]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
             <input type="checkbox" class="calculus-checkbox" [(ngModel)]="tooth.lingual.calculus[1]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
             <input type="checkbox" class="calculus-checkbox" [(ngModel)]="tooth.lingual.calculus[2]"
-              [disabled]="!tooth.present" />
+              (ngModelChange)="syncPerio()" [disabled]="!tooth.present" />
 
             <div class="grid-row-label">MG + PS distal</div>
             <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.mg[0])" min="-10" max="12" step="1" [value]="tooth.lingual.mg[0]" data-field="mg" data-site="0"
               (keydown.tab)="onMgTabToMatchingPs($event)"
-              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'mg', 0, $event)" [disabled]="!tooth.present" />
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.id, 'lingual', 'mg', 0, $event)" [disabled]="!tooth.present" />
               <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.probing[0])" min="0" max="12" step="1" [value]="tooth.lingual.probing[0]" data-field="probing" data-site="0"
                 (keydown.tab)="onPerioTabPath($event)"
-                (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'probing', 0, $event)" [disabled]="!tooth.present" />
+                (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.id, 'lingual', 'probing', 0, $event)" [disabled]="!tooth.present" />
 
             <div class="grid-row-label">MG + PS mesial</div>
             <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.mg[1])" min="-10" max="12" step="1" [value]="tooth.lingual.mg[1]" data-field="mg" data-site="1"
               (keydown.tab)="onMgTabToMatchingPs($event)"
-              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'mg', 1, $event)" [disabled]="!tooth.present" />
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.id, 'lingual', 'mg', 1, $event)" [disabled]="!tooth.present" />
               <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.probing[1])" min="0" max="12" step="1" [value]="tooth.lingual.probing[1]" data-field="probing" data-site="1"
                 (keydown.tab)="onPerioTabPath($event)"
-                (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'probing', 1, $event)" [disabled]="!tooth.present" />
+                (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.id, 'lingual', 'probing', 1, $event)" [disabled]="!tooth.present" />
    
             <div class="grid-row-label">MG + PS central</div>
             <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.mg[2])" min="-10" max="12" step="1" [value]="tooth.lingual.mg[2]" data-field="mg" data-site="2"
               (keydown.tab)="onMgTabToMatchingPs($event)"
-              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'mg', 2, $event)" [disabled]="!tooth.present" />
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.id, 'lingual', 'mg', 2, $event)" [disabled]="!tooth.present" />
             <input class="form-control form-control-sm perio-val" type="number" [ngClass]="perioValueToneClass(tooth.lingual.probing[2])" min="0" max="12" step="1" [value]="tooth.lingual.probing[2]" data-field="probing" data-site="2"
               (keydown.tab)="onPerioTabPath($event)"
-              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.lingual, 'probing', 2, $event)" [disabled]="!tooth.present" />
+              (focus)="onFocusClearIfZero($event)" (blur)="onBlurRestoreZero($event)" (change)="onNumberInput(tooth.id, 'lingual', 'probing', 2, $event)" [disabled]="!tooth.present" />
 
             <div class="grid-row-label">NIC</div>
             <input class="form-control form-control-sm perio-val perio-val--mg" type="number" [ngClass]="perioValueToneClass(nicAt(tooth.lingual, 0))" [value]="nicAt(tooth.lingual, 0)" tabindex="-1" readonly disabled aria-label="NIC mesial (PS + MG)" />

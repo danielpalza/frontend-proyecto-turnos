@@ -1,5 +1,8 @@
 import { Component, Input, Output, EventEmitter, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { OdontogramaStateService } from '../../services/odontograma-state.service';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { OdontogramaPagoDelta } from '../../../../core/models/odontograma.model';
 
 @Component({
   selector: 'app-save-odontograma-dialog',
@@ -12,6 +15,8 @@ export class SaveOdontogramaDialogComponent {
   @Input() open = false;
   @Output() openChange = new EventEmitter<boolean>();
 
+  saving = false;
+
   formData = signal({
     precioBono: '0',
     precioTratamiento: '0',
@@ -21,44 +26,69 @@ export class SaveOdontogramaDialogComponent {
     observacionesProfesional: ''
   });
 
-  close() {
+  constructor(
+    private readonly stateService: OdontogramaStateService,
+    private readonly notification: NotificationService
+  ) {}
+
+  close(): void {
     this.open = false;
     this.openChange.emit(false);
   }
 
-  updateField(key: string, value: string) {
+  updateField(key: string, value: string): void {
     this.formData.update(prev => ({ ...prev, [key]: value }));
   }
 
-  calcularTotal() {
+  calcularTotal(): string {
     const d = this.formData();
-    const total = 
+    const total =
       parseFloat(d.precioBono || '0') +
       parseFloat(d.precioTratamiento || '0') +
       parseFloat(d.extras || '0');
     return total.toFixed(2);
   }
 
-  calcularResto() {
+  calcularResto(): string {
     const d = this.formData();
     const total = parseFloat(this.calcularTotal());
     const pago = parseFloat(d.montoPago || '0');
     return (total - pago).toFixed(2);
   }
 
-  handleSubmit() {
-    console.log('Guardando odontograma:', this.formData());
-    alert('Odontograma guardado exitosamente');
-    this.close();
+  handleSubmit(): void {
+    if (this.saving) {
+      return;
+    }
 
-    this.formData.set({
-      precioBono: '0',
-      precioTratamiento: '0',
-      extras: '0',
-      montoPago: '0',
-      observacionesPago: '',
-      observacionesProfesional: ''
+    const d = this.formData();
+    const pago: OdontogramaPagoDelta = {
+      precioBono: parseFloat(d.precioBono || '0'),
+      precioTratamiento: parseFloat(d.precioTratamiento || '0'),
+      extras: parseFloat(d.extras || '0'),
+      montoPago: parseFloat(d.montoPago || '0'),
+      observaciones: d.observacionesPago || undefined,
+      observacionesTurno: d.observacionesProfesional || undefined
+    };
+
+    this.saving = true;
+    this.stateService.saveOdontogram(pago).subscribe({
+      next: () => {
+        this.notification.showSuccess('Odontograma guardado correctamente');
+        this.saving = false;
+        this.close();
+        this.formData.set({
+          precioBono: '0',
+          precioTratamiento: '0',
+          extras: '0',
+          montoPago: '0',
+          observacionesPago: '',
+          observacionesProfesional: ''
+        });
+      },
+      error: () => {
+        this.saving = false;
+      }
     });
   }
 }
-

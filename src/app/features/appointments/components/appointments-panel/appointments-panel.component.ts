@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { Appointment, AppointmentPartialUpdateDTO, Profesional } from '../../../../core/models';
 import { AppointmentsService } from '../../../../core/services/appointments.service';
 
@@ -18,7 +19,10 @@ export class AppointmentsPanelComponent implements OnChanges {
   @Output() delete = new EventEmitter<number>();
   @Output() addClick = new EventEmitter<void>();
 
-  constructor(private appointmentsService: AppointmentsService) {}
+  constructor(
+    private appointmentsService: AppointmentsService,
+    private router: Router
+  ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     // Limpiar expandedCards cuando cambia la fecha
@@ -442,5 +446,9 @@ export class AppointmentsPanelComponent implements OnChanges {
     this.editingProfesional.set(cardId, false);
     this.profesionalInputs.delete(cardId);
     this.originalProfesionalId.delete(cardId);
+  }
+
+  openOdontogram(appointmentId: number): void {
+    this.router.navigate(['/odontograma', appointmentId]);
   }
 }

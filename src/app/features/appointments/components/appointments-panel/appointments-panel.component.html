@@ -112,6 +112,10 @@
                 {{ getStatusLabel(a.estado) }}
               </span>
               <i class="bi expand-icon" [ngClass]="isCardExpanded(a.id!) ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+              <button type="button" class="btn-delete" title="Odontograma"
+                (click)="openOdontogram(a.id!); $event.stopPropagation()">
+                <i class="bi bi-heart-pulse"></i>
+              </button>
               <button type="button" class="btn-delete" (click)="delete.emit(a.id); $event.stopPropagation()">
                 <i class="bi bi-trash"></i>
               </button>

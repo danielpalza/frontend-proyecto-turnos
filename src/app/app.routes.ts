@@ -27,12 +27,17 @@ export const routes: Routes = [
       )
   },
   {
-    path: 'odontograma',
+    path: 'odontograma/:appointmentId',
     canActivate: [authGuard],
     loadComponent: () =>
       import('./features/odontograma/components/odontograma-view/odontograma-view.component').then(
         m => m.OdontogramaViewComponent
       )
+  },
+  {
+    path: 'odontograma',
+    redirectTo: 'turnos',
+    pathMatch: 'full'
   },
   {
     path: 'seguimiento',

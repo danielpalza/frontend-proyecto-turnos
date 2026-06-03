@@ -2,16 +2,17 @@
  * Diente en vista SVG: cinco caras clicables que ciclan estado clínico
  * (normal → caries → obturación → ausente) y definen color/tamaño del círculo.
  */
-import { Component, Input, signal } from '@angular/core';
-
-type FaceState = 'normal' | 'caries' | 'obturacion' | 'ausente';
+import { Component, Input, OnDestroy, OnInit, signal } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { OdontogramaStateService } from '../../services/odontograma-state.service';
+import { EstadoCara, FaceKey } from '../../../../core/models/odontograma.model';
 
 interface FaceStates {
-  top: FaceState;
-  right: FaceState;
-  center: FaceState;
-  left: FaceState;
-  bottom: FaceState;
+  top: EstadoCara;
+  right: EstadoCara;
+  center: EstadoCara;
+  left: EstadoCara;
+  bottom: EstadoCara;
 }
 
 @Component({
@@ -19,7 +20,7 @@ interface FaceStates {
   standalone: true,
   templateUrl: './tooth-faces.component.html'
 })
-export class ToothFacesComponent {
+export class ToothFacesComponent implements OnInit, OnDestroy {
   @Input() toothNumber!: number;
   @Input() size: 'sm' | 'md' = 'md';
 
@@ -31,32 +32,31 @@ export class ToothFacesComponent {
     bottom: 'normal',
   });
 
-  /** Avanza al siguiente estado clínico de una cara. */
-  cycleState(current: FaceState): FaceState {
-    switch (current) {
-      case 'normal': return 'caries';
-      case 'caries': return 'obturacion';
-      case 'obturacion': return 'ausente';
-      default: return 'normal';
-    }
+  private facesSub?: Subscription;
+
+  constructor(private readonly stateService: OdontogramaStateService) {}
+
+  ngOnInit(): void {
+    this.syncFaces();
+    this.facesSub = this.stateService.faces$.subscribe(() => this.syncFaces());
+  }
+
+  ngOnDestroy(): void {
+    this.facesSub?.unsubscribe();
   }
 
   /** Click en una cara: actualiza su estado sin propagar al diente padre. */
-  handleFaceClick(face: keyof FaceStates, event: MouseEvent) {
+  handleFaceClick(face: keyof FaceStates, event: MouseEvent): void {
     event.stopPropagation();
-
-    this.faces.update(prev => ({
-      ...prev,
-      [face]: this.cycleState(prev[face])
-    }));
+    this.stateService.cycleFace(this.toothNumber, face as FaceKey);
   }
 
   /** Color de relleno SVG según el estado de la cara. */
-  getFaceColor(state: FaceState): string {
+  getFaceColor(state: EstadoCara): string {
     switch (state) {
-      case 'caries': return '#ef4444';   // red-500
-      case 'obturacion': return '#3b82f6'; // blue-500
-      case 'ausente': return '#94a3b8';  // slate-400
+      case 'caries': return '#ef4444';
+      case 'obturacion': return '#3b82f6';
+      case 'ausente': return '#94a3b8';
       default: return '#ffffff';
     }
   }
@@ -70,5 +70,14 @@ export class ToothFacesComponent {
   get strokeWidth() {
     return this.size === 'sm' ? 1.5 : 2;
   }
-}
 
+  private syncFaces(): void {
+    this.faces.set({
+      top: this.stateService.getFaceState(this.toothNumber, 'top'),
+      right: this.stateService.getFaceState(this.toothNumber, 'right'),
+      center: this.stateService.getFaceState(this.toothNumber, 'center'),
+      left: this.stateService.getFaceState(this.toothNumber, 'left'),
+      bottom: this.stateService.getFaceState(this.toothNumber, 'bottom'),
+    });
+  }
+}
