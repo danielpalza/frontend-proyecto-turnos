@@ -52,7 +52,8 @@
           <div class="turn-header" (click)="toggleCard(a.id!, $event)">
             <div class="patient-info">
               <i class="bi bi-person-fill" [ngClass]="hasPendingDebt(a) ? 'text-danger' : 'text-primary'"></i>
-              <strong class="fw-bold" [ngClass]="hasPendingDebt(a) ? 'text-danger' : 'text-primary'">{{ a.patientName }}</strong>
+              <strong class="fw-bold" [ngClass]="hasPendingDebt(a) ? 'text-danger' : 'text-primary'">{{ a.patientName
+                }}</strong>
               <span class="profesional-edit-container">
                 <span *ngIf="!isEditingProfesional(a.id!)">
                   <span class="text-muted"> - </span>
@@ -70,8 +71,8 @@
                       {{ p.nombre }}
                     </option>
                   </select>
-                  <button type="button" class="btn-save-price" (click)="saveProfesional(a.id!); $event.stopPropagation()"
-                    title="Guardar">
+                  <button type="button" class="btn-save-price"
+                    (click)="saveProfesional(a.id!); $event.stopPropagation()" title="Guardar">
                     <i class="bi bi-check-lg"></i>
                   </button>
                   <button type="button" class="btn-cancel-price"
@@ -112,11 +113,11 @@
                 {{ getStatusLabel(a.estado) }}
               </span>
               <i class="bi expand-icon" [ngClass]="isCardExpanded(a.id!) ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
-              <button type="button" class="btn-delete" title="Odontograma"
+              <button type="button" class="btn-start" title="Empezar turno!"
                 (click)="openOdontogram(a.id!); $event.stopPropagation()">
                 <i class="bi bi-heart-pulse"></i>
               </button>
-              <button type="button" class="btn-delete" (click)="delete.emit(a.id); $event.stopPropagation()">
+              <button type="button" class="btn-delete" title="Eliminar turno" (click)="delete.emit(a.id); $event.stopPropagation()">
                 <i class="bi bi-trash"></i>
               </button>
             </div>

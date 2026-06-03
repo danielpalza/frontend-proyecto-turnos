@@ -5,7 +5,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { OdontogramaStateService } from '../../features/odontograma/services/odontograma-state.service';
 import { NotificationService } from '../../core/services/notification.service';
 
-export type ViewType = 'turnos' | 'odontograma' | 'seguimiento' | 'configuraciones';
+export type ViewType = 'panel' | 'turnos' | 'odontograma' | 'seguimiento' | 'configuraciones';
 
 interface NavItem {
   title: string;
@@ -37,6 +37,7 @@ export class NavbarComponent {
 
 
   menuItems: NavItem[] = [
+    { title: 'Panel', icon: 'bi-speedometer2', route: '/panel' },
     { title: 'Turnos', icon: 'bi-calendar', route: '/turnos' },
     { title: 'Odontograma', icon: 'bi-heart-pulse', requiresAppointment: true },
     { title: 'Seguimiento', icon: 'bi-clipboard-data', route: '/seguimiento' },
@@ -67,13 +68,11 @@ export class NavbarComponent {
 
 
     this.notification.showInfo(
-      'Seleccioná un turno en la pantalla Turnos y usá el botón corazón para abrir el odontograma.'
+      'Seleccioná un turno y usá el botón de corazón para abrir el odontograma.'
     );
 
     this.router.navigate(['/turnos']);
   }
-
-
 
   logout(): void {
     this.authService.logout();

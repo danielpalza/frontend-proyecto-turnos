@@ -123,6 +123,20 @@ html.seguimiento-view-active body::-webkit-scrollbar {
   }
 }
 
+.btn-start {
+  background: none;
+  border: none;
+  padding: 6px 10px;
+  border-radius: $radius-sm;
+  color: $success-light;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover {
+    background-color: rgba($success-dark, 0.1);
+  }
+}
+
 // Scrollbar personalizada
 ::-webkit-scrollbar {
   width: 8px;

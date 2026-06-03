@@ -125,3 +125,22 @@
     </div>
   </div>
 </div>
+
+<ul>
+  <li><strong>Logica de panel:</strong></li>
+  <ol>
+    <p><strong>Filtros:</strong></p>
+    <li>Selector de mes: se selecciona con las flechas de izquierda a derecha el mes que se desea ver los datos</li>
+    <li>Selectores desde y hasta: se selecciona con el calendario el rango de fechas que se desea ver los datos en el mes en curso</li>
+    <li>Boton de actualizar: Actualiza los datos sin cambiar el estado de los filtros</li>
+    
+    <p><strong>Números y graficos:</strong></p>
+    <li>Ingersos totales: se obtiene sumando las entradas de la tabla "appointments -> monto_pago" de los turnos realizados en el mes seleccionado</li>
+    <li>Ingresos pendientes: se obtiene con las entradas de la tabla "appointments -> extras + precio_bono + precio_tratamiento - monto_pago" de los turnos pendientes en el mes seleccionado</li>
+    <li>Turnos realizados: se obtiene el conteo de la tabla "appointments -> estado = 'realizado'" de los turnos realizados en el mes seleccionado</li>
+    <li>Turnos cancelados/no asistió: se obtiene el conteo de la tabla "appointments -> estado = 'cancelado' o 'no asistió'" de los turnos cancelados/no asistió en el mes seleccionado</li>
+    <li>Rendimiento de profesionales: se listan todos los profesiones, la cantidad de turnos realizados (estado = 'realizado') y su facturación total</li>
+    <li>Distribucion de ingresos: grafico de dona donde se ve la distribucion de "Ingresos totales" vs "Ingresos pendientes"</li>
+    <li>Estado de turnos: grafico de dona donde se ve la distribucion de turnas con estado 'realizado' vs turnos con estados 'cancelado' o 'no asistió'</li>
+  </ol>
+</ul>

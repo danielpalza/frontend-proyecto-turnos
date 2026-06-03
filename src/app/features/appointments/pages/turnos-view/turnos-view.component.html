@@ -63,11 +63,22 @@
 </div>
 
 
-<!-- <div class="debug-info">
-  <h3>Debug Info</h3>
-  <p>selectedDate: {{ selectedDate }}</p>
-  <p>appointments: {{ appointments.length }}</p>
-  <p>patients: {{ existingPatients.length }}</p>
-  <p>profesionales: {{ activeProfesionales.length }}</p>
-  <p>pendingOnlyFilter: {{ pendingOnlyFilter }}</p>
-</div> -->
+
+<div>
+  <ul>
+    <li>agregar boton "INICIAR TURNO" en "appointments-panel" que redirija a la pestaña de profesional para iniciar el
+      turno</li>
+    <li>Cambiar la logica:</li>
+    <ol>
+      <li>Al cargar la web, el sistema debe usar "/count" de AppointmentController.java para obtener el conteo de turnos
+        por fecha y llenar el calendario con los datos obtenidos. Esto es para no traer todos los turnos de una y cargar
+        el servidor</li>
+      <li>Al utilizar cualquier filtro del calendario se debe usar "/count" de AppointmentController.java para obtener
+        el conteo de turnos por fecha y llenar el calendario con los datos obtenidos. Esto es para no traer todos los
+        turnos de una y cargar el servidor</li>
+      <li>Al hacer click un dia del calendario, el sistema debe usar “/date/fecha“ de AppointmentController.java para
+        obtener los turnos de la fecha seleccionada y llenar el panel de turnos con los datos obtenidos. Esto es para no
+        traer todos los turnos de una y cargar el servidor</li>
+    </ol>
+  </ul>
+</div>
