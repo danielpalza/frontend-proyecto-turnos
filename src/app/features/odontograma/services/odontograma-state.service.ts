@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, forkJoin, map, tap } from 'rxjs';
+import { BehaviorSubject, Observable, forkJoin, map, tap, catchError, finalize, of } from 'rxjs';
 import { OdontogramaService } from '../../../core/services/odontograma.service';
 import { PeriodontogramaService } from '../../../core/services/periodontograma.service';
 import {
@@ -13,6 +13,7 @@ import {
   OdontogramaDeltaRequest,
   OdontogramaEstadoActual,
   OdontogramaPagoDelta,
+  OdontogramaResponse,
   VALOR_TO_LEYENDA_LABEL
 } from '../../../core/models/odontograma.model';
 import {
@@ -20,7 +21,8 @@ import {
   PerioToothMvp,
   PeriodontogramaDeltaRequest,
   PeriodontogramaDienteDelta,
-  PeriodontogramaEstadoActual
+  PeriodontogramaEstadoActual,
+  PeriodontogramaResponse
 } from '../../../core/models/periodontograma.model';
 
 export interface LeyendaItem {
@@ -121,29 +123,38 @@ export class OdontogramaStateService {
   loadForAppointment(appointmentId: number): Observable<void> {
     this.loadingSubject.next(true);
     return forkJoin({
-      odonto: this.odontogramaService.getByAppointment(appointmentId),
-      perio: this.periodontogramaService.getByAppointment(appointmentId)
+      odonto: this.odontogramaService.getByAppointment(appointmentId).pipe(
+        catchError(() => of(this.emptyOdontoResponse(appointmentId)))
+      ),
+      perio: this.periodontogramaService.getByAppointment(appointmentId).pipe(
+        catchError(() => of(this.emptyPerioResponse(appointmentId)))
+      )
     }).pipe(
       tap(({ odonto, perio }) => {
         this.appointmentId = appointmentId;
-        this.patientId = odonto.patientId;
+        this.patientId = odonto.patientId ?? null;
         if (typeof sessionStorage !== 'undefined') {
           sessionStorage.setItem(LAST_APPOINTMENT_KEY, String(appointmentId));
         }
 
-        const mergedOdonto = this.mergeOdontoEstado(odonto.estadoActual, odonto.cambiosTurno);
+        const mergedOdonto = this.mergeOdontoEstado(
+          this.normalizeOdontoEstado(odonto.estadoActual),
+          this.normalizeOdontoEstado(odonto.cambiosTurno)
+        );
         this.baselineOdonto = this.cloneOdontoEstado(mergedOdonto);
         this.applyOdontoState(mergedOdonto);
         this.comentarioSubject.next(odonto.comentario ?? '');
         this.planTratamientoSubject.next(odonto.planTratamiento ?? '');
 
-        const mergedPerio = this.mergePerioEstado(perio.estadoActual, perio.cambiosTurno);
+        const mergedPerio = this.mergePerioEstado(
+          this.normalizePerioEstado(perio.estadoActual),
+          this.normalizePerioEstado(perio.cambiosTurno)
+        );
         this.baselinePerio = this.clonePerioEstado(mergedPerio);
         this.applyPerioState(mergedPerio);
-
-        this.loadingSubject.next(false);
       }),
-      map(() => undefined)
+      map(() => undefined),
+      finalize(() => this.loadingSubject.next(false))
     );
   }
 
@@ -278,6 +289,38 @@ export class OdontogramaStateService {
     const map = new Map<number, PerioToothMvp>();
     PERIO_TOOTH_IDS.forEach(id => map.set(id, this.makeEmptyPerioTooth(id)));
     this.perioTeethSubject.next(map);
+  }
+
+  private normalizeOdontoEstado(estado?: OdontogramaEstadoActual | null): OdontogramaEstadoActual {
+    return {
+      caras: estado?.caras ?? [],
+      leyendas: estado?.leyendas ?? [],
+      dientesEstado: estado?.dientesEstado ?? []
+    };
+  }
+
+  private normalizePerioEstado(estado?: PeriodontogramaEstadoActual | null): PeriodontogramaEstadoActual {
+    return {
+      dientes: estado?.dientes ?? []
+    };
+  }
+
+  private emptyOdontoResponse(appointmentId: number): OdontogramaResponse {
+    return {
+      appointmentId,
+      patientId: 0,
+      estadoActual: { caras: [], leyendas: [], dientesEstado: [] },
+      cambiosTurno: { caras: [], leyendas: [], dientesEstado: [] }
+    };
+  }
+
+  private emptyPerioResponse(appointmentId: number): PeriodontogramaResponse {
+    return {
+      appointmentId,
+      patientId: 0,
+      estadoActual: { dientes: [] },
+      cambiosTurno: { dientes: [] }
+    };
   }
 
   private mergeOdontoEstado(

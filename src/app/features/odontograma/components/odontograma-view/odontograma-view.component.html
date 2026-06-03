@@ -1,55 +1,61 @@
 <div class="odontograma-container">
   <div class="odontograma-content">
-    <div *ngIf="loading" class="text-center py-5">
-      <div class="spinner-border text-primary" role="status"></div>
-      <p class="mt-2 text-muted">Cargando datos clínicos...</p>
-    </div>
-
-    <div *ngIf="loadError" class="alert alert-danger">{{ loadError }}</div>
-
-    <div class="odontograma-grid" *ngIf="!loading && !loadError" [class.odontograma-grid--perio]="activeForm === 'periodontograma'">
-      <div class="odontograma-main-content">
-        <app-odontograma-form [hidden]="activeForm !== 'odontograma'"></app-odontograma-form>
-        <div class="periodontograma-host" [class.periodontograma-host--full]="activeForm === 'periodontograma'">
-          <div class="periodontograma-layout" [hidden]="activeForm !== 'periodontograma'">
-            <app-periodontograma-form></app-periodontograma-form>
-          </div>
-        </div>
-        <div class="comments-row">
-          <app-odontograma-comment-component title="Comentarios del turno"></app-odontograma-comment-component>
-          <app-odontograma-comment-component title="Plan de tratamiento"></app-odontograma-comment-component>
-        </div>
-        <app-odontograma-comment-component title="Comentarios del turno anterior"></app-odontograma-comment-component>
-        <app-odontograma-comment-component title="Historia clinica del paciente"></app-odontograma-comment-component>
+    @if (loading()) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2 text-muted">Cargando datos clínicos...</p>
       </div>
+    }
 
-      <div class="sidebar-right">
-        <div class="navigation-panel">
-          <div class="btn-group w-100" role="group" aria-label="Selector de formulario">
-            <button
-              type="button"
-              class="btn"
-              [ngClass]="activeForm === 'odontograma' ? 'btn-primary' : 'btn-outline-primary'"
-              (click)="setActiveForm('odontograma')"
-            >
-              Odontograma
-            </button>
-            <button
-              type="button"
-              class="btn"
-              [ngClass]="activeForm === 'periodontograma' ? 'btn-primary' : 'btn-outline-primary'"
-              (click)="setActiveForm('periodontograma')"
-            >
-              Periodontograma
-            </button>
+    @if (loadError()) {
+      <div class="alert alert-danger">{{ loadError() }}</div>
+    }
+
+    @if (!loading() && !loadError()) {
+      <div class="odontograma-grid" [class.odontograma-grid--perio]="activeForm === 'periodontograma'">
+        <div class="odontograma-main-content">
+          <app-odontograma-form [hidden]="activeForm !== 'odontograma'"></app-odontograma-form>
+          <div class="periodontograma-host" [class.periodontograma-host--full]="activeForm === 'periodontograma'">
+            <div class="periodontograma-layout" [hidden]="activeForm !== 'periodontograma'">
+              <app-periodontograma-form></app-periodontograma-form>
+            </div>
           </div>
+          <div class="comments-row">
+            <app-odontograma-comment-component title="Comentarios del turno"></app-odontograma-comment-component>
+            <app-odontograma-comment-component title="Plan de tratamiento"></app-odontograma-comment-component>
+          </div>
+          <app-odontograma-comment-component title="Comentarios del turno anterior"></app-odontograma-comment-component>
+          <app-odontograma-comment-component title="Historia clinica del paciente"></app-odontograma-comment-component>
         </div>
 
-        <div [hidden]="activeForm === 'periodontograma'">
-          <app-odontograma-leyend></app-odontograma-leyend>
+        <div class="sidebar-right">
+          <div class="navigation-panel">
+            <div class="btn-group w-100" role="group" aria-label="Selector de formulario">
+              <button
+                type="button"
+                class="btn"
+                [ngClass]="activeForm === 'odontograma' ? 'btn-primary' : 'btn-outline-primary'"
+                (click)="setActiveForm('odontograma')"
+              >
+                Odontograma
+              </button>
+              <button
+                type="button"
+                class="btn"
+                [ngClass]="activeForm === 'periodontograma' ? 'btn-primary' : 'btn-outline-primary'"
+                (click)="setActiveForm('periodontograma')"
+              >
+                Periodontograma
+              </button>
+            </div>
+          </div>
+
+          <div [hidden]="activeForm === 'periodontograma'">
+            <app-odontograma-leyend></app-odontograma-leyend>
+          </div>
+          <app-odontograma-actions [activeForm]="activeForm"></app-odontograma-actions>
         </div>
-        <app-odontograma-actions [activeForm]="activeForm"></app-odontograma-actions>
       </div>
-    </div>
+    }
   </div>
 </div>

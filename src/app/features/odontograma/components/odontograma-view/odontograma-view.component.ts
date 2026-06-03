@@ -2,10 +2,11 @@
  * Contenedor principal del módulo dental: alterna odontograma / periodontograma
  * y agrupa leyenda, formulario, acciones y comentarios.
  */
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { catchError, distinctUntilChanged, finalize, map, of, switchMap } from 'rxjs';
 import { OdontogramaActionsComponent } from '../odontograma-actions/odontograma-actions.component';
 import { OdontogramaLeyendComponent } from '../odontograma-leyend/odontograma-leyend.component';
 import { OdontogramaFormComponent } from '../odontograma-form/odontograma-form.component';
@@ -29,12 +30,12 @@ type DentalFormMode = 'odontograma' | 'periodontograma';
   templateUrl: './odontograma-view.component.html',
   styleUrls: ['./odontograma-view.component.scss']
 })
-export class OdontogramaViewComponent implements OnInit, OnDestroy {
+export class OdontogramaViewComponent implements OnInit {
   activeForm: DentalFormMode = 'odontograma';
-  loading = true;
-  loadError: string | null = null;
+  readonly loading = signal(true);
+  readonly loadError = signal<string | null>(null);
 
-  private routeSub?: Subscription;
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -43,31 +44,32 @@ export class OdontogramaViewComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.routeSub = this.route.paramMap.subscribe(params => {
-      const idParam = params.get('appointmentId');
-      const appointmentId = idParam ? Number(idParam) : NaN;
+    this.route.paramMap.pipe(
+      map(params => params.get('appointmentId')),
+      distinctUntilChanged(),
+      switchMap(idParam => {
+        const appointmentId = idParam ? Number(idParam) : NaN;
 
-      if (!idParam || Number.isNaN(appointmentId)) {
-        this.router.navigate(['/turnos']);
-        return;
-      }
-
-      this.loading = true;
-      this.loadError = null;
-      this.stateService.loadForAppointment(appointmentId).subscribe({
-        next: () => {
-          this.loading = false;
-        },
-        error: () => {
-          this.loading = false;
-          this.loadError = 'No se pudieron cargar los datos clínicos del turno.';
+        if (!idParam || Number.isNaN(appointmentId)) {
+          this.router.navigate(['/turnos']);
+          return of(null);
         }
-      });
-    });
-  }
 
-  ngOnDestroy(): void {
-    this.routeSub?.unsubscribe();
+        this.loading.set(true);
+        this.loadError.set(null);
+
+        return this.stateService.loadForAppointment(appointmentId).pipe(
+          catchError(() => {
+            this.loadError.set('No se pudieron cargar los datos clínicos del turno.');
+            return of(undefined);
+          }),
+          finalize(() => {
+            this.loading.set(false);
+          })
+        );
+      }),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe();
   }
 
   setActiveForm(mode: DentalFormMode): void {
