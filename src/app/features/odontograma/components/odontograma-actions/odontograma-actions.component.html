@@ -1,4 +1,4 @@
-<div class="card shadow-sm">
+<div class="card shadow-sm" data-testid="odontogram-actions-panel">
   <div class="card-body">
 
     <h5 class="card-title mb-4">
@@ -8,6 +8,7 @@
     <button
       class="btn btn-action btn-print w-100 mb-3"
       (click)="handlePrint()"
+      data-testid="odontogram-print-btn"
     >
       <i class="bi bi-printer me-2"></i>
       <span>Imprimir</span>
@@ -17,6 +18,7 @@
       class="btn btn-action btn-save w-100 mb-4"
       (click)="openSaveDialog()"
       [disabled]="savingPerio"
+      data-testid="odontogram-save-btn"
     >
       <i class="bi bi-floppy me-2"></i>
       <span>{{ savingPerio ? 'Guardando...' : saveLabel }}</span>

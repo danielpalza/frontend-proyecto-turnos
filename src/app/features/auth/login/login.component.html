@@ -1,5 +1,5 @@
-<div class="login-container">
-  <div class="login-card fade-in">
+<div class="login-container" data-testid="login-page">
+  <div class="login-card fade-in" data-testid="login-card">
     <div class="login-header">
       <h1 class="login-title">OdontoLite</h1>
       <p class="login-subtitle">
@@ -37,7 +37,7 @@
     }
 
     @if (errorMessage) {
-      <div class="alert alert-danger d-flex align-items-center" role="alert">
+      <div class="alert alert-danger d-flex align-items-center" role="alert" data-testid="login-error">
         <i class="bi bi-exclamation-triangle-fill me-2"></i>
         {{ errorMessage }}
       </div>
@@ -45,7 +45,7 @@
 
     <!-- ====== LOGIN ====== -->
     @if (isLoginMode) {
-      <form (ngSubmit)="onLogin()" class="login-form">
+      <form (ngSubmit)="onLogin()" class="login-form" data-testid="login-form">
         <div class="form-group">
           <label for="username" class="form-label">Usuario o email</label>
           <div class="input-wrapper">
@@ -58,6 +58,7 @@
               [(ngModel)]="loginData.username"
               name="username"
               [disabled]="loading"
+              data-testid="login-username-input"
             />
           </div>
         </div>
@@ -74,11 +75,12 @@
               [(ngModel)]="loginData.password"
               name="password"
               [disabled]="loading"
+              data-testid="login-password-input"
             />
           </div>
         </div>
 
-        <button type="submit" class="btn btn-login" [disabled]="loading">
+        <button type="submit" class="btn btn-login" [disabled]="loading" data-testid="login-submit-btn">
           @if (loading) {
             <span class="spinner-border spinner-border-sm me-2"></span>
           }
@@ -91,11 +93,12 @@
 
       <!-- Step 1: Selección de rol -->
       @if (registerStep === 'role') {
-        <div class="role-selection">
+        <div class="role-selection" data-testid="register-role-selection">
           <div
             class="role-card"
             [class.selected]="selectedRole === 'PROFESIONAL'"
             (click)="selectRole('PROFESIONAL')"
+            data-testid="register-role-profesional-card"
           >
             <div class="role-icon">
               <i class="bi bi-heart-pulse"></i>
@@ -108,6 +111,7 @@
             class="role-card"
             [class.selected]="selectedRole === 'RECEPCIONISTA'"
             (click)="selectRole('RECEPCIONISTA')"
+            data-testid="register-role-recepcionista-card"
           >
             <div class="role-icon">
               <i class="bi bi-clipboard-check"></i>
@@ -117,14 +121,14 @@
           </div>
         </div>
 
-        <button class="btn btn-login" (click)="nextStep()" [disabled]="!selectedRole">
+        <button class="btn btn-login" (click)="nextStep()" [disabled]="!selectedRole" data-testid="register-next-btn">
           Siguiente
         </button>
       }
 
       <!-- Step 2: Datos personales -->
       @if (registerStep === 'details') {
-        <div class="login-form">
+        <div class="login-form" data-testid="register-details-form">
           <div class="form-group">
             <label for="nombre" class="form-label">Nombre completo *</label>
             <div class="input-wrapper">
@@ -139,6 +143,7 @@
                 (ngModelChange)="onFieldInput('nombre')"
                 name="nombre"
                 maxlength="100"
+                data-testid="register-name-input"
               />
             </div>
             @if (fieldErrors['nombre']) {
@@ -160,6 +165,7 @@
                 (ngModelChange)="onFieldInput('dni')"
                 name="dni"
                 maxlength="8"
+                data-testid="register-dni-input"
               />
             </div>
             @if (fieldErrors['dni']) {
@@ -181,6 +187,7 @@
                 (ngModelChange)="onFieldInput('telefono')"
                 name="telefono"
                 maxlength="20"
+                data-testid="register-phone-input"
               />
             </div>
             @if (fieldErrors['telefono']) {
@@ -204,6 +211,7 @@
                   (ngModelChange)="onFieldInput('especialidad')"
                   name="especialidad"
                   maxlength="100"
+                  data-testid="register-specialty-input"
                 />
               </div>
               @if (fieldErrors['especialidad']) {
@@ -225,6 +233,7 @@
                   (ngModelChange)="onFieldInput('matricula')"
                   name="matricula"
                   maxlength="50"
+                  data-testid="register-license-input"
                 />
               </div>
               @if (fieldErrors['matricula']) {
@@ -247,6 +256,7 @@
                   [(ngModel)]="registerData.direccion"
                   name="direccion"
                   maxlength="200"
+                  data-testid="register-address-input"
                 />
               </div>
             </div>
@@ -265,6 +275,7 @@
                   (ngModelChange)="onFieldInput('localidad')"
                   name="localidad"
                   maxlength="100"
+                  data-testid="register-city-input"
                 />
               </div>
               @if (fieldErrors['localidad']) {
@@ -274,10 +285,10 @@
           }
 
           <div class="btn-group-wizard">
-            <button class="btn btn-outline" (click)="prevStep()">
+            <button class="btn btn-outline" (click)="prevStep()" data-testid="register-back-btn">
               <i class="bi bi-arrow-left me-1"></i> Volver
             </button>
-            <button class="btn btn-login" (click)="nextStep()">
+            <button class="btn btn-login" (click)="nextStep()" data-testid="register-next-btn">
               Siguiente
             </button>
           </div>
@@ -286,7 +297,7 @@
 
       <!-- Step 3: Datos de la cuenta -->
       @if (registerStep === 'account') {
-        <form (ngSubmit)="onRegister()" class="login-form">
+        <form (ngSubmit)="onRegister()" class="login-form" data-testid="register-account-form">
           <div class="form-group">
             <label for="reg-username" class="form-label">Usuario *</label>
             <div class="input-wrapper">
@@ -302,6 +313,7 @@
                 name="username"
                 [disabled]="loading"
                 maxlength="30"
+                data-testid="register-username-input"
               />
             </div>
             @if (fieldErrors['username']) {
@@ -323,6 +335,7 @@
                 (ngModelChange)="onFieldInput('email')"
                 name="email"
                 [disabled]="loading"
+                data-testid="register-email-input"
               />
             </div>
             @if (fieldErrors['email']) {
@@ -344,6 +357,7 @@
                 (ngModelChange)="onFieldInput('password')"
                 name="password"
                 [disabled]="loading"
+                data-testid="register-password-input"
               />
             </div>
             @if (fieldErrors['password']) {
@@ -365,6 +379,7 @@
                 (ngModelChange)="onFieldInput('confirmPassword')"
                 name="confirmPassword"
                 [disabled]="loading"
+                data-testid="register-confirm-password-input"
               />
             </div>
             @if (fieldErrors['confirmPassword']) {
@@ -373,10 +388,10 @@
           </div>
 
           <div class="btn-group-wizard">
-            <button type="button" class="btn btn-outline" (click)="prevStep()" [disabled]="loading">
+            <button type="button" class="btn btn-outline" (click)="prevStep()" [disabled]="loading" data-testid="register-back-btn">
               <i class="bi bi-arrow-left me-1"></i> Volver
             </button>
-            <button type="submit" class="btn btn-login" [disabled]="loading">
+            <button type="submit" class="btn btn-login" [disabled]="loading" data-testid="register-submit-btn">
               @if (loading) {
                 <span class="spinner-border spinner-border-sm me-2"></span>
               }
@@ -390,7 +405,7 @@
     <div class="login-footer">
       <p>
         {{ isLoginMode ? '¿No tenés cuenta?' : '¿Ya tenés cuenta?' }}
-        <a class="toggle-link" (click)="toggleMode()">
+        <a class="toggle-link" (click)="toggleMode()" data-testid="login-toggle-mode-link">
           {{ isLoginMode ? 'Crear una' : 'Iniciar sesión' }}
         </a>
       </p>

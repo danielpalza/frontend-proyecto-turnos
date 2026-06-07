@@ -1,5 +1,5 @@
 @if (showSearch) {
-  <section class="mb-4">
+  <section class="mb-4" data-testid="patient-search-section">
     <h6 class="mb-3 text-primary">
       <i class="bi bi-search me-2"></i>Buscar Paciente Existente
     </h6>
@@ -17,7 +17,7 @@
       />
     </div>
     @if (selectedPatient) {
-      <div class="alert alert-success mt-2 py-2">
+      <div class="alert alert-success mt-2 py-2" data-testid="patient-selected-alert">
         <i class="bi bi-check-circle me-2"></i>Paciente seleccionado:
         <strong>{{ selectedPatient.nombreApellido }}</strong>
       </div>
@@ -31,24 +31,24 @@
 }
 
 <!-- Datos Personales -->
-<section class="mb-4">
+<section class="mb-4" data-testid="patient-personal-section">
   <h6 class="mb-3 text-primary"><i class="bi bi-person me-2"></i>Datos Personales</h6>
   <div class="row g-3" [formGroup]="form">
     <div class="col-12 col-md-6">
       <label class="form-label">Nombre y Apellido *</label>
-      <input class="form-control" type="text" formControlName="nombreApellido" />
+      <input class="form-control" type="text" formControlName="nombreApellido" data-testid="patient-name-input" />
     </div>
     <div class="col-12 col-sm-6 col-md-3">
       <label class="form-label">Fecha de Nacimiento</label>
-      <input class="form-control" type="date" formControlName="fechaNacimiento" />
+      <input class="form-control" type="date" formControlName="fechaNacimiento" data-testid="patient-birthdate-input" />
     </div>
     <div class="col-12 col-sm-6 col-md-3">
       <label class="form-label">Edad</label>
-      <input class="form-control bg-light" type="number" formControlName="edad" readonly />
+      <input class="form-control bg-light" type="number" formControlName="edad" readonly data-testid="patient-age-input" />
     </div>
     <div class="col-12 col-md-4">
       <label class="form-label">DNI *</label>
-      <input class="form-control" type="text" formControlName="dni" />
+      <input class="form-control" type="text" formControlName="dni" data-testid="patient-dni-input" />
     </div>
     <div class="col-12 col-md-4">
       <label class="form-label">Teléfono *</label>
@@ -57,6 +57,7 @@
         type="tel"
         formControlName="telefono"
         [class.is-invalid]="form.get('telefono')?.invalid && form.get('telefono')?.touched"
+        data-testid="patient-phone-input"
       />
       @if (form.get('telefono')?.invalid && form.get('telefono')?.touched) {
         <div class="invalid-feedback d-block">
@@ -76,6 +77,7 @@
         type="email"
         formControlName="email"
         [class.is-invalid]="form.get('email')?.invalid && form.get('email')?.touched"
+        data-testid="patient-email-input"
       />
       @if (form.get('email')?.invalid && form.get('email')?.touched) {
         <div class="invalid-feedback d-block">
@@ -90,21 +92,21 @@
     </div>
     <div class="col-12 col-md-6">
       <label class="form-label">Domicilio *</label>
-      <input class="form-control" type="text" formControlName="domicilio" />
+      <input class="form-control" type="text" formControlName="domicilio" data-testid="patient-address-input" />
     </div>
     <div class="col-12 col-md-6">
       <label class="form-label">Localidad *</label>
-      <input class="form-control" type="text" formControlName="localidad" />
+      <input class="form-control" type="text" formControlName="localidad" data-testid="patient-city-input" />
     </div>
     <div class="col-12 col-md-6">
       <label class="form-label">Contacto de Emergencia</label>
-      <input class="form-control" type="text" formControlName="contactoEmergencia" />
+      <input class="form-control" type="text" formControlName="contactoEmergencia" data-testid="patient-emergency-contact-input" />
     </div>
   </div>
 </section>
 
 <!-- Antecedentes médicos -->
-<section class="mb-4">
+<section class="mb-4" data-testid="patient-medical-section">
   <h6 class="mb-3 text-primary"><i class="bi bi-person me-2"></i>Antecedentes médicos</h6>
   <div class="row g-3" [formGroup]="form">
     <div class="col-12 col-md-6">
@@ -139,12 +141,12 @@
 </section>
 
 <!-- Obra social -->
-<section class="mb-4">
+<section class="mb-4" data-testid="patient-coverage-section">
   <h6 class="mb-3 text-primary"><i class="bi bi-shield-check me-2"></i>Cobertura</h6>
   <div class="row g-3" [formGroup]="form">
     <div class="col-12 col-md-6 col-lg-4">
       <label class="form-label">Obra Social *</label>
-      <select class="form-select" formControlName="obraSocialNombre">
+      <select class="form-select" formControlName="obraSocialNombre" data-testid="patient-insurance-select">
         <option value="">Seleccione...</option>
         @for (os of OBRAS_SOCIALES; track os) {
           <option [value]="os">{{ os }}</option>
@@ -197,7 +199,7 @@
 
 @if (showAppointmentDetails) {
   <!-- Datos del Turno -->
-  <section class="mb-4">
+  <section class="mb-4" data-testid="patient-appointment-section">
     <h6 class="mb-3 text-primary">
       <i class="bi bi-calendar-event me-2"></i>Datos del Turno
     </h6>
@@ -208,6 +210,7 @@
           class="form-select"
           formControlName="profesionalId"
           [disabled]="profesionales.length === 0"
+          data-testid="patient-profesional-select"
         >
           <option value="">Sin asignar</option>
           @if (profesionales.length === 0) {
@@ -226,6 +229,7 @@
           type="time"
           formControlName="hora"
           [class.is-invalid]="availabilityError !== null"
+          data-testid="patient-time-input"
         />
         @if (isCheckingAvailability) {
           <div class="form-text text-info">
@@ -245,6 +249,7 @@
           rows="2"
           formControlName="observacionesTurno"
           placeholder="Motivo de la consulta, indicaciones especiales, etc."
+          data-testid="patient-appointment-notes-input"
         ></textarea>
       </div>
     </div>
@@ -253,14 +258,14 @@
 
 @if (showPaymentDetails) {
   <!-- Detalles de Pago -->
-  <section class="mb-4">
+  <section class="mb-4" data-testid="patient-payment-section">
     <h6 class="mb-3 text-primary">
       <i class="bi bi-cash-coin me-2"></i>Detalles de Pago
     </h6>
     <div class="row g-3" [formGroup]="form">
       <div class="col-12 col-sm-6 col-md-3">
         <label class="form-label">Precio de Bono</label>
-        <input class="form-control" type="number" formControlName="precioBono" step="0.01" />
+        <input class="form-control" type="number" formControlName="precioBono" step="0.01" data-testid="patient-bono-input" />
       </div>
       <div class="col-12 col-sm-6 col-md-3">
         <label class="form-label">Precio Tratamiento</label>
@@ -269,15 +274,16 @@
           type="number"
           formControlName="precioTratamiento"
           step="0.01"
+          data-testid="patient-treatment-input"
         />
       </div>
       <div class="col-12 col-sm-6 col-md-3">
         <label class="form-label">Extras</label>
-        <input class="form-control" type="number" formControlName="extras" step="0.01" />
+        <input class="form-control" type="number" formControlName="extras" step="0.01" data-testid="patient-extras-input" />
       </div>
       <div class="col-12 col-sm-6 col-md-3">
         <label class="form-label">Monto Pagado</label>
-        <input class="form-control" type="number" formControlName="montoPago" step="0.01" />
+        <input class="form-control" type="number" formControlName="montoPago" step="0.01" data-testid="patient-payment-input" />
       </div>
       <div class="col-12">
         <div class="p-3 bg-light rounded border">
@@ -294,7 +300,7 @@
       </div>
       <div class="col-12">
         <label class="form-label">Observaciones de pago</label>
-        <textarea class="form-control" rows="2" formControlName="observaciones"></textarea>
+        <textarea class="form-control" rows="2" formControlName="observaciones" data-testid="patient-payment-notes-input"></textarea>
       </div>
     </div>
   </section>

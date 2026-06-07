@@ -1,7 +1,7 @@
-<div class="turnos-view">
+<div class="turnos-view" data-testid="turnos-page">
   <!-- Mensaje de error general -->
   @if (hasError && errorMessage) {
-  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+  <div class="alert alert-danger alert-dismissible fade show" role="alert" data-testid="turnos-error">
     <i class="bi bi-exclamation-triangle-fill me-2"></i>
     <strong>Error:</strong> {{ errorMessage }}
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"
@@ -11,7 +11,7 @@
 
   <!-- Indicadores de carga -->
   @if (isLoadingAppointments || isLoadingPatients || isLoadingProfesionales) {
-  <div class="alert alert-info" role="alert">
+  <div class="alert alert-info" role="alert" data-testid="turnos-loading">
     <div class="spinner-border spinner-border-sm me-2" role="status">
       <span class="visually-hidden">Cargando...</span>
     </div>
@@ -21,7 +21,7 @@
 
   <div class="main-layout">
     <!-- Calendario -->
-    <div class="calendar-section">
+    <div class="calendar-section" data-testid="turnos-calendar-section">
       <app-month-calendar
         [currentDate]="currentDate"
         [selectedDate]="selectedDate"
@@ -38,7 +38,7 @@
     </div>
 
     <!-- Panel de turnos -->
-    <div class="panel-section">
+    <div class="panel-section" data-testid="turnos-panel-section">
       <app-appointments-panel [date]="selectedDate"
         [appointments]="selectedDate ? getAppointmentsForDate(selectedDate) : []"
         [profesionales]="activeProfesionales"

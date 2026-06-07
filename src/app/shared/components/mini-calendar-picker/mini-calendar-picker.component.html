@@ -1,4 +1,4 @@
-<div class="mini-calendar-picker">
+<div class="mini-calendar-picker" data-testid="mini-calendar-picker">
   <button
     type="button"
     class="picker-trigger"
@@ -6,12 +6,13 @@
     [attr.aria-expanded]="isOpen"
     [attr.aria-haspopup]="true"
     (click)="toggleOpen()"
+    [attr.data-testid]="(inputId || 'mini-calendar') + '-trigger'"
   >
     <span class="picker-value">{{ getDisplayLabel() }}</span>
     <i class="bi bi-calendar3 picker-icon"></i>
   </button>
 
-  <div *ngIf="isOpen" class="picker-dropdown" role="dialog" aria-label="Seleccionar fecha">
+  <div *ngIf="isOpen" class="picker-dropdown" role="dialog" aria-label="Seleccionar fecha" [attr.data-testid]="(inputId || 'mini-calendar') + '-dropdown'">
     <div class="picker-month-label">{{ getMonthLabel() }}</div>
 
     <div class="picker-weekdays">
@@ -31,6 +32,7 @@
           [class.disabled]="day.isDisabled"
           [disabled]="day.isDisabled"
           (click)="onDaySelect(day)"
+          [attr.data-testid]="(inputId || 'mini-calendar') + '-day-' + day.dateStr"
         >
           {{ day.day }}
         </button>

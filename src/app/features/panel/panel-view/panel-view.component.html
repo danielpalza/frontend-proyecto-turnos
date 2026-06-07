@@ -1,4 +1,4 @@
-<div class="panel-container">
+<div class="panel-container" data-testid="dashboard-page">
   <div class="container-fluid px-4">
     <div class="panel-header mb-4">
       <div class="panel-header-left">
@@ -10,13 +10,13 @@
 
       <div class="panel-header-right">
         <div class="month-navigation">
-          <button type="button" class="nav-arrow" (click)="previousMonth()">
+          <button type="button" class="nav-arrow" (click)="previousMonth()" data-testid="dashboard-prev-month-btn">
             <i class="bi bi-chevron-left"></i>
           </button>
-          <button type="button" class="month-selector">
+          <button type="button" class="month-selector" data-testid="dashboard-month-label">
             {{ getMonthName() }} {{ currentDate.getFullYear() }}
           </button>
-          <button type="button" class="nav-arrow" (click)="nextMonth()">
+          <button type="button" class="nav-arrow" (click)="nextMonth()" data-testid="dashboard-next-month-btn">
             <i class="bi bi-chevron-right"></i>
           </button>
         </div>
@@ -45,7 +45,7 @@
           </div>
         </div>
 
-        <button type="button" class="btn btn-outline-primary btn-sm" (click)="refresh()">
+        <button type="button" class="btn btn-outline-primary btn-sm" (click)="refresh()" data-testid="dashboard-refresh-btn">
           <i class="bi bi-arrow-clockwise me-1"></i>
           Actualizar
         </button>
@@ -54,7 +54,7 @@
 
     <div class="row g-4">
       <div class="col-lg-7">
-        <section class="panel-section mb-4">
+        <section class="panel-section mb-4" data-testid="dashboard-summary-panel">
           <h2 class="section-title">Resumen general</h2>
           <div class="row g-3">
             <div class="col-sm-6">
@@ -84,7 +84,7 @@
           </div>
         </section>
 
-        <section class="panel-section">
+        <section class="panel-section" data-testid="dashboard-profesionales-panel">
           <h2 class="section-title">Rendimiento de profesionales</h2>
           <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
@@ -108,14 +108,14 @@
       </div>
 
       <div class="col-lg-5">
-        <section class="panel-section mb-4">
+        <section class="panel-section mb-4" data-testid="dashboard-income-chart-panel">
           <h2 class="section-title">Distribución de ingresos</h2>
           <div class="chart-placeholder">
             <p class="text-muted mb-0">Gráfico donut — pendiente</p>
           </div>
         </section>
 
-        <section class="panel-section">
+        <section class="panel-section" data-testid="dashboard-appointments-chart-panel">
           <h2 class="section-title">Estado de turnos</h2>
           <div class="chart-placeholder">
             <p class="text-muted mb-0">Gráfico donut — pendiente</p>

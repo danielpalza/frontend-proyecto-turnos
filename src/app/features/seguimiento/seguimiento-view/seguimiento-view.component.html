@@ -1,4 +1,4 @@
-<div class="seguimiento-container">
+<div class="seguimiento-container" data-testid="tracking-page">
   <div class="container-fluid px-4">
     <div class="row g-4">
       <!-- Columna principal: Lista de pacientes -->
@@ -15,7 +15,7 @@
         <div class="mb-4 position-relative search-container">
           <i class="bi bi-search position-absolute top-50 translate-middle-y ms-3 text-muted"></i>
           <input type="text" class="form-control ps-5" placeholder="Buscar por nombre, DNI o email..."
-            [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" />
+            [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" data-testid="tracking-search-input" />
         </div>
 
         <!-- Sin resultados -->
@@ -29,8 +29,8 @@
         </div>
 
         <!-- Lista de pacientes -->
-        <div class="patients-list" *ngIf="patientGroups.length > 0">
-          <div *ngFor="let group of patientGroups" class="card shadow-sm patient-card mb-4">
+        <div class="patients-list" *ngIf="patientGroups.length > 0" data-testid="tracking-patients-list">
+          <div *ngFor="let group of patientGroups" class="card shadow-sm patient-card mb-4" [attr.data-testid]="'tracking-patient-card-' + group.patient.patientDni">
             <div class="card-header bg-white">
               <div class="d-flex align-items-center gap-3">
                 <div class="avatar">
@@ -44,7 +44,7 @@
                       {{ formatCurrency(group.totalAdeudado) }}
                     </span>
                     <button type="button" class="btn btn-sm btn-outline-primary ms-auto"
-                      title="Editar datos del paciente" (click)="editPatientFromGroup(group)">
+                      title="Editar datos del paciente" (click)="editPatientFromGroup(group)" [attr.data-testid]="'tracking-patient-edit-btn-' + group.patient.patientDni">
                       <i class="bi bi-pencil"></i> Editar
                     </button>
                   </div>
@@ -70,7 +70,7 @@
                 <div *ngFor="let app of group.appointments" class="appointment-badge"
                   [ngClass]="'appointment-' + getAppointmentColor(app)" (click)="openTurnModal(app)" role="button"
                   tabindex="0" (keydown.enter)="openTurnModal(app)"
-                  (keydown.space)="openTurnModal(app); $event.preventDefault()">
+                  (keydown.space)="openTurnModal(app); $event.preventDefault()" [attr.data-testid]="'tracking-appointment-item-' + app.id">
                   <span class="appointment-date">{{ formatDate(app.fecha) }}</span>
                   <span class="appointment-amount" *ngIf="app.totalPrecio && app.totalPrecio > 0">
                     {{ formatCurrency(app.totalPrecio) }}
@@ -84,7 +84,7 @@
 
       <!-- Columna derecha: Formulario Paciente -->
       <div class="col-lg-4">
-        <div class="patient-form-panel">
+        <div class="patient-form-panel" data-testid="tracking-patient-form-panel">
           <div class="patient-form-header mb-3">
             <h2 class="fw-bold mb-0">
               <i class="bi bi-person-plus me-2 text-primary"></i>Paciente
@@ -99,11 +99,11 @@
               [selectedPatient]="selectedPatientForForm" (patientSelect)="onPatientFormSelect($event)"
               (clearPatient)="onClearPatientForm()" />
             <div class="d-flex gap-1 mt-3 mb-5">
-              <button type="button" class="btn btn-outline-secondary" (click)="onClearPatientForm()">
+              <button type="button" class="btn btn-outline-secondary" (click)="onClearPatientForm()" data-testid="tracking-patient-clear-btn">
                 <i class="bi bi-trash"></i> Limpiar formulario
               </button>
               <button type="button" class="btn btn-primary flex-grow-1" (click)="savePatient()"
-                [disabled]="patientForm.invalid || isSavingPatient">
+                [disabled]="patientForm.invalid || isSavingPatient" data-testid="tracking-patient-save-btn">
                 <span *ngIf="isSavingPatient" class="spinner-border spinner-border-sm me-1"></span>
                 {{ isSavingPatient ? 'Guardando...' : 'Guardar' }}
               </button>
@@ -115,14 +115,14 @@
   </div>
 
   <!-- Modal Pago y observaciones del turno -->
-  <div class="modal fade show d-block" tabindex="-1" role="dialog" *ngIf="showTurnModal && selectedAppointment">
+  <div class="modal fade show d-block" tabindex="-1" role="dialog" *ngIf="showTurnModal && selectedAppointment" data-testid="tracking-turn-dialog">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content turn-modal-content">
         <div class="modal-header">
           <h5 class="modal-title">
             <i class="bi bi-cash-coin me-2 text-primary"></i>Pago y observaciones
           </h5>
-          <button type="button" class="btn-close" aria-label="Cerrar" (click)="closeTurnModal()"></button>
+          <button type="button" class="btn-close" aria-label="Cerrar" (click)="closeTurnModal()" data-testid="tracking-turn-close-btn"></button>
         </div>
         <div class="modal-body">
           <div class="turn-modal-context mb-3">
@@ -228,9 +228,9 @@
               <label class="mb-0">Monto:</label>
               <input type="number" class="form-control payment-input-inline" placeholder="0" min="0.01" step="0.01"
                 [value]="getTurnModalPaymentInput()"
-                (input)="updateTurnModalPaymentInput(+$any($event.target).value)" />
+                (input)="updateTurnModalPaymentInput(+$any($event.target).value)" data-testid="tracking-turn-payment-input" />
               <button type="button" class="btn btn-primary btn-sm" (click)="onTurnModalAddPayment()"
-                [disabled]="isAddingPayment">
+                [disabled]="isAddingPayment" data-testid="tracking-turn-add-payment-btn">
                 {{ isAddingPayment ? 'Agregando...' : 'Agregar' }}
               </button>
               <label class="mb-0 d-flex align-items-center gap-1 payment-total-label">
@@ -305,7 +305,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-outline-secondary" (click)="closeTurnModal()">Cerrar</button>
+          <button type="button" class="btn btn-outline-secondary" (click)="closeTurnModal()" data-testid="tracking-turn-dismiss-btn">Cerrar</button>
         </div>
       </div>
     </div>

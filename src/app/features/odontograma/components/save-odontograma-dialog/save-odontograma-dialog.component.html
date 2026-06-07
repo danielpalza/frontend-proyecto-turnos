@@ -1,4 +1,4 @@
-<div class="modal fade show d-block" *ngIf="open">
+<div class="modal fade show d-block" *ngIf="open" data-testid="odontogram-save-dialog">
   <div class="modal-backdrop fade show" (click)="close()"></div>
 
   <div class="modal-dialog modal-xl">
@@ -9,7 +9,7 @@
         <h5 class="modal-title">
           <i class="bi bi-floppy me-2"></i>Guardar Odontograma
         </h5>
-        <button type="button" class="btn-close" (click)="close()"></button>
+        <button type="button" class="btn-close" (click)="close()" data-testid="odontogram-save-close-btn"></button>
       </div>
 
       <!-- Body -->
@@ -29,14 +29,16 @@
                 <label class="form-label">Precio de Bono</label>
                 <input type="number" class="form-control"
                   [value]="formData().precioBono"
-                  (input)="updateField('precioBono', $any($event.target).value)">
+                  (input)="updateField('precioBono', $any($event.target).value)"
+                  data-testid="odontogram-save-bono-input">
               </div>
 
               <div class="mb-3">
                 <label class="form-label">Precio de Tratamiento</label>
                 <input type="number" class="form-control"
                   [value]="formData().precioTratamiento"
-                  (input)="updateField('precioTratamiento', $any($event.target).value)">
+                  (input)="updateField('precioTratamiento', $any($event.target).value)"
+                  data-testid="odontogram-save-treatment-input">
               </div>
 
               <div class="mb-3">
@@ -50,7 +52,8 @@
                 <label class="form-label">Monto de Pago del Cliente</label>
                 <input type="number" class="form-control"
                   [value]="formData().montoPago"
-                  (input)="updateField('montoPago', $any($event.target).value)">
+                  (input)="updateField('montoPago', $any($event.target).value)"
+                  data-testid="odontogram-save-payment-input">
               </div>
 
               <!-- Totales -->
@@ -146,11 +149,11 @@
 
           <!-- Footer -->
           <div class="modal-footer mt-4 pt-3 border-top">
-            <button type="button" class="btn btn-outline-secondary flex-fill" (click)="close()">
+            <button type="button" class="btn btn-outline-secondary flex-fill" (click)="close()" data-testid="odontogram-save-cancel-btn">
               <i class="bi bi-x-lg me-2"></i>Cancelar
             </button>
 
-            <button type="submit" class="btn btn-primary flex-fill">
+            <button type="submit" class="btn btn-primary flex-fill" data-testid="odontogram-save-confirm-btn">
               <i class="bi bi-check-lg me-2"></i>Guardar Odontograma
             </button>
           </div>

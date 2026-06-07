@@ -1,11 +1,11 @@
-<div id="odontograma-print" class="card shadow-sm">
+<div id="odontograma-print" class="card shadow-sm" data-testid="odontogram-form-panel">
   <div class="card-body">
     <div class="teeth-section">
       <section>
         <p class="section-title text-primary"></p>
         <div class="teeth-container">
           <div class="teeth-group">
-            <div *ngFor="let tooth of permanentTeeth.topRight" class="tooth-item" [class.selected]="isToothSelected(tooth)"
+            <div *ngFor="let tooth of permanentTeeth.topRight" class="tooth-item" [attr.data-testid]="'odontogram-tooth-' + tooth" [class.selected]="isToothSelected(tooth)"
               (click)="selectTooth(tooth)">
               <div class="tooth-icons-top">
                 <i *ngIf="getMovilidadIconForTooth(tooth) as m" [ngClass]="m.icono" [title]="m.label"></i>
@@ -22,7 +22,7 @@
           <div class="divider-line"></div>
 
           <div class="teeth-group">
-            <div *ngFor="let tooth of permanentTeeth.topLeft" class="tooth-item" [class.selected]="isToothSelected(tooth)"
+            <div *ngFor="let tooth of permanentTeeth.topLeft" class="tooth-item" [attr.data-testid]="'odontogram-tooth-' + tooth" [class.selected]="isToothSelected(tooth)"
               (click)="selectTooth(tooth)">
               <div class="tooth-icons-top">
                 <i *ngIf="getMovilidadIconForTooth(tooth) as m" [ngClass]="m.icono" [title]="m.label"></i>
@@ -41,7 +41,7 @@
       <section>
         <div class="teeth-container">
           <div class="teeth-group">
-            <div *ngFor="let tooth of primaryTeeth.topRight" class="tooth-item" [class.selected]="isToothSelected(tooth)"
+            <div *ngFor="let tooth of primaryTeeth.topRight" class="tooth-item" [attr.data-testid]="'odontogram-tooth-' + tooth" [class.selected]="isToothSelected(tooth)"
               (click)="selectTooth(tooth)">
               <div class="tooth-icons-top">
                 <i *ngIf="getMovilidadIconForTooth(tooth) as m" [ngClass]="m.icono" [title]="m.label"></i>
@@ -58,7 +58,7 @@
           <div class="divider-line"></div>
 
           <div class="teeth-group">
-            <div *ngFor="let tooth of primaryTeeth.topLeft" class="tooth-item" [class.selected]="isToothSelected(tooth)"
+            <div *ngFor="let tooth of primaryTeeth.topLeft" class="tooth-item" [attr.data-testid]="'odontogram-tooth-' + tooth" [class.selected]="isToothSelected(tooth)"
               (click)="selectTooth(tooth)">
               <div class="tooth-icons-top">
                 <i *ngIf="getMovilidadIconForTooth(tooth) as m" [ngClass]="m.icono" [title]="m.label"></i>
@@ -77,7 +77,7 @@
       <section>
         <div class="teeth-container">
           <div class="teeth-group">
-            <div *ngFor="let tooth of primaryTeeth.bottomRight" class="tooth-item" [class.selected]="isToothSelected(tooth)"
+            <div *ngFor="let tooth of primaryTeeth.bottomRight" class="tooth-item" [attr.data-testid]="'odontogram-tooth-' + tooth" [class.selected]="isToothSelected(tooth)"
             (click)="selectTooth(tooth)">
             <div class="tooth-icons-top">
               <i *ngIf="getMovilidadIconForTooth(tooth) as m" [ngClass]="m.icono" [title]="m.label"></i>
@@ -94,7 +94,7 @@
           <div class="divider-line"></div>
 
           <div class="teeth-group">
-            <div *ngFor="let tooth of primaryTeeth.bottomLeft" class="tooth-item" [class.selected]="isToothSelected(tooth)"
+            <div *ngFor="let tooth of primaryTeeth.bottomLeft" class="tooth-item" [attr.data-testid]="'odontogram-tooth-' + tooth" [class.selected]="isToothSelected(tooth)"
               (click)="selectTooth(tooth)">
               <div class="tooth-icons-top">
                 <i *ngIf="getMovilidadIconForTooth(tooth) as m" [ngClass]="m.icono" [title]="m.label"></i>
@@ -113,7 +113,7 @@
       <section>
         <div class="teeth-container">
           <div class="teeth-group">
-            <div *ngFor="let tooth of permanentTeeth.bottomRight" class="tooth-item" [class.selected]="isToothSelected(tooth)"
+            <div *ngFor="let tooth of permanentTeeth.bottomRight" class="tooth-item" [attr.data-testid]="'odontogram-tooth-' + tooth" [class.selected]="isToothSelected(tooth)"
               (click)="selectTooth(tooth)">
               <div class="tooth-icons-top">
                 <i *ngIf="getMovilidadIconForTooth(tooth) as m" [ngClass]="m.icono" [title]="m.label"></i>
@@ -130,7 +130,7 @@
           <div class="divider-line"></div>
 
           <div class="teeth-group">
-            <div *ngFor="let tooth of permanentTeeth.bottomLeft" class="tooth-item" [class.selected]="isToothSelected(tooth)"
+            <div *ngFor="let tooth of permanentTeeth.bottomLeft" class="tooth-item" [attr.data-testid]="'odontogram-tooth-' + tooth" [class.selected]="isToothSelected(tooth)"
               (click)="selectTooth(tooth)">
               <div class="tooth-icons-top">
                 <i *ngIf="getMovilidadIconForTooth(tooth) as m" [ngClass]="m.icono" [title]="m.label"></i>

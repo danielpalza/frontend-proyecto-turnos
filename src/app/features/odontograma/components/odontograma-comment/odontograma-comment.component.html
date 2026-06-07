@@ -1,4 +1,4 @@
-<div class="odontograma-comment">
+<div class="odontograma-comment" [attr.data-testid]="title === 'Comentarios del turno' ? 'odontogram-comment-turn-panel' : title === 'Plan de tratamiento' ? 'odontogram-treatment-plan-panel' : title === 'Comentarios del turno anterior' ? 'odontogram-comment-previous-panel' : 'odontogram-clinical-history-panel'">
   <p class="odontograma-comment__title">{{ title }}</p>
   <textarea
     class="odontograma-comment__textarea"
@@ -6,5 +6,6 @@
     [readonly]="!isEditable"
     [(ngModel)]="value"
     (ngModelChange)="onValueChange($event)"
+    [attr.data-testid]="title === 'Comentarios del turno' ? 'odontogram-comment-turn-input' : title === 'Plan de tratamiento' ? 'odontogram-treatment-plan-input' : title === 'Comentarios del turno anterior' ? 'odontogram-comment-previous-input' : 'odontogram-clinical-history-input'"
   ></textarea>
 </div>

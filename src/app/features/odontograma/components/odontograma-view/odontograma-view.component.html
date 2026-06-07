@@ -1,14 +1,14 @@
-<div class="odontograma-container">
+<div class="odontograma-container" data-testid="odontogram-page">
   <div class="odontograma-content">
     @if (loading()) {
-      <div class="text-center py-5">
+      <div class="text-center py-5" data-testid="odontogram-loading">
         <div class="spinner-border text-primary" role="status"></div>
         <p class="mt-2 text-muted">Cargando datos clínicos...</p>
       </div>
     }
 
     @if (loadError()) {
-      <div class="alert alert-danger">{{ loadError() }}</div>
+      <div class="alert alert-danger" data-testid="odontogram-error">{{ loadError() }}</div>
     }
 
     @if (!loading() && !loadError()) {
@@ -36,6 +36,7 @@
                 class="btn"
                 [ngClass]="activeForm === 'odontograma' ? 'btn-primary' : 'btn-outline-primary'"
                 (click)="setActiveForm('odontograma')"
+                data-testid="odontogram-tab-btn"
               >
                 Odontograma
               </button>
@@ -44,6 +45,7 @@
                 class="btn"
                 [ngClass]="activeForm === 'periodontograma' ? 'btn-primary' : 'btn-outline-primary'"
                 (click)="setActiveForm('periodontograma')"
+                data-testid="periodontogram-tab-btn"
               >
                 Periodontograma
               </button>

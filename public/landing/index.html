@@ -17,7 +17,7 @@
   </head>
   <body>
     <!-- NAVBAR -->
-    <nav class="navbar">
+    <nav class="navbar" data-testid="landing-navbar">
       <div class="container nav-content">
         <a href="#" style="text-decoration: none; color: inherit">
           <div class="logo">
@@ -30,24 +30,24 @@
           </div>
         </a>
 
-        <div class="nav-links">
-          <a href="#features">Features</a>
-          <a href="#workflow">Workflow</a>
+        <div class="nav-links" data-testid="landing-nav-links">
+          <a href="#features" data-testid="landing-nav-features-link">Features</a>
+          <a href="#workflow" data-testid="landing-nav-workflow-link">Workflow</a>
           <!-- <a href="#clientes">Clientes</a> -->
           <!-- DESCOMENTAR CUANDO TENGAMOS TESTIMONIOS -->
-          <a href="#contacto">Contacto</a>
+          <a href="#contacto" data-testid="landing-nav-contact-link">Contacto</a>
         </div>
 
-        <div class="nav-actions">
-          <button class="btn btn-secondary">Iniciar sesión</button>
+        <div class="nav-actions" data-testid="landing-nav-actions">
+          <button class="btn btn-secondary" data-testid="landing-login-btn">Iniciar sesión</button>
 
-          <button class="btn btn-primary">Solicitar demo</button>
+          <button class="btn btn-primary" data-testid="landing-demo-btn">Solicitar demo</button>
         </div>
       </div>
     </nav>
 
     <!-- HERO -->
-    <section class="hero" id="landing">
+    <section class="hero" id="landing" data-testid="landing-hero-section">
       <div class="hero-bg"></div>
 
       <div class="container hero-content">
@@ -64,15 +64,15 @@
             tu clínica y enfocate en lo más importante: tus pacientes/clientes.
           </p>
 
-          <div class="hero-buttons">
+          <div class="hero-buttons" data-testid="landing-hero-buttons">
             <a href="#contacto">
-              <button class="btn btn-primary">
+              <button class="btn btn-primary" data-testid="landing-hero-demo-btn">
                 Solicitar demo
                 <i class="fa-solid fa-arrow-right"></i>
               </button>
             </a>
 
-            <button class="btn btn-outline btn-whatsapp">
+            <button class="btn btn-outline btn-whatsapp" data-testid="landing-hero-whatsapp-btn">
               <i class="fa-brands fa-whatsapp"></i>
               Hablar por WhatsApp
             </button>
@@ -105,7 +105,7 @@
     </section>
 
     <!-- FEATURES -->
-    <section class="features section" id="features">
+    <section class="features section" id="features" data-testid="landing-features-section">
       <div class="container">
         <div class="section-header">
           <span class="section-badge">Features</span>
@@ -116,8 +116,8 @@
         </div>
 
         <div class="features-layout">
-          <div class="features-menu">
-            <button class="feature-btn active" data-feature="agenda">
+          <div class="features-menu" data-testid="landing-features-menu">
+            <button class="feature-btn active" data-feature="agenda" data-testid="landing-feature-agenda-btn">
               <span class="feature-icon feature-icon--agenda" aria-hidden="true"></span>
               <div class="feature-btn-content">
                 <span class="feature-btn-title">Agenda inteligente</span>
@@ -125,7 +125,7 @@
               </div>
             </button>
 
-            <button class="feature-btn" data-feature="historial">
+            <button class="feature-btn" data-feature="historial" data-testid="landing-feature-historial-btn">
               <span class="feature-icon feature-icon--historial" aria-hidden="true"></span>
               <div class="feature-btn-content">
                 <span class="feature-btn-title">Historias clínicas</span>
@@ -133,7 +133,7 @@
               </div>
             </button>
 
-            <button class="feature-btn" data-feature="odontograma">
+            <button class="feature-btn" data-feature="odontograma" data-testid="landing-feature-odontograma-btn">
               <span class="feature-icon feature-icon--odontograma" aria-hidden="true"></span>
               <div class="feature-btn-content">
                 <span class="feature-btn-title">Odontograma</span>
@@ -141,7 +141,7 @@
               </div>
             </button>
 
-            <button class="feature-btn" data-feature="finanzas">
+            <button class="feature-btn" data-feature="finanzas" data-testid="landing-feature-finanzas-btn">
               <span class="feature-icon feature-icon--finanzas" aria-hidden="true"></span>
               <div class="feature-btn-content">
                 <span class="feature-btn-title">Finanzas</span>
@@ -149,7 +149,7 @@
               </div>
             </button>
 
-            <button class="feature-btn" data-feature="whatsapp">
+            <button class="feature-btn" data-feature="whatsapp" data-testid="landing-feature-comunicacion-btn">
               <span class="feature-icon feature-icon--comunicacion" aria-hidden="true"></span>
               <div class="feature-btn-content">
                 <span class="feature-btn-title">Comunicación</span>
@@ -184,7 +184,7 @@
     </section>
 
     <!-- WORKFLOW -->
-    <section class="workflow section" id="workflow">
+    <section class="workflow section" id="workflow" data-testid="landing-workflow-section">
       <div class="container">
         <div class="section-header">
           <span class="section-badge"> Workflow </span>
@@ -327,7 +327,7 @@
     </section> -->
 
     <!-- CONTACTO -->
-    <section class="contact section" id="contacto">
+    <section class="contact section" id="contacto" data-testid="landing-contact-section">
       <div class="container contact-layout">
         <div class="contact-info">
           <span class="section-badge"> Contacto </span>
@@ -372,28 +372,28 @@
           </div>
         </div>
 
-        <form class="contact-form">
+        <form class="contact-form" data-testid="landing-contact-form">
           <div class="input-group">
-            <input type="text" placeholder="Nombre completo" />
+            <input type="text" placeholder="Nombre completo" data-testid="landing-contact-name-input" />
           </div>
 
           <div class="input-group">
-            <input type="text" placeholder="Nombre de tu clínica" />
+            <input type="text" placeholder="Nombre de tu clínica" data-testid="landing-contact-clinic-input" />
           </div>
 
           <div class="input-group">
-            <input type="text" placeholder="Tu número de telefono (te contactamos por whatsapp)" />
+            <input type="text" placeholder="Tu número de telefono (te contactamos por whatsapp)" data-testid="landing-contact-phone-input" />
           </div>
 
           <div class="input-group">
-            <input type="email" placeholder="Email" />
+            <input type="email" placeholder="Email" data-testid="landing-contact-email-input" />
           </div>
 
           <div class="input-group">
-            <textarea placeholder="¿En qué podemos ayudarte?"></textarea>
+            <textarea placeholder="¿En qué podemos ayudarte?" data-testid="landing-contact-message-input"></textarea>
           </div>
 
-          <button class="btn btn-primary full-width">
+          <button class="btn btn-primary full-width" data-testid="landing-contact-submit-btn">
             Solicitar demo
             <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
           </button>
@@ -417,7 +417,7 @@
     </section>
 
     <!-- PREGUNTAS FRECUENTES -->
-    <section class="faq section" id="faq">
+    <section class="faq section" id="faq" data-testid="landing-faq-section">
       <div class="container">
         <div class="section-header">
           <span class="section-badge">FAQ</span>
@@ -590,7 +590,7 @@
     </section>
 
     <!-- FOOTER -->
-    <footer class="footer">
+    <footer class="footer" data-testid="landing-footer">
       <div class="container footer-content">
         <div class="footer-brand">
           <div class="footer-brand-header">

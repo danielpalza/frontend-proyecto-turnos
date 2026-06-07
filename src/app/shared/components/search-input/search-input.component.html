@@ -1,4 +1,4 @@
-<div class="search-input-wrapper">
+<div class="search-input-wrapper" data-testid="search-input-wrapper">
   <div class="d-flex align-items-center gap-3">
     <!-- Checkbox saldo pendiente (solo si showPendingOnlyFilter es true) -->
     <div *ngIf="showPendingOnlyFilter" class="form-check">
@@ -8,6 +8,7 @@
         id="pendingOnlyFilter"
         [checked]="pendingOnly"
         (change)="onPendingOnlyChange($event)"
+        data-testid="search-pending-checkbox"
       />
       <label class="form-check-label" for="pendingOnlyFilter">
         Con saldo pendiente
@@ -27,6 +28,7 @@
           (focus)="onFocus($event)"
           (blur)="onBlur()"
           [value]="searchTerm"
+          data-testid="search-input"
         />
         <button
           *ngIf="searchTerm && !showIcon"
@@ -35,6 +37,7 @@
           style="right: 0.25rem; top: 50%; transform: translateY(-50%); border: none; background: transparent; padding: 0.25rem 0.5rem; z-index: 10;"
           (mousedown)="onClear(); $event.preventDefault()"
           (click)="onClear()"
+          data-testid="search-clear-btn"
         >
           <i class="bi bi-x-lg text-muted"></i>
         </button>
@@ -44,6 +47,7 @@
           class="btn btn-outline-secondary"
           (mousedown)="onClear(); $event.preventDefault()"
           (click)="onClear()"
+          data-testid="search-clear-btn"
         >
           <i class="bi bi-x-lg"></i>
         </button>
@@ -54,6 +58,7 @@
         class="position-absolute w-100 bg-white border rounded shadow-sm mt-1"
         style="z-index: 1000; max-height: 200px; overflow-y: auto"
         *ngIf="showDropdown && getFilteredResults().length > 0"
+        data-testid="search-dropdown"
       >
         <!-- Pacientes -->
         <ng-container *ngIf="filteredPatients.length > 0">
@@ -63,6 +68,7 @@
             *ngFor="let patient of filteredPatients"
             (mousedown)="onItemSelect({ type: 'patient', item: patient }); $event.preventDefault()"
             (click)="onItemSelect({ type: 'patient', item: patient })"
+            [attr.data-testid]="'search-item-patient-' + patient.id"
           >
             <div class="fw-semibold">{{ patient.nombreApellido }}</div>
             <small class="text-muted">
@@ -79,6 +85,7 @@
             *ngFor="let prof of filteredProfesionales"
             (mousedown)="onItemSelect({ type: 'profesional', item: prof }); $event.preventDefault()"
             (click)="onItemSelect({ type: 'profesional', item: prof })"
+            [attr.data-testid]="'search-item-profesional-' + prof.id"
           >
             <div class="fw-semibold">{{ prof.nombre }}</div>
             <small class="text-muted" *ngIf="prof.especialidad">

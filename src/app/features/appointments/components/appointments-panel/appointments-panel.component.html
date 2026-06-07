@@ -1,6 +1,6 @@
-<div class="sidebar-container">
+<div class="sidebar-container" data-testid="appointments-panel">
   <!-- Estado: Sin día seleccionado -->
-  <div class="empty-state" *ngIf="!date">
+  <div class="empty-state" *ngIf="!date" data-testid="appointments-empty-state">
     <div class="icon-wrapper">
       <i class="bi bi-calendar3"></i>
     </div>
@@ -11,7 +11,7 @@
   </div>
 
   <!-- Estado: Día seleccionado -->
-  <div class="selected-state" *ngIf="date">
+  <div class="selected-state" *ngIf="date" data-testid="appointments-selected-state">
     <div class="header-container">
       <div class="date-header">
         <div class="date-icon">
@@ -25,7 +25,7 @@
           <span class="date-year">{{ getFormattedDay(date).year }}</span>
         </div>
       </div>
-      <button class="btn-add-turn" *ngIf="appointmentsCount > 0" (click)="addClick.emit()">
+      <button class="btn-add-turn" *ngIf="appointmentsCount > 0" (click)="addClick.emit()" data-testid="appointment-add-btn">
         <i class="bi bi-plus-lg"></i>
         <span>Agregar turno</span>
       </button>
@@ -40,16 +40,16 @@
       </h4>
 
       <!-- Sin turnos -->
-      <div class="no-turns" *ngIf="appointmentsCount === 0">
+      <div class="no-turns" *ngIf="appointmentsCount === 0" data-testid="appointments-no-turns">
         <i class="bi bi-inbox"></i>
         <p>No hay turnos programados</p>
         <small>Haga clic en "Agregar Turno" para crear uno</small>
       </div>
 
       <!-- Lista de turnos -->
-      <div class="turns-list" *ngIf="appointmentsCount > 0">
-        <div class="turn-card" *ngFor="let a of displayAppointments">
-          <div class="turn-header" (click)="toggleCard(a.id!, $event)">
+      <div class="turns-list" *ngIf="appointmentsCount > 0" data-testid="appointments-list">
+        <div class="turn-card" *ngFor="let a of displayAppointments" [attr.data-testid]="'appointment-item-' + a.id">
+          <div class="turn-header" (click)="toggleCard(a.id!, $event)" [attr.data-testid]="'appointment-item-header-' + a.id">
             <div class="patient-info">
               <i class="bi bi-person-fill" [ngClass]="hasPendingDebt(a) ? 'text-danger' : 'text-primary'"></i>
               <strong class="fw-bold" [ngClass]="hasPendingDebt(a) ? 'text-danger' : 'text-primary'">{{ a.patientName
@@ -62,7 +62,7 @@
                   </strong>
                 </span>
                 <span *ngIf="isEditingProfesional(a.id!)" class="d-inline-flex align-items-center gap-1">
-                  <select class="profesional-select" [value]="(getProfesionalInput(a.id!) ?? '') + ''"
+                  <select class="profesional-select" [attr.data-testid]="'appointment-profesional-select-' + a.id" [value]="(getProfesionalInput(a.id!) ?? '') + ''"
                     (change)="updateProfesionalInput(a.id!, $any($event.target).value)"
                     (keyup.escape)="cancelProfesionalEdit(a.id!); $event.stopPropagation()"
                     (click)="$event.stopPropagation()">
@@ -90,7 +90,7 @@
                   <span class="text-muted small" *ngIf="!a.hora">Sin hora</span>
                 </span>
                 <span *ngIf="isEditingHora(a.id!)" class="d-inline-flex align-items-center gap-1">
-                  <input type="time" class="hora-edit-input" [value]="getHoraInput(a.id!)"
+                  <input type="time" class="hora-edit-input" [attr.data-testid]="'appointment-time-input-' + a.id" [value]="getHoraInput(a.id!)"
                     (input)="updateHoraInput(a.id!, $any($event.target).value)"
                     (keyup.escape)="cancelHoraEdit(a.id!); $event.stopPropagation()"
                     (click)="$event.stopPropagation()" />
@@ -114,10 +114,10 @@
               </span>
               <i class="bi expand-icon" [ngClass]="isCardExpanded(a.id!) ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
               <button type="button" class="btn-start" title="Empezar turno!"
-                (click)="openOdontogram(a.id!); $event.stopPropagation()">
+                (click)="openOdontogram(a.id!); $event.stopPropagation()" [attr.data-testid]="'appointment-start-btn-' + a.id">
                 <i class="bi bi-heart-pulse"></i>
               </button>
-              <button type="button" class="btn-delete" title="Eliminar turno" (click)="delete.emit(a.id); $event.stopPropagation()">
+              <button type="button" class="btn-delete" title="Eliminar turno" (click)="delete.emit(a.id); $event.stopPropagation()" [attr.data-testid]="'appointment-delete-btn-' + a.id">
                 <i class="bi bi-trash"></i>
               </button>
             </div>
@@ -217,10 +217,10 @@
             <!-- Editar Pago -->
             <div class="add-payment-section">
               <label class="payment-label">Pago:</label>
-              <input type="number" class="payment-input" [value]="getPaymentInput(a.id!)"
+              <input type="number" class="payment-input" [attr.data-testid]="'appointment-payment-input-' + a.id" [value]="getPaymentInput(a.id!)"
                 (input)="updatePaymentInput(a.id!, +$any($event.target).value)" placeholder="0" min="0.01"
                 step="0.01" />
-              <button type="button" class="btn-add-payment" (click)="onAddPayment(a.id!); $event.stopPropagation()">
+              <button type="button" class="btn-add-payment" (click)="onAddPayment(a.id!); $event.stopPropagation()" [attr.data-testid]="'appointment-add-payment-btn-' + a.id">
                 Agregar
               </button>
               <label class="payment-total-checkbox ms-2" (click)="$event.stopPropagation()">
@@ -300,7 +300,7 @@
       </div>
     </div>
 
-    <button class="btn-add-turn" *ngIf="appointmentsCount === 0" (click)="addClick.emit()">
+    <button class="btn-add-turn" *ngIf="appointmentsCount === 0" (click)="addClick.emit()" data-testid="appointment-add-btn">
       <i class="bi bi-plus-lg"></i>
       <span>Agregar turno</span>
     </button>

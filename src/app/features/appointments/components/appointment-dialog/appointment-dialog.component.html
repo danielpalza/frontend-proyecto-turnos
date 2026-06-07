@@ -1,4 +1,4 @@
-<div class="modal fade show d-block" *ngIf="open">
+<div class="modal fade show d-block" *ngIf="open" data-testid="appointment-dialog">
   <div class="modal-backdrop fade show" (click)="close()"></div>
 
   <div class="modal-dialog modal-xl modal-dialog-scrollable">
@@ -6,10 +6,10 @@
       <div class="modal-header">
         <h5 class="modal-title">Nueva Cita</h5>
         <small class="text-muted ms-2">{{ formatDisplayDate(selectedDate) }}</small>
-        <button type="button" class="btn-close" (click)="close()" [disabled]="isLoading"></button>
+        <button type="button" class="btn-close" (click)="close()" [disabled]="isLoading" data-testid="appointment-close-btn"></button>
       </div>
 
-      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" data-testid="appointment-form">
         <div class="modal-body">
           <app-patient-form
             [form]="form"
@@ -33,13 +33,15 @@
             class="btn btn-outline-secondary"
             (click)="close()"
             [disabled]="isLoading"
+            data-testid="appointment-cancel-btn"
           >
             Cancelar
           </button>
           <button 
             type="submit" 
             class="btn btn-primary" 
-            [disabled]="form.invalid || isLoading || isCheckingAvailability || availabilityError !== null">
+            [disabled]="form.invalid || isLoading || isCheckingAvailability || availabilityError !== null"
+            data-testid="appointment-save-btn">
             <span *ngIf="isLoading || isCheckingAvailability" class="spinner-border spinner-border-sm me-2"></span>
             {{ isLoading ? 'Guardando...' : (isCheckingAvailability ? 'Verificando...' : 'Guardar Cita') }}
           </button>

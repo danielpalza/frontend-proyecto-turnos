@@ -1,5 +1,5 @@
-<nav class="navbar-container">
-  <div class="nav-tabs">
+<nav class="navbar-container" data-testid="navbar">
+  <div class="nav-tabs" data-testid="navbar-tabs">
     <a
       *ngFor="let item of menuItems"
       class="nav-tab"
@@ -8,13 +8,14 @@
       [class.active]="item.requiresAppointment && isOdontogramaActive()"
       (click)="onNavClick(item, $event)"
       [attr.href]="item.requiresAppointment ? null : item.route"
+      [attr.data-testid]="'navbar-tab-' + (item.route ? item.route.slice(1) : 'odontograma')"
     >
       <i class="bi" [ngClass]="item.icon"></i>
       <span>{{ item.title }}</span>
     </a>
   </div>
 
-  <button class="btn-logout" (click)="logout()" title="Cerrar sesión">
+  <button class="btn-logout" (click)="logout()" title="Cerrar sesión" data-testid="navbar-logout-btn">
     <i class="bi bi-box-arrow-right"></i>
     <span>Salir</span>
   </button>

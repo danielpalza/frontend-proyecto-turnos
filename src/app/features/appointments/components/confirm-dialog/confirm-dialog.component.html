@@ -6,6 +6,7 @@
     aria-modal="true"
     [attr.aria-labelledby]="dialogId + 'Title'"
     (click)="$event.stopPropagation()"
+    data-testid="confirm-dialog"
   >
     <div class="d-flex align-items-start justify-content-between gap-3">
       <div>
@@ -27,6 +28,7 @@
         aria-label="Cerrar"
         (click)="onCloseClick()"
         [disabled]="isLoading"
+        data-testid="confirm-dialog-close-btn"
       ></button>
     </div>
 
@@ -36,6 +38,7 @@
         class="btn btn-outline-secondary"
         (click)="onCancelClick()"
         [disabled]="isLoading"
+        data-testid="confirm-dialog-cancel-btn"
       >
         {{ cancelText }}
       </button>
@@ -45,6 +48,7 @@
         [class]="'btn ' + confirmButtonClass"
         (click)="onConfirmClick()"
         [disabled]="isLoading"
+        data-testid="confirm-dialog-confirm-btn"
       >
         @if (isLoading) {
         <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>

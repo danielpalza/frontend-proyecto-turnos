@@ -1,4 +1,4 @@
-<div class="card shadow-sm">
+<div class="card shadow-sm" data-testid="periodontogram-panel">
   <div class="card-body">
     <!-- <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
       <h5 class="mb-0">Periodontograma (MVP)</h5>
@@ -9,11 +9,11 @@
       <span class="arc-toggle-wrap__balance" aria-hidden="true"></span>
       <div class="arc-toggle" role="tablist" aria-label="Elegir arcada">
         <button type="button" class="arc-toggle__btn" role="tab" [attr.aria-selected]="activeArc === 'upper'"
-          [class.arc-toggle__btn--active]="activeArc === 'upper'" (click)="activeArc = 'upper'">
+          [class.arc-toggle__btn--active]="activeArc === 'upper'" (click)="activeArc = 'upper'" data-testid="periodontogram-upper-arc-btn">
           Arcada superior
         </button>
         <button type="button" class="arc-toggle__btn" role="tab" [attr.aria-selected]="activeArc === 'lower'"
-          [class.arc-toggle__btn--active]="activeArc === 'lower'" (click)="activeArc = 'lower'">
+          [class.arc-toggle__btn--active]="activeArc === 'lower'" (click)="activeArc = 'lower'" data-testid="periodontogram-lower-arc-btn">
           Arcada inferior
         </button>
       </div>
@@ -52,7 +52,7 @@
     <div class="mb-4" *ngIf="activeArc === 'upper'">
       <p class="arc-face-title">Vestibular</p>
       <div class="teeth-row">
-        <div class="tooth-column" *ngFor="let tooth of upperTeeth; let isFirstTooth = first; let i = index">
+        <div class="tooth-column" *ngFor="let tooth of upperTeeth; let isFirstTooth = first; let i = index" [attr.data-testid]="'periodontogram-tooth-' + tooth.id">
           <app-perio-tooth-sparkline
             [zeroAtBottom]="true"
             [showAxisLabels]="isFirstTooth"
@@ -161,7 +161,7 @@
 
       <p class="arc-face-title">Lingual</p>
       <div class="teeth-row">
-        <div class="tooth-column" *ngFor="let tooth of upperTeeth; let isFirstTooth = first; let i = index">
+        <div class="tooth-column" *ngFor="let tooth of upperTeeth; let isFirstTooth = first; let i = index" [attr.data-testid]="'periodontogram-tooth-' + tooth.id">
           <app-perio-tooth-sparkline
             [zeroAtBottom]="true"
             [showAxisLabels]="isFirstTooth"
@@ -247,7 +247,7 @@
     <div class="mb-4" *ngIf="activeArc === 'lower'">
       <p class="arc-face-title">Vestibular</p>
       <div class="teeth-row">
-        <div class="tooth-column" *ngFor="let tooth of lowerTeeth; let isFirstTooth = first; let i = index">
+        <div class="tooth-column" *ngFor="let tooth of lowerTeeth; let isFirstTooth = first; let i = index" [attr.data-testid]="'periodontogram-tooth-' + tooth.id">
           <app-perio-tooth-sparkline
             [showAxisLabels]="isFirstTooth"
             [probing]="tooth.vestibular.probing"
@@ -363,7 +363,7 @@
 
       <p class="arc-face-title">Lingual</p>
       <div class="teeth-row">
-        <div class="tooth-column" *ngFor="let tooth of lowerTeeth; let isFirstTooth = first; let i = index">
+        <div class="tooth-column" *ngFor="let tooth of lowerTeeth; let isFirstTooth = first; let i = index" [attr.data-testid]="'periodontogram-tooth-' + tooth.id">
           <app-perio-tooth-sparkline
             [showAxisLabels]="isFirstTooth"
             [probing]="tooth.lingual.probing"

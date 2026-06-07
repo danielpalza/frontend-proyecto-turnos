@@ -1,4 +1,4 @@
-<div class="card shadow-sm mb-3">
+<div class="card shadow-sm mb-3" data-testid="odontogram-legend-panel">
   <div class="card-body p-0">
     <div class="dropdown w-100">
       <button
@@ -6,6 +6,7 @@
         class="btn btn-light dropdown-toggle w-100 d-flex align-items-center justify-content-between rounded-0 border-0 py-3 px-3 text-start shadow-none"
         id="leyenda-dropdown"
         (click)="legendOpen = !legendOpen"
+        data-testid="odontogram-legend-toggle-btn"
         [attr.aria-expanded]="legendOpen"
         aria-controls="leyenda-dropdown-panel"
       >
@@ -30,6 +31,7 @@
             [disabled]="!selectedTooth"
             [checked]="isItemSelected(estado.label)"
             (change)="onToggleEstado(estado, $event)"
+            [attr.data-testid]="'odontogram-estado-checkbox-' + idx"
           />
           <span class="small">{{ estado.label || ' ' }}</span>
           <i [ngClass]="estado.icono"></i>
@@ -61,6 +63,7 @@
         [disabled]="!selectedTooth"
         [value]="getSelectedMovilidadLabel()"
         (change)="onMovilidadChange($event)"
+        data-testid="odontogram-mobility-select"
       >
         <option value="">Seleccionar movilidad</option>
         <option *ngFor="let opcion of movilidadOpciones" [value]="opcion.label">
@@ -75,6 +78,7 @@
         [disabled]="!selectedTooth"
         [value]="getSelectedFurcaLabel()"
         (change)="onFurcaChange($event)"
+        data-testid="odontogram-furcation-select"
       >
         <option value="">Seleccionar furca</option>
         <option *ngFor="let opcion of furcaOpciones" [value]="opcion.label">
