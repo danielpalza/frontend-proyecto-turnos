@@ -10,7 +10,7 @@ export function getPatientFormConfig(fb: FormBuilder) {
     fechaNacimiento: [''],
     edad: [{ value: '', disabled: true }],
     dni: ['', Validators.required],
-    telefono: ['', [Validators.required, Validators.pattern(/^[0-9]{10,15}$/)]],
+    telefono: ['', [Validators.required, Validators.pattern(/^[\d\s\-\(\)\+]{7,20}$/)]],
     email: ['', [Validators.required, Validators.email]],
     domicilio: ['', Validators.required],
     localidad: ['', Validators.required],

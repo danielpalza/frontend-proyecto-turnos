@@ -8,7 +8,8 @@
 @import "bootstrap-icons/font/bootstrap-icons.css";
 
 // Fuente personalizada
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+// Poppins con subset latin-ext (incluye acentos y ñ del español: í, á, é, ó, ú, ñ, ü)
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap&subset=latin-ext');
 
 // Estilos globales - CRÍTICO PARA EL SCROLL
 * {
