@@ -30,7 +30,7 @@
 
         <!-- Lista de pacientes -->
         <div class="patients-list" *ngIf="patientGroups.length > 0" data-testid="tracking-patients-list">
-          <div *ngFor="let group of patientGroups" class="card shadow-sm patient-card mb-4" [attr.data-testid]="'tracking-patient-card-' + group.patient.patientDni">
+          <div *ngFor="let group of patientGroups" class="card shadow-sm patient-card mb-4" [attr.data-testid]="'tracking-patient-card-' + group.patient.dni">
             <div class="card-header bg-white">
               <div class="d-flex align-items-center gap-3">
                 <div class="avatar">
@@ -39,20 +39,20 @@
 
                 <div class="flex-grow-1">
                   <div class="d-flex align-items-center gap-2 flex-wrap">
-                    <h5 class="m-0 fw-semibold">{{ group.patient.patientName }}</h5>
+                    <h5 class="m-0 fw-semibold">{{ group.patient.nombreApellido }}</h5>
                     <span class="total-deuda" *ngIf="group.totalAdeudado > 0">
                       {{ formatCurrency(group.totalAdeudado) }}
                     </span>
                     <button type="button" class="btn btn-sm btn-outline-primary ms-auto"
-                      title="Editar datos del paciente" (click)="editPatientFromGroup(group)" [attr.data-testid]="'tracking-patient-edit-btn-' + group.patient.patientDni">
+                      title="Editar datos del paciente" (click)="editPatientFromGroup(group)" [attr.data-testid]="'tracking-patient-edit-btn-' + group.patient.dni">
                       <i class="bi bi-pencil"></i> Editar
                     </button>
                   </div>
-                  <small class="text-primary d-block mt-1" *ngIf="group.patient.patientDni">
-                    DNI: {{ group.patient.patientDni }}
+                  <small class="text-primary d-block mt-1" *ngIf="group.patient.dni">
+                    DNI: {{ group.patient.dni }}
                   </small>
-                  <small class="text-muted d-block mt-1" *ngIf="getObraSocialInfo(group.patient.patientDni || '')">
-                    Obra Social: {{ getObraSocialInfo(group.patient.patientDni || '') }}
+                  <small class="text-muted d-block mt-1" *ngIf="getObraSocialInfo(group.patient.dni || '')">
+                    Obra Social: {{ getObraSocialInfo(group.patient.dni || '') }}
                   </small>
                 </div>
               </div>
@@ -66,7 +66,10 @@
                 }})
               </p>
 
-              <div class="appointments-list">
+              <div *ngIf="group.appointments.length === 0" class="text-muted small mb-2">
+                Sin turnos registrados
+              </div>
+              <div class="appointments-list" *ngIf="group.appointments.length > 0">
                 <div *ngFor="let app of group.appointments" class="appointment-badge"
                   [ngClass]="'appointment-' + getAppointmentColor(app)" (click)="openTurnModal(app)" role="button"
                   tabindex="0" (keydown.enter)="openTurnModal(app)"

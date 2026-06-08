@@ -23,7 +23,7 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
   patientsMap: Map<string, Patient> = new Map();
 
   searchTerm = '';
-  patientGroups: Array<{ patient: Appointment; appointments: Appointment[]; totalAdeudado: number }> = [];
+  patientGroups: Array<{ patient: Patient; appointments: Appointment[]; totalAdeudado: number }> = [];
 
   // Formulario cliente (crear/editar) - columna derecha
   patientForm!: FormGroup;
@@ -99,38 +99,26 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  private getFilteredAppointments(): Appointment[] {
-    if (!this.searchTerm.trim()) {
-      return this.appointments;
-    }
-    const term = this.searchTerm.toLowerCase();
-    return this.appointments.filter(app => {
-      const patient = this.getPatientByDni(app.patientDni || '');
-      return (
-        (app.patientName || '').toLowerCase().includes(term) ||
-        (app.patientDni || '').includes(term) ||
-        (patient?.email || '').toLowerCase().includes(term)
-      );
-    });
-  }
-
   private updatePatientGroups(): void {
-    const filteredAppointments = this.getFilteredAppointments();
-    const groups: Record<string, { patient: Appointment; appointments: Appointment[]; totalAdeudado: number }> = {};
+    const term = this.searchTerm.toLowerCase().trim();
 
-    for (const app of filteredAppointments) {
-      const key = app.patientDni || String(app.patientId);
-      if (!groups[key]) {
-        groups[key] = { patient: app, appointments: [], totalAdeudado: 0 };
-      }
-      groups[key].appointments.push(app);
-      // Calcular total adeudado (totalPrecio es lo que falta pagar)
-      if (app.totalPrecio && app.totalPrecio > 0) {
-        groups[key].totalAdeudado += app.totalPrecio;
-      }
-    }
+    const filteredPatients = term
+      ? this.patients.filter(p =>
+          (p.nombreApellido || '').toLowerCase().includes(term) ||
+          (p.dni || '').includes(term) ||
+          (p.email || '').toLowerCase().includes(term)
+        )
+      : this.patients;
 
-    this.patientGroups = Object.values(groups);
+    this.patientGroups = filteredPatients.map(patient => {
+      const patientApps = this.appointments.filter(
+        app => app.patientDni === patient.dni
+      );
+      const totalAdeudado = patientApps.reduce(
+        (sum, app) => sum + (app.totalPrecio && app.totalPrecio > 0 ? app.totalPrecio : 0), 0
+      );
+      return { patient, appointments: patientApps, totalAdeudado };
+    });
   }
 
   onSearchChange(): void {
@@ -209,15 +197,9 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
     });
   }
 
-  /** Editar paciente desde la tarjeta de la lista (por DNI) */
-  editPatientFromGroup(group: { patient: Appointment; appointments: Appointment[]; totalAdeudado: number }): void {
-    const dni = group.patient.patientDni || '';
-    const patient = this.patientsMap.get(dni);
-    if (patient) {
-      this.loadPatientIntoForm(patient);
-    } else {
-      this.notification.showWarning('No se encontraron los datos completos del paciente.');
-    }
+  /** Editar paciente desde la tarjeta de la lista */
+  editPatientFromGroup(group: { patient: Patient; appointments: Appointment[]; totalAdeudado: number }): void {
+    this.loadPatientIntoForm(group.patient);
   }
 
   /** Guardar paciente (crear o actualizar) */
