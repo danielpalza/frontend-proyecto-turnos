@@ -9,6 +9,7 @@ import { ErrorHandlerService } from '../../../core/services/error-handler.servic
 import { Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { ConfirmDialogComponent } from '../../appointments/components/confirm-dialog/confirm-dialog.component';
+import { WhatsappConfigService } from '../../../core/services/whatsapp-config.service';
 
 @Component({
   selector: 'app-configuraciones-view',
@@ -39,6 +40,10 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
   estadoProfesionalTarget: Profesional | null = null;
   estadoProfesionalError = '';
 
+  whatsappTemplate = '';
+  whatsappSaved = false;
+  readonly whatsappPlaceholder = 'Hola {paciente}, te hablamos de la clinica, te recordamos tu turno del {fecha} a las {hora} con el doctor {doctor}.';
+
   nuevoProfesional: ProfesionalCreateDTO = {
     nombre: '',
     dni: '',
@@ -55,7 +60,8 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
     private profesionalService: ProfesionalService,
     private estadoProfesionalService: EstadoProfesionalService,
     private notification: NotificationService,
-    private errorHandler: ErrorHandlerService
+    private errorHandler: ErrorHandlerService,
+    private whatsappConfig: WhatsappConfigService
   ) {}
 
   ngOnInit(): void {
@@ -78,6 +84,11 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
             this.notification.showError(this.errorHandler.getErrorMessage(err, 'cargar los estados'));
           }
         }
+      })
+    );
+    this.subscriptions.add(
+      this.whatsappConfig.getTemplate().subscribe(template => {
+        this.whatsappTemplate = template;
       })
     );
   }
@@ -279,5 +290,20 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
           }
         }
       });
+  }
+
+  saveWhatsappTemplate(): void {
+    this.whatsappConfig.setTemplate(this.whatsappTemplate).subscribe({
+      next: () => {
+        this.whatsappSaved = true;
+        setTimeout(() => { this.whatsappSaved = false; }, 3000);
+      },
+      error: (err: unknown) => {
+        const message = this.errorHandler.getErrorMessage(err, 'guardar la configuracion del mensaje');
+        if (!this.errorHandler.isNetworkError(err as any)) {
+          this.notification.showError(message);
+        }
+      }
+    });
   }
 }

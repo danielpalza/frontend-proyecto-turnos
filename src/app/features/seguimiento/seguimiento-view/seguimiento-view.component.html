@@ -125,7 +125,20 @@
           <h5 class="modal-title">
             <i class="bi bi-cash-coin me-2 text-primary"></i>Pago y observaciones
           </h5>
-          <button type="button" class="btn-close" aria-label="Cerrar" (click)="closeTurnModal()" data-testid="tracking-turn-close-btn"></button>
+          <div class="d-flex align-items-center gap-2 ms-auto">
+            <a *ngIf="hasPatientPhone()" [href]="getWhatsAppLink()" target="_blank"
+              class="btn-whatsapp" title="Enviar recordatorio por WhatsApp"
+              data-testid="tracking-turn-whatsapp-btn">
+              <i class="bi bi-whatsapp"></i>
+            </a>
+            <button *ngIf="!hasPatientPhone()" type="button" disabled
+              class="btn-whatsapp-disabled"
+              title="No se cargo telefono para el paciente"
+              data-testid="tracking-turn-whatsapp-disabled-btn">
+              <i class="bi bi-whatsapp"></i>
+            </button>
+            <button type="button" class="btn-close" aria-label="Cerrar" (click)="closeTurnModal()" data-testid="tracking-turn-close-btn"></button>
+          </div>
         </div>
         <div class="modal-body">
           <div class="turn-modal-context mb-3">

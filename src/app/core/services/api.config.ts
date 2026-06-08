@@ -12,7 +12,8 @@ export const API_CONFIG = {
     patients: '/patients',
     profesionales: '/profesionales',
     appointments: '/appointments',
-    auth: '/auth'
+    auth: '/auth',
+    mensajeria: '/mensajeria'
   }
 };
 

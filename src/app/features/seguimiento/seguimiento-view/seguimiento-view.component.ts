@@ -6,6 +6,7 @@ import { AppointmentsService } from '../../../core/services/appointments.service
 import { PatientService } from '../../../core/services/patient.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
+import { WhatsappConfigService } from '../../../core/services/whatsapp-config.service';
 import { combineLatest, Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { PatientFormComponent, getPatientFormConfig } from '../../../shared';
@@ -56,7 +57,8 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
     private appointmentsService: AppointmentsService,
     private patientService: PatientService,
     private notification: NotificationService,
-    private errorHandler: ErrorHandlerService
+    private errorHandler: ErrorHandlerService,
+    private whatsappConfig: WhatsappConfigService
   ) {}
 
   ngOnInit(): void {
@@ -339,6 +341,32 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
   }
 
   // --- Modal Pago y observaciones del turno ---
+
+  hasPatientPhone(): boolean {
+    if (!this.selectedAppointment) return false;
+    const dni = this.selectedAppointment.patientDni;
+    if (!dni) return false;
+    const patient = this.patientsMap.get(dni);
+    return !!(patient?.telefono);
+  }
+
+  getWhatsAppLink(): string | null {
+    if (!this.selectedAppointment) return null;
+    const dni = this.selectedAppointment.patientDni;
+    if (!dni) return null;
+    const patient = this.patientsMap.get(dni);
+    if (!patient?.telefono) return null;
+    const phone = patient.telefono.replace(/[\s\-\(\)\+]/g, '');
+    const horaStr = this.selectedAppointment.hora
+      ? this.selectedAppointment.hora.substring(0, 5)
+      : '';
+    const fechaStr = this.formatDate(this.selectedAppointment.fecha);
+    const doctor = this.selectedAppointment.profesionalName || 'el doctor';
+    const paciente = patient.nombreApellido || (this.selectedAppointment.patientName || '');
+    const message = this.whatsappConfig.buildMessage(horaStr, fechaStr, doctor, paciente);
+    return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+  }
+
   openTurnModal(appointment: Appointment): void {
     this.selectedAppointment = appointment;
     this.turnModalPaymentInput = 0;

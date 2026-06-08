@@ -76,8 +76,50 @@
   }
 }
 
+.whatsapp-config-panel {
+  @include sticky-container;
+  top: $spacing-3xl;
+}
+
+.whatsapp-config-header {
+  h2 {
+    color: $text-primary;
+    font-size: 1.5rem;
+  }
+}
+
+.whatsapp-template-textarea {
+  resize: vertical;
+  min-height: 100px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.placeholders-help {
+  background: $sidebar-bg;
+  border-radius: $radius-md;
+  padding: 0.75rem 1rem;
+  border: 1px solid $border-color;
+}
+
+.placeholder-tag {
+  background: rgba($primary-color, 0.1);
+  color: $primary-color;
+  padding: 0.15rem 0.5rem;
+  border-radius: $radius-sm;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
 @include tablet {
   .profesionales-panel {
+    position: relative;
+    top: 0;
+    max-height: none;
+    margin-top: 0;
+  }
+
+  .whatsapp-config-panel {
     position: relative;
     top: 0;
     max-height: none;
