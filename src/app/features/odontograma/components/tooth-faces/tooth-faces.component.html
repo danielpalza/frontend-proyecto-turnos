@@ -20,15 +20,17 @@
     <!-- Círculo interior -->
     <path
     d="M 20 12 A 8 8 0 1 1 20 28 A 8 8 0 1 1 20 12 Z"
+    data-testid="arco-centro"
     [attr.fill]="getFaceColor(faces().center)"
     stroke="#334155"
     [attr.stroke-width]="strokeWidth"
     (click)="handleFaceClick('center', $event)"
   />
   
-    <!-- Top section (arco superior) -->
+    <!-- Top section (arco interior) -->
     <path
       d="M 20 2 A 18 18 0 0 1 38 20 L 28 20 A 8 8 0 0 0 20 12 Z"
+      data-testid="arco-interior"
       [attr.fill]="getFaceColor(faces().top)"
       stroke="#334155"
       [attr.stroke-width]="strokeWidth"
@@ -38,6 +40,7 @@
     <!-- Right section (arco derecho) -->
     <path
       d="M 38 20 A 18 18 0 0 1 20 38 L 20 28 A 8 8 0 0 0 28 20 Z"
+      data-testid="arco-derecho"
       [attr.fill]="getFaceColor(faces().right)"
       stroke="#334155"
       [attr.stroke-width]="strokeWidth"
@@ -47,6 +50,7 @@
     <!-- Bottom section (arco inferior) -->
     <path
       d="M 20 38 A 18 18 0 0 1 2 20 L 12 20 A 8 8 0 0 0 20 28 Z"
+      data-testid="arco-inferior"
       [attr.fill]="getFaceColor(faces().bottom)"
       stroke="#334155"
       [attr.stroke-width]="strokeWidth"
@@ -56,6 +60,7 @@
     <!-- Left section (arco izquierdo) -->
     <path
       d="M 2 20 A 18 18 0 0 1 20 2 L 20 12 A 8 8 0 0 0 12 20 Z"
+      data-testid="arco-izquierdo"
       [attr.fill]="getFaceColor(faces().left)"
       stroke="#334155"
       [attr.stroke-width]="strokeWidth"
