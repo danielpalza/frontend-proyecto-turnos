@@ -16,6 +16,7 @@ export class SaveOdontogramaDialogComponent {
   @Output() openChange = new EventEmitter<boolean>();
 
   saving = false;
+  readonly saveError = signal<string | null>(null);
 
   formData = signal({
     precioBono: '0',
@@ -34,6 +35,7 @@ export class SaveOdontogramaDialogComponent {
   close(): void {
     this.open = false;
     this.openChange.emit(false);
+    this.saveError.set(null);
   }
 
   updateField(key: string, value: string): void {
@@ -72,10 +74,12 @@ export class SaveOdontogramaDialogComponent {
     };
 
     this.saving = true;
+    this.saveError.set(null);
     this.stateService.saveOdontogram(pago).subscribe({
       next: () => {
         this.notification.showSuccess('Odontograma guardado correctamente');
         this.saving = false;
+        this.saveError.set(null);
         this.close();
         this.formData.set({
           precioBono: '0',
@@ -88,6 +92,7 @@ export class SaveOdontogramaDialogComponent {
       },
       error: () => {
         this.saving = false;
+        this.saveError.set('Error al guardar. Verifica los datos e intenta nuevamente.');
       }
     });
   }

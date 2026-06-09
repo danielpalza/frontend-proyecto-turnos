@@ -15,8 +15,6 @@
       <!-- Body -->
       <div class="modal-body">
 
-        <form (ngSubmit)="handleSubmit()">
-
           <div class="row">
             <!-- Columna izquierda (Formulario de Pago) -->
             <div class="col-lg-6 pe-lg-4 scroll-section">
@@ -149,16 +147,21 @@
 
           <!-- Footer -->
           <div class="modal-footer mt-4 pt-3 border-top">
+            @if (saveError()) {
+              <div class="alert alert-danger w-100 mb-2 py-2 small">{{ saveError() }}</div>
+            }
             <button type="button" class="btn btn-outline-secondary flex-fill" (click)="close()" data-testid="odontogram-save-cancel-btn">
               <i class="bi bi-x-lg me-2"></i>Cancelar
             </button>
 
-            <button type="submit" class="btn btn-primary flex-fill" data-testid="odontogram-save-confirm-btn">
-              <i class="bi bi-check-lg me-2"></i>Guardar Odontograma
+            <button type="button" class="btn btn-primary flex-fill"
+              (click)="handleSubmit()"
+              [disabled]="saving"
+              data-testid="odontogram-save-confirm-btn">
+              <i class="bi" [ngClass]="saving ? 'bi-hourglass-split' : 'bi-check-lg'" me-2></i>
+              {{ saving ? 'Guardando...' : 'Guardar Odontograma' }}
             </button>
           </div>
-
-        </form>
 
       </div>
     </div>
