@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription, Subject } from 'rxjs';
 import { takeUntil, finalize } from 'rxjs/operators';
@@ -62,7 +62,8 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
     private patientService: PatientService,
     private profesionalService: ProfesionalService,
     private errorHandler: ErrorHandlerService,
-    private notification: NotificationService
+    private notification: NotificationService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -74,6 +75,7 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
           this.appointments = appointments;
           this.isLoadingAppointments = false;
           this.hasError = false;
+          this.cdr.markForCheck();
         },
         error: (err) => {
           console.error('Error loading appointments:', err);
@@ -99,6 +101,7 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
         next: (patients) => {
           this.patients = patients;
           this.isLoadingPatients = false;
+          this.cdr.markForCheck();
         },
         error: (err) => {
           // Los errores 404 se manejan completamente desde el backend sin notificaciones
@@ -120,6 +123,7 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
         next: (profesionales) => {
           this.profesionales = profesionales;
           this.isLoadingProfesionales = false;
+          this.cdr.markForCheck();
         },
         error: (err) => {
           // Los errores 404 se manejan completamente desde el backend sin notificaciones

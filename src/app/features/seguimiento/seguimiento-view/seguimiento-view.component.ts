@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { Appointment, Patient } from '../../../core/models';
@@ -58,7 +58,8 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
     private patientService: PatientService,
     private notification: NotificationService,
     private errorHandler: ErrorHandlerService,
-    private whatsappConfig: WhatsappConfigService
+    private whatsappConfig: WhatsappConfigService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -82,6 +83,7 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
           });
 
           this.updatePatientGroups();
+          this.cdr.markForCheck();
         },
         error: (err) => {
           console.error('Error loading data:', err);

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ProfesionalService } from '../../../core/services/profesional.service';
@@ -61,13 +61,14 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
     private estadoProfesionalService: EstadoProfesionalService,
     private notification: NotificationService,
     private errorHandler: ErrorHandlerService,
-    private whatsappConfig: WhatsappConfigService
+    private whatsappConfig: WhatsappConfigService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     this.subscriptions.add(
       this.profesionalService.getProfesionales().subscribe({
-        next: (list) => { this.profesionales = list; },
+        next: (list) => { this.profesionales = list; this.cdr.markForCheck(); },
         error: (err) => {
           if (err?.status !== 404) {
             const message = this.errorHandler.getErrorMessage(err, 'cargar los profesionales');
@@ -78,7 +79,7 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
     );
     this.subscriptions.add(
       this.estadoProfesionalService.findAll().subscribe({
-        next: (estados) => { this.estadoProfesionalList = estados; },
+        next: (estados) => { this.estadoProfesionalList = estados; this.cdr.markForCheck(); },
         error: (err) => {
           if (err?.status !== 404 && !this.errorHandler.isNetworkError(err)) {
             this.notification.showError(this.errorHandler.getErrorMessage(err, 'cargar los estados'));
@@ -89,6 +90,7 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.whatsappConfig.getTemplate().subscribe(template => {
         this.whatsappTemplate = template;
+        this.cdr.markForCheck();
       })
     );
   }
