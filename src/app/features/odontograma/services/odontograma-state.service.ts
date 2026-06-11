@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, forkJoin, map, tap, catchError, finalize, of } from 'rxjs';
 import { OdontogramaService } from '../../../core/services/odontograma.service';
 import { PeriodontogramaService } from '../../../core/services/periodontograma.service';
+import { AppointmentsService } from '../../../core/services/appointments.service';
+import { Appointment } from '../../../core/models/appointment.model';
 import {
   CaraDelta,
   DienteEstadoDelta,
@@ -89,6 +91,26 @@ export class OdontogramaStateService {
   private readonly planTratamientoSubject = new BehaviorSubject<string>('');
   readonly planTratamiento$ = this.planTratamientoSubject.asObservable();
 
+  private readonly appointmentPaymentSubject = new BehaviorSubject<{
+    precioBono: number;
+    precioTratamiento: number;
+    extras: number;
+    montoPago: number;
+    observaciones: string;
+    observacionesTurno: string;
+  }>({
+    precioBono: 0,
+    precioTratamiento: 0,
+    extras: 0,
+    montoPago: 0,
+    observaciones: '',
+    observacionesTurno: ''
+  });
+  readonly appointmentPayment$ = this.appointmentPaymentSubject.asObservable();
+  get appointmentPaymentSnapshot() {
+    return this.appointmentPaymentSubject.value;
+  }
+
   private readonly perioTeethSubject = new BehaviorSubject<Map<number, PerioToothMvp>>(new Map());
   readonly perioTeeth$ = this.perioTeethSubject.asObservable();
 
@@ -100,7 +122,8 @@ export class OdontogramaStateService {
 
   constructor(
     private readonly odontogramaService: OdontogramaService,
-    private readonly periodontogramaService: PeriodontogramaService
+    private readonly periodontogramaService: PeriodontogramaService,
+    private readonly appointmentsService: AppointmentsService
   ) {
     this.initEmptyPerioMap();
   }
@@ -128,13 +151,27 @@ export class OdontogramaStateService {
       ),
       perio: this.periodontogramaService.getByAppointment(appointmentId).pipe(
         catchError(() => of(this.emptyPerioResponse(appointmentId)))
+      ),
+      appointment: this.appointmentsService.findById(appointmentId).pipe(
+        catchError(() => of(null as unknown as Appointment))
       )
     }).pipe(
-      tap(({ odonto, perio }) => {
+      tap(({ odonto, perio, appointment }) => {
         this.appointmentId = appointmentId;
         this.patientId = odonto.patientId ?? null;
         if (typeof sessionStorage !== 'undefined') {
           sessionStorage.setItem(LAST_APPOINTMENT_KEY, String(appointmentId));
+        }
+
+        if (appointment) {
+          this.appointmentPaymentSubject.next({
+            precioBono: appointment.precioBono ?? 0,
+            precioTratamiento: appointment.precioTratamiento ?? 0,
+            extras: appointment.extras ?? 0,
+            montoPago: appointment.montoPago ?? 0,
+            observaciones: appointment.observaciones ?? '',
+            observacionesTurno: appointment.observacionesTurno ?? ''
+          });
         }
 
         const mergedOdonto = this.mergeOdontoEstado(

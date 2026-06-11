@@ -12,7 +12,20 @@ import { OdontogramaPagoDelta } from '../../../../core/models/odontograma.model'
   styleUrls: ['./save-odontograma-dialog.component.scss']
 })
 export class SaveOdontogramaDialogComponent {
-  @Input() open = false;
+  private _open = false;
+
+  @Input()
+  set open(val: boolean) {
+    const wasClosed = !this._open;
+    this._open = val;
+    if (val && wasClosed) {
+      this.prefillFromAppointment();
+    }
+  }
+  get open(): boolean {
+    return this._open;
+  }
+
   @Output() openChange = new EventEmitter<boolean>();
 
   saving = false;
@@ -31,6 +44,18 @@ export class SaveOdontogramaDialogComponent {
     private readonly stateService: OdontogramaStateService,
     private readonly notification: NotificationService
   ) {}
+
+  private prefillFromAppointment(): void {
+    const p = this.stateService.appointmentPaymentSnapshot;
+    this.formData.set({
+      precioBono: p.precioBono > 0 ? p.precioBono.toFixed(2) : '0',
+      precioTratamiento: p.precioTratamiento > 0 ? p.precioTratamiento.toFixed(2) : '0',
+      extras: p.extras > 0 ? p.extras.toFixed(2) : '0',
+      montoPago: p.montoPago > 0 ? p.montoPago.toFixed(2) : '0',
+      observacionesPago: p.observaciones,
+      observacionesProfesional: p.observacionesTurno
+    });
+  }
 
   close(): void {
     this.open = false;
