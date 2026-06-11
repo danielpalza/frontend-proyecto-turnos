@@ -172,6 +172,11 @@ export class OdontogramaStateService {
             observaciones: appointment.observaciones ?? '',
             observacionesTurno: appointment.observacionesTurno ?? ''
           });
+
+          // Marcar el turno como EN_CURSO si esta pendiente o confirmado
+          if (appointment.estado === 'PENDIENTE' || appointment.estado === 'CONFIRMADO') {
+            this.appointmentsService.updateStatus(appointmentId, 'EN_CURSO').subscribe();
+          }
         }
 
         const mergedOdonto = this.mergeOdontoEstado(
