@@ -43,6 +43,7 @@ export class NotificationService {
     if (!this.toastContainer) {
       this.toastContainer = document.createElement('div');
       this.toastContainer.id = 'toast-container';
+      this.toastContainer.setAttribute('data-testid', 'toast-container');
       this.toastContainer.className = 'toast-container position-fixed top-0 start-50 translate-middle-x p-3';
       
       // Asegurar que el contenedor sea visible
@@ -121,14 +122,14 @@ export class NotificationService {
     const icon = this.getIcon(type);
 
     const toastHtml = `
-      <div id="${toastId}" class="toast ${bgClass} text-white" role="alert" aria-live="assertive" aria-atomic="true" style="pointer-events: auto; min-width: 300px; max-width: 500px; width: 100%; margin-bottom: 0.5rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); border-radius: 16px; overflow: hidden;">
+      <div id="${toastId}" class="toast ${bgClass} text-white" role="alert" aria-live="assertive" aria-atomic="true" data-testid="toast-message" style="pointer-events: auto; min-width: 300px; max-width: 500px; width: 100%; margin-bottom: 0.5rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); border-radius: 16px; overflow: hidden;">
         <div class="toast-content d-flex align-items-center w-100" style="padding: 0.75rem 1rem; line-height: 1.5; gap: 0.5rem;">
           <i class="${icon} me-2"></i>
           <div class="toast-text flex-grow-1">
-            <strong>${this.getTitle(type)}</strong>
-            <span class="ms-1">${this.escapeHtml(message)}</span>
+            <strong data-testid="toast-title">${this.getTitle(type)}</strong>
+            <span class="ms-1" data-testid="toast-body">${this.escapeHtml(message)}</span>
           </div>
-          ${dismissible ? `<button type="button" class="btn-close ms-2" aria-label="Cerrar" onclick="this.closest('.toast').remove()">
+          ${dismissible ? `<button type="button" class="btn-close ms-2" aria-label="Cerrar" data-testid="toast-close-btn" onclick="this.closest('.toast').remove()">
             <i class="bi bi-x-lg"></i>
           </button>` : ''}
         </div>
