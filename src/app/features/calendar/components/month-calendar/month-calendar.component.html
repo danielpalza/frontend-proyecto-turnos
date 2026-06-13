@@ -64,6 +64,7 @@
             *ngIf="day.appointmentCount > 0" 
             class="appointment-badge"
             [class.today-badge]="day.isToday"
+            [attr.data-testid]="day.isToday ? 'calendar-today-badge' : 'calendar-day-badge-' + day.dateStr"
           >
             {{ day.appointmentCount }}
           </span>

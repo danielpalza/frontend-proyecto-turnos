@@ -6,7 +6,7 @@
 
       <!-- Header -->
       <div class="modal-header">
-        <h5 class="modal-title">
+        <h5 class="modal-title" data-testid="odontogram-save-modal-title">
           <i class="bi bi-floppy me-2"></i>Guardar Odontograma
         </h5>
         <button type="button" class="btn-close" (click)="close()" data-testid="odontogram-save-close-btn"></button>
@@ -43,7 +43,8 @@
                 <label class="form-label">Extras</label>
                 <input type="number" class="form-control"
                   [value]="formData().extras"
-                  (input)="updateField('extras', $any($event.target).value)">
+                  (input)="updateField('extras', $any($event.target).value)"
+                  data-testid="odontogram-save-extras-input">
               </div>
 
               <div class="mb-3">
@@ -58,12 +59,12 @@
               <div class="mt-4 pt-3 border-top">
                 <div class="d-flex justify-content-between p-3 bg-light rounded mb-2">
                   <span>Total:</span>
-                  <strong>$ {{ calcularTotal() }}</strong>
+                  <strong data-testid="odontogram-save-total-display">$ {{ calcularTotal() }}</strong>
                 </div>
 
                 <div class="d-flex justify-content-between p-3 bg-indigo-light rounded border border-indigo">
                   <span class="text-primary">Resto a Pagar:</span>
-                  <strong class="text-primary">$ {{ calcularResto() }}</strong>
+                  <strong class="text-primary" data-testid="odontogram-save-remaining-display">$ {{ calcularResto() }}</strong>
                 </div>
               </div>
 
@@ -71,7 +72,8 @@
                 <label class="form-label">Observaciones de Pago</label>
                 <textarea rows="3" class="form-control"
                   [value]="formData().observacionesPago"
-                  (input)="updateField('observacionesPago', $any($event.target).value)">
+                  (input)="updateField('observacionesPago', $any($event.target).value)"
+                  data-testid="odontogram-save-observations-input">
                 </textarea>
               </div>
 
@@ -112,7 +114,7 @@
                 </div>
               </div>
 
-              <div class="bg-white p-3 rounded shadow-sm">
+              <div class="bg-white p-3 rounded shadow-sm" data-testid="odontogram-save-dental-status">
                 <p class="fw-semibold mb-2">Estado Dental Actual:</p>
 
                 <p class="small text-muted">
@@ -131,7 +133,7 @@
 
               </div>
 
-              <div class="bg-white p-3 rounded shadow-sm mt-3 small text-muted">
+              <div class="bg-white p-3 rounded shadow-sm mt-3 small text-muted" data-testid="odontogram-save-reminder-section">
                 <strong class="text-dark">
                   <i class="bi bi-lightbulb me-1"></i>Recordatorio:
                 </strong>

@@ -32,7 +32,7 @@
 
 <!-- Datos Personales -->
 <section class="mb-4" data-testid="patient-personal-section">
-  <h6 class="mb-3 text-primary"><i class="bi bi-person me-2"></i>Datos Personales</h6>
+  <h6 class="mb-3 text-primary" data-testid="tracking-section-personal-title"><i class="bi bi-person me-2"></i>Datos Personales</h6>
   <div class="row g-3" [formGroup]="form">
     <div class="col-12 col-md-6">
       <label class="form-label">Nombre y Apellido *</label>
@@ -107,42 +107,42 @@
 
 <!-- Antecedentes médicos -->
 <section class="mb-4" data-testid="patient-medical-section">
-  <h6 class="mb-3 text-primary"><i class="bi bi-person me-2"></i>Antecedentes médicos</h6>
+  <h6 class="mb-3 text-primary" data-testid="tracking-section-medical-title"><i class="bi bi-person me-2"></i>Antecedentes médicos</h6>
   <div class="row g-3" [formGroup]="form">
     <div class="col-12 col-md-6">
       <label class="form-label">Enfermedades</label>
-      <input class="form-control" type="text" formControlName="enfermedades" />
+      <input class="form-control" type="text" formControlName="enfermedades" data-testid="patient-diseases-input" />
     </div>
     <div class="col-12 col-md-6">
       <label class="form-label">Alergias</label>
-      <input class="form-control" type="text" formControlName="alergias" />
+      <input class="form-control" type="text" formControlName="alergias" data-testid="patient-allergies-input" />
     </div>
     <div class="col-12 col-md-6">
       <label class="form-label">Medicación actual o previa</label>
-      <input class="form-control" type="text" formControlName="medicacion" />
+      <input class="form-control" type="text" formControlName="medicacion" data-testid="patient-medication-input" />
     </div>
     <div class="col-12 col-md-6">
       <label class="form-label">Cirugías/tratamientos/trastornos</label>
-      <input class="form-control" type="text" formControlName="cirugias" />
+      <input class="form-control" type="text" formControlName="cirugias" data-testid="patient-surgeries-input" />
     </div>
     <div class="col-12 col-md-6">
       <label class="form-label">Embarazo o lactancia</label>
-      <input class="form-control" type="text" formControlName="embarazo" />
+      <input class="form-control" type="text" formControlName="embarazo" data-testid="patient-pregnancy-input" />
     </div>
     <div class="col-12 col-md-6">
       <label class="form-label">Marcapasos/prótesis</label>
-      <input class="form-control" type="text" formControlName="marcapasos" />
+      <input class="form-control" type="text" formControlName="marcapasos" data-testid="patient-pacemaker-input" />
     </div>
     <div class="col-md-6">
       <label class="form-label">Consumos (tabaco, alcohol, drogas)</label>
-      <input class="form-control" type="text" formControlName="consumos" />
+      <input class="form-control" type="text" formControlName="consumos" data-testid="patient-substances-input" />
     </div>
   </div>
 </section>
 
 <!-- Obra social -->
 <section class="mb-4" data-testid="patient-coverage-section">
-  <h6 class="mb-3 text-primary"><i class="bi bi-shield-check me-2"></i>Cobertura</h6>
+  <h6 class="mb-3 text-primary" data-testid="tracking-section-coverage-title"><i class="bi bi-shield-check me-2"></i>Cobertura</h6>
   <div class="row g-3" [formGroup]="form">
     <div class="col-12 col-md-6 col-lg-4">
       <label class="form-label">Obra Social *</label>
@@ -156,19 +156,19 @@
     @if (form.get('obraSocialNombre')?.value !== 'Particular') {
       <div class="col-12 col-md-6 col-lg-4">
         <label class="form-label">Plan / Categoría</label>
-        <input class="form-control" type="text" formControlName="planCategoria" />
+        <input class="form-control" type="text" formControlName="planCategoria" data-testid="patient-plan-input" />
       </div>
       <div class="col-12 col-md-6 col-lg-4">
         <label class="form-label">Número de Afiliado</label>
-        <input class="form-control" type="text" formControlName="obraSocialNumero" />
+        <input class="form-control" type="text" formControlName="obraSocialNumero" data-testid="patient-affiliate-number-input" />
       </div>
       <div class="col-12 col-md-6 col-lg-4">
         <label class="form-label">Fecha de Vencimiento</label>
-        <input class="form-control" type="date" formControlName="obraSocialVencimiento" />
+        <input class="form-control" type="date" formControlName="obraSocialVencimiento" data-testid="patient-insurance-expiry-input" />
       </div>
       <div class="col-12 col-md-6 col-lg-3">
         <label class="form-label">¿Es titular?</label>
-        <select class="form-select" formControlName="esTitular">
+        <select class="form-select" formControlName="esTitular" data-testid="patient-titular-select">
           <option value="si">Sí</option>
           <option value="no">No</option>
         </select>
@@ -292,6 +292,7 @@
             <strong
               [class.text-danger]="calcularResto() > 0"
               [class.text-success]="calcularResto() <= 0"
+              data-testid="patient-balance-display"
             >
               $ {{ calcularResto() }}
             </strong>

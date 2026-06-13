@@ -51,6 +51,7 @@
             [disabled]="!selectedTooth"
             [checked]="isItemSelected(condicion.label)"
             (change)="onToggleCondicion(condicion, $event)"
+            [attr.data-testid]="'odontogram-condicion-checkbox-' + idx"
           />
           <span class="small">{{ condicion.label }}</span>
           <i [ngClass]="condicion.icono"></i> </label>

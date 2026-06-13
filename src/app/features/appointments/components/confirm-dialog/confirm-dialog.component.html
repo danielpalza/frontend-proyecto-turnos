@@ -10,12 +10,12 @@
   >
     <div class="d-flex align-items-start justify-content-between gap-3">
       <div>
-        <h5 [id]="dialogId + 'Title'" class="mb-1">{{ title }}</h5>
+        <h5 [id]="dialogId + 'Title'" class="mb-1" data-testid="confirm-dialog-title">{{ title }}</h5>
         <p class="text-muted mb-0">
           {{ message }}
         </p>
         @if (summary) {
-        <div class="mt-2 small">
+        <div class="mt-2 small" data-testid="confirm-dialog-detail">
           <span class="text-muted">Detalle:</span>
           <strong class="ms-1">{{ summary }}</strong>
         </div>

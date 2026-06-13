@@ -1,8 +1,8 @@
 <div class="login-container" data-testid="login-page">
   <div class="login-card fade-in" data-testid="login-card">
-    <div class="login-header">
-      <h1 class="login-title">OdontoLite</h1>
-      <p class="login-subtitle">
+    <div class="login-header" data-testid="login-header">
+      <h1 class="login-title" data-testid="login-title">OdontoLite</h1>
+      <p class="login-subtitle" data-testid="login-subtitle">
         @if (isLoginMode) {
           Iniciar sesión
         } @else {
@@ -47,9 +47,9 @@
     @if (isLoginMode) {
       <form (ngSubmit)="onLogin()" class="login-form" data-testid="login-form">
         <div class="form-group">
-          <label for="username" class="form-label">Usuario o email</label>
+          <label for="username" class="form-label" data-testid="login-username-label">Usuario o email</label>
           <div class="input-wrapper">
-            <i class="bi bi-person input-icon"></i>
+            <i class="bi bi-person input-icon" data-testid="login-username-icon"></i>
             <input
               id="username"
               type="text"
@@ -64,9 +64,9 @@
         </div>
 
         <div class="form-group">
-          <label for="password" class="form-label">Contraseña</label>
+          <label for="password" class="form-label" data-testid="login-password-label">Contraseña</label>
           <div class="input-wrapper">
-            <i class="bi bi-lock input-icon"></i>
+            <i class="bi bi-lock input-icon" data-testid="login-password-icon"></i>
             <input
               id="password"
               type="password"
@@ -403,7 +403,7 @@
     }
 
     <div class="login-footer">
-      <p>
+      <p data-testid="login-register-text">
         {{ isLoginMode ? '¿No tenés cuenta?' : '¿Ya tenés cuenta?' }}
         <a class="toggle-link" (click)="toggleMode()" data-testid="login-toggle-mode-link">
           {{ isLoginMode ? 'Crear una' : 'Iniciar sesión' }}

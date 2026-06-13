@@ -1,4 +1,4 @@
-<div class="perio-sparkline-wrap" [class.perio-sparkline-wrap--absent]="!present">
+<div class="perio-sparkline-wrap" [class.perio-sparkline-wrap--absent]="!present" [attr.data-testid]="sparklineTestId">
   <svg
     class="perio-sparkline-svg"
     [attr.viewBox]="'0 0 ' + vbW + ' ' + vbH"

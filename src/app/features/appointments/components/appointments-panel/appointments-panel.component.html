@@ -12,9 +12,9 @@
 
   <!-- Estado: Día seleccionado -->
   <div class="selected-state" *ngIf="date" data-testid="appointments-selected-state">
-    <div class="header-container">
+    <div class="header-container" data-testid="appointments-header">
       <div class="date-header">
-        <div class="date-icon">
+        <div class="date-icon" data-testid="appointments-date-icon">
           <i class="bi bi-calendar-check"></i>
         </div>
         <div class="date-info">
@@ -36,7 +36,7 @@
     <div class="turns-section">
       <h4 class="section-title">
         <i class="bi bi-clock me-2"></i>Turnos del día
-        <span class="badge bg-primary ms-2">{{ appointmentsCount }}</span>
+        <span class="badge bg-primary ms-2" data-testid="appointments-day-count">{{ appointmentsCount }}</span>
       </h4>
 
       <!-- Sin turnos -->
@@ -52,9 +52,9 @@
           <div class="turn-header" (click)="toggleCard(a.id!, $event)" [attr.data-testid]="'appointment-item-header-' + a.id">
             <div class="patient-info">
               <i class="bi bi-person-fill" [ngClass]="hasPendingDebt(a) ? 'text-danger' : 'text-primary'"></i>
-              <strong class="fw-bold" [ngClass]="hasPendingDebt(a) ? 'text-danger' : 'text-primary'">{{ a.patientName
+              <strong class="fw-bold" [ngClass]="hasPendingDebt(a) ? 'text-danger' : 'text-primary'" [attr.data-testid]="'appointment-patient-name-' + a.id">{{ a.patientName
                 }}</strong>
-              <span class="profesional-edit-container">
+              <span class="profesional-edit-container" [attr.data-testid]="'appointment-professional-' + a.id">
                 <span *ngIf="!isEditingProfesional(a.id!)">
                   <span class="text-muted"> - </span>
                   <strong class="fw-bold" [ngClass]="hasPendingDebt(a) ? 'text-danger' : 'text-primary'">
@@ -82,9 +82,9 @@
                 </span>
                 <i class="bi bi-pencil text-primary ms-1 price-edit-icon"
                   (click)="startEditingProfesional(a.id!, a.profesionalId); $event.stopPropagation()"
-                  *ngIf="!isEditingProfesional(a.id!)" title="Editar profesional"></i>
+                  *ngIf="!isEditingProfesional(a.id!)" title="Editar profesional" [attr.data-testid]="'appointment-edit-professional-' + a.id"></i>
               </span>
-              <span class="hora-edit-container">
+              <span class="hora-edit-container" [attr.data-testid]="'appointment-time-' + a.id">
                 <span *ngIf="!isEditingHora(a.id!)">
                   <strong class="fw-bold text-primary" *ngIf="a.hora">{{ formatTime(a.hora) }}</strong>
                   <span class="text-muted small" *ngIf="!a.hora">Sin hora</span>
@@ -105,14 +105,14 @@
                 </span>
                 <i class="bi bi-pencil text-primary ms-1 price-edit-icon"
                   (click)="startEditingHora(a.id!, a.hora); $event.stopPropagation()" *ngIf="!isEditingHora(a.id!)"
-                  title="Editar hora"></i>
+                  title="Editar hora" [attr.data-testid]="'appointment-edit-time-' + a.id"></i>
               </span>
             </div>
             <div class="d-flex align-items-center gap-2">
-              <span class="badge" [ngClass]="getStatusBadgeClass(a.estado)">
+              <span class="badge" [ngClass]="getStatusBadgeClass(a.estado)" [attr.data-testid]="'appointment-status-badge-' + a.id">
                 {{ getStatusLabel(a.estado) }}
               </span>
-              <i class="bi expand-icon" [ngClass]="isCardExpanded(a.id!) ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+              <i class="bi expand-icon" [ngClass]="isCardExpanded(a.id!) ? 'bi-chevron-up' : 'bi-chevron-down'" [attr.data-testid]="'appointment-expand-btn-' + a.id"></i>
               <button type="button" class="btn-start" title="Empezar turno!"
                 (click)="openOdontogram(a.id!); $event.stopPropagation()" [attr.data-testid]="'appointment-start-btn-' + a.id">
                 <i class="bi bi-heart-pulse"></i>
@@ -127,7 +127,7 @@
             <div class="detail-row">
               <div class="detail-item">
                 <small class="text-muted">DNI</small>
-                <span>{{ a.patientDni }}</span>
+                <span [attr.data-testid]="'appointment-patient-dni-' + a.id">{{ a.patientDni }}</span>
               </div>
               <div class="detail-item" *ngIf="a.patientObraSocialNumero">
                 <small class="text-muted">N° Obra Social</small>
@@ -143,7 +143,7 @@
               <div class="flex-grow-1">
                 <b>
                   <small class="text-muted">Pago </small>
-                  <small class="text-muted-payment" [ngClass]="getPaymentColorClass(a.totalPrecio)">({{ a.totalPrecio ||
+                  <small class="text-muted-payment" [ngClass]="getPaymentColorClass(a.totalPrecio)" [attr.data-testid]="'appointment-payment-pending-' + a.id">({{ a.totalPrecio ||
                     0 }})</small>
                 </b>
                 <div class="d-flex gap-3 align-items-center flex-wrap">
@@ -166,7 +166,7 @@
                     </span>
                     <i class="bi bi-pencil text-primary ms-1 price-edit-icon"
                       (click)="startEditingPrice(a.id!, 'bono', a.precioBono); $event.stopPropagation()"
-                      *ngIf="!isEditingPrice(a.id!, 'bono')" title="Editar bono"></i>
+                      *ngIf="!isEditingPrice(a.id!, 'bono')" title="Editar bono" [attr.data-testid]="'appointment-edit-bono-' + a.id"></i>
                   </span>
                   <span class="price-edit-container">
                     Trat:
@@ -187,7 +187,7 @@
                     </span>
                     <i class="bi bi-pencil text-primary ms-1 price-edit-icon"
                       (click)="startEditingPrice(a.id!, 'tratamiento', a.precioTratamiento); $event.stopPropagation()"
-                      *ngIf="!isEditingPrice(a.id!, 'tratamiento')" title="Editar tratamiento"></i>
+                      *ngIf="!isEditingPrice(a.id!, 'tratamiento')" title="Editar tratamiento" [attr.data-testid]="'appointment-edit-treatment-' + a.id"></i>
                   </span>
                   <span class="price-edit-container">
                     Ext:
@@ -208,7 +208,7 @@
                     </span>
                     <i class="bi bi-pencil text-primary ms-1 price-edit-icon"
                       (click)="startEditingPrice(a.id!, 'extras', a.extras); $event.stopPropagation()"
-                      *ngIf="!isEditingPrice(a.id!, 'extras')" title="Editar extras"></i>
+                      *ngIf="!isEditingPrice(a.id!, 'extras')" title="Editar extras" [attr.data-testid]="'appointment-edit-extras-' + a.id"></i>
                   </span>
                 </div>
               </div>
@@ -223,10 +223,11 @@
               <button type="button" class="btn-add-payment" (click)="onAddPayment(a.id!); $event.stopPropagation()" [attr.data-testid]="'appointment-add-payment-btn-' + a.id">
                 Agregar
               </button>
-              <label class="payment-total-checkbox ms-2" (click)="$event.stopPropagation()">
+              <label class="payment-total-checkbox ms-2" (click)="$event.stopPropagation()" [attr.data-testid]="'appointment-full-payment-label-' + a.id">
                 <input type="checkbox"
                   [checked]="getPaymentInput(a.id!) === (a.totalPrecio ?? 0) && (a.totalPrecio ?? 0) > 0"
-                  (change)="$any($event.target).checked ? updatePaymentInput(a.id!, a.totalPrecio ?? 0) : updatePaymentInput(a.id!, 0); $event.stopPropagation()" />
+                  (change)="$any($event.target).checked ? updatePaymentInput(a.id!, a.totalPrecio ?? 0) : updatePaymentInput(a.id!, 0); $event.stopPropagation()"
+                  [attr.data-testid]="'appointment-full-payment-checkbox-' + a.id" />
                 Pago total
               </label>
             </div>
@@ -237,7 +238,7 @@
                 <small class="text-muted d-block">Observaciones de pago</small>
                 <i class="bi bi-pencil text-primary ms-1 price-edit-icon"
                   (click)="startEditingObservaciones(a.id!, a.observaciones); $event.stopPropagation()"
-                  *ngIf="!isEditingObservaciones(a.id!)" title="Editar observaciones"></i>
+                  *ngIf="!isEditingObservaciones(a.id!)" title="Editar observaciones" [attr.data-testid]="'appointment-edit-payment-obs-' + a.id"></i>
               </div>
               <div *ngIf="!isEditingObservaciones(a.id!)">
                 <span class="small" *ngIf="a.observaciones">{{ a.observaciones }}</span>
@@ -269,7 +270,7 @@
                 <small class="text-muted d-block">Observaciones del turno</small>
                 <i class="bi bi-pencil text-primary ms-1 price-edit-icon"
                   (click)="startEditingObservacionesTurno(a.id!, a.observacionesTurno); $event.stopPropagation()"
-                  *ngIf="!isEditingObservacionesTurno(a.id!)" title="Editar observaciones del turno"></i>
+                  *ngIf="!isEditingObservacionesTurno(a.id!)" title="Editar observaciones del turno" [attr.data-testid]="'appointment-edit-turn-obs-' + a.id"></i>
               </div>
               <div *ngIf="!isEditingObservacionesTurno(a.id!)">
                 <span class="small" *ngIf="a.observacionesTurno">{{ a.observacionesTurno }}</span>
