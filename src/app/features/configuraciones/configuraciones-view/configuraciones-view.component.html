@@ -1,70 +1,100 @@
 <div class="configuraciones-container" data-testid="settings-page">
   <div class="container-fluid px-4">
-    <div class="header-section mb-4">
-      <h1 class="fw-bold mb-0">
-        <i class="bi bi-gear me-2 text-primary"></i>Configuraciones
-      </h1>
-      <p class="text-muted mb-0">Ajustes de la cuenta y preferencias</p>
+    <div class="settings-header-row mb-4">
+      <div class="header-section mb-0">
+        <h1 class="fw-bold mb-0">
+          <i class="bi bi-gear me-2 text-primary"></i>Configuraciones
+        </h1>
+        <p class="text-muted mb-0">Ajustes de la cuenta y preferencias</p>
+      </div>
+
+      <div class="plan-summary-card" data-testid="settings-plan-summary">
+        <div class="plan-summary-info">
+          <div class="plan-summary-icon">
+            <i class="bi bi-box-seam"></i>
+          </div>
+          <div>
+            <div class="plan-summary-name">Plan Pro</div>
+            <div class="plan-summary-limit">Hasta 5 usuarios activos</div>
+          </div>
+        </div>
+
+        <div class="plan-summary-usage">
+          <span class="plan-summary-usage-label">Cupos utilizados</span>
+          <div class="plan-summary-progress-wrap">
+            <div class="plan-summary-progress">
+              <div class="plan-summary-progress-bar" style="width: 60%"></div>
+            </div>
+            <span class="plan-summary-count">3 / 5</span>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-plan-upgrade" data-testid="settings-plan-upgrade-btn">
+          <i class="bi bi-arrow-down-up"></i>
+          Mejorar plan
+        </button>
+      </div>
     </div>
 
     <div class="row g-4">
       <div class="col-lg-6 col-xl-5">
         <div class="profesionales-panel" data-testid="settings-profesionales-panel">
-          <div class="profesionales-header mb-4">
-            <h2 class="fw-bold mb-0">
-              <i class="bi bi-person-badge me-2 text-primary"></i>Profesionales
-            </h2>
-            <p class="text-muted mb-3">Equipo médico</p>
-            <button type="button" class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2"
+          <div class="profesionales-toolbar">
+            <span class="profesionales-count">
+              {{ profesionales.length }}
+              {{ profesionales.length === 1 ? 'usuario registrado' : 'usuarios registrados' }}
+            </span>
+            <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-2"
               (click)="openAddProfesional()" data-testid="settings-add-profesional-btn">
               <i class="bi bi-person-plus"></i>
-              Agregar profesional
+              Agregar usuario
             </button>
           </div>
 
           <div class="profesionales-list" *ngIf="profesionales.length > 0">
-            <div *ngFor="let prof of profesionales" class="profesional-card card mb-3"
-              [ngClass]="{ 'profesional-inactive': prof.activo === false }" [attr.data-testid]="'settings-profesional-item-' + prof.id">
-              <div class="card-body p-3">
-                <div class="d-flex align-items-start gap-3">
-                  <div class="avatar-small">
-                    <i class="bi bi-person fs-5 text-primary"></i>
-                  </div>
-                  <div class="flex-grow-1">
-                    <div class="d-flex justify-content-between align-items-center gap-2 mb-1">
-                      <h6 class="mb-0 fw-semibold">{{ prof.nombre }}</h6>
-                      <span class="badge text-nowrap text-white" *ngIf="prof.estado"
-                        [style.background-color]="getEstadoColor(prof.estado)">{{ prof.estado }}</span>
-                    </div>
-                    <p class="mb-0 text-muted small" *ngIf="prof.especialidad">
-                      {{ prof.especialidad }}
-                    </p>
-                    <span class="badge bg-secondary mt-1" *ngIf="prof.activo === false">
-                      Inactivo
-                    </span>
-                  </div>
+            <div *ngFor="let prof of profesionales; let i = index" class="profesional-row"
+              [ngClass]="{ 'profesional-inactive': prof.activo === false }"
+              [attr.data-testid]="'settings-profesional-item-' + prof.id">
+              <div class="profesional-avatar" [ngStyle]="getAvatarStyle(i)">
+                {{ getProfesionalInitials(prof.nombre) }}
+              </div>
+
+              <div class="profesional-info">
+                <div class="profesional-name">{{ prof.nombre }}</div>
+                <div class="profesional-detail" *ngIf="getProfesionalDetalle(prof)">
+                  {{ getProfesionalDetalle(prof) }}
                 </div>
-                <div class="profesional-actions mt-3 d-flex gap-2">
-                  <button type="button" class="btn btn-sm btn-outline-primary flex-fill"
-                    (click)="openEditProfesional(prof)" title="Editar" [attr.data-testid]="'settings-profesional-edit-btn-' + prof.id">
-                    <i class="bi bi-pencil"></i>
-                  </button>
-                  <button type="button" class="btn btn-sm btn-outline-warning flex-fill"
-                    (click)="toggleProfesionalActive(prof)" title="Cambiar estado" [attr.data-testid]="'settings-profesional-status-btn-' + prof.id">
-                    <i class="bi bi-flag"></i>
-                  </button>
-                  <button type="button" class="btn btn-sm btn-outline-danger flex-fill"
-                    (click)="onDeleteProfesional(prof)" title="Eliminar" [attr.data-testid]="'settings-profesional-delete-btn-' + prof.id">
-                    <i class="bi bi-trash"></i>
-                  </button>
-                </div>
+              </div>
+
+              <div class="profesional-badges">
+                <span class="badge badge-soft badge-role text-nowrap">Administrador</span>
+                <span class="badge badge-soft badge-estado text-nowrap" *ngIf="prof.estado"
+                  [ngStyle]="getEstadoBadgeStyle(prof.estado)">{{ prof.estado }}</span>
+              </div>
+
+              <div class="profesional-actions">
+                <button type="button" class="btn btn-action btn-action-edit"
+                  (click)="openEditProfesional(prof)" title="Editar"
+                  [attr.data-testid]="'settings-profesional-edit-btn-' + prof.id">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button type="button" class="btn btn-action btn-action-flag"
+                  (click)="toggleProfesionalActive(prof)" title="Cambiar estado"
+                  [attr.data-testid]="'settings-profesional-status-btn-' + prof.id">
+                  <i class="bi bi-flag"></i>
+                </button>
+                <button type="button" class="btn btn-action btn-action-delete"
+                  (click)="onDeleteProfesional(prof)" title="Eliminar"
+                  [attr.data-testid]="'settings-profesional-delete-btn-' + prof.id">
+                  <i class="bi bi-trash"></i>
+                </button>
               </div>
             </div>
           </div>
 
-          <div *ngIf="profesionales.length === 0" class="text-center text-muted py-4">
+          <div *ngIf="profesionales.length === 0" class="profesionales-empty text-center text-muted">
             <i class="bi bi-person-x fs-1 d-block mb-2 opacity-50"></i>
-            <p class="mb-0">No hay profesionales registrados</p>
+            <p class="mb-0">No hay usuarios registrados</p>
           </div>
         </div>
       </div>
@@ -94,7 +124,7 @@
               <code class="placeholder-tag">{{ '{fecha}' }}</code>
               <span class="text-muted small">= fecha del turno</span>
               <code class="placeholder-tag">{{ '{doctor}' }}</code>
-              <span class="text-muted small">= nombre del profesional</span>
+              <span class="text-muted small">= nombre del usuario</span>
               <code class="placeholder-tag">{{ '{paciente}' }}</code>
               <span class="text-muted small">= nombre del paciente</span>
             </div>
@@ -114,52 +144,96 @@
     </div>
   </div>
 
-  <!-- Modal Agregar/Editar Profesional -->
+  <!-- Modal Agregar/Editar Usuario -->
   <div class="modal fade show d-block" tabindex="-1" role="dialog" *ngIf="showProfesionalForm" data-testid="settings-profesional-dialog">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-dialog-profesional" role="document">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">
-            {{ editingProfesional ? 'Editar profesional' : 'Agregar profesional' }}
+            {{ editingProfesional ? 'Editar usuario' : 'Agregar usuario' }}
           </h5>
-          <button type="button" class="btn-close" aria-label="Close" (click)="closeAddProfesional()" data-testid="settings-profesional-close-btn"></button>
+          <button type="button" class="btn btn-modal-close" aria-label="Close" (click)="closeAddProfesional()" data-testid="settings-profesional-close-btn">
+            <i class="bi bi-x-lg"></i>
+          </button>
         </div>
         <form #profForm="ngForm" (ngSubmit)="onSaveProfesional(profForm)" data-testid="settings-profesional-form">
           <div class="modal-body">
-            <div class="mb-3">
-              <label class="form-label">Nombre y apellido *</label>
-              <input type="text" class="form-control" name="nombre" [(ngModel)]="nuevoProfesional.nombre" required data-testid="settings-profesional-name-input" />
-            </div>
-            <div class="mb-3">
-              <label class="form-label">DNI</label>
-              <input type="text" class="form-control" name="dni" [(ngModel)]="nuevoProfesional.dni" />
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Especialidad</label>
-              <input type="text" class="form-control" name="especialidad" [(ngModel)]="nuevoProfesional.especialidad" />
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Matrícula</label>
-              <input type="text" class="form-control" name="matricula" [(ngModel)]="nuevoProfesional.matricula" />
-            </div>
-            <div class="row">
-              <div class="col-md-6 mb-3">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Nombre y apellido *</label>
+                <input type="text" class="form-control" name="nombre" [(ngModel)]="nuevoProfesional.nombre"
+                  placeholder="Dr. Juan Terracota" required data-testid="settings-profesional-name-input" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">DNI</label>
+                <input type="text" class="form-control" name="dni" [(ngModel)]="nuevoProfesional.dni"
+                  placeholder="12345678" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Especialidad</label>
+                <input type="text" class="form-control" name="especialidad" [(ngModel)]="nuevoProfesional.especialidad"
+                  placeholder="Odontología General" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Matrícula</label>
+                <input type="text" class="form-control" name="matricula" [(ngModel)]="nuevoProfesional.matricula"
+                  placeholder="MP 12345" />
+              </div>
+              <div class="col-md-6">
                 <label class="form-label">Email</label>
-                <input type="email" class="form-control" name="email" [(ngModel)]="nuevoProfesional.email" />
+                <input type="email" class="form-control" name="email" [(ngModel)]="nuevoProfesional.email"
+                  placeholder="email@ejemplo.com" />
               </div>
-              <div class="col-md-6 mb-3">
+              <div class="col-md-6">
                 <label class="form-label">Teléfono</label>
-                <input type="text" class="form-control" name="telefono" [(ngModel)]="nuevoProfesional.telefono" />
+                <input type="text" class="form-control" name="telefono" [(ngModel)]="nuevoProfesional.telefono"
+                  placeholder="1123456789" />
               </div>
             </div>
-            <div *ngIf="saveProfesionalError" class="alert alert-danger py-2">
+
+            <div class="rol-permisos-section mt-4">
+              <label class="form-label">Rol y permisos *</label>
+              <div class="rol-cards">
+                <button type="button" class="rol-card"
+                  [class.rol-card-selected]="selectedRol === 'basico'"
+                  (click)="selectRol('basico')" data-testid="settings-profesional-rol-basico">
+                  <div class="rol-card-header">
+                    <i class="bi bi-person rol-card-icon"></i>
+                    <span class="rol-card-title">Básico</span>
+                  </div>
+                  <p class="rol-card-description">Acceso limitado a sus propios turnos y pacientes</p>
+                  <ul class="rol-card-list">
+                    <li>Ver y gestionar sus turnos</li>
+                    <li>Acceder al odontograma</li>
+                    <li>Sin acceso a configuraciones</li>
+                  </ul>
+                </button>
+
+                <button type="button" class="rol-card"
+                  [class.rol-card-selected]="selectedRol === 'administrador'"
+                  (click)="selectRol('administrador')" data-testid="settings-profesional-rol-administrador">
+                  <div class="rol-card-header">
+                    <i class="bi bi-shield-check rol-card-icon"></i>
+                    <span class="rol-card-title">Administrador</span>
+                  </div>
+                  <p class="rol-card-description">Acceso completo al sistema y configuraciones</p>
+                  <ul class="rol-card-list">
+                    <li>Todos los turnos y pacientes</li>
+                    <li>Gestión de usuarios y plan</li>
+                    <li>Configuraciones de la clínica</li>
+                  </ul>
+                </button>
+              </div>
+            </div>
+
+            <div *ngIf="saveProfesionalError" class="alert alert-danger py-2 mt-3">
               {{ saveProfesionalError }}
             </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-outline-secondary" (click)="closeAddProfesional()" data-testid="settings-profesional-cancel-btn">Cancelar</button>
             <button type="submit" class="btn btn-primary" [disabled]="profForm.invalid || isSavingProfesional" data-testid="settings-profesional-save-btn">
-              {{ isSavingProfesional ? 'Guardando...' : 'Guardar' }}
+              {{ isSavingProfesional ? 'Guardando...' : 'Guardar usuario' }}
             </button>
           </div>
         </form>
@@ -168,19 +242,19 @@
   </div>
   <div class="modal-backdrop fade show" *ngIf="showProfesionalForm"></div>
 
-  <!-- Modal confirmación eliminación profesional -->
-  <app-confirm-dialog [open]="isDeleteConfirmOpen" title="Eliminar profesional"
-    message="¿Está seguro de que desea eliminar este profesional? Esta acción no se puede deshacer."
+  <!-- Modal confirmación eliminación usuario -->
+  <app-confirm-dialog [open]="isDeleteConfirmOpen" title="Eliminar usuario"
+    message="¿Está seguro de que desea eliminar este usuario? Esta acción no se puede deshacer."
     [summary]="deleteCandidateSummary" [isLoading]="isDeletingProfesional" confirmText="Eliminar" cancelText="Cancelar"
     confirmButtonClass="btn-danger" dialogId="confirmDeleteProfesional" (confirm)="confirmDeleteProfesional()"
     (cancel)="closeDeleteConfirm()" (openChange)="onDeleteConfirmOpenChange($event)" />
 
-  <!-- Modal Estado Profesional -->
+  <!-- Modal Estado Usuario -->
   <div class="modal fade show d-block" tabindex="-1" role="dialog" *ngIf="showEstadoProfesionalModal" data-testid="settings-profesional-status-dialog">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Cambiar estado del profesional</h5>
+          <h5 class="modal-title">Cambiar estado del usuario</h5>
           <button type="button" class="btn-close" aria-label="Close" (click)="closeEstadoProfesionalModal()" data-testid="settings-profesional-status-close-btn"></button>
         </div>
         <div class="modal-body">

@@ -14,25 +14,164 @@
   }
 }
 
+.settings-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-2xl;
+  flex-wrap: wrap;
+}
+
+.plan-summary-card {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2xl;
+  padding: $spacing-lg $spacing-xl;
+  background-color: $card-background;
+  border: 1px solid $border-color;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-sm;
+  flex-shrink: 0;
+}
+
+.plan-summary-info {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  min-width: 0;
+}
+
+.plan-summary-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: $radius-md;
+  background-color: rgba($info, 0.12);
+  color: $info;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  i {
+    font-size: 1.125rem;
+  }
+}
+
+.plan-summary-name {
+  font-weight: 600;
+  color: $text-primary;
+  font-size: 0.9375rem;
+  line-height: 1.3;
+}
+
+.plan-summary-limit {
+  margin-top: 0.125rem;
+  color: $text-secondary;
+  font-size: 0.8125rem;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.plan-summary-usage {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  min-width: 10rem;
+}
+
+.plan-summary-usage-label {
+  color: $text-secondary;
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+.plan-summary-progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.plan-summary-progress {
+  flex: 1;
+  height: 0.375rem;
+  background-color: $hover-bg;
+  border-radius: $radius-full;
+  overflow: hidden;
+}
+
+.plan-summary-progress-bar {
+  height: 100%;
+  background-color: $info;
+  border-radius: $radius-full;
+}
+
+.plan-summary-count {
+  color: $text-secondary;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.btn-plan-upgrade {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: 0.5rem 1rem;
+  border: 1px solid $info;
+  border-radius: $radius-md;
+  background-color: $card-background;
+  color: $info;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: all $transition-base;
+
+  i {
+    font-size: 0.875rem;
+  }
+
+  &:hover {
+    background-color: rgba($info, 0.08);
+  }
+}
+
 .profesionales-panel {
   @include sticky-container;
   top: $spacing-3xl;
+  background-color: $card-background;
+  border: 1px solid $border-color;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-md;
+  padding: $spacing-xl $spacing-2xl;
 }
 
-.profesionales-header {
-  h2 {
-    color: $text-primary;
-    font-size: 1.5rem;
+.profesionales-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-lg;
+  margin-bottom: $spacing-lg;
+
+  .profesionales-count {
+    color: $text-secondary;
+    font-size: 0.9375rem;
+    font-weight: 500;
+  }
+
+  .btn-primary {
+    @include button-gradient-primary($radius-md);
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    white-space: nowrap;
   }
 }
 
 .profesionales-list {
-  max-height: calc(100vh - #{$navbar-height} - 20rem);
+  max-height: calc(100vh - #{$navbar-height} - 16rem);
   overflow-y: auto;
-  padding-right: $spacing-sm;
+  margin: 0 (-$spacing-sm);
+  padding: 0 $spacing-sm;
 
-  // Usa la scrollbar global de styles.scss
-  // Si necesitas una personalizada específica, puedes mantenerla aquí
   &::-webkit-scrollbar {
     width: 6px;
   }
@@ -52,28 +191,116 @@
   }
 }
 
-.profesional-card {
-  @include card-hover($radius-lg);
+.profesional-row {
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
+  padding: $spacing-lg 0;
+  border-bottom: 1px solid $border-color;
 
-  &:hover {
-    transform: translateY(-1px);
+  &:last-child {
+    border-bottom: none;
   }
 
   &.profesional-inactive {
-    opacity: 0.7;
-    background-color: $sidebar-bg;
+    opacity: 0.65;
   }
 }
 
-.avatar-small {
-  @include icon-wrapper-circle-sm;
+.profesional-avatar {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: $radius-full;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.profesional-info {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.profesional-name {
+  font-weight: 600;
+  color: $text-primary;
+  font-size: 0.9375rem;
+  line-height: 1.3;
+}
+
+.profesional-detail {
+  margin-top: 0.125rem;
+  color: $text-secondary;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+}
+
+.profesional-badges {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  flex-shrink: 0;
+}
+
+.badge-soft {
+  font-weight: 500;
+  font-size: 0.75rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: $radius-full;
+  line-height: 1;
+}
+
+.badge-role {
+  background-color: rgba($info, 0.14);
+  color: $info;
 }
 
 .profesional-actions {
-  .btn {
-    padding: 0.375rem 0.5rem;
-    font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  flex-shrink: 0;
+}
+
+.btn-action {
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid $border-color;
+  border-radius: $radius-md;
+  background-color: $card-background;
+  transition: all $transition-base;
+
+  i {
+    font-size: 0.95rem;
   }
+
+  &:hover {
+    background-color: $hover-bg;
+  }
+}
+
+.btn-action-edit i {
+  color: $info;
+}
+
+.btn-action-flag i {
+  color: $text-secondary;
+}
+
+.btn-action-delete i {
+  color: $danger-light;
+}
+
+.profesionales-empty {
+  padding: $spacing-3xl $spacing-lg;
 }
 
 .whatsapp-config-panel {
@@ -112,11 +339,27 @@
 }
 
 @include tablet {
+  .settings-header-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .plan-summary-card {
+    flex-wrap: wrap;
+    gap: $spacing-lg;
+  }
+
+  .plan-summary-usage {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
   .profesionales-panel {
     position: relative;
     top: 0;
     max-height: none;
     margin-top: 0;
+    padding: $spacing-lg;
   }
 
   .whatsapp-config-panel {
@@ -128,5 +371,329 @@
 
   .profesionales-list {
     max-height: 400px;
+  }
+
+  .profesionales-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+
+    .btn-primary {
+      justify-content: center;
+    }
+  }
+
+  .profesional-row {
+    flex-wrap: wrap;
+    gap: $spacing-md;
+  }
+
+  .profesional-badges {
+    order: 3;
+    width: 100%;
+    padding-left: calc(2.75rem + #{$spacing-lg});
+  }
+
+  .profesional-actions {
+    margin-left: auto;
+  }
+}
+
+// Modales de usuarios
+.configuraciones-container {
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba($text-primary, 0.45);
+    backdrop-filter: blur(4px);
+    z-index: 1040;
+    animation: settingsModalBackdropFadeIn $transition-slow forwards;
+  }
+
+  [data-testid='settings-profesional-dialog'],
+  [data-testid='settings-profesional-status-dialog'] {
+    z-index: 1050;
+
+    .modal-dialog {
+      position: relative;
+      z-index: 1055;
+      margin: $spacing-3xl auto;
+      max-width: 36rem;
+      animation: settingsModalFadeIn $transition-slow forwards;
+
+      &.modal-dialog-profesional {
+        max-width: 44rem;
+      }
+    }
+
+    .modal-content {
+      background: $card-background;
+      border: 1px solid $border-color;
+      border-radius: $radius-xl;
+      box-shadow: $shadow-xl;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      border-bottom: 1px solid $border-color;
+      padding: $spacing-xl $spacing-2xl;
+      background: $card-background;
+
+      .modal-title {
+        font-weight: 600;
+        font-size: 1.125rem;
+        color: $text-primary;
+        line-height: 1.4;
+      }
+
+      .btn-close {
+        width: 2rem;
+        height: 2rem;
+        padding: 0;
+        border-radius: $radius-full;
+        background-color: $hover-bg;
+        opacity: 1;
+        transition: all $transition-base;
+
+        &:hover:not(:disabled) {
+          background-color: rgba($primary-color, 0.12);
+          transform: scale(1.05);
+        }
+
+        &:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+      }
+
+      .btn-modal-close {
+        width: 2rem;
+        height: 2rem;
+        padding: 0;
+        border: 1px solid $border-color;
+        border-radius: $radius-md;
+        background-color: $card-background;
+        color: $text-secondary;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: all $transition-base;
+
+        i {
+          font-size: 0.875rem;
+          line-height: 1;
+        }
+
+        &:hover:not(:disabled) {
+          background-color: $hover-bg;
+          color: $text-primary;
+        }
+      }
+    }
+
+    .modal-body {
+      padding: $spacing-2xl;
+      max-height: calc(100vh - 12rem);
+      overflow-y: auto;
+
+      .form-label {
+        font-weight: 500;
+        color: $text-secondary;
+        font-size: 0.875rem;
+        margin-bottom: $spacing-sm;
+      }
+
+      .form-control,
+      .form-select {
+        @include input-focus($radius-md, 3px);
+        padding: 0.625rem 0.875rem;
+        font-size: 0.9375rem;
+      }
+
+      .alert-danger {
+        background-color: rgba($danger-light, 0.1);
+        border: 1px solid rgba($danger-light, 0.25);
+        color: $danger-dark;
+        border-radius: $radius-md;
+        font-size: 0.875rem;
+      }
+
+      .rol-permisos-section {
+        .form-label {
+          margin-bottom: $spacing-md;
+        }
+      }
+
+      .rol-cards {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: $spacing-lg;
+      }
+
+      .rol-card {
+        width: 100%;
+        text-align: left;
+        padding: $spacing-lg;
+        border: 1px solid $border-color;
+        border-radius: $radius-lg;
+        background-color: $card-background;
+        cursor: pointer;
+        transition: all $transition-base;
+
+        &:hover {
+          border-color: rgba($info, 0.45);
+        }
+
+        &.rol-card-selected {
+          border-color: $info;
+          background-color: rgba($info, 0.06);
+          box-shadow: 0 0 0 1px rgba($info, 0.08);
+
+          .rol-card-title,
+          .rol-card-icon {
+            color: $info;
+          }
+        }
+      }
+
+      .rol-card-header {
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
+        margin-bottom: $spacing-sm;
+      }
+
+      .rol-card-icon {
+        font-size: 1rem;
+        color: $text-secondary;
+      }
+
+      .rol-card-title {
+        font-weight: 600;
+        font-size: 0.9375rem;
+        color: $text-primary;
+      }
+
+      .rol-card-description {
+        margin: 0 0 $spacing-md;
+        font-size: 0.8125rem;
+        color: $text-secondary;
+        line-height: 1.45;
+      }
+
+      .rol-card-list {
+        margin: 0;
+        padding-left: 1.1rem;
+        font-size: 0.8125rem;
+        color: $text-secondary;
+        line-height: 1.5;
+
+        li + li {
+          margin-top: 0.25rem;
+        }
+      }
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: $spacing-sm;
+      border-top: 1px solid $border-color;
+      padding: $spacing-lg $spacing-2xl;
+      background: $card-background;
+
+      .btn {
+        padding: 0.625rem 1.25rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        border-radius: $radius-md;
+        transition: all $transition-base;
+        cursor: pointer;
+
+        &:disabled {
+          opacity: 0.65;
+          cursor: not-allowed;
+          transform: none;
+          box-shadow: none;
+        }
+      }
+
+      .btn-outline-secondary {
+        background-color: transparent;
+        border: 1px solid $border-color;
+        color: $text-primary;
+
+        &:hover:not(:disabled) {
+          background-color: $hover-bg;
+          border-color: $primary-color;
+          color: $primary-color;
+        }
+      }
+
+      .btn-primary {
+        @include button-gradient-primary();
+        padding: 0.625rem 1.25rem;
+        font-size: 0.875rem;
+      }
+    }
+  }
+
+  @include mobile {
+    [data-testid='settings-profesional-dialog'],
+    [data-testid='settings-profesional-status-dialog'] {
+      display: flex !important;
+      align-items: flex-end;
+      padding: $spacing-md;
+
+      .modal-dialog {
+        margin: 0;
+        width: 100%;
+        max-width: 100%;
+      }
+
+      .modal-content {
+        border-radius: $radius-lg $radius-lg 0 0;
+      }
+
+      .modal-header,
+      .modal-body {
+        padding: $spacing-lg;
+      }
+
+      .rol-cards {
+        grid-template-columns: 1fr;
+      }
+
+      .modal-footer {
+        flex-direction: column-reverse;
+        padding: $spacing-lg;
+
+        .btn {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    }
+  }
+}
+
+@keyframes settingsModalBackdropFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes settingsModalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }

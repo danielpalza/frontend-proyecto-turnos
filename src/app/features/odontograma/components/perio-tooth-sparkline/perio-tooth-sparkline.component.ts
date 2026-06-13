@@ -38,6 +38,17 @@ export class PerioToothSparklineComponent {
    */
   @Input() zeroAtBottom = false;
 
+  /** Identificador del diente para data-testid del mini gráfico. */
+  @Input() toothId?: number;
+  @Input() chartFace: 'vest' | 'ling' = 'vest';
+
+  get sparklineTestId(): string | null {
+    if (this.toothId == null) {
+      return null;
+    }
+    return `periodontogram-mini-chart-${this.toothId}-${this.chartFace}`;
+  }
+
   /**
    * Datos del sitio distal de la pieza vecina anterior (mismo arco y misma cara).
    * Si están presentes, el gráfico dibuja la media cola izquierda hasta el borde

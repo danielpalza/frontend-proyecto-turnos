@@ -1,27 +1,179 @@
 @use 'variables' as *;
+@use 'mixins' as *;
 
 // Modal confirmación (sin JS de Bootstrap)
 .confirm-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba($text-primary, 0.45);
+  backdrop-filter: blur(4px);
   z-index: 1050;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: $spacing-lg;
+  animation: confirmBackdropFadeIn $transition-slow forwards;
 }
 
 .confirm-modal {
   width: min(34rem, 100%);
   background: $card-background;
-  border-radius: $radius-lg;
-  padding: $spacing-lg $spacing-xl;
-  box-shadow: $shadow-lg;
+  border: 1px solid $border-color;
+  border-radius: $radius-xl;
+  padding: $spacing-xl $spacing-2xl;
+  box-shadow: $shadow-xl;
+  animation: confirmModalFadeIn $transition-slow forwards;
+
+  h5 {
+    font-weight: 600;
+    font-size: 1.125rem;
+    color: $text-primary;
+    line-height: 1.4;
+  }
+
+  p {
+    color: $text-secondary;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+
+  [data-testid='confirm-dialog-detail'] {
+    @include section-bordered-left;
+    margin-top: $spacing-md;
+
+    span {
+      color: $text-muted;
+    }
+
+    strong {
+      color: $text-primary;
+      font-weight: 600;
+    }
+  }
+
+  .btn-close {
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border-radius: $radius-full;
+    background-color: $hover-bg;
+    opacity: 1;
+    transition: all $transition-base;
+
+    &:hover:not(:disabled) {
+      background-color: rgba($primary-color, 0.12);
+      transform: scale(1.05);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
 }
 
 .confirm-modal-actions {
   display: flex;
   justify-content: flex-end;
+  flex-wrap: wrap;
   gap: $spacing-sm;
+  margin-top: $spacing-lg;
+  padding-top: $spacing-lg;
+  border-top: 1px solid $border-color;
+
+  .btn {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: $radius-md;
+    transition: all $transition-base;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+  }
+
+  .btn-outline-secondary {
+    background-color: transparent;
+    border: 1px solid $border-color;
+    color: $text-primary;
+
+    &:hover:not(:disabled) {
+      background-color: $hover-bg;
+      border-color: $primary-color;
+      color: $primary-color;
+    }
+  }
+
+  .btn-danger {
+    background-color: $danger-light;
+    border: 1px solid $danger-light;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background-color: $danger-dark;
+      border-color: $danger-dark;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba($danger-light, 0.35);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+  }
+
+  .btn-primary {
+    @include button-gradient-primary();
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+  }
+
+  .spinner-border {
+    color: currentColor;
+  }
+}
+
+@include mobile {
+  .confirm-modal-backdrop {
+    padding: $spacing-md;
+    align-items: flex-end;
+  }
+
+  .confirm-modal {
+    padding: $spacing-lg;
+    border-radius: $radius-lg $radius-lg 0 0;
+  }
+
+  .confirm-modal-actions {
+    flex-direction: column-reverse;
+
+    .btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
+
+@keyframes confirmBackdropFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes confirmModalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }

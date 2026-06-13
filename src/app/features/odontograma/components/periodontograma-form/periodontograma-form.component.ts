@@ -314,4 +314,24 @@ export class PeriodontogramaFormComponent implements OnInit, OnDestroy {
 
     return Math.min(max, Math.max(min, value));
   }
+
+  psVestTestId(toothId: number, site: number): string {
+    return `periodontogram-ps-vest-${toothId}-${site}`;
+  }
+
+  psLingTestId(toothId: number, site: number): string {
+    return `periodontogram-ps-ling-${toothId}-${site}`;
+  }
+
+  nicDisplayTestId(toothId: number): string {
+    return `periodontogram-nic-display-${toothId}`;
+  }
+
+  mobilityTestId(toothId: number): string {
+    return `periodontogram-mobility-${toothId}`;
+  }
+
+  furcationTestId(toothId: number): string {
+    return `periodontogram-furcation-${toothId}`;
+  }
 }

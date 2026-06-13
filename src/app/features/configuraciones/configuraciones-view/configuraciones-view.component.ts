@@ -26,6 +26,7 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
   isSavingProfesional = false;
   saveProfesionalError = '';
   editingProfesional: Profesional | null = null;
+  selectedRol: 'basico' | 'administrador' = 'administrador';
 
   isDeleteConfirmOpen = false;
   isDeletingProfesional = false;
@@ -71,7 +72,7 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
         next: (list) => { this.profesionales = list; this.cdr.markForCheck(); },
         error: (err) => {
           if (err?.status !== 404) {
-            const message = this.errorHandler.getErrorMessage(err, 'cargar los profesionales');
+            const message = this.errorHandler.getErrorMessage(err, 'cargar los usuarios');
             if (!this.errorHandler.isNetworkError(err)) this.notification.showError(message);
           }
         }
@@ -105,9 +106,48 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
     return (estado?.colorHex && /^#[0-9A-Fa-f]{6}$/.test(estado.colorHex)) ? estado.colorHex : '#6c757d';
   }
 
+  getEstadoBadgeStyle(estadoNombre: string | undefined): { [key: string]: string } {
+    const color = this.getEstadoColor(estadoNombre);
+    return {
+      backgroundColor: this.hexToRgba(color, 0.14),
+      color
+    };
+  }
+
+  getProfesionalInitials(nombre: string): string {
+    const parts = (nombre || '').trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return '?';
+    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+
+  getProfesionalDetalle(prof: Profesional): string {
+    const parts: string[] = [];
+    if (prof.especialidad) parts.push(prof.especialidad);
+    if (prof.matricula) parts.push(`Mat. ${prof.matricula}`);
+    return parts.join(' • ');
+  }
+
+  getAvatarStyle(index: number): { [key: string]: string } {
+    const palette = [
+      { backgroundColor: 'rgba(75, 133, 245, 0.14)', color: '#4B85F5' },
+      { backgroundColor: 'rgba(1, 225, 123, 0.16)', color: '#059669' },
+      { backgroundColor: 'rgba(253, 205, 15, 0.22)', color: '#D97706' }
+    ];
+    return palette[index % palette.length];
+  }
+
+  private hexToRgba(hex: string, alpha: number): string {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
   openAddProfesional(): void {
     this.editingProfesional = null;
     this.saveProfesionalError = '';
+    this.selectedRol = 'administrador';
     this.resetProfesionalForm();
     this.showProfesionalForm = true;
   }
@@ -115,6 +155,7 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
   openEditProfesional(profesional: Profesional): void {
     this.editingProfesional = profesional;
     this.saveProfesionalError = '';
+    this.selectedRol = 'administrador';
     this.nuevoProfesional = {
       nombre: profesional.nombre || '',
       dni: profesional.dni || '',
@@ -143,7 +184,12 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
       telefono: '',
       activo: true
     };
+    this.selectedRol = 'administrador';
     this.isSavingProfesional = false;
+  }
+
+  selectRol(rol: 'basico' | 'administrador'): void {
+    this.selectedRol = rol;
   }
 
   onSaveProfesional(form: NgForm): void {
@@ -158,14 +204,14 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
         this.isSavingProfesional = false;
         this.closeAddProfesional();
         this.notification.showSuccess(
-          this.editingProfesional ? 'Profesional actualizado correctamente.' : 'Profesional creado correctamente.'
+          this.editingProfesional ? 'Usuario actualizado correctamente.' : 'Usuario creado correctamente.'
         );
       },
       error: (err: unknown) => {
         this.isSavingProfesional = false;
         const message = this.errorHandler.getErrorMessage(
           err,
-          this.editingProfesional ? 'actualizar el profesional' : 'crear el profesional'
+          this.editingProfesional ? 'actualizar el usuario' : 'crear el usuario'
         );
         this.saveProfesionalError = message;
         if (!this.errorHandler.isNetworkError(err as any)) {
@@ -183,7 +229,7 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
   openDeleteConfirm(profesional: Profesional): void {
     if (this.isDeletingProfesional || !profesional.id) return;
     this.deleteCandidateId = profesional.id;
-    this.deleteCandidateSummary = [profesional.nombre || 'Profesional', profesional.especialidad ? `- ${profesional.especialidad}` : null].filter(Boolean).join(' ') || null;
+    this.deleteCandidateSummary = [profesional.nombre || 'Usuario', profesional.especialidad ? `- ${profesional.especialidad}` : null].filter(Boolean).join(' ') || null;
     this.isDeleteConfirmOpen = true;
   }
 
@@ -215,13 +261,13 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
       .pipe(finalize(() => { this.isDeletingProfesional = false; }))
       .subscribe({
         next: () => {
-          this.notification.showSuccess('Profesional eliminado correctamente.');
+          this.notification.showSuccess('Usuario eliminado correctamente.');
           this.isDeleteConfirmOpen = false;
           this.deleteCandidateId = null;
           this.deleteCandidateSummary = null;
         },
         error: (err: unknown) => {
-          const message = this.errorHandler.getErrorMessage(err as any, 'eliminar el profesional');
+          const message = this.errorHandler.getErrorMessage(err as any, 'eliminar el usuario');
           if (!this.errorHandler.isNetworkError(err as any)) {
             this.notification.showError(message);
           }
@@ -245,7 +291,7 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
       this.estadoProfesionalService.findAll().subscribe({
         next: (estados) => { this.estadoProfesionalList = estados; },
         error: (err: unknown) => {
-          this.estadoProfesionalError = this.errorHandler.getErrorMessage(err as any, 'cargar los estados del profesional');
+          this.estadoProfesionalError = this.errorHandler.getErrorMessage(err as any, 'cargar los estados del usuario');
           if (!this.errorHandler.isNetworkError(err as any)) {
             this.notification.showError(this.estadoProfesionalError);
           }
@@ -282,11 +328,11 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
       .pipe(finalize(() => { this.isSavingEstadoProfesional = false; }))
       .subscribe({
         next: () => {
-          this.notification.showSuccess('Estado del profesional actualizado correctamente.');
+          this.notification.showSuccess('Estado del usuario actualizado correctamente.');
           this.closeEstadoProfesionalModal();
         },
         error: (err: unknown) => {
-          this.estadoProfesionalError = this.errorHandler.getErrorMessage(err as any, 'actualizar el estado del profesional');
+          this.estadoProfesionalError = this.errorHandler.getErrorMessage(err as any, 'actualizar el estado del usuario');
           if (!this.errorHandler.isNetworkError(err as any)) {
             this.notification.showError(this.estadoProfesionalError);
           }
