@@ -36,8 +36,9 @@
       </div>
     </div>
 
+    <div class="settings-panels-scale">
     <div class="row g-4">
-      <div class="col-lg-6 col-xl-5">
+      <div class="col-lg-5 col-xl-5">
         <div class="profesionales-panel" data-testid="settings-profesionales-panel">
           <div class="profesionales-toolbar">
             <span class="profesionales-count">
@@ -99,48 +100,90 @@
         </div>
       </div>
 
-      <div class="col-lg-6 col-xl-5">
+      <div class="col-lg-7 col-xl-7">
         <div class="whatsapp-config-panel" data-testid="settings-whatsapp-panel">
           <div class="whatsapp-config-header mb-4">
             <h2 class="fw-bold mb-0">
               <i class="bi bi-whatsapp me-2 text-success"></i>Mensaje de WhatsApp
             </h2>
-            <p class="text-muted mb-3">Personaliza el recordatorio que se envia al paciente</p>
+            <p class="text-muted mb-0">Personaliza el recordatorio que se envia al paciente</p>
           </div>
 
-          <div class="mb-3">
-            <label class="form-label fw-semibold">Template del mensaje</label>
-            <textarea class="form-control whatsapp-template-textarea" rows="4"
-              [(ngModel)]="whatsappTemplate"
-              [placeholder]="whatsappPlaceholder"
-              data-testid="settings-whatsapp-template-input"></textarea>
-          </div>
+          <div class="whatsapp-editor-layout">
+            <div class="whatsapp-editor-column">
+              <label class="form-label fw-semibold">Template del mensaje</label>
+              <div class="whatsapp-template-editor">
+                <textarea #whatsappTemplateInput class="form-control whatsapp-template-textarea" rows="5"
+                  [(ngModel)]="whatsappTemplate"
+                  [placeholder]="whatsappPlaceholder"
+                  [maxlength]="whatsappMaxLength"
+                  data-testid="settings-whatsapp-template-input"></textarea>
+                <span class="whatsapp-char-count">{{ whatsappCharCount }} / {{ whatsappMaxLength }} caracteres</span>
+              </div>
 
-          <div class="placeholders-help mb-3">
-            <p class="fw-semibold mb-2 small">Placeholders disponibles:</p>
-            <div class="d-flex flex-wrap gap-2">
-              <code class="placeholder-tag">{{ '{hora}' }}</code>
-              <span class="text-muted small">= hora del turno</span>
-              <code class="placeholder-tag">{{ '{fecha}' }}</code>
-              <span class="text-muted small">= fecha del turno</span>
-              <code class="placeholder-tag">{{ '{doctor}' }}</code>
-              <span class="text-muted small">= nombre del usuario</span>
-              <code class="placeholder-tag">{{ '{paciente}' }}</code>
-              <span class="text-muted small">= nombre del paciente</span>
+              <div class="whatsapp-placeholders-section">
+                <p class="whatsapp-placeholders-title">Placeholders disponibles — hacé clic para insertar</p>
+                <div class="whatsapp-placeholder-chips">
+                  <button type="button" class="whatsapp-placeholder-chip"
+                    *ngFor="let placeholder of whatsappPlaceholderOptions"
+                    (click)="insertWhatsappPlaceholder(placeholder.key)"
+                    [attr.data-testid]="'settings-whatsapp-placeholder-' + placeholder.key">
+                    <i class="bi" [ngClass]="placeholder.icon"></i>
+                    {{ placeholder.label }}
+                  </button>
+                </div>
+                <p class="whatsapp-placeholder-legend">
+                  <span *ngFor="let placeholder of whatsappPlaceholderOptions; let last = last">
+                    {{ placeholder.label }} = {{ placeholder.legend }}<span *ngIf="!last"> · </span>
+                  </span>
+                </p>
+              </div>
+
+              <div class="whatsapp-info-box">
+                <i class="bi bi-info-circle-fill"></i>
+                <p>Este mensaje se enviará desde la sesión de WhatsApp Web asociada. Recordá no superar los 1024 caracteres.</p>
+              </div>
+
+              <div class="whatsapp-save-row">
+                <button type="button" class="btn btn-success" (click)="saveWhatsappTemplate()"
+                  data-testid="settings-whatsapp-save-btn">
+                  <i class="bi bi-check-lg me-1"></i>Guardar
+                </button>
+                <span class="text-success small fw-semibold" *ngIf="whatsappSaved">
+                  <i class="bi bi-check-circle me-1"></i>Configuracion guardada
+                </span>
+              </div>
             </div>
-          </div>
 
-          <div class="d-flex align-items-center gap-2">
-            <button type="button" class="btn btn-success" (click)="saveWhatsappTemplate()"
-              data-testid="settings-whatsapp-save-btn">
-              <i class="bi bi-check-lg me-1"></i>Guardar
-            </button>
-            <span class="text-success small fw-semibold" *ngIf="whatsappSaved">
-              <i class="bi bi-check-circle me-1"></i>Configuracion guardada
-            </span>
+            <div class="whatsapp-preview-column">
+              <label class="form-label fw-semibold">Vista previa</label>
+              <div class="whatsapp-preview" data-testid="settings-whatsapp-preview">
+                <div class="whatsapp-preview-header">
+                  <div class="whatsapp-preview-avatar">CL</div>
+                  <div>
+                    <div class="whatsapp-preview-contact">Clínica Dental</div>
+                    <div class="whatsapp-preview-status">en línea</div>
+                  </div>
+                </div>
+                <div class="whatsapp-preview-body">
+                  <div class="whatsapp-preview-bubble">
+                    <span class="whatsapp-preview-text">
+                      <ng-container *ngFor="let part of whatsappPreviewParts">
+                        <span [class.preview-highlight]="part.highlight">{{ part.text }}</span>
+                      </ng-container>
+                    </span>
+                    <div class="whatsapp-preview-meta">
+                      <span>10:05</span>
+                      <i class="bi bi-check2-all"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+    </div>
     </div>
   </div>
 
@@ -243,40 +286,121 @@
   <div class="modal-backdrop fade show" *ngIf="showProfesionalForm"></div>
 
   <!-- Modal confirmación eliminación usuario -->
-  <app-confirm-dialog [open]="isDeleteConfirmOpen" title="Eliminar usuario"
-    message="¿Está seguro de que desea eliminar este usuario? Esta acción no se puede deshacer."
-    [summary]="deleteCandidateSummary" [isLoading]="isDeletingProfesional" confirmText="Eliminar" cancelText="Cancelar"
-    confirmButtonClass="btn-danger" dialogId="confirmDeleteProfesional" (confirm)="confirmDeleteProfesional()"
-    (cancel)="closeDeleteConfirm()" (openChange)="onDeleteConfirmOpenChange($event)" />
+  <div class="modal fade show d-block" tabindex="-1" role="dialog" *ngIf="isDeleteConfirmOpen" data-testid="settings-delete-user-dialog">
+    <div class="modal-dialog modal-dialog-delete" role="document">
+      <div class="modal-content">
+        <div class="delete-modal-header">
+          <div class="delete-modal-title-wrap">
+            <div class="delete-modal-icon">
+              <i class="bi bi-trash"></i>
+            </div>
+            <h5 class="delete-modal-title">Eliminar usuario</h5>
+          </div>
+          <button type="button" class="btn btn-modal-close" aria-label="Close" (click)="closeDeleteConfirm()"
+            [disabled]="isDeletingProfesional" data-testid="settings-delete-user-close-btn">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <p class="delete-modal-message">¿Estás seguro de que deseás eliminar este usuario?</p>
+          <p class="delete-modal-submessage">Esta acción no se puede deshacer.</p>
+
+          <div class="delete-user-details" *ngIf="deleteCandidate" data-testid="settings-delete-user-detail">
+            <div class="delete-user-detail-row">
+              <span class="delete-user-detail-label">Nombre:</span>
+              <strong>{{ deleteCandidate.nombre }}</strong>
+            </div>
+            <div class="delete-user-detail-row" *ngIf="deleteCandidate.especialidad">
+              <span class="delete-user-detail-label">Especialidad:</span>
+              <strong>{{ deleteCandidate.especialidad }}</strong>
+            </div>
+            <div class="delete-user-detail-row">
+              <span class="delete-user-detail-label">Rol:</span>
+              <span class="badge badge-soft badge-role text-nowrap">Administrador</span>
+            </div>
+          </div>
+
+          <div class="delete-user-warning">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <p>Los turnos asignados a este usuario quedarán sin asignar. Revisalos antes de continuar.</p>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" (click)="closeDeleteConfirm()"
+            [disabled]="isDeletingProfesional" data-testid="settings-delete-user-cancel-btn">Cancelar</button>
+          <button type="button" class="btn btn-danger btn-delete-user" (click)="confirmDeleteProfesional()"
+            [disabled]="isDeletingProfesional" data-testid="settings-delete-user-confirm-btn">
+            @if (isDeletingProfesional) {
+              <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            } @else {
+              <i class="bi bi-trash"></i>
+            }
+            {{ isDeletingProfesional ? 'Eliminando...' : 'Eliminar' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade show" *ngIf="isDeleteConfirmOpen"></div>
 
   <!-- Modal Estado Usuario -->
   <div class="modal fade show d-block" tabindex="-1" role="dialog" *ngIf="showEstadoProfesionalModal" data-testid="settings-profesional-status-dialog">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-dialog-estado" role="document">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Cambiar estado del usuario</h5>
-          <button type="button" class="btn-close" aria-label="Close" (click)="closeEstadoProfesionalModal()" data-testid="settings-profesional-status-close-btn"></button>
+          <button type="button" class="btn btn-modal-close" aria-label="Close" (click)="closeEstadoProfesionalModal()" data-testid="settings-profesional-status-close-btn">
+            <i class="bi bi-x-lg"></i>
+          </button>
         </div>
         <div class="modal-body">
-          <div class="mb-3">
-            <label class="form-label">Estado</label>
-            <select class="form-select" [(ngModel)]="estadoProfesionalSelected" data-testid="settings-profesional-status-select">
-              <option *ngFor="let estado of estadoProfesionalList" [ngValue]="estado.estado">
-                {{ estado.estado }}
-              </option>
-            </select>
-          </div>
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label class="form-label">Desde</label>
-              <input type="date" class="form-control" [(ngModel)]="estadoProfesionalDesde" />
+          <div class="estado-usuario-summary" *ngIf="estadoProfesionalTarget">
+            <div class="estado-usuario-avatar" [ngStyle]="getTargetAvatarStyle()">
+              {{ getProfesionalInitials(estadoProfesionalTarget.nombre) }}
             </div>
-            <div class="col-md-6 mb-3">
-              <label class="form-label">Hasta</label>
-              <input type="date" class="form-control" [(ngModel)]="estadoProfesionalHasta" />
+            <div class="estado-usuario-info">
+              <div class="estado-usuario-name">{{ estadoProfesionalTarget.nombre }}</div>
+              <div class="estado-usuario-current">
+                <span class="estado-usuario-current-label">Estado actual:</span>
+                <span class="badge badge-soft text-nowrap"
+                  [ngStyle]="getEstadoBadgeStyle(estadoProfesionalTarget.estado || 'Disponible')">
+                  {{ estadoProfesionalTarget.estado || 'Disponible' }}
+                </span>
+              </div>
             </div>
           </div>
-          <div *ngIf="estadoProfesionalError" class="alert alert-danger py-2">
+
+          <div class="estado-usuario-form">
+            <div class="mb-3">
+              <label class="form-label">Nuevo estado</label>
+              <select class="form-select estado-select" [(ngModel)]="estadoProfesionalSelected"
+                [style.color]="getEstadoColor(estadoProfesionalSelected)"
+                data-testid="settings-profesional-status-select">
+                <option *ngFor="let estado of estadoProfesionalList" [ngValue]="estado.estado">
+                  {{ estado.estado }}
+                </option>
+              </select>
+            </div>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Desde</label>
+                <input type="date" class="form-control" [(ngModel)]="estadoProfesionalDesde" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Hasta (opcional)</label>
+                <input type="date" class="form-control" [(ngModel)]="estadoProfesionalHasta" />
+              </div>
+            </div>
+          </div>
+
+          <div class="estado-usuario-info-box">
+            <i class="bi bi-info-circle-fill"></i>
+            <p>Los turnos asignados durante este período seguirán activos. Podés reasignarlos desde la sección Turnos.</p>
+          </div>
+
+          <div *ngIf="estadoProfesionalError" class="alert alert-danger py-2 mt-3">
             {{ estadoProfesionalError }}
           </div>
         </div>

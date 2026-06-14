@@ -5,6 +5,28 @@
   padding: $spacing-3xl;
   background-color: $sidebar-bg;
   padding-bottom: $spacing-3xl + $spacing-lg;
+  --settings-panels-scale: 0.88;
+}
+
+.settings-panels-scale {
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto;
+  zoom: var(--settings-panels-scale);
+
+  @supports not (zoom: 1) {
+    transform: scale(var(--settings-panels-scale));
+    transform-origin: top center;
+    width: calc(100% / var(--settings-panels-scale));
+    max-width: calc(100% / var(--settings-panels-scale));
+  }
+
+  @include tablet {
+    zoom: 1;
+    transform: none;
+    width: 100%;
+    max-width: 100%;
+  }
 }
 
 .header-section {
@@ -306,6 +328,11 @@
 .whatsapp-config-panel {
   @include sticky-container;
   top: $spacing-3xl;
+  background-color: $card-background;
+  border: 1px solid $border-color;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-md;
+  padding: $spacing-xl $spacing-2xl;
 }
 
 .whatsapp-config-header {
@@ -315,27 +342,204 @@
   }
 }
 
+.whatsapp-editor-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-2xl;
+  align-items: start;
+}
+
+.whatsapp-editor-column,
+.whatsapp-preview-column {
+  min-width: 0;
+}
+
+.whatsapp-template-editor {
+  position: relative;
+  margin-bottom: $spacing-lg;
+}
+
 .whatsapp-template-textarea {
   resize: vertical;
-  min-height: 100px;
+  min-height: 8.5rem;
   font-size: 0.9rem;
+  line-height: 1.5;
+  padding-bottom: 2rem;
+}
+
+.whatsapp-char-count {
+  position: absolute;
+  right: $spacing-md;
+  bottom: $spacing-sm;
+  color: $text-muted;
+  font-size: 0.75rem;
+  pointer-events: none;
+}
+
+.whatsapp-placeholders-section {
+  margin-bottom: $spacing-lg;
+}
+
+.whatsapp-placeholders-title {
+  margin: 0 0 $spacing-md;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: $text-secondary;
+}
+
+.whatsapp-placeholder-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-sm;
+}
+
+.whatsapp-placeholder-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid rgba($info, 0.35);
+  border-radius: $radius-full;
+  background-color: $card-background;
+  color: $info;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  i {
+    font-size: 0.875rem;
+  }
+
+  &:hover {
+    background-color: rgba($info, 0.08);
+    border-color: $info;
+  }
+}
+
+.whatsapp-placeholder-legend {
+  margin: 0;
+  color: $text-muted;
+  font-size: 0.75rem;
   line-height: 1.5;
 }
 
-.placeholders-help {
-  background: $sidebar-bg;
-  border-radius: $radius-md;
-  padding: 0.75rem 1rem;
-  border: 1px solid $border-color;
+.whatsapp-info-box {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-md;
+  padding: $spacing-md $spacing-lg;
+  margin-bottom: $spacing-lg;
+  background-color: rgba($info, 0.08);
+  border: 1px solid rgba($info, 0.16);
+  border-radius: $radius-lg;
+
+  i {
+    color: $info;
+    font-size: 1rem;
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+  }
+
+  p {
+    margin: 0;
+    color: $text-secondary;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+  }
 }
 
-.placeholder-tag {
-  background: rgba($primary-color, 0.1);
-  color: $primary-color;
-  padding: 0.15rem 0.5rem;
-  border-radius: $radius-sm;
-  font-size: 0.8rem;
+.whatsapp-save-row {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  flex-wrap: wrap;
+}
+
+.whatsapp-preview {
+  border: 1px solid $border-color;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  background-color: #ECE5DD;
+  min-height: 16rem;
+}
+
+.whatsapp-preview-header {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-md $spacing-lg;
+  background-color: #075E54;
+  color: white;
+}
+
+.whatsapp-preview-avatar {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: $radius-full;
+  background-color: rgba(255, 255, 255, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.whatsapp-preview-contact {
+  font-size: 0.9375rem;
   font-weight: 600;
+  line-height: 1.2;
+}
+
+.whatsapp-preview-status {
+  font-size: 0.75rem;
+  opacity: 0.85;
+}
+
+.whatsapp-preview-body {
+  padding: $spacing-lg;
+  min-height: 10rem;
+}
+
+.whatsapp-preview-bubble {
+  display: inline-block;
+  max-width: 100%;
+  padding: $spacing-md $spacing-lg $spacing-sm;
+  background-color: #DCF8C6;
+  border-radius: $radius-md $radius-lg $radius-lg $radius-md;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+}
+
+.whatsapp-preview-text {
+  display: block;
+  color: $text-primary;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.preview-highlight {
+  background-color: rgba($warning, 0.35);
+  border-radius: 0.15rem;
+  padding: 0 0.1rem;
+}
+
+.whatsapp-preview-meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.25rem;
+  margin-top: $spacing-sm;
+  color: $text-muted;
+  font-size: 0.6875rem;
+
+  i {
+    color: #53BDEB;
+    font-size: 0.875rem;
+  }
 }
 
 @include tablet {
@@ -367,6 +571,11 @@
     top: 0;
     max-height: none;
     margin-top: 0;
+    padding: $spacing-lg;
+  }
+
+  .whatsapp-editor-layout {
+    grid-template-columns: 1fr;
   }
 
   .profesionales-list {
@@ -410,7 +619,8 @@
   }
 
   [data-testid='settings-profesional-dialog'],
-  [data-testid='settings-profesional-status-dialog'] {
+  [data-testid='settings-profesional-status-dialog'],
+  [data-testid='settings-delete-user-dialog'] {
     z-index: 1050;
 
     .modal-dialog {
@@ -423,6 +633,14 @@
       &.modal-dialog-profesional {
         max-width: 44rem;
       }
+
+      &.modal-dialog-estado {
+        max-width: 32rem;
+      }
+
+      &.modal-dialog-delete {
+        max-width: 32rem;
+      }
     }
 
     .modal-content {
@@ -434,11 +652,18 @@
     }
 
     .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: $spacing-lg;
       border-bottom: 1px solid $border-color;
       padding: $spacing-xl $spacing-2xl;
       background: $card-background;
 
       .modal-title {
+        margin: 0;
+        flex: 1;
+        min-width: 0;
         font-weight: 600;
         font-size: 1.125rem;
         color: $text-primary;
@@ -477,6 +702,7 @@
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
+        margin-left: auto;
         transition: all $transition-base;
 
         i {
@@ -592,6 +818,188 @@
           margin-top: 0.25rem;
         }
       }
+
+      .estado-usuario-summary {
+        display: flex;
+        align-items: center;
+        gap: $spacing-lg;
+        padding-bottom: $spacing-xl;
+        margin-bottom: $spacing-xl;
+        border-bottom: 1px solid $border-color;
+      }
+
+      .estado-usuario-avatar {
+        width: 3rem;
+        height: 3rem;
+        border-radius: $radius-full;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 0.875rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+
+      .estado-usuario-name {
+        font-weight: 600;
+        color: $text-primary;
+        font-size: 0.9375rem;
+        line-height: 1.3;
+      }
+
+      .estado-usuario-current {
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
+        margin-top: 0.25rem;
+        flex-wrap: wrap;
+      }
+
+      .estado-usuario-current-label {
+        color: $text-secondary;
+        font-size: 0.8125rem;
+      }
+
+      .estado-usuario-form {
+        margin-bottom: $spacing-xl;
+      }
+
+      .estado-select {
+        font-weight: 500;
+      }
+
+      .estado-usuario-info-box {
+        display: flex;
+        align-items: flex-start;
+        gap: $spacing-md;
+        padding: $spacing-md $spacing-lg;
+        background-color: rgba($info, 0.08);
+        border: 1px solid rgba($info, 0.16);
+        border-radius: $radius-lg;
+
+        i {
+          color: $info;
+          font-size: 1rem;
+          flex-shrink: 0;
+          margin-top: 0.125rem;
+        }
+
+        p {
+          margin: 0;
+          color: $text-secondary;
+          font-size: 0.8125rem;
+          line-height: 1.5;
+        }
+      }
+
+      .delete-modal-message {
+        margin: 0 0 $spacing-sm;
+        color: $text-primary;
+        font-size: 0.9375rem;
+        line-height: 1.5;
+      }
+
+      .delete-modal-submessage {
+        margin: 0 0 $spacing-xl;
+        color: $text-secondary;
+        font-size: 0.9375rem;
+        line-height: 1.5;
+      }
+
+      .delete-user-details {
+        padding: $spacing-lg;
+        margin-bottom: $spacing-lg;
+        background-color: $sidebar-bg;
+        border: 1px solid $border-color;
+        border-radius: $radius-lg;
+      }
+
+      .delete-user-detail-row {
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
+        flex-wrap: wrap;
+
+        + .delete-user-detail-row {
+          margin-top: $spacing-md;
+        }
+      }
+
+      .delete-user-detail-label {
+        color: $text-secondary;
+        font-size: 0.875rem;
+      }
+
+      .delete-user-detail-row strong {
+        color: $text-primary;
+        font-weight: 600;
+        font-size: 0.875rem;
+      }
+
+      .delete-user-warning {
+        display: flex;
+        align-items: flex-start;
+        gap: $spacing-md;
+        padding: $spacing-md $spacing-lg;
+        background-color: rgba($warning, 0.14);
+        border: 1px solid rgba($warning, 0.45);
+        border-radius: $radius-lg;
+
+        i {
+          color: #D97706;
+          font-size: 1rem;
+          flex-shrink: 0;
+          margin-top: 0.125rem;
+        }
+
+        p {
+          margin: 0;
+          color: #92400E;
+          font-size: 0.8125rem;
+          line-height: 1.5;
+        }
+      }
+    }
+
+    .delete-modal-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: $spacing-lg;
+      padding: $spacing-xl $spacing-2xl $spacing-lg;
+      background: $card-background;
+    }
+
+    .delete-modal-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: $spacing-md;
+      min-width: 0;
+    }
+
+    .delete-modal-icon {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: $radius-full;
+      background-color: rgba($danger-light, 0.12);
+      color: $danger-light;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+
+      i {
+        font-size: 1rem;
+      }
+    }
+
+    .delete-modal-title {
+      margin: 0;
+      font-weight: 600;
+      font-size: 1.125rem;
+      color: $text-primary;
+      line-height: 1.4;
     }
 
     .modal-footer {
@@ -636,12 +1044,34 @@
         padding: 0.625rem 1.25rem;
         font-size: 0.875rem;
       }
+
+      .btn-danger {
+        background-color: $danger-light;
+        border: 1px solid $danger-light;
+        color: white;
+
+        &:hover:not(:disabled) {
+          background-color: $danger-dark;
+          border-color: $danger-dark;
+        }
+      }
+
+      .btn-delete-user {
+        display: inline-flex;
+        align-items: center;
+        gap: $spacing-sm;
+
+        i {
+          font-size: 0.875rem;
+        }
+      }
     }
   }
 
   @include mobile {
     [data-testid='settings-profesional-dialog'],
-    [data-testid='settings-profesional-status-dialog'] {
+    [data-testid='settings-profesional-status-dialog'],
+    [data-testid='settings-delete-user-dialog'] {
       display: flex !important;
       align-items: flex-end;
       padding: $spacing-md;
@@ -657,7 +1087,8 @@
       }
 
       .modal-header,
-      .modal-body {
+      .modal-body,
+      .delete-modal-header {
         padding: $spacing-lg;
       }
 
