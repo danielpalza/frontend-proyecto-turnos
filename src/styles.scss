@@ -138,6 +138,39 @@ html.seguimiento-view-active body::-webkit-scrollbar {
   }
 }
 
+.btn-whatsapp {
+  background: none;
+  border: none;
+  padding: 6px 10px;
+  border-radius: $radius-sm;
+  color: #25D366;
+  cursor: pointer;
+  transition: all $transition-base;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background-color: rgba(#25D366, 0.1);
+    color: #1ebe57;
+  }
+}
+
+.btn-whatsapp-disabled {
+  background: none;
+  border: none;
+  padding: 6px 10px;
+  border-radius: $radius-sm;
+  color: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.65;
+  transition: all $transition-base;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 // Scrollbar personalizada
 ::-webkit-scrollbar {
   width: 8px;
