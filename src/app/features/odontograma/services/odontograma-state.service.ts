@@ -6,7 +6,6 @@ import { AppointmentsService } from '../../../core/services/appointments.service
 import { Appointment } from '../../../core/models/appointment.model';
 import {
   CaraDelta,
-  DienteEstadoDelta,
   EstadoCara,
   FaceKey,
   FACE_KEY_TO_CARA,
@@ -117,7 +116,7 @@ export class OdontogramaStateService {
   private readonly loadingSubject = new BehaviorSubject<boolean>(false);
   readonly loading$ = this.loadingSubject.asObservable();
 
-  private baselineOdonto: OdontogramaEstadoActual = { caras: [], leyendas: [], dientesEstado: [] };
+  private baselineOdonto: OdontogramaEstadoActual = { caras: [], leyendas: [] };
   private baselinePerio: PeriodontogramaEstadoActual = { dientes: [] };
 
   constructor(
@@ -336,8 +335,7 @@ export class OdontogramaStateService {
   private normalizeOdontoEstado(estado?: OdontogramaEstadoActual | null): OdontogramaEstadoActual {
     return {
       caras: estado?.caras ?? [],
-      leyendas: estado?.leyendas ?? [],
-      dientesEstado: estado?.dientesEstado ?? []
+      leyendas: estado?.leyendas ?? []
     };
   }
 
@@ -351,8 +349,8 @@ export class OdontogramaStateService {
     return {
       appointmentId,
       patientId: 0,
-      estadoActual: { caras: [], leyendas: [], dientesEstado: [] },
-      cambiosTurno: { caras: [], leyendas: [], dientesEstado: [] }
+      estadoActual: { caras: [], leyendas: [] },
+      cambiosTurno: { caras: [], leyendas: [] }
     };
   }
 
@@ -377,27 +375,37 @@ export class OdontogramaStateService {
       carasMap.set(`${c.numeroDiente}-${c.cara}`, c);
     }
 
-    const leyendasMap = new Map<string, LeyendaDelta>();
+    const leyendasMap = new Map<number, LeyendaDelta>();
     for (const l of estadoActual?.leyendas ?? []) {
-      leyendasMap.set(`${l.numeroDiente}-${l.categoria}-${l.valor}`, l);
+      leyendasMap.set(l.numeroDiente, { ...l });
     }
     for (const l of cambiosTurno?.leyendas ?? []) {
-      leyendasMap.set(`${l.numeroDiente}-${l.categoria}-${l.valor}`, l);
-    }
-
-    const dientesMap = new Map<number, DienteEstadoDelta>();
-    for (const d of estadoActual?.dientesEstado ?? []) {
-      dientesMap.set(d.numeroDiente, { ...d });
-    }
-    for (const d of cambiosTurno?.dientesEstado ?? []) {
-      const existing = dientesMap.get(d.numeroDiente) ?? { numeroDiente: d.numeroDiente };
-      dientesMap.set(d.numeroDiente, { ...existing, ...d });
+      const existing = leyendasMap.get(l.numeroDiente);
+      if (!existing) {
+        leyendasMap.set(l.numeroDiente, { ...l });
+      } else {
+        // OR de campos booleanos, ultimo no-nulo para movilidad/furca
+        existing.ausencia = existing.ausencia || l.ausencia || false;
+        existing.implante = existing.implante || l.implante || false;
+        existing.corona = existing.corona || l.corona || false;
+        existing.puente = existing.puente || l.puente || false;
+        existing.erupcion = existing.erupcion || l.erupcion || false;
+        existing.retencion = existing.retencion || l.retencion || false;
+        existing.impactado = existing.impactado || l.impactado || false;
+        existing.extraer = existing.extraer || l.extraer || false;
+        existing.endodoncia = existing.endodoncia || l.endodoncia || false;
+        existing.fractura = existing.fractura || l.fractura || false;
+        existing.lesion = existing.lesion || l.lesion || false;
+        existing['dolor_sensibilidad'] = existing['dolor_sensibilidad'] || l['dolor_sensibilidad'] || false;
+        existing.ausente = existing.ausente || l.ausente || false;
+        existing.movilidad = l.movilidad != null ? l.movilidad : existing.movilidad;
+        existing.furca = l.furca != null ? l.furca : existing.furca;
+      }
     }
 
     return {
       caras: Array.from(carasMap.values()),
-      leyendas: Array.from(leyendasMap.values()),
-      dientesEstado: Array.from(dientesMap.values())
+      leyendas: Array.from(leyendasMap.values())
     };
   }
 
@@ -433,29 +441,37 @@ export class OdontogramaStateService {
 
     const icons: Record<number, LeyendaItem[]> = {};
     for (const leyenda of state.leyendas ?? []) {
-      const label = VALOR_TO_LEYENDA_LABEL[leyenda.valor];
-      if (!label) {
-        continue;
-      }
-      const item: LeyendaItem = { label, icono: LEYENDA_ICONS[label] ?? 'bi bi-circle' };
-      icons[leyenda.numeroDiente] = [...(icons[leyenda.numeroDiente] ?? []), item];
-    }
+      const items = icons[leyenda.numeroDiente] ?? [];
 
-    for (const diente of state.dientesEstado ?? []) {
-      const items = icons[diente.numeroDiente] ?? [];
-      if (diente.movilidad != null) {
-        const label = `M${diente.movilidad}`;
+      // Leyendas de estado y condicion
+      for (const valor in VALOR_TO_LEYENDA_LABEL) {
+        const label = VALOR_TO_LEYENDA_LABEL[valor as keyof typeof VALOR_TO_LEYENDA_LABEL];
+        if (!label) continue;
+        const field = valor as keyof LeyendaDelta;
+        if (leyenda[field]) {
+          if (!items.some(i => i.label === label)) {
+            items.push({ label, icono: LEYENDA_ICONS[label] ?? 'bi bi-circle' });
+          }
+        }
+      }
+
+      // Movilidad
+      if (leyenda.movilidad != null) {
+        const label = `M${leyenda.movilidad}`;
         if (!items.some(i => MOBILITY_LABELS.includes(i.label))) {
           items.push({ label, icono: LEYENDA_ICONS[label] ?? 'bi bi-circle-fill' });
         }
       }
-      if (diente.furca != null) {
-        const label = `F${diente.furca}`;
+
+      // Furca
+      if (leyenda.furca != null) {
+        const label = `F${leyenda.furca}`;
         if (!items.some(i => FURCA_LABELS.includes(i.label))) {
           items.push({ label, icono: LEYENDA_ICONS[label] ?? 'bi bi-square-fill' });
         }
       }
-      icons[diente.numeroDiente] = items;
+
+      icons[leyenda.numeroDiente] = items;
     }
     this.toothIconsSubject.next(icons);
   }
@@ -490,28 +506,13 @@ export class OdontogramaStateService {
       return c.estado !== baselineEstado;
     });
 
-    const baselineLeyendaKeys = new Set(
-      (this.baselineOdonto.leyendas ?? []).map(l => `${l.numeroDiente}-${l.categoria}-${l.valor}`)
-    );
-    const currentLeyendaKeys = new Set(
-      current.leyendas.map(l => `${l.numeroDiente}-${l.categoria}-${l.valor}`)
-    );
-
-    delta.leyendasAgregar = current.leyendas.filter(
-      l => !baselineLeyendaKeys.has(`${l.numeroDiente}-${l.categoria}-${l.valor}`)
-    );
-    delta.leyendasQuitar = (this.baselineOdonto.leyendas ?? []).filter(
-      l => !currentLeyendaKeys.has(`${l.numeroDiente}-${l.categoria}-${l.valor}`)
-    );
-
-    delta.dientesEstado = current.dientesEstado.filter(d => {
-      const baseline = this.baselineOdonto.dientesEstado.find(b => b.numeroDiente === d.numeroDiente);
+    // Delta de leyendas unificado: incluir dientes que cambiaron respecto al baseline
+    delta.leyendas = current.leyendas.filter(l => {
+      const baseline = this.baselineOdonto.leyendas.find(b => b.numeroDiente === l.numeroDiente);
       if (!baseline) {
-        return d.ausente || d.movilidad != null || d.furca != null;
+        return this.leyendaHasData(l);
       }
-      return d.ausente !== baseline.ausente
-        || d.movilidad !== baseline.movilidad
-        || d.furca !== baseline.furca;
+      return this.leyendaChanged(baseline, l);
     });
 
     if (pago) {
@@ -519,6 +520,31 @@ export class OdontogramaStateService {
     }
 
     return delta;
+  }
+
+  private leyendaHasData(l: LeyendaDelta): boolean {
+    return !!(l.ausencia || l.implante || l.corona || l.puente || l.erupcion ||
+              l.retencion || l.impactado || l.extraer || l.endodoncia ||
+              l.fractura || l.lesion || l['dolor_sensibilidad'] ||
+              l.ausente || l.movilidad != null || l.furca != null);
+  }
+
+  private leyendaChanged(baseline: LeyendaDelta, current: LeyendaDelta): boolean {
+    return (baseline.ausencia ?? false) !== (current.ausencia ?? false) ||
+           (baseline.implante ?? false) !== (current.implante ?? false) ||
+           (baseline.corona ?? false) !== (current.corona ?? false) ||
+           (baseline.puente ?? false) !== (current.puente ?? false) ||
+           (baseline.erupcion ?? false) !== (current.erupcion ?? false) ||
+           (baseline.retencion ?? false) !== (current.retencion ?? false) ||
+           (baseline.impactado ?? false) !== (current.impactado ?? false) ||
+           (baseline.extraer ?? false) !== (current.extraer ?? false) ||
+           (baseline.endodoncia ?? false) !== (current.endodoncia ?? false) ||
+           (baseline.fractura ?? false) !== (current.fractura ?? false) ||
+           (baseline.lesion ?? false) !== (current.lesion ?? false) ||
+           (baseline['dolor_sensibilidad'] ?? false) !== (current['dolor_sensibilidad'] ?? false) ||
+           (baseline.ausente ?? false) !== (current.ausente ?? false) ||
+           baseline.movilidad !== current.movilidad ||
+           baseline.furca !== current.furca;
   }
 
   private buildPeriodontogramDelta(): PeriodontogramaDeltaRequest {
@@ -555,43 +581,33 @@ export class OdontogramaStateService {
     });
 
     const leyendas: LeyendaDelta[] = [];
-    const dientesEstado: DienteEstadoDelta[] = [];
-
     Object.entries(this.toothIconsSubject.value).forEach(([toothStr, items]) => {
       const numeroDiente = Number(toothStr);
-      let movilidad: number | undefined;
-      let furca: number | undefined;
-      let ausente = false;
+      const entry: LeyendaDelta = { numeroDiente };
 
       for (const item of items) {
         if (MOBILITY_LABELS.includes(item.label)) {
-          movilidad = Number(item.label.replace('M', ''));
+          entry.movilidad = Number(item.label.replace('M', ''));
           continue;
         }
         if (FURCA_LABELS.includes(item.label)) {
-          furca = Number(item.label.replace('F', ''));
+          entry.furca = Number(item.label.replace('F', ''));
           continue;
         }
         const mapping = LEYENDA_LABEL_TO_VALOR[item.label];
         if (mapping) {
-          leyendas.push({ numeroDiente, ...mapping });
+          const key = mapping.valor as keyof LeyendaDelta;
+          (entry as any)[key] = true;
           if (mapping.valor === 'ausencia') {
-            ausente = true;
+            entry.ausente = true;
           }
         }
       }
 
-      if (movilidad != null || furca != null || ausente) {
-        dientesEstado.push({
-          numeroDiente,
-          ...(ausente ? { ausente: true } : {}),
-          ...(movilidad != null ? { movilidad } : {}),
-          ...(furca != null ? { furca } : {})
-        });
-      }
+      leyendas.push(entry);
     });
 
-    return { caras, leyendas, dientesEstado };
+    return { caras, leyendas };
   }
 
   private toothToDelta(tooth: PerioToothMvp): PeriodontogramaDienteDelta {
@@ -723,8 +739,7 @@ export class OdontogramaStateService {
   private cloneOdontoEstado(state: OdontogramaEstadoActual): OdontogramaEstadoActual {
     return {
       caras: (state.caras ?? []).map(c => ({ ...c })),
-      leyendas: (state.leyendas ?? []).map(l => ({ ...l })),
-      dientesEstado: (state.dientesEstado ?? []).map(d => ({ ...d }))
+      leyendas: (state.leyendas ?? []).map(l => ({ ...l }))
     };
   }
 

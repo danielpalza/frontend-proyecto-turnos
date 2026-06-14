@@ -14,14 +14,26 @@ export interface CaraDelta {
   estado: EstadoCara;
 }
 
+/**
+ * Registro unificado por diente.
+ * Contiene todas las leyendas (columnas booleanas) y el estado fisico del diente.
+ */
 export interface LeyendaDelta {
   numeroDiente: number;
-  categoria: CategoriaLeyenda;
-  valor: ValorLeyenda;
-}
-
-export interface DienteEstadoDelta {
-  numeroDiente: number;
+  // Leyendas (estados y condiciones)
+  ausencia?: boolean;
+  implante?: boolean;
+  corona?: boolean;
+  puente?: boolean;
+  erupcion?: boolean;
+  retencion?: boolean;
+  impactado?: boolean;
+  extraer?: boolean;
+  endodoncia?: boolean;
+  fractura?: boolean;
+  lesion?: boolean;
+  'dolor_sensibilidad'?: boolean;
+  // Estado fisico del diente
   ausente?: boolean;
   movilidad?: number | null;
   furca?: number | null;
@@ -30,7 +42,6 @@ export interface DienteEstadoDelta {
 export interface OdontogramaEstadoActual {
   caras: CaraDelta[];
   leyendas: LeyendaDelta[];
-  dientesEstado: DienteEstadoDelta[];
 }
 
 export interface OdontogramaPagoDelta {
@@ -46,9 +57,7 @@ export interface OdontogramaDeltaRequest {
   comentario?: string;
   planTratamiento?: string;
   caras?: CaraDelta[];
-  leyendasAgregar?: LeyendaDelta[];
-  leyendasQuitar?: LeyendaDelta[];
-  dientesEstado?: DienteEstadoDelta[];
+  leyendas?: LeyendaDelta[];
   pago?: OdontogramaPagoDelta;
 }
 
@@ -84,7 +93,7 @@ export const LEYENDA_LABEL_TO_VALOR: Record<string, { categoria: CategoriaLeyend
   'Corona': { categoria: 'estado', valor: 'corona' },
   'Puente': { categoria: 'estado', valor: 'puente' },
   'Eripcion': { categoria: 'estado', valor: 'erupcion' },
-  'Retención': { categoria: 'estado', valor: 'retencion' },
+  'Retencion': { categoria: 'estado', valor: 'retencion' },
   'Erupcion': { categoria: 'estado', valor: 'erupcion' },
   'Impactado': { categoria: 'estado', valor: 'impactado' },
   'Extraer': { categoria: 'estado', valor: 'extraer' },
@@ -100,7 +109,7 @@ export const VALOR_TO_LEYENDA_LABEL: Partial<Record<ValorLeyenda, string>> = {
   corona: 'Corona',
   puente: 'Puente',
   erupcion: 'Erupcion',
-  retencion: 'Retención',
+  retencion: 'Retencion',
   impactado: 'Impactado',
   extraer: 'Extraer',
   endodoncia: 'Endodoncia',
