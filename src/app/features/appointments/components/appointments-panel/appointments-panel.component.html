@@ -51,7 +51,17 @@
         <div class="turn-card" *ngFor="let a of displayAppointments" [attr.data-testid]="'appointment-item-' + a.id">
           <div class="turn-header" (click)="toggleCard(a.id!, $event)" [attr.data-testid]="'appointment-item-header-' + a.id">
             <div class="patient-info">
-              <i class="bi bi-person-fill" [ngClass]="hasPendingDebt(a) ? 'text-danger' : 'text-primary'"></i>
+              <a *ngIf="hasPatientPhone(a)" [href]="getWhatsAppLink(a)!" target="_blank" rel="noopener noreferrer"
+                class="btn-whatsapp" title="Enviar recordatorio por WhatsApp"
+                (click)="$event.stopPropagation()"
+                [attr.data-testid]="'appointment-whatsapp-btn-' + a.id">
+                <i class="bi bi-whatsapp"></i>
+              </a>
+              <span *ngIf="!hasPatientPhone(a)" class="btn-whatsapp-disabled"
+                title="No se cargó teléfono para el paciente"
+                [attr.data-testid]="'appointment-whatsapp-disabled-btn-' + a.id">
+                <i class="bi bi-whatsapp"></i>
+              </span>
               <strong class="fw-bold" [ngClass]="hasPendingDebt(a) ? 'text-danger' : 'text-primary'" [attr.data-testid]="'appointment-patient-name-' + a.id">{{ a.patientName
                 }}</strong>
               <span class="profesional-edit-container" [attr.data-testid]="'appointment-professional-' + a.id">

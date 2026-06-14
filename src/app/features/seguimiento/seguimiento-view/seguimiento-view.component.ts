@@ -363,7 +363,7 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
       ? this.selectedAppointment.hora.substring(0, 5)
       : '';
     const fechaStr = this.formatDate(this.selectedAppointment.fecha);
-    const doctor = this.selectedAppointment.profesionalName || 'el doctor';
+    const doctor = this.selectedAppointment.profesionalName || 'sin asignar';
     const paciente = patient.nombreApellido || (this.selectedAppointment.patientName || '');
     const message = this.whatsappConfig.buildMessage(horaStr, fechaStr, doctor, paciente);
     return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;

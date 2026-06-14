@@ -42,6 +42,7 @@
       <app-appointments-panel [date]="selectedDate"
         [appointments]="selectedDate ? getAppointmentsForDate(selectedDate) : []"
         [profesionales]="activeProfesionales"
+        [patients]="existingPatients"
         (delete)="onDeleteAppointment($event)"
         (addClick)="onAddAppointmentClick()" />
     </div>

@@ -1,8 +1,9 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { Appointment, AppointmentPartialUpdateDTO, Profesional } from '../../../../core/models';
+import { Appointment, AppointmentPartialUpdateDTO, Profesional, Patient } from '../../../../core/models';
 import { AppointmentsService } from '../../../../core/services/appointments.service';
+import { WhatsappConfigService } from '../../../../core/services/whatsapp-config.service';
 
 @Component({
   selector: 'app-appointments-panel',
@@ -15,20 +16,41 @@ export class AppointmentsPanelComponent implements OnChanges {
   @Input() date: string | null = null;
   @Input() appointments: Appointment[] = [];
   @Input() profesionales: Profesional[] = [];
+  @Input() patients: Patient[] = [];
 
   @Output() delete = new EventEmitter<number>();
   @Output() addClick = new EventEmitter<void>();
 
+  private patientsById = new Map<number, Patient>();
+  private patientsByDni = new Map<string, Patient>();
+
   constructor(
     private appointmentsService: AppointmentsService,
+    private whatsappConfig: WhatsappConfigService,
     private router: Router
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes['patients']) {
+      this.rebuildPatientsMaps();
+    }
     // Limpiar expandedCards cuando cambia la fecha
     if (changes['date'] && !changes['date'].firstChange) {
       this.expandedCards.clear();
     }
+  }
+
+  private rebuildPatientsMaps(): void {
+    this.patientsById.clear();
+    this.patientsByDni.clear();
+    (this.patients || []).forEach(patient => {
+      if (patient.id != null) {
+        this.patientsById.set(patient.id, patient);
+      }
+      if (patient.dni) {
+        this.patientsByDni.set(patient.dni, patient);
+      }
+    });
   }
 
   expandedCards = new Set<number>(); // Rastrea qué tarjetas están expandidas
@@ -450,5 +472,37 @@ export class AppointmentsPanelComponent implements OnChanges {
 
   openOdontogram(appointmentId: number): void {
     this.router.navigate(['/odontograma', appointmentId]);
+  }
+
+  hasPatientPhone(appointment: Appointment): boolean {
+    return !!this.getPatientForAppointment(appointment)?.telefono?.trim();
+  }
+
+  getWhatsAppLink(appointment: Appointment): string | null {
+    const patient = this.getPatientForAppointment(appointment);
+    if (!patient?.telefono) return null;
+
+    const horaStr = appointment.hora ? this.formatTime(appointment.hora) : '';
+    const fechaStr = this.whatsappConfig.formatAppointmentDate(appointment.fecha);
+    const doctor = appointment.profesionalName || 'sin asignar';
+    const paciente = patient.nombreApellido || appointment.patientName || '';
+
+    return this.whatsappConfig.buildWhatsAppLink(patient.telefono, {
+      hora: horaStr,
+      fecha: fechaStr,
+      doctor,
+      paciente
+    });
+  }
+
+  private getPatientForAppointment(appointment: Appointment): Patient | undefined {
+    if (appointment.patientId != null) {
+      const byId = this.patientsById.get(appointment.patientId);
+      if (byId) return byId;
+    }
+    if (appointment.patientDni) {
+      return this.patientsByDni.get(appointment.patientDni);
+    }
+    return undefined;
   }
 }

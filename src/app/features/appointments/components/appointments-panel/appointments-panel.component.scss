@@ -188,17 +188,13 @@
   align-items: center;
   gap: $spacing-sm;
 
-  i {
-    font-size: 1rem;
-  }
-
   strong {
     font-size: 0.875rem;
     color: $text-primary;
   }
 }
 
-// .btn-delete está definido en styles.scss y se puede usar directamente
+// .btn-delete, .btn-start y .btn-whatsapp están definidos en styles.scss
 
 .turn-details {
   padding: 0 1rem;
