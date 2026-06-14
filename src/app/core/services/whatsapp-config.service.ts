@@ -58,6 +58,25 @@ export class WhatsappConfigService {
     return msg;
   }
 
+  buildWhatsAppLink(
+    telefono: string | undefined,
+    params: { hora: string; fecha: string; doctor: string; paciente: string }
+  ): string | null {
+    if (!telefono?.trim()) return null;
+    const phone = telefono.replace(/[\s\-\(\)\+]/g, '');
+    if (!phone) return null;
+    const message = this.buildMessage(params.hora, params.fecha, params.doctor, params.paciente);
+    return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+  }
+
+  formatAppointmentDate(dateStr: string): string {
+    const date = new Date(dateStr + 'T00:00:00');
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
+
   private loadFromApi(): void {
     this.http.get<MensajeriaResponse>(this.apiUrl).pipe(
       catchError(() => {
