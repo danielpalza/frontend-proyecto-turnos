@@ -403,7 +403,7 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: () => {
-          this.notification.showSuccess('Turno eliminado correctamente.');
+          this.notification.showSuccess('Turno cancelado correctamente.');
           // Cerrar el modal después de la operación exitosa
           this.forceCloseDeleteConfirm();
         },

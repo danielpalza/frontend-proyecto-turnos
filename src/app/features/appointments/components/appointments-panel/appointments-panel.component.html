@@ -127,8 +127,8 @@
                 (click)="openOdontogram(a.id!); $event.stopPropagation()" [attr.data-testid]="'appointment-start-btn-' + a.id">
                 <i class="bi bi-heart-pulse"></i>
               </button>
-              <button type="button" class="btn-delete" title="Eliminar turno" (click)="delete.emit(a.id); $event.stopPropagation()" [attr.data-testid]="'appointment-delete-btn-' + a.id">
-                <i class="bi bi-trash"></i>
+              <button type="button" class="btn-delete" title="Cancelar turno" (click)="delete.emit(a.id); $event.stopPropagation()" [attr.data-testid]="'appointment-delete-btn-' + a.id">
+                <i class="bi bi-x-lg"></i>
               </button>
             </div>
           </div>

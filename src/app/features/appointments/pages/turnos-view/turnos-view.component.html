@@ -56,9 +56,9 @@
   }
 
   <!-- Modal confirmación eliminación -->
-  <app-confirm-dialog [open]="isDeleteConfirmOpen" title="Eliminar turno"
-    message="¿Está seguro de que desea eliminar este turno? Esta acción no se puede deshacer."
-    [summary]="deleteCandidateSummary" [isLoading]="isDeletingAppointment" confirmText="Eliminar" cancelText="Cancelar"
+  <app-confirm-dialog [open]="isDeleteConfirmOpen" title="Cancelar turno"
+    message="¿Está seguro de que desea Cancelar este turno? Esta acción no se puede deshacer."
+    [summary]="deleteCandidateSummary" [isLoading]="isDeletingAppointment" confirmText="Cancelar" cancelText="Cancelar"
     confirmButtonClass="btn-danger" dialogId="confirmDelete" (confirm)="confirmDeleteAppointment()"
     (cancel)="closeDeleteConfirm()" (openChange)="onDeleteConfirmOpenChange($event)" />
 </div>
