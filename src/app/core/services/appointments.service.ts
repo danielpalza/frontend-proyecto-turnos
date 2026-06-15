@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpContext, HttpErrorResponse } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap, map, catchError, of, combineLatest, EMPTY, throwError } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
 import { Appointment, AppointmentCreateDTO, AppointmentPartialUpdateDTO, AppointmentStatus, AppointmentCountByDate } from '../models';
 import { API_CONFIG } from './api.config';
 import { skipGlobalErrorHandler } from '../interceptors/http-context';
@@ -25,9 +24,7 @@ export class AppointmentsService {
     private http: HttpClient,
     private errorHandler: ErrorHandlerService,
     private notification: NotificationService
-  ) {
-    this.loadAppointments();
-  }
+  ) {}
 
   /**
    * Cargar todos los turnos del backend
@@ -55,7 +52,7 @@ export class AppointmentsService {
     });
   }
 
-  /** Fuerza que getFilteredAppointments() vuelva a pedir datos al backend (p. ej. tras crear/actualizar/eliminar). */
+  /** Fuerza que getFilteredAppointments() vuelva a procesar los datos del cache mensual (p. ej. tras crear/actualizar/eliminar). */
   private refreshFiltered(): void {
     this.filterPendingOnly$.next(this.filterPendingOnly$.getValue());
   }
@@ -80,62 +77,61 @@ export class AppointmentsService {
 
   /**
    * Establecer filtro de turnos con saldo pendiente de pago.
-   * Cuando es true, getFilteredAppointments() hará una petición al backend con pendingOnly=true.
+   * Cuando es true, getFilteredAppointments() filtrara del cache los turnos con saldo pendiente.
    */
   setFilterPendingOnly(value: boolean): void {
     this.filterPendingOnly$.next(value);
   }
 
   /**
-   * Obtener turnos filtrados según paciente / profesional y saldo pendiente.
-   * Realiza una petición al backend (con pendingOnly si corresponde) y aplica el filtro
-   * de tipo/term sobre el resultado recibido.
+   * Obtiene turnos filtrados desde el cache mensual, sin llamar al backend.
    */
   getFilteredAppointments(): Observable<Appointment[]> {
     return combineLatest([
       this.filterPendingOnly$,
       this.filterType$,
-      this.filterTerm$
+      this.filterTerm$,
+      this.appointmentsCache$
     ]).pipe(
-      switchMap(([pendingOnly, type, term]) =>
-        this.findAll(false, pendingOnly).pipe(
-          map(appointments => {
-            if (!term || type === 'none') {
-              return appointments;
-            }
-            return appointments.filter(app => {
-              const t = term.toLowerCase();
-              if (type === 'both') {
-                const name = (app.patientName || '').toLowerCase();
-                const dni = (app.patientDni || '').toLowerCase();
-                const obraSocial = (app.patientObraSocialNumero || '').toLowerCase();
-                const profesionalName = (app.profesionalName || '').toLowerCase();
-                return (
-                  name.includes(t) ||
-                  dni.includes(t) ||
-                  obraSocial.includes(t) ||
-                  profesionalName.includes(t)
-                );
-              }
-              if (type === 'patient') {
-                const name = (app.patientName || '').toLowerCase();
-                const dni = (app.patientDni || '').toLowerCase();
-                const obraSocial = (app.patientObraSocialNumero || '').toLowerCase();
-                return (
-                  name.includes(t) ||
-                  dni.includes(t) ||
-                  obraSocial.includes(t)
-                );
-              }
-              if (type === 'profesional') {
-                const profesionalName = (app.profesionalName || '').toLowerCase();
-                return profesionalName.includes(t);
-              }
-              return true;
-            });
-          })
-        )
-      )
+      map(([pendingOnly, type, term, appointments]) => {
+        let filtered = appointments;
+        if (pendingOnly) {
+          filtered = filtered.filter(a => (a.totalPrecio ?? 0) > 0);
+        }
+        if (!term || type === 'none') {
+          return filtered;
+        }
+        return filtered.filter(app => {
+          const t = term.toLowerCase();
+          if (type === 'both') {
+            const name = (app.patientName || '').toLowerCase();
+            const dni = (app.patientDni || '').toLowerCase();
+            const obraSocial = (app.patientObraSocialNumero || '').toLowerCase();
+            const profesionalName = (app.profesionalName || '').toLowerCase();
+            return (
+              name.includes(t) ||
+              dni.includes(t) ||
+              obraSocial.includes(t) ||
+              profesionalName.includes(t)
+            );
+          }
+          if (type === 'patient') {
+            const name = (app.patientName || '').toLowerCase();
+            const dni = (app.patientDni || '').toLowerCase();
+            const obraSocial = (app.patientObraSocialNumero || '').toLowerCase();
+            return (
+              name.includes(t) ||
+              dni.includes(t) ||
+              obraSocial.includes(t)
+            );
+          }
+          if (type === 'profesional') {
+            const profesionalName = (app.profesionalName || '').toLowerCase();
+            return profesionalName.includes(t);
+          }
+          return true;
+        });
+      })
     );
   }
 
@@ -333,5 +329,23 @@ export class AppointmentsService {
    */
   getAllAppointments(): Observable<Appointment[]> {
     return this.findAll();
+  }
+
+  /**
+   * Carga turnos solo del mes especificado via findByDateRange y actualiza el cache.
+   */
+  loadAppointmentsForMonth(year: number, month: number): void {
+    const start = this.formatDate(new Date(year, month, 1));
+    const end = this.formatDate(new Date(year, month + 1, 0));
+    this.findByDateRange(start, end).subscribe(appointments => {
+      this.appointmentsCache$.next(appointments);
+    });
+  }
+
+  private formatDate(d: Date): string {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
   }
 }

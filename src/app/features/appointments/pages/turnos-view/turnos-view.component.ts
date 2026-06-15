@@ -142,6 +142,8 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
     if (!this.selectedDate) {
       this.selectedDate = getTodayAsYYYYMMDD();
     }
+
+    this.loadMonthAppointments(this.currentDate);
   }
   
   ngOnDestroy(): void {
@@ -156,6 +158,7 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
 
   onMonthChange(date: Date): void {
     this.currentDate = date;
+    this.loadMonthAppointments(date);
   }
 
   /**
@@ -168,7 +171,7 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
 
   /**
    * Maneja el checkbox "Solo con saldo pendiente".
-   * Actualiza el filtro en el servicio; getFilteredAppointments() hará una petición al backend con pendingOnly.
+   * Actualiza el filtro en el servicio; getFilteredAppointments() filtrara del cache con pendingOnly.
    */
   onPendingOnlyChange(checked: boolean): void {
     this.pendingOnlyFilter = checked;
@@ -444,5 +447,13 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
    */
   get activeProfesionales(): Profesional[] {
     return this.profesionales.filter(p => p.activo !== false);
+  }
+
+  private loadMonthAppointments(date: Date): void {
+    this.isLoadingAppointments = true;
+    this.appointmentsService.loadAppointmentsForMonth(
+      date.getFullYear(),
+      date.getMonth()
+    );
   }
 }
