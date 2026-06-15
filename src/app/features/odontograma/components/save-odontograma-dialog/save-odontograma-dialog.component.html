@@ -7,7 +7,7 @@
       <!-- Header -->
       <div class="modal-header">
         <h5 class="modal-title" data-testid="odontogram-save-modal-title">
-          <i class="bi bi-floppy me-2"></i>Guardar Odontograma
+          <i class="bi bi-floppy me-2"></i>Guardar Cambios
         </h5>
         <button type="button" class="btn-close" (click)="close()" data-testid="odontogram-save-close-btn"></button>
       </div>
@@ -91,7 +91,7 @@
             <div class="col-lg-6 scroll-section bg-soft p-4 rounded">
 
               <h6 class="mb-3">
-                <i class="bi bi-clipboard2-pulse me-2 text-primary"></i>Resumen del Odontograma
+                <i class="bi bi-clipboard2-pulse me-2 text-primary"></i>Resumen del Turno
               </h6>
 
               <!-- Leyenda -->
@@ -161,7 +161,7 @@
               [disabled]="saving"
               data-testid="odontogram-save-confirm-btn">
               <i class="bi" [ngClass]="saving ? 'bi-hourglass-split' : 'bi-check-lg'" me-2></i>
-              {{ saving ? 'Guardando...' : 'Guardar Odontograma' }}
+              {{ saving ? 'Guardando...' : 'Guardar' }}
             </button>
           </div>
 

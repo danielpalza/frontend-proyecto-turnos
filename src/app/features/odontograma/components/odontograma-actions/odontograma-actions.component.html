@@ -17,11 +17,10 @@
     <button
       class="btn btn-action btn-save w-100 mb-4"
       (click)="openSaveDialog()"
-      [disabled]="savingPerio"
       [attr.data-testid]="activeForm === 'periodontograma' ? 'periodontogram-save-btn' : 'odontogram-save-btn'"
     >
       <i class="bi bi-floppy me-2"></i>
-      <span>{{ savingPerio ? 'Guardando...' : saveLabel }}</span>
+      <span>{{ saveLabel }}</span>
     </button>
 
     <div class="info-section p-3 bg-light rounded" data-testid="odontogram-info-panel">

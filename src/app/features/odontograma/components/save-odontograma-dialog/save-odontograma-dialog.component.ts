@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { OdontogramaStateService } from '../../services/odontograma-state.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { OdontogramaPagoDelta } from '../../../../core/models/odontograma.model';
@@ -42,7 +43,8 @@ export class SaveOdontogramaDialogComponent {
 
   constructor(
     private readonly stateService: OdontogramaStateService,
-    private readonly notification: NotificationService
+    private readonly notification: NotificationService,
+    private readonly router: Router
   ) {}
 
   private prefillFromAppointment(): void {
@@ -100,20 +102,12 @@ export class SaveOdontogramaDialogComponent {
 
     this.saving = true;
     this.saveError.set(null);
-    this.stateService.saveOdontogram(pago).subscribe({
+    this.stateService.saveTurnoCompleto(pago).subscribe({
       next: () => {
-        this.notification.showSuccess('Odontograma guardado correctamente');
+        this.notification.showSuccess('Cambios guardados correctamente');
         this.saving = false;
-        this.saveError.set(null);
         this.close();
-        this.formData.set({
-          precioBono: '0',
-          precioTratamiento: '0',
-          extras: '0',
-          montoPago: '0',
-          observacionesPago: '',
-          observacionesProfesional: ''
-        });
+        this.router.navigate(['/turnos']);
       },
       error: () => {
         this.saving = false;

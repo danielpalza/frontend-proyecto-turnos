@@ -5,7 +5,9 @@ import { API_CONFIG } from './api.config';
 import {
   OdontogramaDeltaRequest,
   OdontogramaEstadoActual,
-  OdontogramaResponse
+  OdontogramaResponse,
+  TurnoCompletoDeltaRequest,
+  TurnoCompletoResponse
 } from '../models/odontograma.model';
 
 @Injectable({ providedIn: 'root' })
@@ -20,6 +22,12 @@ export class OdontogramaService {
 
   saveDelta(appointmentId: number, delta: OdontogramaDeltaRequest): Observable<OdontogramaResponse> {
     return this.http.patch<OdontogramaResponse>(`${this.baseUrl}/${appointmentId}/odontogram`, delta);
+  }
+
+  saveTurnoCompleto(appointmentId: number, delta: TurnoCompletoDeltaRequest): Observable<TurnoCompletoResponse> {
+    return this.http.patch<TurnoCompletoResponse>(
+      `${this.baseUrl}/${appointmentId}/turno-completo`, delta
+    );
   }
 
   getEstadoActual(patientId: number): Observable<OdontogramaEstadoActual> {

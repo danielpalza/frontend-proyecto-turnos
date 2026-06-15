@@ -8,6 +8,8 @@ export type ValorLeyenda =
 
 export type FaceKey = 'top' | 'right' | 'center' | 'left' | 'bottom';
 
+import { PeriodontogramaDeltaRequest, PeriodontogramaResponse } from './periodontograma.model';
+
 export interface CaraDelta {
   numeroDiente: number;
   cara: CaraDiente;
@@ -117,3 +119,17 @@ export const VALOR_TO_LEYENDA_LABEL: Partial<Record<ValorLeyenda, string>> = {
   lesion: 'Lesion',
   dolor_sensibilidad: 'Dolor/Sensibilidad'
 };
+
+// --- Interfaces combinadas para el endpoint unificado turno-completo ---
+
+export interface TurnoCompletoDeltaRequest {
+  odontograma: OdontogramaDeltaRequest;
+  periodontograma: PeriodontogramaDeltaRequest;
+}
+
+export interface TurnoCompletoResponse {
+  appointmentId: number;
+  patientId: number;
+  odontograma: OdontogramaResponse;
+  periodontograma: PeriodontogramaResponse;
+}

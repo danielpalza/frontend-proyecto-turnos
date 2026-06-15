@@ -15,6 +15,8 @@ import {
   OdontogramaEstadoActual,
   OdontogramaPagoDelta,
   OdontogramaResponse,
+  TurnoCompletoDeltaRequest,
+  TurnoCompletoResponse,
   VALOR_TO_LEYENDA_LABEL
 } from '../../../core/models/odontograma.model';
 import {
@@ -230,6 +232,46 @@ export class OdontogramaStateService {
         this.applyPerioState(merged);
       }),
       map(() => undefined)
+    );
+  }
+
+  saveTurnoCompleto(pago?: OdontogramaPagoDelta): Observable<TurnoCompletoResponse> {
+    if (!this.appointmentId) {
+      throw new Error('No hay turno cargado');
+    }
+
+    const odontoDelta = this.buildOdontogramDelta(pago);
+    const perioDelta = this.buildPeriodontogramDelta();
+
+    const combined: TurnoCompletoDeltaRequest = {
+      odontograma: odontoDelta,
+      periodontograma: perioDelta
+    };
+
+    return this.odontogramaService.saveTurnoCompleto(this.appointmentId, combined).pipe(
+      tap(response => {
+        // Actualizar baseline odonto
+        if (response.odontograma) {
+          const mergedOdonto = this.mergeOdontoEstado(
+            response.odontograma.estadoActual,
+            response.odontograma.cambiosTurno
+          );
+          this.baselineOdonto = this.cloneOdontoEstado(mergedOdonto);
+          this.applyOdontoState(mergedOdonto);
+          this.comentarioSubject.next(response.odontograma.comentario ?? '');
+          this.planTratamientoSubject.next(response.odontograma.planTratamiento ?? '');
+        }
+
+        // Actualizar baseline perio
+        if (response.periodontograma) {
+          const mergedPerio = this.mergePerioEstado(
+            response.periodontograma.estadoActual,
+            response.periodontograma.cambiosTurno
+          );
+          this.baselinePerio = this.clonePerioEstado(mergedPerio);
+          this.applyPerioState(mergedPerio);
+        }
+      })
     );
   }
 
