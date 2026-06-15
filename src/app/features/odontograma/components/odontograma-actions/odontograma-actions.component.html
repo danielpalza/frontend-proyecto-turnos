@@ -15,7 +15,7 @@
     </button>
 
     <button
-      class="btn btn-action btn-save w-100 mb-4"
+      class="btn btn-action btn-save w-100 mb-3"
       (click)="openSaveDialog()"
       [attr.data-testid]="activeForm === 'periodontograma' ? 'periodontogram-save-btn' : 'odontogram-save-btn'"
     >
@@ -25,14 +25,26 @@
 
     <div class="info-section p-3 bg-light rounded" data-testid="odontogram-info-panel">
       <p class="fw-semibold mb-2">
-        <i class="bi bi-info-circle me-2 text-primary"></i>Información
+        <i class="bi bi-info-circle me-2 text-primary"></i>Informacion
       </p>
 
-      <ul class="info-list small text-muted mb-0">
-        <li>Selecciona un diente para editar</li>
-        <li>Usa el menú lateral para aplicar estados</li>
-        <li>Guarda para registrar en el historial</li>
-      </ul>
+      <ng-container *ngIf="activeForm === 'odontograma'">
+        <ul class="info-list small text-muted mb-0">
+          <li>Selecciona un diente para editar</li>
+          <li>Usa el menu lateral para aplicar estados</li>
+          <li>Guarda para registrar en el historial</li>
+        </ul>
+      </ng-container>
+
+      <ng-container *ngIf="activeForm === 'periodontograma'">
+        <ul class="info-list small text-muted mb-0">
+          <li>Completa PS y MG en cada cara (M/C/D). El NIC se calcula automaticamente.</li>
+          <li>Usa los checkboxes para placa, sangrado, supuracion y calculo.</li>
+          <li>Selecciona movilidad y furca para cada diente.</li>
+          <li>Los datos se registran directamente en el grafico y los campos numericos.</li>
+          <li>Guarda para registrar en el historial.</li>
+        </ul>
+      </ng-container>
     </div>
 
   </div>

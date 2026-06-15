@@ -52,10 +52,10 @@
             </div>
           </div>
 
-          <div [hidden]="activeForm === 'periodontograma'">
+          <app-odontograma-actions [activeForm]="activeForm"></app-odontograma-actions>
+          <div [hidden]="activeForm === 'periodontograma'" class="mt-4">
             <app-odontograma-leyend></app-odontograma-leyend>
           </div>
-          <app-odontograma-actions [activeForm]="activeForm"></app-odontograma-actions>
         </div>
       </div>
     }

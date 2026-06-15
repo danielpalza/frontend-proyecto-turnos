@@ -23,7 +23,7 @@ export class OdontogramaActionsComponent {
   constructor() {}
 
   get saveLabel(): string {
-    return this.activeForm === 'periodontograma' ? 'Guardar Periodontograma' : 'Guardar';
+    return 'Guardar';
   }
 
   handlePrint(): void {
