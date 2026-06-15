@@ -2,37 +2,48 @@
 <div class="confirm-modal-backdrop" (click)="onBackdropClick()">
   <div
     class="confirm-modal"
+    [class.confirm-modal--danger]="isDangerVariant"
+    [class.confirm-modal--primary]="isPrimaryVariant"
     role="dialog"
     aria-modal="true"
     [attr.aria-labelledby]="dialogId + 'Title'"
     (click)="$event.stopPropagation()"
     data-testid="confirm-dialog"
   >
-    <div class="d-flex align-items-start justify-content-between gap-3">
-      <div>
-        <h5 [id]="dialogId + 'Title'" class="mb-1" data-testid="confirm-dialog-title">{{ title }}</h5>
-        <p class="text-muted mb-0">
-          {{ message }}
-        </p>
-        @if (summary) {
-        <div class="mt-2 small" data-testid="confirm-dialog-detail">
-          <span class="text-muted">Detalle:</span>
-          <strong class="ms-1">{{ summary }}</strong>
+    <header class="confirm-modal-header">
+      <div class="confirm-modal-title-wrap">
+        <div class="confirm-modal-icon" aria-hidden="true">
+          <i class="bi" [ngClass]="headerIcon"></i>
         </div>
-        }
+        <h5 [id]="dialogId + 'Title'" class="confirm-modal-title" data-testid="confirm-dialog-title">
+          {{ title }}
+        </h5>
       </div>
 
       <button
         type="button"
-        class="btn-close"
+        class="btn btn-modal-close"
         aria-label="Cerrar"
         (click)="onCloseClick()"
         [disabled]="isLoading"
         data-testid="confirm-dialog-close-btn"
-      ></button>
+      >
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </header>
+
+    <div class="confirm-modal-body">
+      <p class="confirm-modal-message">{{ message }}</p>
+
+      @if (summary) {
+      <div class="confirm-modal-detail" data-testid="confirm-dialog-detail">
+        <span class="confirm-modal-detail-label">Detalle</span>
+        <strong>{{ summary }}</strong>
+      </div>
+      }
     </div>
 
-    <div class="confirm-modal-actions mt-3">
+    <footer class="confirm-modal-actions">
       <button
         type="button"
         class="btn btn-outline-secondary"
@@ -51,11 +62,13 @@
         data-testid="confirm-dialog-confirm-btn"
       >
         @if (isLoading) {
-        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        } @else if (isDangerVariant) {
+        <i class="bi bi-trash" aria-hidden="true"></i>
         }
         {{ confirmText }}
       </button>
-    </div>
+    </footer>
   </div>
 </div>
 }

@@ -23,6 +23,26 @@ export class ConfirmDialogComponent {
   @Output() cancel = new EventEmitter<void>();
   @Output() openChange = new EventEmitter<boolean>();
 
+  get isDangerVariant(): boolean {
+    return this.confirmButtonClass.includes('btn-danger');
+  }
+
+  get isPrimaryVariant(): boolean {
+    return this.confirmButtonClass.includes('btn-primary');
+  }
+
+  get headerIcon(): string {
+    if (this.isDangerVariant) {
+      return 'bi-x-lg';
+    }
+
+    if (this.isPrimaryVariant) {
+      return 'bi-check-circle';
+    }
+
+    return 'bi-question-circle';
+  }
+
   onBackdropClick(): void {
     if (!this.isLoading) {
       this.close();
