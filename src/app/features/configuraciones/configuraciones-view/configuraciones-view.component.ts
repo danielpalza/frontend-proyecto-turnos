@@ -312,6 +312,10 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
 
   closeEstadoProfesionalModal(): void {
     if (this.isSavingEstadoProfesional) return;
+    this.forceCloseEstadoProfesionalModal();
+  }
+
+  private forceCloseEstadoProfesionalModal(): void {
     this.showEstadoProfesionalModal = false;
     this.estadoProfesionalTarget = null;
     this.estadoProfesionalError = '';
@@ -339,7 +343,7 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.notification.showSuccess('Estado del usuario actualizado correctamente.');
-          this.closeEstadoProfesionalModal();
+          this.forceCloseEstadoProfesionalModal();
         },
         error: (err: unknown) => {
           this.estadoProfesionalError = this.errorHandler.getErrorMessage(err as any, 'actualizar el estado del usuario');
