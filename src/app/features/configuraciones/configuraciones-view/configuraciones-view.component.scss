@@ -622,11 +622,16 @@
   [data-testid='settings-profesional-status-dialog'],
   [data-testid='settings-delete-user-dialog'] {
     z-index: 1050;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    padding: $spacing-md;
 
     .modal-dialog {
       position: relative;
       z-index: 1055;
-      margin: $spacing-3xl auto;
+      margin: 0;
+      width: 100%;
       max-width: 36rem;
       animation: settingsModalFadeIn $transition-slow forwards;
 
@@ -867,6 +872,11 @@
 
       .estado-select {
         font-weight: 500;
+        color: #000;
+
+        option {
+          color: #000;
+        }
       }
 
       .estado-usuario-info-box {

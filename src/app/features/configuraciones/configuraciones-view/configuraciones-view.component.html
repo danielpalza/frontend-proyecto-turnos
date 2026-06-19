@@ -376,7 +376,6 @@
             <div class="mb-3">
               <label class="form-label">Nuevo estado</label>
               <select class="form-select estado-select" [(ngModel)]="estadoProfesionalSelected"
-                [style.color]="getEstadoColor(estadoProfesionalSelected)"
                 data-testid="settings-profesional-status-select">
                 <option *ngFor="let estado of estadoProfesionalList" [ngValue]="estado.estado">
                   {{ estado.estado }}
@@ -397,7 +396,7 @@
 
           <div class="estado-usuario-info-box">
             <i class="bi bi-info-circle-fill"></i>
-            <p>Los turnos asignados durante este período seguirán activos. Podés reasignarlos desde la sección Turnos.</p>
+            <p>Los turnos ya asignados a este usuario se mantienen asignados. No se desasignan automáticamente; podés reasignarlos manualmente desde Turnos si lo necesitás.</p>
           </div>
 
           <div *ngIf="estadoProfesionalError" class="alert alert-danger py-2 mt-3">
