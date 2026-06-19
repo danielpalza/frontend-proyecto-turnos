@@ -1,14 +1,20 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Appointment, AppointmentPartialUpdateDTO, Profesional, Patient } from '../../../../core/models';
 import { AppointmentsService } from '../../../../core/services/appointments.service';
 import { WhatsappConfigService } from '../../../../core/services/whatsapp-config.service';
+import { NotificationService } from '../../../../core/services/notification.service';
+import {
+  filterProfesionalesForReassign,
+  isProfesionalAssignableForReassign
+} from '../../../../core/utils/profesional-assignability.util';
 
 @Component({
   selector: 'app-appointments-panel',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './appointments-panel.component.html',
   styleUrls: ['./appointments-panel.component.scss']
 })
@@ -27,6 +33,7 @@ export class AppointmentsPanelComponent implements OnChanges {
   constructor(
     private appointmentsService: AppointmentsService,
     private whatsappConfig: WhatsappConfigService,
+    private notification: NotificationService,
     private router: Router
   ) {}
 
@@ -411,9 +418,28 @@ export class AppointmentsPanelComponent implements OnChanges {
     this.originalHora.delete(cardId);
   }
 
-  // Profesional asignado
-  get activeProfesionales(): Profesional[] {
-    return (this.profesionales || []).filter(p => p.activo !== false);
+  /** Solo profesionales con estado "Disponible" para reasignar turnos. */
+  get reassignableProfesionales(): Profesional[] {
+    return filterProfesionalesForReassign(this.profesionales || []);
+  }
+
+  /**
+   * Opciones del select al reasignar: Disponibles + el profesional actual si ya no lo es
+   * (solo para conservar la asignación existente, no para elegirlo en turnos nuevos).
+   */
+  getProfesionalesForReassignSelect(appointment: Appointment): Profesional[] {
+    const available = this.reassignableProfesionales;
+    const currentId = appointment.profesionalId;
+    if (!currentId || available.some(p => p.id === currentId)) {
+      return available;
+    }
+    const current = (this.profesionales || []).find(p => p.id === currentId);
+    return current ? [current, ...available] : available;
+  }
+
+  isCurrentAssignedProfesional(prof: Profesional, appointment: Appointment): boolean {
+    return prof.id === appointment.profesionalId
+      && !isProfesionalAssignableForReassign(prof);
   }
 
   startEditingProfesional(cardId: number, currentProfesionalId?: number): void {
@@ -431,26 +457,52 @@ export class AppointmentsPanelComponent implements OnChanges {
     return val !== undefined ? val : null;
   }
 
+  getProfesionalSelectValue(cardId: number): string {
+    const val = this.profesionalInputs.get(cardId);
+    return val == null ? '' : String(val);
+  }
+
   updateProfesionalInput(cardId: number, value: string): void {
-    const id = value === '' || value === 'null' ? null : +value;
-    this.profesionalInputs.set(cardId, id);
+    this.updateProfesionalSelect(cardId, value);
+  }
+
+  updateProfesionalSelect(cardId: number, value: string | number | null): void {
+    if (value === '' || value === null || value === undefined) {
+      this.profesionalInputs.set(cardId, null);
+      return;
+    }
+    this.profesionalInputs.set(cardId, typeof value === 'number' ? value : +value);
   }
 
   saveProfesional(cardId: number): void {
     const selectedId = this.profesionalInputs.get(cardId);
+    const originalId = this.originalProfesionalId.get(cardId);
+
+    if (selectedId === (originalId ?? null)) {
+      this.cancelProfesionalEdit(cardId);
+      return;
+    }
+
     const updateData: { profesionalId?: number; unassignProfesional?: boolean } = {};
 
     if (selectedId === null || selectedId === undefined) {
       updateData.unassignProfesional = true;
     } else {
+      const profesional = (this.profesionales || []).find(p => p.id === selectedId);
+      if (!profesional || !isProfesionalAssignableForReassign(profesional)) {
+        this.notification.showError(
+          'Solo se pueden asignar profesionales con estado "Disponible".'
+        );
+        return;
+      }
       updateData.profesionalId = selectedId;
     }
 
     this.appointmentsService.updateWithFeedback(
       cardId,
       updateData,
-      'Profesional actualizado correctamente.',
-      'actualizar el profesional'
+      selectedId == null ? 'Profesional desasignado correctamente.' : 'Profesional actualizado correctamente.',
+      selectedId == null ? 'desasignar el profesional' : 'actualizar el profesional'
     ).subscribe({
       next: () => {
         this.editingProfesional.set(cardId, false);

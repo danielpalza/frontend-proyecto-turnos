@@ -51,7 +51,7 @@
   <!-- Dialogo -->
   @if (selectedDate) {
   <app-appointment-dialog [open]="isDialogOpen" [selectedDate]="selectedDate" [existingPatients]="existingPatients"
-    [profesionales]="activeProfesionales" [isLoading]="isLoading" (openChange)="onDialogOpenChange($event)"
+    [profesionales]="assignableProfesionales" [isLoading]="isLoading" (openChange)="onDialogOpenChange($event)"
     (submitForm)="onCreateAppointment($event)" />
   }
 

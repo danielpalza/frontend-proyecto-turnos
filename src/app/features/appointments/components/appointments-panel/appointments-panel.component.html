@@ -72,13 +72,19 @@
                   </strong>
                 </span>
                 <span *ngIf="isEditingProfesional(a.id!)" class="d-inline-flex align-items-center gap-1">
-                  <select class="profesional-select" [attr.data-testid]="'appointment-profesional-select-' + a.id" [value]="(getProfesionalInput(a.id!) ?? '') + ''"
-                    (change)="updateProfesionalInput(a.id!, $any($event.target).value)"
+                  <select
+                    class="profesional-select"
+                    [attr.data-testid]="'appointment-profesional-select-' + a.id"
+                    [ngModel]="getProfesionalSelectValue(a.id!)"
+                    (ngModelChange)="updateProfesionalSelect(a.id!, $event)"
+                    [ngModelOptions]="{ standalone: true }"
                     (keyup.escape)="cancelProfesionalEdit(a.id!); $event.stopPropagation()"
-                    (click)="$event.stopPropagation()">
+                    (click)="$event.stopPropagation()"
+                  >
                     <option value="">Sin asignar</option>
-                    <option *ngFor="let p of activeProfesionales" [value]="(p.id ?? '') + ''">
-                      {{ p.nombre }}
+                    <option *ngFor="let p of getProfesionalesForReassignSelect(a)" [value]="(p.id ?? '') + ''"
+                      [disabled]="isCurrentAssignedProfesional(p, a)">
+                      {{ p.nombre }}{{ isCurrentAssignedProfesional(p, a) ? ' (asignado)' : '' }}
                     </option>
                   </select>
                   <button type="button" class="btn-save-price"

@@ -13,6 +13,10 @@ import { ErrorHandlerService } from '../../../../core/services/error-handler.ser
 import { NotificationService } from '../../../../core/services/notification.service';
 import { Appointment, AppointmentCreateDTO, Patient, Profesional } from '../../../../core/models';
 import { getTodayAsYYYYMMDD } from '../../../../core/utils/date.utils';
+import {
+  filterProfesionalesForNewAppointment,
+  isProfesionalAssignableForNewAppointment
+} from '../../../../core/utils/profesional-assignability.util';
 
 @Component({
   selector: 'app-turnos-view',
@@ -226,14 +230,18 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Validar que el profesional seleccionado exista en la lista de profesionales activos
     if (data.appointmentData.profesionalId) {
-      const profesionalExists = this.activeProfesionales.some(
+      const profesional = this.profesionales.find(
         p => p.id === data.appointmentData.profesionalId
       );
-      
-      if (!profesionalExists) {
-        this.notification.showError('El profesional seleccionado no está disponible. Por favor, seleccione otro profesional.');
+
+      if (
+        !profesional ||
+        !isProfesionalAssignableForNewAppointment(profesional, this.selectedDate)
+      ) {
+        this.notification.showError(
+          'El profesional seleccionado no puede ser asignado en esta fecha. Por favor, seleccione otro profesional.'
+        );
         this.isLoading = false;
         return;
       }
@@ -442,11 +450,17 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
     return this.patients;
   }
 
-  /**
-   * Lista de profesionales activos para el dropdown
-   */
+  /** Profesionales activos (calendario, búsqueda, panel). */
   get activeProfesionales(): Profesional[] {
     return this.profesionales.filter(p => p.activo !== false);
+  }
+
+  /** Profesionales asignables al crear un turno en la fecha seleccionada. */
+  get assignableProfesionales(): Profesional[] {
+    if (!this.selectedDate) {
+      return [];
+    }
+    return filterProfesionalesForNewAppointment(this.profesionales, this.selectedDate);
   }
 
   private loadMonthAppointments(date: Date): void {
