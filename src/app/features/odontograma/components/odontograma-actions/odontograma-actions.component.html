@@ -1,53 +1,21 @@
-<div class="card shadow-sm" data-testid="odontogram-actions-panel">
-  <div class="card-body">
+<div class="odontograma-actions" data-testid="odontogram-actions-panel">
+  <button
+    class="btn btn-action btn-print"
+    (click)="handlePrint()"
+    data-testid="odontogram-print-btn"
+  >
+    <i class="bi bi-printer me-2"></i>
+    <span>Imprimir</span>
+  </button>
 
-    <h5 class="card-title mb-4">
-      <i class="bi bi-gear me-2"></i>Acciones
-    </h5>
-
-    <button
-      class="btn btn-action btn-print w-100 mb-3"
-      (click)="handlePrint()"
-      data-testid="odontogram-print-btn"
-    >
-      <i class="bi bi-printer me-2"></i>
-      <span>Imprimir</span>
-    </button>
-
-    <button
-      class="btn btn-action btn-save w-100 mb-3"
-      (click)="openSaveDialog()"
-      [attr.data-testid]="activeForm === 'periodontograma' ? 'periodontogram-save-btn' : 'odontogram-save-btn'"
-    >
-      <i class="bi bi-floppy me-2"></i>
-      <span>{{ saveLabel }}</span>
-    </button>
-
-    <div class="info-section p-3 bg-light rounded" data-testid="odontogram-info-panel">
-      <p class="fw-semibold mb-2">
-        <i class="bi bi-info-circle me-2 text-primary"></i>Informacion
-      </p>
-
-      <ng-container *ngIf="activeForm === 'odontograma'">
-        <ul class="info-list small text-muted mb-0">
-          <li>Selecciona un diente para editar</li>
-          <li>Usa el menu lateral para aplicar estados</li>
-          <li>Guarda para registrar en el historial</li>
-        </ul>
-      </ng-container>
-
-      <ng-container *ngIf="activeForm === 'periodontograma'">
-        <ul class="info-list small text-muted mb-0">
-          <li>Completa PS y MG en cada cara (M/C/D). El NIC se calcula automaticamente.</li>
-          <li>Usa los checkboxes para placa, sangrado, supuracion y calculo.</li>
-          <li>Selecciona movilidad y furca para cada diente.</li>
-          <li>Los datos se registran directamente en el grafico y los campos numericos.</li>
-          <li>Guarda para registrar en el historial.</li>
-        </ul>
-      </ng-container>
-    </div>
-
-  </div>
+  <button
+    class="btn btn-action btn-save"
+    (click)="openSaveDialog()"
+    [attr.data-testid]="activeForm === 'periodontograma' ? 'periodontogram-save-btn' : 'odontogram-save-btn'"
+  >
+    <i class="bi bi-floppy me-2"></i>
+    <span>{{ saveLabel }}</span>
+  </button>
 </div>
 
 <app-save-odontograma-dialog

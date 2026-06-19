@@ -52,9 +52,12 @@
             </div>
           </div>
 
-          <app-odontograma-actions [activeForm]="activeForm"></app-odontograma-actions>
-          <div [hidden]="activeForm === 'periodontograma'" class="mt-4">
+          <div [hidden]="activeForm === 'periodontograma'" class="sidebar-legend">
             <app-odontograma-leyend></app-odontograma-leyend>
+          </div>
+
+          <div class="odontograma-actions-footer">
+            <app-odontograma-actions [activeForm]="activeForm"></app-odontograma-actions>
           </div>
         </div>
       </div>

@@ -44,12 +44,24 @@
 
 // Sidebars
 .sidebar-right {
+  display: flex;
+  flex-direction: column;
   align-self: start;
 }
 
+.sidebar-legend {
+  margin-top: 1.5rem;
+}
+
+.odontograma-actions-footer {
+  flex: 0 0 auto;
+  align-self: stretch;
+  margin-top: 1.5rem;
+}
+
 .navigation-panel {
-  flex: 1;
-  padding-bottom: 1.5rem;
+  flex: 0 0 auto;
+  align-self: stretch;
 }
 .navigation-panel .btn-group[aria-label='Selector de formulario'] .btn {
   font-size: 0.85rem; // texto más chico
