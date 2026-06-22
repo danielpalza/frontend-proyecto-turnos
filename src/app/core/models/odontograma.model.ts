@@ -16,13 +16,8 @@ export interface CaraDelta {
   estado: EstadoCara;
 }
 
-/**
- * Registro unificado por diente.
- * Contiene todas las leyendas (columnas booleanas) y el estado fisico del diente.
- */
 export interface LeyendaDelta {
   numeroDiente: number;
-  // Leyendas (estados y condiciones)
   ausencia?: boolean;
   implante?: boolean;
   corona?: boolean;
@@ -35,7 +30,6 @@ export interface LeyendaDelta {
   fractura?: boolean;
   lesion?: boolean;
   'dolor_sensibilidad'?: boolean;
-  // Estado fisico del diente
   ausente?: boolean;
   movilidad?: number | null;
   furca?: number | null;
@@ -64,8 +58,8 @@ export interface OdontogramaDeltaRequest {
 }
 
 export interface OdontogramaResponse {
-  appointmentId: number;
-  patientId: number;
+  appointmentId: string;
+  patientId: string;
   comentario?: string;
   planTratamiento?: string;
   creadoEn?: string;
@@ -120,16 +114,14 @@ export const VALOR_TO_LEYENDA_LABEL: Partial<Record<ValorLeyenda, string>> = {
   dolor_sensibilidad: 'Dolor/Sensibilidad'
 };
 
-// --- Interfaces combinadas para el endpoint unificado turno-completo ---
-
 export interface TurnoCompletoDeltaRequest {
   odontograma: OdontogramaDeltaRequest;
   periodontograma: PeriodontogramaDeltaRequest;
 }
 
 export interface TurnoCompletoResponse {
-  appointmentId: number;
-  patientId: number;
+  appointmentId: string;
+  patientId: string;
   odontograma: OdontogramaResponse;
   periodontograma: PeriodontogramaResponse;
 }

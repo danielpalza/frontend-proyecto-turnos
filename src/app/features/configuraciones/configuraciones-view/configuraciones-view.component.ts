@@ -2,13 +2,12 @@ import { Component, OnDestroy, OnInit, ChangeDetectorRef, ViewChild, ElementRef 
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ProfesionalService } from '../../../core/services/profesional.service';
-import { EstadoProfesionalService } from '../../../core/services/estado-profesional.service';
-import { ProfesionalCreateDTO, Profesional, EstadoProfesional } from '../../../core/models';
+import { ConfigurationService } from '../../../core/services/configuration.service';
+import { ProfesionalCreateDTO, Profesional } from '../../../core/models';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 import { Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
-import { WhatsappConfigService } from '../../../core/services/whatsapp-config.service';
 
 @Component({
   selector: 'app-configuraciones-view',
@@ -19,25 +18,17 @@ import { WhatsappConfigService } from '../../../core/services/whatsapp-config.se
 })
 export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
   profesionales: Profesional[] = [];
-  estadoProfesionalList: EstadoProfesional[] = [];
 
   showProfesionalForm = false;
   isSavingProfesional = false;
   saveProfesionalError = '';
   editingProfesional: Profesional | null = null;
-  selectedRol: 'basico' | 'administrador' = 'administrador';
 
   isDeleteConfirmOpen = false;
   isDeletingProfesional = false;
   deleteCandidate: Profesional | null = null;
 
-  showEstadoProfesionalModal = false;
-  estadoProfesionalSelected: string = '';
-  estadoProfesionalDesde: string | null = null;
-  estadoProfesionalHasta: string | null = null;
-  isSavingEstadoProfesional = false;
-  estadoProfesionalTarget: Profesional | null = null;
-  estadoProfesionalError = '';
+  isTogglingActive = false;
 
   whatsappTemplate = '';
   whatsappSaved = false;
@@ -72,10 +63,9 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
 
   constructor(
     private profesionalService: ProfesionalService,
-    private estadoProfesionalService: EstadoProfesionalService,
+    private configurationService: ConfigurationService,
     private notification: NotificationService,
     private errorHandler: ErrorHandlerService,
-    private whatsappConfig: WhatsappConfigService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -91,40 +81,21 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
         }
       })
     );
+    this.whatsappTemplate = this.configurationService.getMensajeWhatsapp();
     this.subscriptions.add(
-      this.estadoProfesionalService.findAll().subscribe({
-        next: (estados) => { this.estadoProfesionalList = estados; this.cdr.markForCheck(); },
-        error: (err) => {
-          if (err?.status !== 404 && !this.errorHandler.isNetworkError(err)) {
-            this.notification.showError(this.errorHandler.getErrorMessage(err, 'cargar los estados'));
+      this.configurationService.getConfig().subscribe({
+        next: (cfg) => {
+          if (cfg?.mensajeWhatsapp) {
+            this.whatsappTemplate = cfg.mensajeWhatsapp;
+            this.cdr.markForCheck();
           }
         }
-      })
-    );
-    this.subscriptions.add(
-      this.whatsappConfig.getTemplate().subscribe(template => {
-        this.whatsappTemplate = template;
-        this.cdr.markForCheck();
       })
     );
   }
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
-  }
-
-  getEstadoColor(estadoNombre: string | undefined): string {
-    if (!estadoNombre) return '#6c757d';
-    const estado = this.estadoProfesionalList.find(e => e.estado === estadoNombre);
-    return (estado?.colorHex && /^#[0-9A-Fa-f]{6}$/.test(estado.colorHex)) ? estado.colorHex : '#6c757d';
-  }
-
-  getEstadoBadgeStyle(estadoNombre: string | undefined): { [key: string]: string } {
-    const color = this.getEstadoColor(estadoNombre);
-    return {
-      backgroundColor: this.hexToRgba(color, 0.14),
-      color
-    };
   }
 
   getProfesionalInitials(nombre: string): string {
@@ -150,25 +121,9 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
     return palette[index % palette.length];
   }
 
-  getTargetAvatarStyle(): { [key: string]: string } {
-    if (!this.estadoProfesionalTarget?.id) {
-      return this.getAvatarStyle(0);
-    }
-    const index = this.profesionales.findIndex(p => p.id === this.estadoProfesionalTarget?.id);
-    return this.getAvatarStyle(index >= 0 ? index : 0);
-  }
-
-  private hexToRgba(hex: string, alpha: number): string {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-  }
-
   openAddProfesional(): void {
     this.editingProfesional = null;
     this.saveProfesionalError = '';
-    this.selectedRol = 'administrador';
     this.resetProfesionalForm();
     this.showProfesionalForm = true;
   }
@@ -176,7 +131,6 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
   openEditProfesional(profesional: Profesional): void {
     this.editingProfesional = profesional;
     this.saveProfesionalError = '';
-    this.selectedRol = 'administrador';
     this.nuevoProfesional = {
       nombre: profesional.nombre || '',
       dni: profesional.dni || '',
@@ -205,20 +159,15 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
       telefono: '',
       activo: true
     };
-    this.selectedRol = 'administrador';
     this.isSavingProfesional = false;
-  }
-
-  selectRol(rol: 'basico' | 'administrador'): void {
-    this.selectedRol = rol;
   }
 
   onSaveProfesional(form: NgForm): void {
     if (form.invalid || this.isSavingProfesional) return;
     this.isSavingProfesional = true;
     this.saveProfesionalError = '';
-    const operation = this.editingProfesional
-      ? this.profesionalService.update(this.editingProfesional.id!, this.nuevoProfesional)
+    const operation = this.editingProfesional?.id
+      ? this.profesionalService.update(this.editingProfesional.id, this.nuevoProfesional)
       : this.profesionalService.create(this.nuevoProfesional);
     operation.subscribe({
       next: () => {
@@ -286,69 +235,22 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
   }
 
   toggleProfesionalActive(profesional: Profesional): void {
-    this.openEstadoProfesionalModal(profesional);
-  }
-
-  openEstadoProfesionalModal(profesional: Profesional): void {
-    if (!profesional.id) return;
-    this.estadoProfesionalTarget = profesional;
-    this.estadoProfesionalError = '';
-    this.estadoProfesionalSelected = profesional.estado || 'Disponible';
-    this.estadoProfesionalDesde = profesional.desde || null;
-    this.estadoProfesionalHasta = profesional.hasta || null;
-    this.showEstadoProfesionalModal = true;
-    if (this.estadoProfesionalList.length === 0) {
-      this.estadoProfesionalService.findAll().subscribe({
-        next: (estados) => { this.estadoProfesionalList = estados; },
-        error: (err: unknown) => {
-          this.estadoProfesionalError = this.errorHandler.getErrorMessage(err as any, 'cargar los estados del usuario');
-          if (!this.errorHandler.isNetworkError(err as any)) {
-            this.notification.showError(this.estadoProfesionalError);
-          }
-        }
-      });
-    }
-  }
-
-  closeEstadoProfesionalModal(): void {
-    if (this.isSavingEstadoProfesional) return;
-    this.forceCloseEstadoProfesionalModal();
-  }
-
-  private forceCloseEstadoProfesionalModal(): void {
-    this.showEstadoProfesionalModal = false;
-    this.estadoProfesionalTarget = null;
-    this.estadoProfesionalError = '';
-  }
-
-  saveEstadoProfesional(): void {
-    if (!this.estadoProfesionalTarget?.id || this.isSavingEstadoProfesional) return;
-    const id = this.estadoProfesionalTarget.id;
-    const target = this.estadoProfesionalTarget;
-    const payload: ProfesionalCreateDTO = {
-      nombre: target.nombre ?? '',
-      dni: target.dni,
-      especialidad: target.especialidad,
-      matricula: target.matricula,
-      email: target.email,
-      telefono: target.telefono,
-      activo: target.activo !== false,
-      estado: this.estadoProfesionalSelected || 'Disponible',
-      desde: this.estadoProfesionalDesde || undefined,
-      hasta: this.estadoProfesionalHasta || undefined
-    };
-    this.isSavingEstadoProfesional = true;
-    this.profesionalService.update(id, payload)
-      .pipe(finalize(() => { this.isSavingEstadoProfesional = false; }))
+    if (!profesional.id || this.isTogglingActive) return;
+    this.isTogglingActive = true;
+    this.profesionalService.toggleActive(profesional.id)
+      .pipe(finalize(() => { this.isTogglingActive = false; }))
       .subscribe({
         next: () => {
-          this.notification.showSuccess('Estado del usuario actualizado correctamente.');
-          this.forceCloseEstadoProfesionalModal();
+          this.notification.showSuccess(
+            profesional.activo === false
+              ? 'Usuario activado correctamente.'
+              : 'Usuario desactivado correctamente.'
+          );
         },
         error: (err: unknown) => {
-          this.estadoProfesionalError = this.errorHandler.getErrorMessage(err as any, 'actualizar el estado del usuario');
+          const message = this.errorHandler.getErrorMessage(err as any, 'cambiar el estado del usuario');
           if (!this.errorHandler.isNetworkError(err as any)) {
-            this.notification.showError(this.estadoProfesionalError);
+            this.notification.showError(message);
           }
         }
       });
@@ -404,7 +306,7 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
   }
 
   saveWhatsappTemplate(): void {
-    this.whatsappConfig.setTemplate(this.whatsappTemplate).subscribe({
+    this.configurationService.saveMensajeWhatsapp(this.whatsappTemplate).subscribe({
       next: () => {
         this.whatsappSaved = true;
         setTimeout(() => { this.whatsappSaved = false; }, 3000);

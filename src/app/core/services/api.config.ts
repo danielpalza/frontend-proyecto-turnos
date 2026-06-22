@@ -1,20 +1,17 @@
 /**
  * Configuración de la API
  */
-// Detectar si estamos en producción
 const isProduction = window.location.hostname !== 'localhost';
 
 export const API_CONFIG = {
-  baseUrl: isProduction 
-  ? 'https://backend-turnos-jg3n.onrender.com/api' 
+  baseUrl: isProduction
+  ? 'https://backend-turnos-jg3n.onrender.com/api'
   : 'http://localhost:8080/api',
   endpoints: {
     patients: '/patients',
     profesionales: '/profesionales',
     appointments: '/appointments',
     auth: '/auth',
-    mensajeria: '/mensajeria'
+    configuration: '/configuration'
   }
 };
-
-// ver de usar variables de entorno de vercel

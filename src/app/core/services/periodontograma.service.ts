@@ -14,15 +14,15 @@ export class PeriodontogramaService {
 
   constructor(private http: HttpClient) {}
 
-  getByAppointment(appointmentId: number): Observable<PeriodontogramaResponse> {
+  getByAppointment(appointmentId: string): Observable<PeriodontogramaResponse> {
     return this.http.get<PeriodontogramaResponse>(`${this.baseUrl}/${appointmentId}/periodontogram`);
   }
 
-  saveDelta(appointmentId: number, delta: PeriodontogramaDeltaRequest): Observable<PeriodontogramaResponse> {
+  saveDelta(appointmentId: string, delta: PeriodontogramaDeltaRequest): Observable<PeriodontogramaResponse> {
     return this.http.patch<PeriodontogramaResponse>(`${this.baseUrl}/${appointmentId}/periodontogram`, delta);
   }
 
-  getEstadoActual(patientId: number): Observable<PeriodontogramaEstadoActual> {
+  getEstadoActual(patientId: string): Observable<PeriodontogramaEstadoActual> {
     return this.http.get<PeriodontogramaEstadoActual>(
       `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.patients}/${patientId}/periodontogram/estado-actual`
     );

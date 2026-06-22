@@ -3,28 +3,30 @@ export interface LoginRequest {
   password: string;
 }
 
+/**
+ * Request de registro.
+ * - Si se envia `organizacionNombre` se crea una organizacion nueva (el usuario queda como OWNER).
+ * - Si se envia `organizationId` el usuario se une a esa organizacion como USER.
+ */
 export interface RegisterRequest {
   username: string;
   email: string;
   password: string;
-  role: string;
   nombre: string;
+  apellido?: string;
   dni?: string;
   telefono?: string;
-  direccion?: string;
-  localidad?: string;
-  especialidad?: string;
-  matricula?: string;
+  organizacionNombre?: string;
+  organizationId?: string;
 }
 
 export interface AuthResponse {
   token: string;
-  userId: number;
+  userId: string;
   username: string;
   email: string;
   role: string;
-  profesionalId?: number;
-  profesionalNombre?: string;
-  recepcionistaId?: number;
-  recepcionistaNombre?: string;
+  organizationId: string;
+  organizationNombre: string;
+  modules: string[];
 }

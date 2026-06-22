@@ -7,10 +7,7 @@
           Iniciar sesión
         } @else {
           @switch (registerStep) {
-            @case ('role') { Seleccioná tu tipo de cuenta }
-            @case ('details') {
-              Datos {{ selectedRole === 'PROFESIONAL' ? 'del profesional' : 'del recepcionista' }}
-            }
+            @case ('org') { Organización }
             @case ('account') { Datos de la cuenta }
           }
         }
@@ -19,18 +16,13 @@
 
     @if (!isLoginMode) {
       <div class="step-indicator">
-        <div class="step" [class.active]="registerStep === 'role'" [class.completed]="registerStep === 'details' || registerStep === 'account'">
+        <div class="step" [class.active]="registerStep === 'org'" [class.completed]="registerStep === 'account'">
           <span class="step-number">1</span>
-          <span class="step-label">Rol</span>
-        </div>
-        <div class="step-line" [class.active]="registerStep === 'details' || registerStep === 'account'"></div>
-        <div class="step" [class.active]="registerStep === 'details'" [class.completed]="registerStep === 'account'">
-          <span class="step-number">2</span>
-          <span class="step-label">Datos</span>
+          <span class="step-label">Organización</span>
         </div>
         <div class="step-line" [class.active]="registerStep === 'account'"></div>
         <div class="step" [class.active]="registerStep === 'account'">
-          <span class="step-number">3</span>
+          <span class="step-number">2</span>
           <span class="step-label">Cuenta</span>
         </div>
       </div>
@@ -91,72 +83,132 @@
     <!-- ====== REGISTRO ====== -->
     } @else {
 
-      <!-- Step 1: Selección de rol -->
-      @if (registerStep === 'role') {
-        <div class="role-selection" data-testid="register-role-selection">
+      <!-- Step 1: Organización -->
+      @if (registerStep === 'org') {
+        <div class="role-selection" data-testid="register-org-selection">
           <div
             class="role-card"
-            [class.selected]="selectedRole === 'PROFESIONAL'"
-            (click)="selectRole('PROFESIONAL')"
-            data-testid="register-role-profesional-card"
+            [class.selected]="selectedOrgMode === 'new'"
+            (click)="selectOrgMode('new')"
+            data-testid="register-org-new-card"
           >
             <div class="role-icon">
-              <i class="bi bi-heart-pulse"></i>
+              <i class="bi bi-building-add"></i>
             </div>
-            <h3 class="role-title">Profesional</h3>
-            <p class="role-desc">Odontólogo o especialista que atiende pacientes</p>
+            <h3 class="role-title">Crear organización</h3>
+            <p class="role-desc">Sos el primero del consultorio. Vas a ser el dueño.</p>
           </div>
 
           <div
             class="role-card"
-            [class.selected]="selectedRole === 'RECEPCIONISTA'"
-            (click)="selectRole('RECEPCIONISTA')"
-            data-testid="register-role-recepcionista-card"
+            [class.selected]="selectedOrgMode === 'join'"
+            (click)="selectOrgMode('join')"
+            data-testid="register-org-join-card"
           >
             <div class="role-icon">
-              <i class="bi bi-clipboard-check"></i>
+              <i class="bi bi-people"></i>
             </div>
-            <h3 class="role-title">Recepcionista</h3>
-            <p class="role-desc">Gestión de turnos, pacientes y administración</p>
+            <h3 class="role-title">Unirme a una existente</h3>
+            <p class="role-desc">Te sumó alguien del equipo. Pegá el código de la organización.</p>
           </div>
         </div>
 
-        <button class="btn btn-login" (click)="nextStep()" [disabled]="!selectedRole" data-testid="register-next-btn">
+        @if (selectedOrgMode === 'new') {
+          <div class="login-form mt-3">
+            <div class="form-group">
+              <label for="orgName" class="form-label">Nombre de la organización *</label>
+              <div class="input-wrapper">
+                <i class="bi bi-buildings input-icon"></i>
+                <input
+                  id="orgName"
+                  type="text"
+                  class="form-control form-input"
+                  placeholder="Ej: Clínica del Oeste"
+                  [(ngModel)]="organizacionNombre"
+                  name="organizacionNombre"
+                  maxlength="120"
+                  data-testid="register-org-name-input"
+                />
+              </div>
+            </div>
+          </div>
+        }
+
+        @if (selectedOrgMode === 'join') {
+          <div class="login-form mt-3">
+            <div class="form-group">
+              <label for="orgCode" class="form-label">Código de la organización *</label>
+              <div class="input-wrapper">
+                <i class="bi bi-key input-icon"></i>
+                <input
+                  id="orgCode"
+                  type="text"
+                  class="form-control form-input"
+                  placeholder="UUID que te pasaron"
+                  [(ngModel)]="organizationCode"
+                  name="organizationCode"
+                  data-testid="register-org-code-input"
+                />
+              </div>
+            </div>
+          </div>
+        }
+
+        <button class="btn btn-login mt-3" (click)="nextStep()" data-testid="register-next-btn">
           Siguiente
         </button>
       }
 
-      <!-- Step 2: Datos personales -->
-      @if (registerStep === 'details') {
-        <div class="login-form" data-testid="register-details-form">
-          <div class="form-group">
-            <label for="nombre" class="form-label">Nombre completo *</label>
-            <div class="input-wrapper">
-              <i class="bi bi-person input-icon"></i>
-              <input
-                id="nombre"
-                type="text"
-                class="form-control form-input"
-                [class.is-invalid]="fieldErrors['nombre']"
-                placeholder="Nombre y apellido"
-                [(ngModel)]="registerData.nombre"
-                (ngModelChange)="onFieldInput('nombre')"
-                name="nombre"
-                maxlength="100"
-                data-testid="register-name-input"
-              />
+      <!-- Step 2: Datos de la cuenta -->
+      @if (registerStep === 'account') {
+        <form (ngSubmit)="onRegister()" class="login-form" data-testid="register-account-form">
+          <div class="row g-2">
+            <div class="col-md-6 form-group">
+              <label for="reg-nombre" class="form-label">Nombre *</label>
+              <div class="input-wrapper">
+                <i class="bi bi-person input-icon"></i>
+                <input
+                  id="reg-nombre"
+                  type="text"
+                  class="form-control form-input"
+                  [class.is-invalid]="fieldErrors['nombre']"
+                  placeholder="Nombre"
+                  [(ngModel)]="registerData.nombre"
+                  (ngModelChange)="onFieldInput('nombre')"
+                  name="nombre"
+                  maxlength="100"
+                  data-testid="register-name-input"
+                />
+              </div>
+              @if (fieldErrors['nombre']) {
+                <span class="field-error">{{ fieldErrors['nombre'] }}</span>
+              }
             </div>
-            @if (fieldErrors['nombre']) {
-              <span class="field-error">{{ fieldErrors['nombre'] }}</span>
-            }
+
+            <div class="col-md-6 form-group">
+              <label for="reg-apellido" class="form-label">Apellido</label>
+              <div class="input-wrapper">
+                <i class="bi bi-person input-icon"></i>
+                <input
+                  id="reg-apellido"
+                  type="text"
+                  class="form-control form-input"
+                  placeholder="Apellido"
+                  [(ngModel)]="registerData.apellido"
+                  name="apellido"
+                  maxlength="100"
+                  data-testid="register-lastname-input"
+                />
+              </div>
+            </div>
           </div>
 
           <div class="form-group">
-            <label for="dni" class="form-label">DNI</label>
+            <label for="reg-dni" class="form-label">DNI</label>
             <div class="input-wrapper">
               <i class="bi bi-card-text input-icon"></i>
               <input
-                id="dni"
+                id="reg-dni"
                 type="text"
                 class="form-control form-input"
                 [class.is-invalid]="fieldErrors['dni']"
@@ -174,11 +226,11 @@
           </div>
 
           <div class="form-group">
-            <label for="telefono" class="form-label">Teléfono</label>
+            <label for="reg-telefono" class="form-label">Teléfono</label>
             <div class="input-wrapper">
               <i class="bi bi-telephone input-icon"></i>
               <input
-                id="telefono"
+                id="reg-telefono"
                 type="tel"
                 class="form-control form-input"
                 [class.is-invalid]="fieldErrors['telefono']"
@@ -195,109 +247,6 @@
             }
           </div>
 
-          <!-- Campos exclusivos de Profesional -->
-          @if (selectedRole === 'PROFESIONAL') {
-            <div class="form-group">
-              <label for="especialidad" class="form-label">Especialidad</label>
-              <div class="input-wrapper">
-                <i class="bi bi-award input-icon"></i>
-                <input
-                  id="especialidad"
-                  type="text"
-                  class="form-control form-input"
-                  [class.is-invalid]="fieldErrors['especialidad']"
-                  placeholder="Ej: Ortodoncia, Endodoncia"
-                  [(ngModel)]="registerData.especialidad"
-                  (ngModelChange)="onFieldInput('especialidad')"
-                  name="especialidad"
-                  maxlength="100"
-                  data-testid="register-specialty-input"
-                />
-              </div>
-              @if (fieldErrors['especialidad']) {
-                <span class="field-error">{{ fieldErrors['especialidad'] }}</span>
-              }
-            </div>
-
-            <div class="form-group">
-              <label for="matricula" class="form-label">Matrícula *</label>
-              <div class="input-wrapper">
-                <i class="bi bi-hash input-icon"></i>
-                <input
-                  id="matricula"
-                  type="text"
-                  class="form-control form-input"
-                  [class.is-invalid]="fieldErrors['matricula']"
-                  placeholder="Número de matrícula"
-                  [(ngModel)]="registerData.matricula"
-                  (ngModelChange)="onFieldInput('matricula')"
-                  name="matricula"
-                  maxlength="50"
-                  data-testid="register-license-input"
-                />
-              </div>
-              @if (fieldErrors['matricula']) {
-                <span class="field-error">{{ fieldErrors['matricula'] }}</span>
-              }
-            </div>
-          }
-
-          <!-- Campos exclusivos de Recepcionista -->
-          @if (selectedRole === 'RECEPCIONISTA') {
-            <div class="form-group">
-              <label for="direccion" class="form-label">Dirección</label>
-              <div class="input-wrapper">
-                <i class="bi bi-geo-alt input-icon"></i>
-                <input
-                  id="direccion"
-                  type="text"
-                  class="form-control form-input"
-                  placeholder="Dirección"
-                  [(ngModel)]="registerData.direccion"
-                  name="direccion"
-                  maxlength="200"
-                  data-testid="register-address-input"
-                />
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="localidad" class="form-label">Localidad</label>
-              <div class="input-wrapper">
-                <i class="bi bi-building input-icon"></i>
-                <input
-                  id="localidad"
-                  type="text"
-                  class="form-control form-input"
-                  [class.is-invalid]="fieldErrors['localidad']"
-                  placeholder="Localidad"
-                  [(ngModel)]="registerData.localidad"
-                  (ngModelChange)="onFieldInput('localidad')"
-                  name="localidad"
-                  maxlength="100"
-                  data-testid="register-city-input"
-                />
-              </div>
-              @if (fieldErrors['localidad']) {
-                <span class="field-error">{{ fieldErrors['localidad'] }}</span>
-              }
-            </div>
-          }
-
-          <div class="btn-group-wizard">
-            <button class="btn btn-outline" (click)="prevStep()" data-testid="register-back-btn">
-              <i class="bi bi-arrow-left me-1"></i> Volver
-            </button>
-            <button class="btn btn-login" (click)="nextStep()" data-testid="register-next-btn">
-              Siguiente
-            </button>
-          </div>
-        </div>
-      }
-
-      <!-- Step 3: Datos de la cuenta -->
-      @if (registerStep === 'account') {
-        <form (ngSubmit)="onRegister()" class="login-form" data-testid="register-account-form">
           <div class="form-group">
             <label for="reg-username" class="form-label">Usuario *</label>
             <div class="input-wrapper">

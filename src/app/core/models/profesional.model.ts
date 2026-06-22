@@ -2,7 +2,7 @@
  * Modelo de Profesional - Coincide con ProfesionalDTO del backend
  */
 export interface Profesional {
-  id?: number;
+  id?: string;
   nombre: string;
   dni?: string;
   especialidad?: string;
@@ -10,9 +10,8 @@ export interface Profesional {
   email?: string;
   telefono?: string;
   activo?: boolean;
-  estado?: string;
-  desde?: string;
-  hasta?: string;
+  userId?: string;
 }
 
 export type ProfesionalCreateDTO = Omit<Profesional, 'id'>;
+export type ProfesionalUpdateDTO = Partial<ProfesionalCreateDTO>;

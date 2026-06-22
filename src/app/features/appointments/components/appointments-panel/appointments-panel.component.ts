@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Appointment, AppointmentPartialUpdateDTO, Profesional, Patient } from '../../../../core/models';
 import { AppointmentsService } from '../../../../core/services/appointments.service';
-import { WhatsappConfigService } from '../../../../core/services/whatsapp-config.service';
+import { ConfigurationService } from '../../../../core/services/configuration.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import {
   filterProfesionalesForReassign,
@@ -24,15 +24,15 @@ export class AppointmentsPanelComponent implements OnChanges {
   @Input() profesionales: Profesional[] = [];
   @Input() patients: Patient[] = [];
 
-  @Output() delete = new EventEmitter<number>();
+  @Output() delete = new EventEmitter<string>();
   @Output() addClick = new EventEmitter<void>();
 
-  private patientsById = new Map<number, Patient>();
+  private patientsById = new Map<string, Patient>();
   private patientsByDni = new Map<string, Patient>();
 
   constructor(
     private appointmentsService: AppointmentsService,
-    private whatsappConfig: WhatsappConfigService,
+    private whatsappConfig: ConfigurationService,
     private notification: NotificationService,
     private router: Router
   ) {}
@@ -60,23 +60,23 @@ export class AppointmentsPanelComponent implements OnChanges {
     });
   }
 
-  expandedCards = new Set<number>(); // Rastrea qué tarjetas están expandidas
-  paymentInputs = new Map<number, number>(); // Rastrea los valores de pago por tarjeta
+  expandedCards = new Set<string>(); // Rastrea qué tarjetas están expandidas
+  paymentInputs = new Map<string, number>(); // Rastrea los valores de pago por tarjeta
   editingPrices = new Map<string, boolean>(); // Rastrea qué precios están siendo editados (key: "cardId-priceType")
   priceInputs = new Map<string, number>(); // Rastrea los valores temporales de los inputs de precio (key: "cardId-priceType")
   originalPrices = new Map<string, number>(); // Guarda los valores originales antes de editar
-  editingObservaciones = new Map<number, boolean>(); // Rastrea qué observaciones están siendo editadas
-  observacionesInputs = new Map<number, string>(); // Rastrea los valores temporales de las observaciones
-  originalObservaciones = new Map<number, string>(); // Guarda los valores originales antes de editar
-  editingObservacionesTurno = new Map<number, boolean>(); // Rastrea qué observaciones del turno están siendo editadas
-  observacionesTurnoInputs = new Map<number, string>(); // Rastrea los valores temporales de las observaciones del turno
-  originalObservacionesTurno = new Map<number, string>(); // Guarda los valores originales antes de editar
-  editingHora = new Map<number, boolean>(); // Rastrea qué horas están siendo editadas
-  horaInputs = new Map<number, string>(); // Rastrea los valores temporales de las horas
-  originalHora = new Map<number, string>(); // Guarda los valores originales antes de editar
-  editingProfesional = new Map<number, boolean>(); // Rastrea qué profesionales están siendo editados
-  profesionalInputs = new Map<number, number | null>(); // profesionalId seleccionado (null = sin asignar)
-  originalProfesionalId = new Map<number, number | undefined>(); // Guarda el valor original
+  editingObservaciones = new Map<string, boolean>(); // Rastrea qué observaciones están siendo editadas
+  observacionesInputs = new Map<string, string>(); // Rastrea los valores temporales de las observaciones
+  originalObservaciones = new Map<string, string>(); // Guarda los valores originales antes de editar
+  editingObservacionesTurno = new Map<string, boolean>(); // Rastrea qué observaciones del turno están siendo editadas
+  observacionesTurnoInputs = new Map<string, string>(); // Rastrea los valores temporales de las observaciones del turno
+  originalObservacionesTurno = new Map<string, string>(); // Guarda los valores originales antes de editar
+  editingHora = new Map<string, boolean>(); // Rastrea qué horas están siendo editadas
+  horaInputs = new Map<string, string>(); // Rastrea los valores temporales de las horas
+  originalHora = new Map<string, string>(); // Guarda los valores originales antes de editar
+  editingProfesional = new Map<string, boolean>(); // Rastrea qué profesionales están siendo editados
+  profesionalInputs = new Map<string, string | null>(); // profesionalId seleccionado (null = sin asignar)
+  originalProfesionalId = new Map<string, string | undefined>(); // Guarda el valor original
 
   /**
    * Obtiene los appointments a mostrar
@@ -164,7 +164,7 @@ export class AppointmentsPanelComponent implements OnChanges {
   }
 
   // Toggle del estado expandido/colapsado de una tarjeta
-  toggleCard(cardId: number, event: Event): void {
+  toggleCard(cardId: string, event: Event): void {
     event.stopPropagation();
     if (this.expandedCards.has(cardId)) {
       this.expandedCards.delete(cardId);
@@ -174,22 +174,22 @@ export class AppointmentsPanelComponent implements OnChanges {
   }
 
   // Verifica si una tarjeta está expandida
-  isCardExpanded(cardId: number): boolean {
+  isCardExpanded(cardId: string): boolean {
     return this.expandedCards.has(cardId);
   }
 
   // Obtiene el valor del input de pago para una tarjeta
-  getPaymentInput(cardId: number): number {
+  getPaymentInput(cardId: string): number {
     return this.paymentInputs.get(cardId) || 0;
   }
 
   // Actualiza el valor del input de pago
-  updatePaymentInput(cardId: number, value: number): void {
+  updatePaymentInput(cardId: string, value: number): void {
     this.paymentInputs.set(cardId, value);
   }
 
   // Agrega el pago a un turno (usa lógica compartida del servicio)
-  onAddPayment(cardId: number): void {
+  onAddPayment(cardId: string): void {
     const paymentValue = this.paymentInputs.get(cardId) || 0;
     this.appointmentsService.addPaymentWithFeedback(cardId, paymentValue).subscribe({
       next: () => this.paymentInputs.set(cardId, 0),
@@ -198,7 +198,7 @@ export class AppointmentsPanelComponent implements OnChanges {
   }
 
   // Inicia la edición de un precio
-  startEditingPrice(cardId: number, priceType: 'bono' | 'tratamiento' | 'extras', currentValue?: number): void {
+  startEditingPrice(cardId: string, priceType: 'bono' | 'tratamiento' | 'extras', currentValue?: number): void {
     const key = `${cardId}-${priceType}`;
     this.editingPrices.set(key, true);
     this.priceInputs.set(key, currentValue || 0);
@@ -206,25 +206,25 @@ export class AppointmentsPanelComponent implements OnChanges {
   }
 
   // Verifica si un precio está siendo editado
-  isEditingPrice(cardId: number, priceType: 'bono' | 'tratamiento' | 'extras'): boolean {
+  isEditingPrice(cardId: string, priceType: 'bono' | 'tratamiento' | 'extras'): boolean {
     const key = `${cardId}-${priceType}`;
     return this.editingPrices.get(key) || false;
   }
 
   // Obtiene el valor del input de precio
-  getPriceInput(cardId: number, priceType: 'bono' | 'tratamiento' | 'extras'): number {
+  getPriceInput(cardId: string, priceType: 'bono' | 'tratamiento' | 'extras'): number {
     const key = `${cardId}-${priceType}`;
     return this.priceInputs.get(key) || 0;
   }
 
   // Actualiza el valor del input de precio
-  updatePriceInput(cardId: number, priceType: 'bono' | 'tratamiento' | 'extras', value: number): void {
+  updatePriceInput(cardId: string, priceType: 'bono' | 'tratamiento' | 'extras', value: number): void {
     const key = `${cardId}-${priceType}`;
     this.priceInputs.set(key, value);
   }
 
   // Guarda el precio editado (usa lógica compartida del servicio)
-  savePrice(cardId: number, priceType: 'bono' | 'tratamiento' | 'extras'): void {
+  savePrice(cardId: string, priceType: 'bono' | 'tratamiento' | 'extras'): void {
     const key = `${cardId}-${priceType}`;
     const newValue = this.priceInputs.get(key) || 0;
     const appointment = this.appointments.find(a => a.id === cardId);
@@ -250,7 +250,7 @@ export class AppointmentsPanelComponent implements OnChanges {
   }
 
   // Cancela la edición de un precio
-  cancelPriceEdit(cardId: number, priceType: 'bono' | 'tratamiento' | 'extras'): void {
+  cancelPriceEdit(cardId: string, priceType: 'bono' | 'tratamiento' | 'extras'): void {
     const key = `${cardId}-${priceType}`;
     this.editingPrices.set(key, false);
     this.priceInputs.delete(key);
@@ -258,29 +258,29 @@ export class AppointmentsPanelComponent implements OnChanges {
   }
 
   // Inicia la edición de observaciones
-  startEditingObservaciones(cardId: number, currentValue?: string): void {
+  startEditingObservaciones(cardId: string, currentValue?: string): void {
     this.editingObservaciones.set(cardId, true);
     this.observacionesInputs.set(cardId, currentValue || '');
     this.originalObservaciones.set(cardId, currentValue || '');
   }
 
   // Verifica si las observaciones están siendo editadas
-  isEditingObservaciones(cardId: number): boolean {
+  isEditingObservaciones(cardId: string): boolean {
     return this.editingObservaciones.get(cardId) || false;
   }
 
   // Obtiene el valor del input de observaciones
-  getObservacionesInput(cardId: number): string {
+  getObservacionesInput(cardId: string): string {
     return this.observacionesInputs.get(cardId) || '';
   }
 
   // Actualiza el valor del input de observaciones
-  updateObservacionesInput(cardId: number, value: string): void {
+  updateObservacionesInput(cardId: string, value: string): void {
     this.observacionesInputs.set(cardId, value);
   }
 
   // Guarda las observaciones editadas (usa lógica compartida del servicio)
-  saveObservaciones(cardId: number): void {
+  saveObservaciones(cardId: string): void {
     const newValue = this.observacionesInputs.get(cardId) || '';
     this.appointmentsService.updateWithFeedback(
       cardId,
@@ -301,36 +301,36 @@ export class AppointmentsPanelComponent implements OnChanges {
   }
 
   // Cancela la edición de observaciones
-  cancelObservacionesEdit(cardId: number): void {
+  cancelObservacionesEdit(cardId: string): void {
     this.editingObservaciones.set(cardId, false);
     this.observacionesInputs.delete(cardId);
     this.originalObservaciones.delete(cardId);
   }
 
   // Inicia la edición de observaciones del turno
-  startEditingObservacionesTurno(cardId: number, currentValue?: string): void {
+  startEditingObservacionesTurno(cardId: string, currentValue?: string): void {
     this.editingObservacionesTurno.set(cardId, true);
     this.observacionesTurnoInputs.set(cardId, currentValue || '');
     this.originalObservacionesTurno.set(cardId, currentValue || '');
   }
 
   // Verifica si las observaciones del turno están siendo editadas
-  isEditingObservacionesTurno(cardId: number): boolean {
+  isEditingObservacionesTurno(cardId: string): boolean {
     return this.editingObservacionesTurno.get(cardId) || false;
   }
 
   // Obtiene el valor del input de observaciones del turno
-  getObservacionesTurnoInput(cardId: number): string {
+  getObservacionesTurnoInput(cardId: string): string {
     return this.observacionesTurnoInputs.get(cardId) || '';
   }
 
   // Actualiza el valor del input de observaciones del turno
-  updateObservacionesTurnoInput(cardId: number, value: string): void {
+  updateObservacionesTurnoInput(cardId: string, value: string): void {
     this.observacionesTurnoInputs.set(cardId, value);
   }
 
   // Guarda las observaciones del turno editadas (usa lógica compartida del servicio)
-  saveObservacionesTurno(cardId: number): void {
+  saveObservacionesTurno(cardId: string): void {
     const newValue = this.observacionesTurnoInputs.get(cardId) || '';
     this.appointmentsService.updateWithFeedback(
       cardId,
@@ -351,14 +351,14 @@ export class AppointmentsPanelComponent implements OnChanges {
   }
 
   // Cancela la edición de observaciones del turno
-  cancelObservacionesTurnoEdit(cardId: number): void {
+  cancelObservacionesTurnoEdit(cardId: string): void {
     this.editingObservacionesTurno.set(cardId, false);
     this.observacionesTurnoInputs.delete(cardId);
     this.originalObservacionesTurno.delete(cardId);
   }
 
   // Inicia la edición de hora
-  startEditingHora(cardId: number, currentValue?: string): void {
+  startEditingHora(cardId: string, currentValue?: string): void {
     this.editingHora.set(cardId, true);
     // Convertir formato HH:mm:ss a HH:mm para el input type="time"
     const horaValue = currentValue ? currentValue.substring(0, 5) : '';
@@ -367,22 +367,22 @@ export class AppointmentsPanelComponent implements OnChanges {
   }
 
   // Verifica si la hora está siendo editada
-  isEditingHora(cardId: number): boolean {
+  isEditingHora(cardId: string): boolean {
     return this.editingHora.get(cardId) || false;
   }
 
   // Obtiene el valor del input de hora
-  getHoraInput(cardId: number): string {
+  getHoraInput(cardId: string): string {
     return this.horaInputs.get(cardId) || '';
   }
 
   // Actualiza el valor del input de hora
-  updateHoraInput(cardId: number, value: string): void {
+  updateHoraInput(cardId: string, value: string): void {
     this.horaInputs.set(cardId, value);
   }
 
   // Guarda la hora editada
-  saveHora(cardId: number): void {
+  saveHora(cardId: string): void {
     const newValue = this.horaInputs.get(cardId) || '';
     
     // Convertir formato HH:mm a HH:mm:ss para el backend.
@@ -412,7 +412,7 @@ export class AppointmentsPanelComponent implements OnChanges {
   }
 
   // Cancela la edición de hora
-  cancelHoraEdit(cardId: number): void {
+  cancelHoraEdit(cardId: string): void {
     this.editingHora.set(cardId, false);
     this.horaInputs.delete(cardId);
     this.originalHora.delete(cardId);
@@ -442,39 +442,39 @@ export class AppointmentsPanelComponent implements OnChanges {
       && !isProfesionalAssignableForReassign(prof);
   }
 
-  startEditingProfesional(cardId: number, currentProfesionalId?: number): void {
+  startEditingProfesional(cardId: string, currentProfesionalId?: string): void {
     this.editingProfesional.set(cardId, true);
     this.profesionalInputs.set(cardId, currentProfesionalId ?? null);
     this.originalProfesionalId.set(cardId, currentProfesionalId);
   }
 
-  isEditingProfesional(cardId: number): boolean {
+  isEditingProfesional(cardId: string): boolean {
     return this.editingProfesional.get(cardId) || false;
   }
 
-  getProfesionalInput(cardId: number): number | null {
+  getProfesionalInput(cardId: string): string | null {
     const val = this.profesionalInputs.get(cardId);
     return val !== undefined ? val : null;
   }
 
-  getProfesionalSelectValue(cardId: number): string {
+  getProfesionalSelectValue(cardId: string): string {
     const val = this.profesionalInputs.get(cardId);
     return val == null ? '' : String(val);
   }
 
-  updateProfesionalInput(cardId: number, value: string): void {
+  updateProfesionalInput(cardId: string, value: string): void {
     this.updateProfesionalSelect(cardId, value);
   }
 
-  updateProfesionalSelect(cardId: number, value: string | number | null): void {
+  updateProfesionalSelect(cardId: string, value: string | null): void {
     if (value === '' || value === null || value === undefined) {
       this.profesionalInputs.set(cardId, null);
       return;
     }
-    this.profesionalInputs.set(cardId, typeof value === 'number' ? value : +value);
+    this.profesionalInputs.set(cardId, value);
   }
 
-  saveProfesional(cardId: number): void {
+  saveProfesional(cardId: string): void {
     const selectedId = this.profesionalInputs.get(cardId);
     const originalId = this.originalProfesionalId.get(cardId);
 
@@ -483,7 +483,7 @@ export class AppointmentsPanelComponent implements OnChanges {
       return;
     }
 
-    const updateData: { profesionalId?: number; unassignProfesional?: boolean } = {};
+    const updateData: { profesionalId?: string; unassignProfesional?: boolean } = {};
 
     if (selectedId === null || selectedId === undefined) {
       updateData.unassignProfesional = true;
@@ -516,13 +516,13 @@ export class AppointmentsPanelComponent implements OnChanges {
     });
   }
 
-  cancelProfesionalEdit(cardId: number): void {
+  cancelProfesionalEdit(cardId: string): void {
     this.editingProfesional.set(cardId, false);
     this.profesionalInputs.delete(cardId);
     this.originalProfesionalId.delete(cardId);
   }
 
-  openOdontogram(appointmentId: number): void {
+  openOdontogram(appointmentId: string): void {
     this.router.navigate(['/odontograma', appointmentId]);
   }
 

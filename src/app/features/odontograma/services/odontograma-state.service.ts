@@ -74,8 +74,8 @@ const LAST_APPOINTMENT_KEY = 'odontograma_last_appointment_id';
 
 @Injectable({ providedIn: 'root' })
 export class OdontogramaStateService {
-  private appointmentId: number | null = null;
-  private patientId: number | null = null;
+  private appointmentId: string | null = null;
+  private patientId: string | null = null;
 
   private readonly selectedToothSubject = new BehaviorSubject<number | null>(null);
   readonly selectedTooth$ = this.selectedToothSubject.asObservable();
@@ -129,7 +129,7 @@ export class OdontogramaStateService {
     this.initEmptyPerioMap();
   }
 
-  get appointmentIdValue(): number | null {
+  get appointmentIdValue(): string | null {
     if (this.appointmentId != null) {
       return this.appointmentId;
     }
@@ -140,11 +140,10 @@ export class OdontogramaStateService {
     if (!stored) {
       return null;
     }
-    const parsed = Number(stored);
-    return Number.isNaN(parsed) ? null : parsed;
+    return stored;
   }
 
-  loadForAppointment(appointmentId: number): Observable<void> {
+  loadForAppointment(appointmentId: string): Observable<void> {
     this.loadingSubject.next(true);
     return forkJoin({
       odonto: this.odontogramaService.getByAppointment(appointmentId).pipe(
@@ -387,19 +386,19 @@ export class OdontogramaStateService {
     };
   }
 
-  private emptyOdontoResponse(appointmentId: number): OdontogramaResponse {
+  private emptyOdontoResponse(appointmentId: string): OdontogramaResponse {
     return {
       appointmentId,
-      patientId: 0,
+      patientId: '',
       estadoActual: { caras: [], leyendas: [] },
       cambiosTurno: { caras: [], leyendas: [] }
     };
   }
 
-  private emptyPerioResponse(appointmentId: number): PeriodontogramaResponse {
+  private emptyPerioResponse(appointmentId: string): PeriodontogramaResponse {
     return {
       appointmentId,
-      patientId: 0,
+      patientId: '',
       estadoActual: { dientes: [] },
       cambiosTurno: { dientes: [] }
     };

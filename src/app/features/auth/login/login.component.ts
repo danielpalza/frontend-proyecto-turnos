@@ -7,7 +7,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { LoginRequest, RegisterRequest } from '../../../core/models/auth.model';
 
-type RegisterStep = 'role' | 'details' | 'account';
+type RegisterStep = 'org' | 'account';
 
 const PATTERNS = {
   onlyLetters: /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ ]+$/,
@@ -30,16 +30,21 @@ export class LoginComponent {
 
   loginData: LoginRequest = { username: '', password: '' };
 
-  registerStep: RegisterStep = 'role';
-  selectedRole: 'PROFESIONAL' | 'RECEPCIONISTA' | null = null;
+  registerStep: RegisterStep = 'org';
+  selectedOrgMode: 'new' | 'join' = 'new';
+  organizationCode = '';
 
   registerData: RegisterRequest = {
-    username: '', email: '', password: '', role: '',
-    nombre: '', dni: '', telefono: '',
-    direccion: '', localidad: '',
-    especialidad: '', matricula: ''
+    username: '',
+    email: '',
+    password: '',
+    nombre: '',
+    apellido: '',
+    dni: '',
+    telefono: ''
   };
   confirmPassword = '';
+  organizacionNombre = '';
 
   constructor(
     private authService: AuthService,
@@ -56,20 +61,22 @@ export class LoginComponent {
     this.isLoginMode = !this.isLoginMode;
     this.errorMessage = '';
     this.fieldErrors = {};
-    this.registerStep = 'role';
-    this.selectedRole = null;
+    this.registerStep = 'org';
+    this.selectedOrgMode = 'new';
     this.registerData = {
-      username: '', email: '', password: '', role: '',
-      nombre: '', dni: '', telefono: '',
-      direccion: '', localidad: '',
-      especialidad: '', matricula: ''
+      username: '', email: '', password: '',
+      nombre: '', apellido: '', dni: '', telefono: ''
     };
     this.confirmPassword = '';
+    this.organizacionNombre = '';
+    this.organizationCode = '';
   }
 
-  selectRole(role: 'PROFESIONAL' | 'RECEPCIONISTA'): void {
-    this.selectedRole = role;
+  selectOrgMode(mode: 'new' | 'join'): void {
+    this.selectedOrgMode = mode;
     this.errorMessage = '';
+    this.organizationCode = '';
+    this.organizacionNombre = '';
   }
 
   onFieldInput(field: string): void {
@@ -80,19 +87,17 @@ export class LoginComponent {
     this.errorMessage = '';
     this.fieldErrors = {};
 
-    if (this.registerStep === 'role') {
-      if (!this.selectedRole) {
-        this.errorMessage = 'Seleccione un tipo de cuenta';
+    if (this.registerStep === 'org') {
+      if (this.selectedOrgMode === 'new' && !this.organizacionNombre.trim()) {
+        this.errorMessage = 'Ingresa el nombre de tu organización';
         return;
       }
-      this.registerData.role = this.selectedRole;
-      this.registerStep = 'details';
-      return;
-    }
-
-    if (this.registerStep === 'details') {
-      if (!this.validateDetailsStep()) return;
+      if (this.selectedOrgMode === 'join' && !this.organizationCode.trim()) {
+        this.errorMessage = 'Ingresa el código de la organización a la que te querés unir';
+        return;
+      }
       this.registerStep = 'account';
+      return;
     }
   }
 
@@ -100,9 +105,7 @@ export class LoginComponent {
     this.errorMessage = '';
     this.fieldErrors = {};
     if (this.registerStep === 'account') {
-      this.registerStep = 'details';
-    } else if (this.registerStep === 'details') {
-      this.registerStep = 'role';
+      this.registerStep = 'org';
     }
   }
 
@@ -157,9 +160,39 @@ export class LoginComponent {
       this.fieldErrors['confirmPassword'] = 'Las contraseñas no coinciden';
     }
 
+    if (!this.registerData.nombre.trim()) {
+      this.fieldErrors['nombre'] = 'El nombre es obligatorio';
+    } else if (!PATTERNS.onlyLetters.test(this.registerData.nombre.trim())) {
+      this.fieldErrors['nombre'] = 'Solo puede contener letras y espacios';
+    }
+
+    if (this.registerData.dni && this.registerData.dni.trim()) {
+      if (!PATTERNS.onlyNumbers.test(this.registerData.dni.trim())) {
+        this.fieldErrors['dni'] = 'Solo números';
+      } else if (this.registerData.dni.trim().length > 8) {
+        this.fieldErrors['dni'] = 'Máximo 8 dígitos';
+      }
+    }
+
+    if (this.registerData.telefono && this.registerData.telefono.trim()) {
+      if (!PATTERNS.onlyNumbers.test(this.registerData.telefono.trim())) {
+        this.fieldErrors['telefono'] = 'Solo números';
+      } else if (this.registerData.telefono.trim().length > 20) {
+        this.fieldErrors['telefono'] = 'Máximo 20 dígitos';
+      }
+    }
+
     if (Object.keys(this.fieldErrors).length > 0) {
       this.errorMessage = 'Corrija los errores marcados';
       return;
+    }
+
+    if (this.selectedOrgMode === 'new') {
+      this.registerData.organizacionNombre = this.organizacionNombre.trim();
+      delete this.registerData.organizationId;
+    } else {
+      this.registerData.organizationId = this.organizationCode.trim();
+      delete this.registerData.organizacionNombre;
     }
 
     this.loading = true;
@@ -177,53 +210,6 @@ export class LoginComponent {
         this.cdr.detectChanges();
       }
     });
-  }
-
-  private validateDetailsStep(): boolean {
-    const d = this.registerData;
-
-    if (!d.nombre.trim()) {
-      this.fieldErrors['nombre'] = 'El nombre completo es obligatorio';
-    } else if (!PATTERNS.onlyLetters.test(d.nombre.trim())) {
-      this.fieldErrors['nombre'] = 'Solo puede contener letras y espacios';
-    }
-
-    if (d.dni && d.dni.trim()) {
-      if (!PATTERNS.onlyNumbers.test(d.dni.trim())) {
-        this.fieldErrors['dni'] = 'Solo números';
-      } else if (d.dni.trim().length > 8) {
-        this.fieldErrors['dni'] = 'Máximo 8 dígitos';
-      }
-    }
-
-    if (d.telefono && d.telefono.trim()) {
-      if (!PATTERNS.onlyNumbers.test(d.telefono.trim())) {
-        this.fieldErrors['telefono'] = 'Solo números';
-      } else if (d.telefono.trim().length > 20) {
-        this.fieldErrors['telefono'] = 'Máximo 20 dígitos';
-      }
-    }
-
-    if (this.selectedRole === 'PROFESIONAL') {
-      if (d.especialidad && d.especialidad.trim() && !PATTERNS.onlyLetters.test(d.especialidad.trim())) {
-        this.fieldErrors['especialidad'] = 'Solo puede contener letras y espacios';
-      }
-      if (!d.matricula?.trim()) {
-        this.fieldErrors['matricula'] = 'La matrícula es obligatoria';
-      }
-    }
-
-    if (this.selectedRole === 'RECEPCIONISTA') {
-      if (d.localidad && d.localidad.trim() && !PATTERNS.onlyLetters.test(d.localidad.trim())) {
-        this.fieldErrors['localidad'] = 'Solo puede contener letras y espacios';
-      }
-    }
-
-    if (Object.keys(this.fieldErrors).length > 0) {
-      this.errorMessage = 'Corrija los errores marcados';
-      return false;
-    }
-    return true;
   }
 
   private extractErrorMessage(err: HttpErrorResponse, fallback: string): string {

@@ -45,7 +45,7 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
   // Modal confirmación eliminación
   isDeleteConfirmOpen = false;
   isDeletingAppointment = false;
-  deleteCandidateId: number | null = null;
+  deleteCandidateId: string | null = null;
   deleteCandidateSummary: string | null = null;
   
   // Filtro saldo pendiente (checkbox en búsqueda)
@@ -341,11 +341,11 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
     });
   }
 
-  onDeleteAppointment(id: number): void {
+  onDeleteAppointment(id: string): void {
     this.openDeleteConfirm(id);
   }
 
-  openDeleteConfirm(id: number): void {
+  openDeleteConfirm(id: string): void {
     if (this.isDeletingAppointment) {
       return;
     }

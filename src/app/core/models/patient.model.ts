@@ -2,7 +2,7 @@
  * Modelo de Paciente - Coincide con PatientDTO del backend
  */
 export interface Patient {
-  id?: number;
+  id?: string;
   nombreApellido: string;
   fechaNacimiento?: string; // formato: YYYY-MM-DD
   dni: string;
@@ -23,9 +23,5 @@ export interface Patient {
   parentesco?: string;
 }
 
-/**
- * DTO para crear/actualizar paciente
- */
 export type PatientCreateDTO = Omit<Patient, 'id'>;
 export type PatientUpdateDTO = Partial<PatientCreateDTO>;
-

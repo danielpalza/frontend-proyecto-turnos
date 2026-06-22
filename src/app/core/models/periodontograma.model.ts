@@ -50,8 +50,8 @@ export interface PeriodontogramaDeltaRequest {
 }
 
 export interface PeriodontogramaResponse {
-  appointmentId: number;
-  patientId: number;
+  appointmentId: string;
+  patientId: string;
   notas?: string;
   creadoEn?: string;
   estadoActual: PeriodontogramaEstadoActual;

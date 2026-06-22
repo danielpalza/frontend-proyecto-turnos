@@ -6,7 +6,7 @@ export interface DashboardSummary {
 }
 
 export interface ProfessionalPerformance {
-  profesionalId: number;
+  profesionalId: string;
   profesionalName: string;
   turnos: number;
   facturacion: number;

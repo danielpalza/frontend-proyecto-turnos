@@ -68,9 +68,9 @@
               </div>
 
               <div class="profesional-badges">
-                <span class="badge badge-soft badge-role text-nowrap">Administrador</span>
-                <span class="badge badge-soft badge-estado text-nowrap" *ngIf="prof.estado"
-                  [ngStyle]="getEstadoBadgeStyle(prof.estado)">{{ prof.estado }}</span>
+                <span class="badge badge-soft badge-role text-nowrap">
+                  {{ prof.activo === false ? 'Inactivo' : 'Activo' }}
+                </span>
               </div>
 
               <div class="profesional-actions">
@@ -80,9 +80,9 @@
                   <i class="bi bi-pencil"></i>
                 </button>
                 <button type="button" class="btn btn-action btn-action-flag"
-                  (click)="toggleProfesionalActive(prof)" title="Cambiar estado"
+                  (click)="toggleProfesionalActive(prof)" title="Activar / desactivar"
                   [attr.data-testid]="'settings-profesional-status-btn-' + prof.id">
-                  <i class="bi bi-flag"></i>
+                  <i class="bi" [ngClass]="prof.activo === false ? 'bi-toggle-off' : 'bi-toggle-on'"></i>
                 </button>
                 <button type="button" class="btn btn-action btn-action-delete"
                   (click)="onDeleteProfesional(prof)" title="Eliminar"
@@ -234,41 +234,6 @@
               </div>
             </div>
 
-            <div class="rol-permisos-section mt-4">
-              <label class="form-label">Rol y permisos *</label>
-              <div class="rol-cards">
-                <button type="button" class="rol-card"
-                  [class.rol-card-selected]="selectedRol === 'basico'"
-                  (click)="selectRol('basico')" data-testid="settings-profesional-rol-basico">
-                  <div class="rol-card-header">
-                    <i class="bi bi-person rol-card-icon"></i>
-                    <span class="rol-card-title">Básico</span>
-                  </div>
-                  <p class="rol-card-description">Acceso limitado a sus propios turnos y pacientes</p>
-                  <ul class="rol-card-list">
-                    <li>Ver y gestionar sus turnos</li>
-                    <li>Acceder al odontograma</li>
-                    <li>Sin acceso a configuraciones</li>
-                  </ul>
-                </button>
-
-                <button type="button" class="rol-card"
-                  [class.rol-card-selected]="selectedRol === 'administrador'"
-                  (click)="selectRol('administrador')" data-testid="settings-profesional-rol-administrador">
-                  <div class="rol-card-header">
-                    <i class="bi bi-shield-check rol-card-icon"></i>
-                    <span class="rol-card-title">Administrador</span>
-                  </div>
-                  <p class="rol-card-description">Acceso completo al sistema y configuraciones</p>
-                  <ul class="rol-card-list">
-                    <li>Todos los turnos y pacientes</li>
-                    <li>Gestión de usuarios y plan</li>
-                    <li>Configuraciones de la clínica</li>
-                  </ul>
-                </button>
-              </div>
-            </div>
-
             <div *ngIf="saveProfesionalError" class="alert alert-danger py-2 mt-3">
               {{ saveProfesionalError }}
             </div>
@@ -315,10 +280,6 @@
               <span class="delete-user-detail-label">Especialidad:</span>
               <strong>{{ deleteCandidate.especialidad }}</strong>
             </div>
-            <div class="delete-user-detail-row">
-              <span class="delete-user-detail-label">Rol:</span>
-              <span class="badge badge-soft badge-role text-nowrap">Administrador</span>
-            </div>
           </div>
 
           <div class="delete-user-warning">
@@ -344,74 +305,4 @@
     </div>
   </div>
   <div class="modal-backdrop fade show" *ngIf="isDeleteConfirmOpen"></div>
-
-  <!-- Modal Estado Usuario -->
-  <div class="modal fade show d-block" tabindex="-1" role="dialog" *ngIf="showEstadoProfesionalModal" data-testid="settings-profesional-status-dialog">
-    <div class="modal-dialog modal-dialog-estado" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Cambiar estado del usuario</h5>
-          <button type="button" class="btn btn-modal-close" aria-label="Close" (click)="closeEstadoProfesionalModal()" data-testid="settings-profesional-status-close-btn">
-            <i class="bi bi-x-lg"></i>
-          </button>
-        </div>
-        <div class="modal-body">
-          <div class="estado-usuario-summary" *ngIf="estadoProfesionalTarget">
-            <div class="estado-usuario-avatar" [ngStyle]="getTargetAvatarStyle()">
-              {{ getProfesionalInitials(estadoProfesionalTarget.nombre) }}
-            </div>
-            <div class="estado-usuario-info">
-              <div class="estado-usuario-name">{{ estadoProfesionalTarget.nombre }}</div>
-              <div class="estado-usuario-current">
-                <span class="estado-usuario-current-label">Estado actual:</span>
-                <span class="badge badge-soft text-nowrap"
-                  [ngStyle]="getEstadoBadgeStyle(estadoProfesionalTarget.estado || 'Disponible')">
-                  {{ estadoProfesionalTarget.estado || 'Disponible' }}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div class="estado-usuario-form">
-            <div class="mb-3">
-              <label class="form-label">Nuevo estado</label>
-              <select class="form-select estado-select" [(ngModel)]="estadoProfesionalSelected"
-                data-testid="settings-profesional-status-select">
-                <option *ngFor="let estado of estadoProfesionalList" [ngValue]="estado.estado">
-                  {{ estado.estado }}
-                </option>
-              </select>
-            </div>
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label">Desde</label>
-                <input type="date" class="form-control" [(ngModel)]="estadoProfesionalDesde" />
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Hasta (opcional)</label>
-                <input type="date" class="form-control" [(ngModel)]="estadoProfesionalHasta" />
-              </div>
-            </div>
-          </div>
-
-          <div class="estado-usuario-info-box">
-            <i class="bi bi-info-circle-fill"></i>
-            <p>Los turnos ya asignados a este usuario se mantienen asignados. No se desasignan automáticamente; podés reasignarlos manualmente desde Turnos si lo necesitás.</p>
-          </div>
-
-          <div *ngIf="estadoProfesionalError" class="alert alert-danger py-2 mt-3">
-            {{ estadoProfesionalError }}
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-outline-secondary" (click)="closeEstadoProfesionalModal()" data-testid="settings-profesional-status-cancel-btn">Cancelar</button>
-          <button type="button" class="btn btn-primary" (click)="saveEstadoProfesional()"
-            [disabled]="isSavingEstadoProfesional || !estadoProfesionalSelected" data-testid="settings-profesional-status-save-btn">
-            {{ isSavingEstadoProfesional ? 'Guardando...' : 'Guardar' }}
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="modal-backdrop fade show" *ngIf="showEstadoProfesionalModal"></div>
 </div>

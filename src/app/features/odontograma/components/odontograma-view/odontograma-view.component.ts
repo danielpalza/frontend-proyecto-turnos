@@ -48,9 +48,9 @@ export class OdontogramaViewComponent implements OnInit {
       map(params => params.get('appointmentId')),
       distinctUntilChanged(),
       switchMap(idParam => {
-        const appointmentId = idParam ? Number(idParam) : NaN;
+        const appointmentId = idParam || '';
 
-        if (!idParam || Number.isNaN(appointmentId)) {
+        if (!appointmentId) {
           this.router.navigate(['/turnos']);
           return of(null);
         }

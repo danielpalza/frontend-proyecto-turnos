@@ -6,7 +6,7 @@ import { AppointmentsService } from '../../../core/services/appointments.service
 import { PatientService } from '../../../core/services/patient.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
-import { WhatsappConfigService } from '../../../core/services/whatsapp-config.service';
+import { ConfigurationService } from '../../../core/services/configuration.service';
 import { combineLatest, Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { PatientFormComponent, getPatientFormConfig } from '../../../shared';
@@ -58,7 +58,7 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
     private patientService: PatientService,
     private notification: NotificationService,
     private errorHandler: ErrorHandlerService,
-    private whatsappConfig: WhatsappConfigService,
+    private whatsappConfig: ConfigurationService,
     private cdr: ChangeDetectorRef
   ) {}
 

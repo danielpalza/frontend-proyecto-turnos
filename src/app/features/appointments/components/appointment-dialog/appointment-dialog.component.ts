@@ -391,8 +391,8 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
 
     // Datos del turno
     const appointmentData: AppointmentCreateDTO = {
-      patientId: this.selectedPatient?.id || 0, // Se actualizará si es paciente nuevo
-      profesionalId: raw.profesionalId ? Number(raw.profesionalId) : undefined,
+      patientId: this.selectedPatient?.id || '', // Se actualizará si es paciente nuevo
+      profesionalId: raw.profesionalId || undefined,
       fecha: this.selectedDate || '',
       hora: this.normalizeTime(raw.hora), // Normalizar formato de hora
       estado: 'PENDIENTE',

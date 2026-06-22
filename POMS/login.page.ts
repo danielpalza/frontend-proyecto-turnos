@@ -34,30 +34,26 @@ export class LoginPage {
   readonly registerText: Locator;
   readonly toggleModeLink: Locator;
 
-  // ── REGISTRO — STEP 1: ROL ─────────────────────────────────────
-  readonly registerRoleSelection: Locator;
-  readonly registerRoleProfesionalCard: Locator;
-  readonly registerRoleRecepcionistaCard: Locator;
+  // ── REGISTRO — STEP 1: ORGANIZACIÓN ─────────────────────────────
+  readonly registerOrgSelection: Locator;
+  readonly registerOrgNewCard: Locator;
+  readonly registerOrgJoinCard: Locator;
+  readonly registerOrgNameInput: Locator;
+  readonly registerOrgCodeInput: Locator;
   readonly registerNextBtn: Locator;
 
-  // ── REGISTRO — STEP 2: DATOS ───────────────────────────────────
-  readonly registerDetailsForm: Locator;
+  // ── REGISTRO — STEP 2: CUENTA ───────────────────────────────────
+  readonly registerAccountForm: Locator;
   readonly registerNameInput: Locator;
+  readonly registerLastnameInput: Locator;
   readonly registerDniInput: Locator;
   readonly registerPhoneInput: Locator;
-  readonly registerSpecialtyInput: Locator;
-  readonly registerLicenseInput: Locator;
-  readonly registerAddressInput: Locator;
-  readonly registerCityInput: Locator;
-  readonly registerBackBtn: Locator;
-
-  // ── REGISTRO — STEP 3: CUENTA ───────────────────────────────────
-  readonly registerAccountForm: Locator;
   readonly registerUsernameInput: Locator;
   readonly registerEmailInput: Locator;
   readonly registerPasswordInput: Locator;
   readonly registerConfirmPasswordInput: Locator;
   readonly registerSubmitBtn: Locator;
+  readonly registerBackBtn: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -93,30 +89,26 @@ export class LoginPage {
     this.registerText = page.getByTestId('login-register-text');
     this.toggleModeLink = page.getByTestId('login-toggle-mode-link');
 
-    // Registro — step 1
-    this.registerRoleSelection = page.getByTestId('register-role-selection');
-    this.registerRoleProfesionalCard = page.getByTestId('register-role-profesional-card');
-    this.registerRoleRecepcionistaCard = page.getByTestId('register-role-recepcionista-card');
+    // Registro — step 1 (organización)
+    this.registerOrgSelection = page.getByTestId('register-org-selection');
+    this.registerOrgNewCard = page.getByTestId('register-org-new-card');
+    this.registerOrgJoinCard = page.getByTestId('register-org-join-card');
+    this.registerOrgNameInput = page.getByTestId('register-org-name-input');
+    this.registerOrgCodeInput = page.getByTestId('register-org-code-input');
     this.registerNextBtn = page.getByTestId('register-next-btn');
 
-    // Registro — step 2
-    this.registerDetailsForm = page.getByTestId('register-details-form');
+    // Registro — step 2 (cuenta)
+    this.registerAccountForm = page.getByTestId('register-account-form');
     this.registerNameInput = page.getByTestId('register-name-input');
+    this.registerLastnameInput = page.getByTestId('register-lastname-input');
     this.registerDniInput = page.getByTestId('register-dni-input');
     this.registerPhoneInput = page.getByTestId('register-phone-input');
-    this.registerSpecialtyInput = page.getByTestId('register-specialty-input');
-    this.registerLicenseInput = page.getByTestId('register-license-input');
-    this.registerAddressInput = page.getByTestId('register-address-input');
-    this.registerCityInput = page.getByTestId('register-city-input');
-    this.registerBackBtn = page.getByTestId('register-back-btn');
-
-    // Registro — step 3
-    this.registerAccountForm = page.getByTestId('register-account-form');
     this.registerUsernameInput = page.getByTestId('register-username-input');
     this.registerEmailInput = page.getByTestId('register-email-input');
     this.registerPasswordInput = page.getByTestId('register-password-input');
     this.registerConfirmPasswordInput = page.getByTestId('register-confirm-password-input');
     this.registerSubmitBtn = page.getByTestId('register-submit-btn');
+    this.registerBackBtn = page.getByTestId('register-back-btn');
   }
 
   // ── Navegación ──────────────────────────────────────────────────
@@ -150,7 +142,7 @@ export class LoginPage {
   // ── Cambio de modo ──────────────────────────────────────────────
   async switchToRegister() {
     await this.toggleModeLink.click();
-    await this.registerRoleSelection.waitFor({ state: 'visible' });
+    await this.registerOrgSelection.waitFor({ state: 'visible' });
   }
 
   async switchToLogin() {
@@ -164,12 +156,20 @@ export class LoginPage {
   }
 
   // ── Registro — helpers ───────────────────────────────────────────
-  async selectProfesionalRole() {
-    await this.registerRoleProfesionalCard.click();
+  async selectNewOrganization() {
+    await this.registerOrgNewCard.click();
   }
 
-  async selectRecepcionistaRole() {
-    await this.registerRoleRecepcionistaCard.click();
+  async selectJoinOrganization() {
+    await this.registerOrgJoinCard.click();
+  }
+
+  async fillOrgName(name: string) {
+    await this.registerOrgNameInput.fill(name);
+  }
+
+  async fillOrgCode(code: string) {
+    await this.registerOrgCodeInput.fill(code);
   }
 
   async goToNextRegisterStep() {
