@@ -7,3 +7,16 @@
 .row.g-3 > [class*='col-'] {
   min-width: 260px;
 }
+
+// Mensajes de error de validación
+.invalid-feedback {
+  font-size: 0.8rem;
+  color: #dc3545;
+  margin-top: 4px;
+}
+
+// Bordes rojos en campos inválidos
+.form-control.is-invalid,
+.form-select.is-invalid {
+  border-color: #dc3545;
+}

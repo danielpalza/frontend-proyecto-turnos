@@ -36,7 +36,10 @@
   <div class="row g-3" [formGroup]="form">
     <div class="col-12 col-md-6">
       <label class="form-label">Nombre y Apellido *</label>
-      <input class="form-control" type="text" formControlName="nombreApellido" data-testid="patient-name-input" />
+      <input class="form-control" type="text" formControlName="nombreApellido" [class.is-invalid]="form.get('nombreApellido')?.invalid && form.get('nombreApellido')?.touched" data-testid="patient-name-input" />
+      @if (form.get('nombreApellido')?.invalid && form.get('nombreApellido')?.touched) {
+        <div class="invalid-feedback d-block">El nombre es obligatorio</div>
+      }
     </div>
     <div class="col-12 col-sm-6 col-md-3">
       <label class="form-label">Fecha de Nacimiento</label>
@@ -48,7 +51,10 @@
     </div>
     <div class="col-12 col-md-4">
       <label class="form-label">DNI *</label>
-      <input class="form-control" type="text" formControlName="dni" data-testid="patient-dni-input" />
+      <input class="form-control" type="text" formControlName="dni" [class.is-invalid]="form.get('dni')?.invalid && form.get('dni')?.touched" data-testid="patient-dni-input" />
+      @if (form.get('dni')?.invalid && form.get('dni')?.touched) {
+        <div class="invalid-feedback d-block">El DNI es obligatorio</div>
+      }
     </div>
     <div class="col-12 col-md-4">
       <label class="form-label">Teléfono *</label>
@@ -65,7 +71,7 @@
             <div>El teléfono es obligatorio</div>
           }
           @if (form.get('telefono')?.hasError('pattern')) {
-            <div>El teléfono debe tener entre 10 y 15 dígitos numéricos</div>
+            <div>El teléfono debe tener entre 7 y 20 caracteres (números, espacios, guiones, paréntesis o +)</div>
           }
         </div>
       }
@@ -92,11 +98,17 @@
     </div>
     <div class="col-12 col-md-6">
       <label class="form-label">Domicilio *</label>
-      <input class="form-control" type="text" formControlName="domicilio" data-testid="patient-address-input" />
+      <input class="form-control" type="text" formControlName="domicilio" [class.is-invalid]="form.get('domicilio')?.invalid && form.get('domicilio')?.touched" data-testid="patient-address-input" />
+      @if (form.get('domicilio')?.invalid && form.get('domicilio')?.touched) {
+        <div class="invalid-feedback d-block">El domicilio es obligatorio</div>
+      }
     </div>
     <div class="col-12 col-md-6">
       <label class="form-label">Localidad *</label>
-      <input class="form-control" type="text" formControlName="localidad" data-testid="patient-city-input" />
+      <input class="form-control" type="text" formControlName="localidad" [class.is-invalid]="form.get('localidad')?.invalid && form.get('localidad')?.touched" data-testid="patient-city-input" />
+      @if (form.get('localidad')?.invalid && form.get('localidad')?.touched) {
+        <div class="invalid-feedback d-block">La localidad es obligatoria</div>
+      }
     </div>
     <div class="col-12 col-md-6">
       <label class="form-label">Contacto de Emergencia</label>
@@ -146,12 +158,15 @@
   <div class="row g-3" [formGroup]="form">
     <div class="col-12 col-md-6 col-lg-4">
       <label class="form-label">Obra Social *</label>
-      <select class="form-select" formControlName="obraSocialNombre" data-testid="patient-insurance-select">
+      <select class="form-select" formControlName="obraSocialNombre" [class.is-invalid]="form.get('obraSocialNombre')?.invalid && form.get('obraSocialNombre')?.touched" data-testid="patient-insurance-select">
         <option value="">Seleccione...</option>
         @for (os of OBRAS_SOCIALES; track os) {
           <option [value]="os">{{ os }}</option>
         }
       </select>
+      @if (form.get('obraSocialNombre')?.invalid && form.get('obraSocialNombre')?.touched) {
+        <div class="invalid-feedback d-block">Debe seleccionar una obra social</div>
+      }
     </div>
     @if (form.get('obraSocialNombre')?.value !== 'Particular') {
       <div class="col-12 col-md-6 col-lg-4">
@@ -175,22 +190,31 @@
       </div>
       @if (form.get('esTitular')?.value === 'no') {
         <div class="col-12 col-md-6 col-lg-3">
-          <label class="form-label">Nombre del Titular</label>
-          <input class="form-control" type="text" formControlName="nombreTitular" />
+          <label class="form-label">Nombre del Titular *</label>
+          <input class="form-control" type="text" formControlName="nombreTitular" [class.is-invalid]="form.get('nombreTitular')?.invalid && form.get('nombreTitular')?.touched" />
+          @if (form.get('nombreTitular')?.invalid && form.get('nombreTitular')?.touched) {
+            <div class="invalid-feedback d-block">El nombre del titular es obligatorio</div>
+          }
         </div>
         <div class="col-12 col-md-6 col-lg-3">
-          <label class="form-label">DNI del Titular</label>
-          <input class="form-control" type="text" formControlName="dniTitular" />
+          <label class="form-label">DNI del Titular *</label>
+          <input class="form-control" type="text" formControlName="dniTitular" [class.is-invalid]="form.get('dniTitular')?.invalid && form.get('dniTitular')?.touched" />
+          @if (form.get('dniTitular')?.invalid && form.get('dniTitular')?.touched) {
+            <div class="invalid-feedback d-block">El DNI del titular es obligatorio</div>
+          }
         </div>
         <div class="col-12 col-md-6 col-lg-3">
-          <label class="form-label">Parentesco</label>
-          <select class="form-select" formControlName="parentesco">
+          <label class="form-label">Parentesco *</label>
+          <select class="form-select" formControlName="parentesco" [class.is-invalid]="form.get('parentesco')?.invalid && form.get('parentesco')?.touched">
             <option value="">Seleccione...</option>
             <option value="padre">Padre</option>
             <option value="madre">Madre</option>
             <option value="conyuge">Cónyuge</option>
             <option value="otro">Otro</option>
           </select>
+          @if (form.get('parentesco')?.invalid && form.get('parentesco')?.touched) {
+            <div class="invalid-feedback d-block">Debe seleccionar un parentesco</div>
+          }
         </div>
       }
     }

@@ -50,7 +50,7 @@ export class ProfesionalService {
   }
 
   update(id: string, profesional: Partial<ProfesionalCreateDTO>): Observable<Profesional> {
-    return this.http.put<Profesional>(`${this.apiUrl}/${id}`, profesional).pipe(
+    return this.http.patch<Profesional>(`${this.apiUrl}/${id}`, profesional).pipe(
       tap(() => this.loadProfesionales())
     );
   }

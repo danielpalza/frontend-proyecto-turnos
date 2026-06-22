@@ -1,12 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-export interface Patient {
-  nombreApellido: string;
-  dni: string;
-  email: string;
-}
+import { Patient } from '../../../../core/models';
 
 @Component({
   selector: 'app-patient-combobox',

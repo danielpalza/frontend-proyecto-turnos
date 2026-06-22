@@ -60,7 +60,7 @@ export class PatientService {
   }
 
   update(id: string, patient: Partial<PatientCreateDTO>): Observable<Patient> {
-    return this.http.put<Patient>(`${this.apiUrl}/${id}`, patient).pipe(
+    return this.http.patch<Patient>(`${this.apiUrl}/${id}`, patient).pipe(
       tap(() => this.loadPatients())
     );
   }
