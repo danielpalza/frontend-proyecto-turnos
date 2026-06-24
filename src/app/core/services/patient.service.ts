@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap, catchError, of } from 'rxjs';
+import { Observable, BehaviorSubject, tap, catchError, of, switchMap, filter } from 'rxjs';
 import { Patient, PatientCreateDTO } from '../models';
 import { API_CONFIG } from './api.config';
 import { skipGlobalErrorHandler } from '../interceptors/http-context';
+import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class PatientService {
@@ -11,8 +12,17 @@ export class PatientService {
 
   private patientsCache$ = new BehaviorSubject<Patient[]>([]);
 
-  constructor(private http: HttpClient) {
-    this.loadPatients();
+  constructor(private http: HttpClient, private auth: AuthService) {
+    this.auth.currentUser$.pipe(
+      filter(user => user !== null),
+      switchMap(() => this.http.get<Patient[]>(this.apiUrl)),
+      catchError((err) => {
+        console.error('Error loading patients:', err);
+        return of([]);
+      })
+    ).subscribe({
+      next: (patients) => this.patientsCache$.next(patients)
+    });
   }
 
   loadPatients(skipGlobal: boolean = false): void {

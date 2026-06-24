@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, of, tap } from 'rxjs';
+import { BehaviorSubject, Observable, of, tap, switchMap, filter } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { API_CONFIG } from './api.config';
 import { Configuration } from '../models';
+import { AuthService } from './auth.service';
 
 const DEFAULT_TEMPLATE = 'Hola {paciente}, te hablamos de la clinica, te recordamos tu turno del {fecha} a las {hora} con {doctor}.';
 
@@ -13,8 +14,17 @@ export class ConfigurationService {
   private readonly apiUrl = `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.configuration}`;
   private config$ = new BehaviorSubject<Configuration | null>(null);
 
-  constructor(private http: HttpClient) {
-    this.loadConfig();
+  constructor(private http: HttpClient, private auth: AuthService) {
+    this.auth.currentUser$.pipe(
+      filter(user => user !== null),
+      switchMap(() => this.http.get<Configuration>(this.apiUrl)),
+      catchError(() => {
+        this.config$.next({ mensajeWhatsapp: DEFAULT_TEMPLATE });
+        return of(null);
+      })
+    ).subscribe(c => {
+      if (c) this.config$.next(c);
+    });
   }
 
   getConfig(): Observable<Configuration | null> {
