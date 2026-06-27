@@ -48,7 +48,7 @@
 
       <!-- Lista de turnos -->
       <div class="turns-list" *ngIf="appointmentsCount > 0" data-testid="appointments-list">
-        <div class="turn-card" *ngFor="let a of displayAppointments" [attr.data-testid]="'appointment-item-' + a.id">
+        <div class="turn-card" *ngFor="let a of displayAppointments; trackBy: trackByAppointment" [attr.data-testid]="'appointment-item-' + a.id">
           <div class="turn-header" (click)="toggleCard(a.id!, $event)" [attr.data-testid]="'appointment-item-header-' + a.id">
             <div class="patient-info">
               <a *ngIf="hasPatientPhone(a)" [href]="getWhatsAppLink(a)!" target="_blank" rel="noopener noreferrer"
