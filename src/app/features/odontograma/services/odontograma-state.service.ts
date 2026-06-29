@@ -536,7 +536,6 @@ export class OdontogramaStateService {
     if (comentario !== (this.baselineOdonto as unknown as { comentario?: string }).comentario) {
       delta.comentario = comentario;
     }
-    delta.comentario = comentario;
     delta.planTratamiento = plan;
 
     delta.caras = current.caras.filter(c => {
