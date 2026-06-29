@@ -173,7 +173,7 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
       planCategoria: patient.planCategoria || '',
       obraSocialNumero: patient.obraSocialNumero || '',
       obraSocialVencimiento: patient.obraSocialVencimiento || '',
-      esTitular: patient.esTitular ? 'si' : 'no',
+      esTitular: (patient.obraSocialNombre === 'Particular' || patient.esTitular) ? 'si' : 'no',
       nombreTitular: patient.nombreTitular || '',
       dniTitular: patient.dniTitular || '',
       parentesco: patient.parentesco || ''
@@ -404,13 +404,20 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
     this.turnModalPaymentInput = value;
   }
 
+  private syncUpdatedAppointment(updated: Appointment): void {
+    this.appointments = this.appointments.map(a => a.id === updated.id ? updated : a);
+    this.selectedAppointment = { ...updated };
+    this.updatePatientGroups();
+    this.cdr.markForCheck();
+  }
+
   onTurnModalAddPayment(): void {
     if (!this.selectedAppointment?.id) return;
     const monto = this.turnModalPaymentInput;
     this.isAddingPayment = true;
     this.appointmentsService.addPaymentWithFeedback(this.selectedAppointment.id, monto).subscribe({
       next: (updated) => {
-        this.selectedAppointment = updated;
+        this.syncUpdatedAppointment(updated);
         this.turnModalPaymentInput = 0;
         this.isAddingPayment = false;
       },
@@ -441,7 +448,7 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
       'actualizar el bono'
     ).subscribe({
       next: (updated) => {
-        this.selectedAppointment = updated;
+        this.syncUpdatedAppointment(updated);
         this.editingPriceBono = false;
         this.isSavingPrice = false;
       },
@@ -471,7 +478,7 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
       'actualizar el tratamiento'
     ).subscribe({
       next: (updated) => {
-        this.selectedAppointment = updated;
+        this.syncUpdatedAppointment(updated);
         this.editingPriceTratamiento = false;
         this.isSavingPrice = false;
       },
@@ -501,7 +508,7 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
       'actualizar los extras'
     ).subscribe({
       next: (updated) => {
-        this.selectedAppointment = updated;
+        this.syncUpdatedAppointment(updated);
         this.editingPriceExtras = false;
         this.isSavingPrice = false;
       },
@@ -530,7 +537,7 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
       'actualizar las observaciones'
     ).subscribe({
       next: (updated) => {
-        this.selectedAppointment = updated;
+        this.syncUpdatedAppointment(updated);
         this.editingObservacionesPago = false;
       },
       error: () => { /* notificación ya mostrada por el servicio */ }
@@ -556,7 +563,7 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
       'actualizar las observaciones del turno'
     ).subscribe({
       next: (updated) => {
-        this.selectedAppointment = updated;
+        this.syncUpdatedAppointment(updated);
         this.editingObservacionesTurno = false;
       },
       error: () => { /* notificación ya mostrada por el servicio */ }

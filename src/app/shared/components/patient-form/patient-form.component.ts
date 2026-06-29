@@ -87,25 +87,33 @@ export class PatientFormComponent implements OnInit, OnChanges, OnDestroy {
       });
 
     // Validaciones condicionales titular
+    const updateTitularValidators = () => {
+      const esTitular = this.form.get('esTitular')?.value;
+      const obraSocial = this.form.get('obraSocialNombre')?.value;
+      const nombreTitular = this.form.get('nombreTitular')!;
+      const dniTitular = this.form.get('dniTitular')!;
+      const parentesco = this.form.get('parentesco')!;
+      if (esTitular === 'no' && obraSocial !== 'Particular') {
+        nombreTitular.setValidators([Validators.required]);
+        dniTitular.setValidators([Validators.required]);
+        parentesco.setValidators([Validators.required]);
+      } else {
+        nombreTitular.clearValidators();
+        dniTitular.clearValidators();
+        parentesco.clearValidators();
+      }
+      nombreTitular.updateValueAndValidity();
+      dniTitular.updateValueAndValidity();
+      parentesco.updateValueAndValidity();
+    };
+
     this.form.get('esTitular')?.valueChanges
       .pipe(takeUntil(this.destroy$))
-      .subscribe((val: string) => {
-        const nombreTitular = this.form.get('nombreTitular')!;
-        const dniTitular = this.form.get('dniTitular')!;
-        const parentesco = this.form.get('parentesco')!;
-        if (val === 'no') {
-          nombreTitular.setValidators([Validators.required]);
-          dniTitular.setValidators([Validators.required]);
-          parentesco.setValidators([Validators.required]);
-        } else {
-          nombreTitular.clearValidators();
-          dniTitular.clearValidators();
-          parentesco.clearValidators();
-        }
-        nombreTitular.updateValueAndValidity();
-        dniTitular.updateValueAndValidity();
-        parentesco.updateValueAndValidity();
-      });
+      .subscribe(() => updateTitularValidators());
+
+    this.form.get('obraSocialNombre')?.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => updateTitularValidators());
   }
 
   onPatientSearchSelect(result: SearchResult): void {

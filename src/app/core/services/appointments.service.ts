@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpContext, HttpErrorResponse } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap, map, catchError, of, combineLatest, EMPTY, throwError } from 'rxjs';
+import { Observable, BehaviorSubject, Subject, tap, map, catchError, of, combineLatest, EMPTY, throwError } from 'rxjs';
 import { Appointment, AppointmentCreateDTO, AppointmentPartialUpdateDTO, AppointmentStatus, AppointmentCountByDate } from '../models';
 import { API_CONFIG } from './api.config';
 import { skipGlobalErrorHandler } from '../interceptors/http-context';
@@ -12,6 +12,9 @@ export class AppointmentsService {
   private readonly apiUrl = `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.appointments}`;
 
   private appointmentsCache$ = new BehaviorSubject<Appointment[]>([]);
+
+  private readonly loadErrorSubject = new Subject<any>();
+  readonly loadError$ = this.loadErrorSubject.asObservable();
 
   private filterType$ = new BehaviorSubject<'patient' | 'profesional' | 'both' | 'none'>('none');
   private filterTerm$ = new BehaviorSubject<string>('');
@@ -142,20 +145,29 @@ export class AppointmentsService {
   create(appointment: AppointmentCreateDTO, skipGlobal: boolean = false): Observable<Appointment> {
     const context = skipGlobal ? skipGlobalErrorHandler() : undefined;
     return this.http.post<Appointment>(this.apiUrl, appointment, context ? { context } : undefined).pipe(
-      tap(() => this.refreshFiltered())
+      tap((newAppointment) => {
+        const current = this.appointmentsCache$.getValue();
+        this.appointmentsCache$.next([...current, newAppointment]);
+      })
     );
   }
 
   update(id: string, appointment: AppointmentPartialUpdateDTO): Observable<Appointment> {
     return this.http.patch<Appointment>(`${this.apiUrl}/${id}`, appointment).pipe(
-      tap(() => this.refreshFiltered())
+      tap((updated) => {
+        const current = this.appointmentsCache$.getValue();
+        this.appointmentsCache$.next(current.map(a => a.id === updated.id ? updated : a));
+      })
     );
   }
 
   delete(id: string, skipGlobal: boolean = false): Observable<void> {
     const context = skipGlobal ? skipGlobalErrorHandler() : undefined;
     return this.http.delete<void>(`${this.apiUrl}/${id}`, context ? { context } : undefined).pipe(
-      tap(() => this.refreshFiltered())
+      tap(() => {
+        const current = this.appointmentsCache$.getValue();
+        this.appointmentsCache$.next(current.filter(a => a.id !== id));
+      })
     );
   }
 
@@ -163,7 +175,10 @@ export class AppointmentsService {
     return this.http.patch<Appointment>(`${this.apiUrl}/${id}/status`, null, {
       params: { status }
     }).pipe(
-      tap(() => this.refreshFiltered())
+      tap((updated) => {
+        const current = this.appointmentsCache$.getValue();
+        this.appointmentsCache$.next(current.map(a => a.id === updated.id ? updated : a));
+      })
     );
   }
 
@@ -171,7 +186,10 @@ export class AppointmentsService {
     return this.http.patch<Appointment>(`${this.apiUrl}/${id}/addPayment`, {
       montoPago
     }).pipe(
-      tap(() => this.refreshFiltered())
+      tap((updated) => {
+        const current = this.appointmentsCache$.getValue();
+        this.appointmentsCache$.next(current.map(a => a.id === updated.id ? updated : a));
+      })
     );
   }
 
@@ -241,8 +259,13 @@ export class AppointmentsService {
   loadAppointmentsForMonth(year: number, month: number): void {
     const start = this.formatDate(new Date(year, month, 1));
     const end = this.formatDate(new Date(year, month + 1, 0));
-    this.findByDateRange(start, end).subscribe(appointments => {
-      this.appointmentsCache$.next(appointments);
+    this.findByDateRange(start, end).subscribe({
+      next: appointments => {
+        this.appointmentsCache$.next(appointments);
+      },
+      error: err => {
+        this.loadErrorSubject.next(err);
+      }
     });
   }
 

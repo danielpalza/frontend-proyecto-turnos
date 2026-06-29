@@ -78,11 +78,11 @@ export class AppointmentsPanelComponent implements OnChanges {
   profesionalInputs = new Map<string, string | null>(); // profesionalId seleccionado (null = sin asignar)
   originalProfesionalId = new Map<string, string | undefined>(); // Guarda el valor original
 
-  /**
-   * Obtiene los appointments a mostrar
-   */
+  trackByAppointment(_index: number, appointment: Appointment): string {
+    return appointment.id!;
+  }
+
   get displayAppointments(): Appointment[] {
-    // console.log(this.appointments);
     return this.appointments || [];
   }
 

@@ -142,6 +142,17 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
         }
       });
 
+    // Propagar errores de loadAppointmentsForMonth (combineLatest nunca errora por sí solo)
+    this.appointmentsService.loadError$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(err => {
+        const message = this.errorHandler.getErrorMessage(err, 'cargar los turnos');
+        this.errorMessage = message;
+        this.hasError = true;
+        this.isLoadingAppointments = false;
+        this.cdr.markForCheck();
+      });
+
     // Si no hay fecha seleccionada, se selecciona la fecha actual
     if (!this.selectedDate) {
       this.selectedDate = getTodayAsYYYYMMDD();

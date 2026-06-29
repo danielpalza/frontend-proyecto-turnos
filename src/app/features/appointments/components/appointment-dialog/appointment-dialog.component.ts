@@ -28,6 +28,14 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
   selectedPatient: Patient | null = null;
   isNewPatient = true;
   showPatientDropdown = false;
+
+  private readonly PATIENT_FIELDS = [
+    'nombreApellido', 'fechaNacimiento', 'edad', 'dni', 'telefono', 'email',
+    'domicilio', 'localidad', 'contactoEmergencia',
+    'enfermedades', 'alergias', 'medicacion', 'cirugias', 'embarazo', 'marcapasos', 'consumos',
+    'obraSocialNombre', 'planCategoria', 'obraSocialNumero', 'obraSocialVencimiento',
+    'esTitular', 'nombreTitular', 'dniTitular', 'parentesco'
+  ];
   isCheckingAvailability = false;
   availabilityError: string | null = null;
   private destroy$ = new Subject<void>();
@@ -63,6 +71,14 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
       extras: [null],
       montoPago: [null],
       observaciones: ['']
+    });
+  }
+
+  private setPatientFieldsEnabled(enabled: boolean): void {
+    this.PATIENT_FIELDS.forEach(field => {
+      const control = this.form.get(field);
+      if (!control) return;
+      enabled ? control.enable({ emitEvent: false }) : control.disable({ emitEvent: false });
     });
   }
 
@@ -106,11 +122,12 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
       planCategoria: patient.planCategoria || '',
       obraSocialNumero: patient.obraSocialNumero || '',
       obraSocialVencimiento: patient.obraSocialVencimiento || '',
-      esTitular: patient.esTitular ? 'si' : 'no',
+      esTitular: (patient.obraSocialNombre === 'Particular' || patient.esTitular) ? 'si' : 'no',
       nombreTitular: patient.nombreTitular || '',
       dniTitular: patient.dniTitular || '',
       parentesco: patient.parentesco || ''
     });
+    this.setPatientFieldsEnabled(false);
   }
 
   /**
@@ -119,6 +136,7 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
   clearPatientSelection(): void {
     this.selectedPatient = null;
     this.isNewPatient = true;
+    this.setPatientFieldsEnabled(true);
     this.form.reset({
       esTitular: 'si',
       hora: '09:00',

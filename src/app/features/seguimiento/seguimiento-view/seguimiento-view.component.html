@@ -228,7 +228,7 @@
                 <span class="text-success" data-testid="tracking-turn-paid-value">-{{ formatCurrency(selectedAppointment.montoPago) || '$0' }}</span>
               </div>
               <div class="d-flex justify-content-between pt-2 border-top fw-semibold">
-                <span>Total a pagar:</span>
+                <span>A pagar:</span>
                 <span [class.text-danger]="(selectedAppointment.totalPrecio ?? 0) > 0"
                   [class.text-success]="(selectedAppointment.totalPrecio ?? 0) === 0"
                   data-testid="tracking-turn-total-value">

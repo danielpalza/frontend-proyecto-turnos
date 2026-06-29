@@ -1,15 +1,15 @@
 <div class="panel-container" data-testid="dashboard-page">
   <div class="container-fluid px-4">
-    <div class="panel-header mb-4">
-      <div class="panel-header-left">
-        <h1 class="title">
+    <div class="panel-header mb-4" data-testid="dashboard-header">
+      <div class="panel-header-left" data-testid="dashboard-header-left">
+        <h1 class="title" data-testid="dashboard-title">
           <i class="bi bi-speedometer2 me-2 text-primary"></i>Panel
         </h1>
-        <p class="subtitle">Resumen operativo y financiero</p>
+        <p class="subtitle" data-testid="dashboard-subtitle">Resumen operativo y financiero</p>
       </div>
 
-      <div class="panel-header-right">
-        <div class="month-navigation">
+      <div class="panel-header-right" data-testid="dashboard-header-right">
+        <div class="month-navigation" data-testid="dashboard-month-nav">
           <button type="button" class="nav-arrow" (click)="previousMonth()" data-testid="dashboard-prev-month-btn">
             <i class="bi bi-chevron-left"></i>
           </button>
@@ -21,9 +21,9 @@
           </button>
         </div>
 
-        <div class="date-range-selectors">
-          <div class="date-field">
-            <label for="panel-date-from">Desde</label>
+        <div class="date-range-selectors" data-testid="dashboard-date-range">
+          <div class="date-field" data-testid="dashboard-date-from-field">
+            <label for="panel-date-from" data-testid="dashboard-date-from-label">Desde</label>
             <app-mini-calendar-picker
               inputId="panel-date-from"
               [selectedDate]="dateFrom"
@@ -33,8 +33,8 @@
             />
           </div>
 
-          <div class="date-field">
-            <label for="panel-date-to">Hasta</label>
+          <div class="date-field" data-testid="dashboard-date-to-field">
+            <label for="panel-date-to" data-testid="dashboard-date-to-label">Hasta</label>
             <app-mini-calendar-picker
               inputId="panel-date-to"
               [selectedDate]="dateTo"
@@ -55,48 +55,48 @@
     <div class="row g-4">
       <div class="col-lg-7">
         <section class="panel-section mb-4" data-testid="dashboard-summary-panel">
-          <h2 class="section-title">Resumen general</h2>
+          <h2 class="section-title" data-testid="dashboard-summary-title">Resumen general</h2>
           <div class="row g-3">
             <div class="col-sm-6">
-              <div class="metric-card">
-                <span class="metric-label">Ingresos totales</span>
-                <span class="metric-value">—</span>
+              <div class="metric-card" data-testid="dashboard-total-income-card">
+                <span class="metric-label" data-testid="dashboard-total-income-label">Ingresos realizados</span>
+                <span class="metric-value" data-testid="dashboard-total-income-value">—</span>
               </div>
             </div>
             <div class="col-sm-6">
-              <div class="metric-card">
-                <span class="metric-label">Ingresos pendientes</span>
-                <span class="metric-value">—</span>
+              <div class="metric-card" data-testid="dashboard-pending-income-card">
+                <span class="metric-label" data-testid="dashboard-pending-income-label">Ingresos pendientes</span>
+                <span class="metric-value" data-testid="dashboard-pending-income-value">—</span>
               </div>
             </div>
             <div class="col-sm-6">
-              <div class="metric-card">
-                <span class="metric-label">Turnos realizados</span>
-                <span class="metric-value">—</span>
+              <div class="metric-card" data-testid="dashboard-appointments-done-card">
+                <span class="metric-label" data-testid="dashboard-appointments-done-label">Turnos realizados</span>
+                <span class="metric-value" data-testid="dashboard-appointments-done-value">—</span>
               </div>
             </div>
             <div class="col-sm-6">
-              <div class="metric-card">
-                <span class="metric-label">Cancelados / No asistió</span>
-                <span class="metric-value">—</span>
+              <div class="metric-card" data-testid="dashboard-appointments-cancelled-card">
+                <span class="metric-label" data-testid="dashboard-appointments-cancelled-label">Cancelados</span>
+                <span class="metric-value" data-testid="dashboard-appointments-cancelled-value">—</span>
               </div>
             </div>
           </div>
         </section>
 
         <section class="panel-section" data-testid="dashboard-profesionales-panel">
-          <h2 class="section-title">Rendimiento de profesionales</h2>
+          <h2 class="section-title" data-testid="dashboard-profesionales-title">Rendimiento de profesionales</h2>
           <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-              <thead>
+            <table class="table table-hover align-middle mb-0" data-testid="dashboard-profesionales-table">
+              <thead data-testid="dashboard-profesionales-thead">
                 <tr>
                   <th>Profesional</th>
                   <th class="text-end">Turnos</th>
                   <th class="text-end">Facturación</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
+              <tbody data-testid="dashboard-profesionales-tbody">
+                <tr data-testid="dashboard-profesionales-empty-row">
                   <td colspan="3" class="text-center text-muted py-4">
                     Sin datos por ahora
                   </td>
@@ -109,15 +109,15 @@
 
       <div class="col-lg-5">
         <section class="panel-section mb-4" data-testid="dashboard-income-chart-panel">
-          <h2 class="section-title">Distribución de ingresos</h2>
-          <div class="chart-placeholder">
+          <h2 class="section-title" data-testid="dashboard-income-chart-title">Distribución de ingresos</h2>
+          <div class="chart-placeholder" data-testid="dashboard-income-chart-placeholder">
             <p class="text-muted mb-0">Gráfico donut — pendiente</p>
           </div>
         </section>
 
         <section class="panel-section" data-testid="dashboard-appointments-chart-panel">
-          <h2 class="section-title">Estado de turnos</h2>
-          <div class="chart-placeholder">
+          <h2 class="section-title" data-testid="dashboard-appointments-chart-title">Estado de turnos</h2>
+          <div class="chart-placeholder" data-testid="dashboard-appointments-chart-placeholder">
             <p class="text-muted mb-0">Gráfico donut — pendiente</p>
           </div>
         </section>
