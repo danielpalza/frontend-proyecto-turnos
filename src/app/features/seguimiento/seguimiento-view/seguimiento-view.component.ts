@@ -173,7 +173,7 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
       planCategoria: patient.planCategoria || '',
       obraSocialNumero: patient.obraSocialNumero || '',
       obraSocialVencimiento: patient.obraSocialVencimiento || '',
-      esTitular: patient.esTitular ? 'si' : 'no',
+      esTitular: (patient.obraSocialNombre === 'Particular' || patient.esTitular) ? 'si' : 'no',
       nombreTitular: patient.nombreTitular || '',
       dniTitular: patient.dniTitular || '',
       parentesco: patient.parentesco || ''
