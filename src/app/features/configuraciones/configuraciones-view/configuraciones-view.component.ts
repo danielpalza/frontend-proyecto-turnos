@@ -33,17 +33,17 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
   whatsappTemplate = '';
   whatsappSaved = false;
   readonly whatsappMaxLength = 1024;
-  readonly whatsappPlaceholder = 'Hola {paciente}, te hablamos de Clinica del Oeste, te recordamos que tenes un turno el día {fecha} a las {hora} con el doctor {doctor}.\nEn caso de cualquier eventualidad te pedimos que nos contactes por este medio.\n¡Muchas gracias!';
+  readonly whatsappPlaceholder = 'Hola {paciente}, te hablamos de Clinica del Oeste, te recordamos que tenes un turno el día {fecha} a las {hora} con el profesional {profesional}.\nEn caso de cualquier eventualidad te pedimos que nos contactes por este medio.\n¡Muchas gracias!';
   readonly whatsappPreviewData = {
     hora: '10:30',
     fecha: '15/07/2026',
-    doctor: 'Diego Suarez',
+    profesional: 'Diego Suarez',
     paciente: 'María García'
   } as const;
   readonly whatsappPlaceholderOptions = [
     { key: 'hora' as const, label: '{hora}', icon: 'bi-clock', legend: 'hora del turno' },
     { key: 'fecha' as const, label: '{fecha}', icon: 'bi-calendar3', legend: 'fecha del turno' },
-    { key: 'doctor' as const, label: '{doctor}', icon: 'bi-heart-pulse', legend: 'nombre del usuario' },
+    { key: 'profesional' as const, label: '{profesional}', icon: 'bi-heart-pulse', legend: 'nombre del profesional' },
     { key: 'paciente' as const, label: '{paciente}', icon: 'bi-person', legend: 'nombre del paciente' }
   ];
 
@@ -75,7 +75,7 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
         next: (list) => { this.profesionales = list; this.cdr.markForCheck(); },
         error: (err) => {
           if (err?.status !== 404) {
-            const message = this.errorHandler.getErrorMessage(err, 'cargar los usuarios');
+            const message = this.errorHandler.getErrorMessage(err, 'cargar los profesionales');
             if (!this.errorHandler.isNetworkError(err)) this.notification.showError(message);
           }
         }
@@ -174,14 +174,14 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
         this.isSavingProfesional = false;
         this.closeAddProfesional();
         this.notification.showSuccess(
-          this.editingProfesional ? 'Usuario actualizado correctamente.' : 'Usuario creado correctamente.'
+          this.editingProfesional ? 'Profesional actualizado correctamente.' : 'Profesional creado correctamente.'
         );
       },
       error: (err: unknown) => {
         this.isSavingProfesional = false;
         const message = this.errorHandler.getErrorMessage(
           err,
-          this.editingProfesional ? 'actualizar el usuario' : 'crear el usuario'
+          this.editingProfesional ? 'actualizar el profesional' : 'crear el profesional'
         );
         this.saveProfesionalError = message;
         if (!this.errorHandler.isNetworkError(err as any)) {
@@ -221,12 +221,12 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
       .pipe(finalize(() => { this.isDeletingProfesional = false; }))
       .subscribe({
         next: () => {
-          this.notification.showSuccess('Usuario eliminado correctamente.');
+          this.notification.showSuccess('Profesional eliminado correctamente.');
           this.isDeleteConfirmOpen = false;
           this.deleteCandidate = null;
         },
         error: (err: unknown) => {
-          const message = this.errorHandler.getErrorMessage(err as any, 'eliminar el usuario');
+          const message = this.errorHandler.getErrorMessage(err as any, 'eliminar el profesional');
           if (!this.errorHandler.isNetworkError(err as any)) {
             this.notification.showError(message);
           }
@@ -243,12 +243,12 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
         next: () => {
           this.notification.showSuccess(
             profesional.activo === false
-              ? 'Usuario activado correctamente.'
-              : 'Usuario desactivado correctamente.'
+              ? 'Profesional activado correctamente.'
+              : 'Profesional desactivado correctamente.'
           );
         },
         error: (err: unknown) => {
-          const message = this.errorHandler.getErrorMessage(err as any, 'cambiar el estado del usuario');
+          const message = this.errorHandler.getErrorMessage(err as any, 'cambiar el estado del profesional');
           if (!this.errorHandler.isNetworkError(err as any)) {
             this.notification.showError(message);
           }
@@ -263,7 +263,7 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
   get whatsappPreviewParts(): Array<{ text: string; highlight: boolean }> {
     const template = this.whatsappTemplate ?? '';
     const parts: Array<{ text: string; highlight: boolean }> = [];
-    const pattern = /\{(hora|fecha|doctor|paciente)\}/g;
+    const pattern = /\{(hora|fecha|profesional|paciente)\}/g;
     let lastIndex = 0;
     let match: RegExpExecArray | null;
 

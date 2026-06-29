@@ -14,7 +14,7 @@ export class ConfigurationService {
   private config$ = new BehaviorSubject<Configuration | null>(null);
 
   constructor(private http: HttpClient) {
-    this.loadConfig();
+    this.loadConfig().subscribe();
   }
 
   getConfig(): Observable<Configuration | null> {

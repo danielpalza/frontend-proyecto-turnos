@@ -43,12 +43,12 @@
           <div class="profesionales-toolbar">
             <span class="profesionales-count">
               {{ profesionales.length }}
-              {{ profesionales.length === 1 ? 'usuario registrado' : 'usuarios registrados' }}
+              {{ profesionales.length === 1 ? 'profesional registrado' : 'profesionales registrados' }}
             </span>
             <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-2"
               (click)="openAddProfesional()" data-testid="settings-add-profesional-btn">
               <i class="bi bi-person-plus"></i>
-              Agregar usuario
+              Agregar profesional
             </button>
           </div>
 
@@ -95,7 +95,7 @@
 
           <div *ngIf="profesionales.length === 0" class="profesionales-empty text-center text-muted">
             <i class="bi bi-person-x fs-1 d-block mb-2 opacity-50"></i>
-            <p class="mb-0">No hay usuarios registrados</p>
+            <p class="mb-0">No hay profesionales registrados</p>
           </div>
         </div>
       </div>
@@ -187,13 +187,13 @@
     </div>
   </div>
 
-  <!-- Modal Agregar/Editar Usuario -->
+  <!-- Modal Agregar/Editar profesional -->
   <div class="modal fade show d-block" tabindex="-1" role="dialog" *ngIf="showProfesionalForm" data-testid="settings-profesional-dialog">
     <div class="modal-dialog modal-dialog-profesional" role="document">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">
-            {{ editingProfesional ? 'Editar usuario' : 'Agregar usuario' }}
+            {{ editingProfesional ? 'Editar profesional' : 'Agregar profesional' }}
           </h5>
           <button type="button" class="btn btn-modal-close" aria-label="Close" (click)="closeAddProfesional()" data-testid="settings-profesional-close-btn">
             <i class="bi bi-x-lg"></i>
@@ -241,7 +241,7 @@
           <div class="modal-footer">
             <button type="button" class="btn btn-outline-secondary" (click)="closeAddProfesional()" data-testid="settings-profesional-cancel-btn">Cancelar</button>
             <button type="submit" class="btn btn-primary" [disabled]="profForm.invalid || isSavingProfesional" data-testid="settings-profesional-save-btn">
-              {{ isSavingProfesional ? 'Guardando...' : 'Guardar usuario' }}
+              {{ isSavingProfesional ? 'Guardando...' : 'Guardar profesional' }}
             </button>
           </div>
         </form>
@@ -250,7 +250,7 @@
   </div>
   <div class="modal-backdrop fade show" *ngIf="showProfesionalForm"></div>
 
-  <!-- Modal confirmación eliminación usuario -->
+  <!-- Modal confirmación eliminación profesional -->
   <div class="modal fade show d-block" tabindex="-1" role="dialog" *ngIf="isDeleteConfirmOpen" data-testid="settings-delete-user-dialog">
     <div class="modal-dialog modal-dialog-delete" role="document">
       <div class="modal-content">
@@ -259,7 +259,7 @@
             <div class="delete-modal-icon">
               <i class="bi bi-trash"></i>
             </div>
-            <h5 class="delete-modal-title">Eliminar usuario</h5>
+            <h5 class="delete-modal-title">Eliminar profesional</h5>
           </div>
           <button type="button" class="btn btn-modal-close" aria-label="Close" (click)="closeDeleteConfirm()"
             [disabled]="isDeletingProfesional" data-testid="settings-delete-user-close-btn">
@@ -268,7 +268,7 @@
         </div>
 
         <div class="modal-body">
-          <p class="delete-modal-message">¿Estás seguro de que deseás eliminar este usuario?</p>
+          <p class="delete-modal-message">¿Estás seguro de que deseás eliminar este profesional?</p>
           <p class="delete-modal-submessage">Esta acción no se puede deshacer.</p>
 
           <div class="delete-user-details" *ngIf="deleteCandidate" data-testid="settings-delete-user-detail">
@@ -284,7 +284,7 @@
 
           <div class="delete-user-warning">
             <i class="bi bi-exclamation-triangle-fill"></i>
-            <p>Los turnos asignados a este usuario quedarán sin asignar. Revisalos antes de continuar.</p>
+            <p>Los turnos asignados a este profesional quedarán sin asignar. Revisalos antes de continuar.</p>
           </div>
         </div>
 
