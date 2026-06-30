@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap, catchError, of } from 'rxjs';
+import { Observable, BehaviorSubject, tap, catchError, of, switchMap, filter } from 'rxjs';
 import { Profesional, ProfesionalCreateDTO } from '../models';
 import { API_CONFIG } from './api.config';
+import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class ProfesionalService {
@@ -10,8 +11,17 @@ export class ProfesionalService {
 
   private profesionalesCache$ = new BehaviorSubject<Profesional[]>([]);
 
-  constructor(private http: HttpClient) {
-    this.loadProfesionales();
+  constructor(private http: HttpClient, private auth: AuthService) {
+    this.auth.currentUser$.pipe(
+      filter(user => user !== null),
+      switchMap(() => this.http.get<Profesional[]>(this.apiUrl)),
+      catchError((err) => {
+        console.error('Error loading profesionales:', err);
+        return of([]);
+      })
+    ).subscribe({
+      next: (data) => this.profesionalesCache$.next(data)
+    });
   }
 
   loadProfesionales(): void {
