@@ -38,7 +38,7 @@
 }
 
 .btn-today {
-  padding: 0.625rem 1.25rem;
+  padding: 0.4rem 0.875rem;
   border: 1px solid $border-color;
   background-color: $card-background;
   color: $text-primary;
@@ -83,7 +83,7 @@
 
 .month-selector {
   @include button-gradient-primary($radius-md);
-  padding: 0.625rem 1.25rem;
+  padding: 0.4rem 1rem;
   font-size: 0.875rem;
   cursor: default;
 }
@@ -109,6 +109,8 @@
   }
 }
 
+// ── Panel sections ──────────────────────────────────────────────────────────
+
 .panel-section {
   background: #fff;
   border: 1px solid rgba(0, 0, 0, 0.08);
@@ -122,25 +124,107 @@
   margin-bottom: 1rem;
 }
 
+// ── Metric cards ────────────────────────────────────────────────────────────
+
 .metric-card {
   display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  background: #f8f9fa;
-  border-radius: 0.5rem;
-  padding: 1rem;
+  align-items: flex-start;
+  gap: 0.875rem;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 0.75rem;
+  padding: 1.125rem;
   height: 100%;
 }
 
+.metric-icon-wrap {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.625rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.25rem;
+}
+
+.metric-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
 .metric-label {
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   color: #6c757d;
+  white-space: nowrap;
 }
 
 .metric-value {
-  font-size: 1.5rem;
+  font-size: 1.625rem;
   font-weight: 700;
   color: #212529;
+  line-height: 1.15;
+
+  &.skeleton {
+    display: block;
+    background: linear-gradient(90deg, #e9ecef 25%, #dee2e6 50%, #e9ecef 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.2s infinite;
+    border-radius: 0.25rem;
+    min-height: 1.75rem;
+    min-width: 5rem;
+  }
+}
+
+.comparison {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+
+  &.positive { color: #198754; }
+  &.negative { color: #dc3545; }
+
+  i { font-size: 1rem; line-height: 1; }
+
+  .vs-label {
+    font-weight: 400;
+    color: #6c757d;
+    margin-left: 0.2rem;
+  }
+}
+
+// ── Line chart ───────────────────────────────────────────────────────────────
+
+.line-chart-wrapper {
+  height: 250px;
+  position: relative;
+
+  canvas { width: 100% !important; }
+}
+
+.line-legend {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.line-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: $text-secondary;
+}
+
+.line-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .chart-placeholder {
@@ -152,6 +236,153 @@
   border-radius: 0.5rem;
 }
 
+// ── Donut chart ───────────────────────────────────────────────────────────────
+
+.donut-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.donut-layout {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.donut-canvas-wrap {
+  flex: 0 0 140px;
+  width: 140px;
+}
+
+.donut-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  flex: 1;
+}
+
+.donut-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.donut-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.donut-label-text {
+  font-size: 0.8rem;
+  color: $text-secondary;
+  flex: 1;
+}
+
+.donut-count {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: $text-primary;
+  min-width: 1.5rem;
+  text-align: right;
+}
+
+.donut-pct-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.15rem 0.4rem;
+  border-radius: 999px;
+  min-width: 2.5rem;
+  text-align: center;
+}
+
+// ── Professionals table ────────────────────────────────────────────────────
+
+.prof-avatar {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: #0d6efd;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.03em;
+
+  &.unassigned {
+    background: #adb5bd;
+  }
+}
+
+.turnos-subheader {
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: $text-secondary;
+  margin-top: 0.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.dot-completado { color: #6c757d; }
+.dot-pendiente  { color: #ffc107; }
+.dot-cancelado  { color: #dc3545; }
+
+.turnos-pills {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+
+  &.completado { background: rgba(108,117,125,0.1); color: #495057; }
+  &.pendiente  { background: rgba(255,193,7,0.15);  color: #856404; }
+  &.cancelado  { background: rgba(220,53,69,0.1);   color: #842029; }
+}
+
+.tasa-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tasa-pct {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: $text-primary;
+  min-width: 2.5rem;
+}
+
+// ── Utilities ──────────────────────────────────────────────────────────────
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.spin {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────
+
 @include tablet {
   .panel-header {
     flex-direction: column;
@@ -160,5 +391,10 @@
   .panel-header-right {
     width: 100%;
     justify-content: flex-start;
+  }
+
+  .donut-layout {
+    flex-direction: column;
+    align-items: center;
   }
 }

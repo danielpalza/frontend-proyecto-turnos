@@ -1,40 +1,27 @@
 export interface DashboardSummary {
   ingresosTotales: number;
   ingresosPendientes: number;
-  turnosRealizados: number;
+  turnosCompletados: number;
+  turnosPendientes: number;
   turnosCancelados: number;
 }
 
-export interface ProfessionalPerformance {
-  profesionalId: string;
+export interface ProfessionalStats {
+  profesionalId: string | null;
   profesionalName: string;
-  turnos: number;
+  completados: number;
+  pendientes: number;
+  cancelados: number;
   facturacion: number;
 }
 
-export interface DashboardResponse {
-  summary: DashboardSummary;
-  professionals: ProfessionalPerformance[];
-  incomeDistribution: {
-    cobrado: number;
-    pendiente: number;
-  };
-  appointmentsStatus: {
-    completados: number;
-    perdidos: number;
-  };
+export interface DailyPoint {
+  day: string;
+  realized: number;
+  pending: number;
 }
-
-export type DateRangePreset =
-  | 'HOY'
-  | 'ULTIMOS_7_DIAS'
-  | 'ULTIMOS_30_DIAS'
-  | 'MES_ACTUAL'
-  | 'MES_ANTERIOR'
-  | 'PERSONALIZADO';
 
 export interface DateRange {
   from: string;
   to: string;
-  preset: DateRangePreset;
 }
