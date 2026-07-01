@@ -240,10 +240,10 @@
                 <tr>
                   <td>
                     <div class="prof-avatar" [class.unassigned]="prof.profesionalId === null">
-                      {{ getInitials(prof.profesionalName) }}
+                      {{ getInitials(getProfesionalFullName(prof)) }}
                     </div>
                   </td>
-                  <td class="fw-medium">{{ prof.profesionalName }}</td>
+                  <td class="fw-medium">{{ getProfesionalFullName(prof) }}</td>
                   <td>
                     <div class="turnos-pills">
                       <span class="pill completado">● {{ prof.completados }}</span>

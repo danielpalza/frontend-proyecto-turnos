@@ -3,7 +3,8 @@
  */
 export interface Patient {
   id?: string;
-  nombreApellido: string;
+  nombre: string;
+  apellido: string;
   fechaNacimiento?: string; // formato: YYYY-MM-DD
   dni: string;
   telefono?: string;

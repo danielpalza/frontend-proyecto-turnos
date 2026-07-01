@@ -3,7 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ProfesionalService } from '../../../core/services/profesional.service';
 import { ConfigurationService } from '../../../core/services/configuration.service';
-import { ProfesionalCreateDTO, Profesional } from '../../../core/models';
+import { AuthService } from '../../../core/services/auth.service';
+import { ProfesionalCreateDTO, Profesional, MODULE_OPTIONS } from '../../../core/models';
+import { fullName } from '../../../core/utils/full-name.util';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 import { Subscription } from 'rxjs';
@@ -51,23 +53,46 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
 
   nuevoProfesional: ProfesionalCreateDTO = {
     nombre: '',
+    apellido: '',
     dni: '',
     especialidad: '',
     matricula: '',
     email: '',
     telefono: '',
-    activo: true
+    activo: true,
+    crearAcceso: false,
+    username: '',
+    password: '',
+    moduleCodes: []
   };
+
+  readonly moduleOptions = MODULE_OPTIONS;
 
   private subscriptions = new Subscription();
 
   constructor(
     private profesionalService: ProfesionalService,
     private configurationService: ConfigurationService,
+    private authService: AuthService,
     private notification: NotificationService,
     private errorHandler: ErrorHandlerService,
     private cdr: ChangeDetectorRef
   ) {}
+
+  get isOwner(): boolean {
+    return this.authService.hasRole('OWNER');
+  }
+
+  isModuleSelected(code: string): boolean {
+    return this.nuevoProfesional.moduleCodes?.includes(code) ?? false;
+  }
+
+  toggleModuleCode(code: string, checked: boolean): void {
+    const current = this.nuevoProfesional.moduleCodes ?? [];
+    this.nuevoProfesional.moduleCodes = checked
+      ? [...current, code]
+      : current.filter(c => c !== code);
+  }
 
   ngOnInit(): void {
     this.subscriptions.add(
@@ -105,6 +130,10 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   }
 
+  getProfesionalFullName(prof: Profesional): string {
+    return fullName(prof.nombre, prof.apellido);
+  }
+
   getProfesionalDetalle(prof: Profesional): string {
     const parts: string[] = [];
     if (prof.especialidad) parts.push(prof.especialidad);
@@ -133,12 +162,17 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
     this.saveProfesionalError = '';
     this.nuevoProfesional = {
       nombre: profesional.nombre || '',
+      apellido: profesional.apellido || '',
       dni: profesional.dni || '',
       especialidad: profesional.especialidad || '',
       matricula: profesional.matricula || '',
       email: profesional.email || '',
       telefono: profesional.telefono || '',
-      activo: profesional.activo !== false
+      activo: profesional.activo !== false,
+      crearAcceso: false,
+      username: '',
+      password: '',
+      moduleCodes: []
     };
     this.showProfesionalForm = true;
   }
@@ -152,12 +186,17 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
   private resetProfesionalForm(): void {
     this.nuevoProfesional = {
       nombre: '',
+      apellido: '',
       dni: '',
       especialidad: '',
       matricula: '',
       email: '',
       telefono: '',
-      activo: true
+      activo: true,
+      crearAcceso: false,
+      username: '',
+      password: '',
+      moduleCodes: []
     };
     this.isSavingProfesional = false;
   }

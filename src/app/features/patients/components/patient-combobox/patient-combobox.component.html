@@ -31,12 +31,12 @@
       [attr.data-testid]="'patient-combobox-item-' + patient.dni"
     >
       <div class="d-flex flex-column">
-        <strong>{{ patient.nombreApellido }}</strong>
+        <strong>{{ fullName(patient.nombre, patient.apellido) }}</strong>
         <small class="text-muted">DNI: {{ patient.dni }}</small>
       </div>
 
       <!-- Check -->
-      <i *ngIf="patient.nombreApellido === value" class="bi bi-check-lg"></i>
+      <i *ngIf="fullName(patient.nombre, patient.apellido) === value" class="bi bi-check-lg"></i>
     </button>
   </div>
 </div>

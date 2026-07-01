@@ -15,6 +15,7 @@ import { takeUntil } from 'rxjs/operators';
 import { Patient, Profesional } from '../../../core/models';
 import { SearchInputComponent, SearchResult } from '../search-input/search-input.component';
 import { getPatientFormConfig, OBRAS_SOCIALES } from './patient-form.config';
+import { fullName } from '../../../core/utils/full-name.util';
 
 @Component({
   selector: 'app-patient-form',
@@ -124,6 +125,14 @@ export class PatientFormComponent implements OnInit, OnChanges, OnDestroy {
 
   onClearPatient(): void {
     this.clearPatient.emit();
+  }
+
+  fullName(nombre?: string | null, apellido?: string | null): string {
+    return fullName(nombre, apellido);
+  }
+
+  getProfesionalFullName(prof: Profesional): string {
+    return fullName(prof.nombre, prof.apellido);
   }
 
   ngOnDestroy(): void {

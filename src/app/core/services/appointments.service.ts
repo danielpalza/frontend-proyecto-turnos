@@ -6,6 +6,7 @@ import { API_CONFIG } from './api.config';
 import { skipGlobalErrorHandler } from '../interceptors/http-context';
 import { ErrorHandlerService } from './error-handler.service';
 import { NotificationService } from './notification.service';
+import { fullName } from '../utils/full-name.util';
 
 @Injectable({ providedIn: 'root' })
 export class AppointmentsService {
@@ -77,10 +78,10 @@ export class AppointmentsService {
         return filtered.filter(app => {
           const t = term.toLowerCase();
           if (type === 'both') {
-            const name = (app.patientName || '').toLowerCase();
+            const name = fullName(app.patientNombre, app.patientApellido).toLowerCase();
             const dni = (app.patientDni || '').toLowerCase();
             const obraSocial = (app.patientObraSocialNumero || '').toLowerCase();
-            const profesionalName = (app.profesionalName || '').toLowerCase();
+            const profesionalName = fullName(app.profesionalNombre, app.profesionalApellido).toLowerCase();
             return (
               name.includes(t) ||
               dni.includes(t) ||
@@ -89,7 +90,7 @@ export class AppointmentsService {
             );
           }
           if (type === 'patient') {
-            const name = (app.patientName || '').toLowerCase();
+            const name = fullName(app.patientNombre, app.patientApellido).toLowerCase();
             const dni = (app.patientDni || '').toLowerCase();
             const obraSocial = (app.patientObraSocialNumero || '').toLowerCase();
             return (
@@ -99,7 +100,7 @@ export class AppointmentsService {
             );
           }
           if (type === 'profesional') {
-            const profesionalName = (app.profesionalName || '').toLowerCase();
+            const profesionalName = fullName(app.profesionalNombre, app.profesionalApellido).toLowerCase();
             return profesionalName.includes(t);
           }
           return true;

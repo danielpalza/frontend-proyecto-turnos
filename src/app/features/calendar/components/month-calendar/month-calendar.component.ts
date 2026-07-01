@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Profesional, Patient } from '../../../../core/models';
 import { SearchInputComponent, SearchResult } from '../../../../shared';
+import { fullName } from '../../../../core/utils/full-name.util';
 
 @Component({
   selector: 'app-month-calendar',
@@ -139,8 +140,8 @@ export class MonthCalendarComponent implements OnInit, OnChanges {
 
   onSearchSelect(result: SearchResult): void {
     this.filterTerm = result.type === 'patient'
-      ? (result.item as Patient).nombreApellido
-      : (result.item as Profesional).nombre;
+      ? fullName((result.item as Patient).nombre, (result.item as Patient).apellido)
+      : fullName((result.item as Profesional).nombre, (result.item as Profesional).apellido);
     this.filterChange.emit({ type: result.type, term: this.filterTerm });
   }
 

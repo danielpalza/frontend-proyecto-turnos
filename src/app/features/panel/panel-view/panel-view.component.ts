@@ -8,6 +8,7 @@ import { formatDateToYYYYMMDD } from '../../../core/utils/date.utils';
 import { MiniCalendarPickerComponent } from '../../../shared';
 import { DashboardService } from '../../../core/services/dashboard.service';
 import { DashboardSummary, ProfessionalStats } from '../../../core/models/dashboard.model';
+import { fullName } from '../../../core/utils/full-name.util';
 
 interface DonutLegendItem {
   label: string;
@@ -257,6 +258,10 @@ export class PanelViewComponent implements OnInit, OnDestroy {
 
   getInitials(name: string): string {
     return name.trim().split(/\s+/).map(w => w[0]).join('').substring(0, 2).toUpperCase();
+  }
+
+  getProfesionalFullName(prof: ProfessionalStats): string {
+    return fullName(prof.profesionalNombre, prof.profesionalApellido) || 'No asignado';
   }
 
   getCompletionRate(prof: ProfessionalStats): number {

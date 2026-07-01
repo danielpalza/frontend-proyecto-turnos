@@ -8,7 +8,8 @@ export interface DashboardSummary {
 
 export interface ProfessionalStats {
   profesionalId: string | null;
-  profesionalName: string;
+  profesionalNombre: string;
+  profesionalApellido: string;
   completados: number;
   pendientes: number;
   cancelados: number;

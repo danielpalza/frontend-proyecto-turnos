@@ -5,10 +5,12 @@ export interface Appointment {
   id?: string;
   patientId: string;
   profesionalId?: string;
-  patientName?: string;
+  patientNombre?: string;
+  patientApellido?: string;
   patientDni?: string;
   patientObraSocialNumero?: string;
-  profesionalName?: string;
+  profesionalNombre?: string;
+  profesionalApellido?: string;
   fecha: string;
   hora?: string;
   estado?: AppointmentStatus;

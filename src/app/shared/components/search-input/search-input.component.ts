@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Patient, Profesional } from '../../../core/models';
+import { fullName } from '../../../core/utils/full-name.util';
 
 export type SearchType = 'patient' | 'profesional' | 'both';
 
@@ -138,7 +139,7 @@ export class SearchInputComponent implements OnInit, OnChanges, OnDestroy {
     // Si hay término, filtrar
     const term = this.searchTerm.toLowerCase();
     return this.patients.filter(p => {
-      const nombre = (p.nombreApellido || '').toLowerCase();
+      const nombre = fullName(p.nombre, p.apellido).toLowerCase();
       const dni = (p.dni || '').toLowerCase();
       const email = (p.email || '').toLowerCase();
       return nombre.includes(term) || dni.includes(term) || email.includes(term);
@@ -158,7 +159,7 @@ export class SearchInputComponent implements OnInit, OnChanges, OnDestroy {
     // Si hay término, filtrar
     const term = this.searchTerm.toLowerCase();
     return this.profesionales.filter(p => {
-      const nombre = (p.nombre || '').toLowerCase();
+      const nombre = fullName(p.nombre, p.apellido).toLowerCase();
       const especialidad = (p.especialidad || '').toLowerCase();
       return nombre.includes(term) || especialidad.includes(term);
     });
@@ -184,10 +185,16 @@ export class SearchInputComponent implements OnInit, OnChanges, OnDestroy {
 
   getDisplayValue(item: Patient | Profesional, type: 'patient' | 'profesional'): string {
     if (type === 'patient') {
-      return (item as Patient).nombreApellido || '';
+      const patient = item as Patient;
+      return fullName(patient.nombre, patient.apellido);
     } else {
-      return (item as Profesional).nombre || '';
+      const prof = item as Profesional;
+      return fullName(prof.nombre, prof.apellido);
     }
+  }
+
+  fullName(nombre?: string | null, apellido?: string | null): string {
+    return fullName(nombre, apellido);
   }
 
   @HostListener('document:click', ['$event'])

@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Patient } from '../../../../core/models';
+import { fullName } from '../../../../core/utils/full-name.util';
 
 @Component({
   selector: 'app-patient-combobox',
@@ -22,7 +23,7 @@ export class PatientComboboxComponent {
   get uniquePatients(): Patient[] {
     return Array.from(
       new Map(
-        this.patients.map(p => [p.nombreApellido.toLowerCase(), p])
+        this.patients.map(p => [fullName(p.nombre, p.apellido).toLowerCase(), p])
       ).values()
     );
   }
@@ -30,7 +31,7 @@ export class PatientComboboxComponent {
   get filteredPatients(): Patient[] {
     const search = this.value.toLowerCase();
     return this.uniquePatients.filter(p =>
-      p.nombreApellido.toLowerCase().includes(search)
+      fullName(p.nombre, p.apellido).toLowerCase().includes(search)
     );
   }
 
@@ -41,10 +42,14 @@ export class PatientComboboxComponent {
   }
 
   choosePatient(patient: Patient) {
-    this.value = patient.nombreApellido;
+    this.value = fullName(patient.nombre, patient.apellido);
     this.valueChange.emit(this.value);
     this.selectPatient.emit(patient);
     this.isOpen = false;
+  }
+
+  fullName(nombre?: string | null, apellido?: string | null): string {
+    return fullName(nombre, apellido);
   }
 }
 

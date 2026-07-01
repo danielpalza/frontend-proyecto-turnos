@@ -70,7 +70,7 @@
             (click)="onItemSelect({ type: 'patient', item: patient })"
             [attr.data-testid]="'search-item-patient-' + patient.id"
           >
-            <div class="fw-semibold">{{ patient.nombreApellido }}</div>
+            <div class="fw-semibold">{{ fullName(patient.nombre, patient.apellido) }}</div>
             <small class="text-muted">
               DNI: {{ patient.dni }}<span *ngIf="patient.email"> | {{ patient.email }}</span>
             </small>
@@ -87,7 +87,7 @@
             (click)="onItemSelect({ type: 'profesional', item: prof })"
             [attr.data-testid]="'search-item-profesional-' + prof.id"
           >
-            <div class="fw-semibold">{{ prof.nombre }}</div>
+            <div class="fw-semibold">{{ fullName(prof.nombre, prof.apellido) }}</div>
             <small class="text-muted" *ngIf="prof.especialidad">
               {{ prof.especialidad }}
             </small>

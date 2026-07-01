@@ -30,7 +30,7 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
   showPatientDropdown = false;
 
   private readonly PATIENT_FIELDS = [
-    'nombreApellido', 'fechaNacimiento', 'edad', 'dni', 'telefono', 'email',
+    'nombre', 'apellido', 'fechaNacimiento', 'edad', 'dni', 'telefono', 'email',
     'domicilio', 'localidad', 'contactoEmergencia',
     'enfermedades', 'alergias', 'medicacion', 'cirugias', 'embarazo', 'marcapasos', 'consumos',
     'obraSocialNombre', 'planCategoria', 'obraSocialNumero', 'obraSocialVencimiento',
@@ -103,7 +103,8 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
     
     // Llenar el formulario con los datos del paciente
     this.form.patchValue({
-      nombreApellido: patient.nombreApellido,
+      nombre: patient.nombre,
+      apellido: patient.apellido,
       fechaNacimiento: patient.fechaNacimiento || '',
       dni: patient.dni,
       telefono: patient.telefono || '',
@@ -352,7 +353,8 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
     if (!this.form) return;
 
     const personalRequiredFields = [
-      'nombreApellido',
+      'nombre',
+      'apellido',
       'dni',
       'telefono',
       'email',
@@ -395,7 +397,8 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
     // Datos del paciente
     const patientData: Partial<Patient> = {
       id: this.selectedPatient?.id,
-      nombreApellido: raw.nombreApellido,
+      nombre: raw.nombre,
+      apellido: raw.apellido,
       fechaNacimiento: raw.fechaNacimiento || undefined,
       dni: raw.dni,
       telefono: raw.telefono,

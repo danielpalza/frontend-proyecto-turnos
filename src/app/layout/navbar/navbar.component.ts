@@ -11,6 +11,8 @@ interface NavItem {
   title: string;
   icon: string;
   route?: string;
+  /** Código de Module (backend) que habilita esta pestaña. */
+  moduleCode: string;
   /** Requiere un turno cargado; no navega a una ruta fija. */
   requiresAppointment?: boolean;
 }
@@ -36,15 +38,21 @@ export class NavbarComponent {
 
 
 
-  menuItems: NavItem[] = [
-    { title: 'Panel', icon: 'bi-speedometer2', route: '/panel' },
-    { title: 'Turnos', icon: 'bi-calendar', route: '/turnos' },
-    { title: 'Odontograma', icon: 'bi-heart-pulse', requiresAppointment: true },
-    { title: 'Seguimiento', icon: 'bi-clipboard-data', route: '/seguimiento' },
-    { title: 'Configuraciones', icon: 'bi-gear', route: '/configuraciones' }
+  private readonly allMenuItems: NavItem[] = [
+    { title: 'Panel', icon: 'bi-speedometer2', route: '/panel', moduleCode: 'PANEL' },
+    { title: 'Turnos', icon: 'bi-calendar', route: '/turnos', moduleCode: 'TURNOS' },
+    { title: 'Odontograma', icon: 'bi-heart-pulse', requiresAppointment: true, moduleCode: 'ODONTOGRAMA' },
+    { title: 'Seguimiento', icon: 'bi-clipboard-data', route: '/seguimiento', moduleCode: 'SEGUIMIENTO' },
+    { title: 'Configuraciones', icon: 'bi-gear', route: '/configuraciones', moduleCode: 'CONFIGURACIONES' }
   ];
 
+  get menuItems(): NavItem[] {
+    return this.allMenuItems.filter(item => this.authService.hasModule(item.moduleCode));
+  }
 
+  get organizationNombre(): string | null {
+    return this.authService.getCurrentUser()?.organizationNombre ?? null;
+  }
 
   isOdontogramaActive(): boolean {
     return this.router.url.startsWith('/odontograma/');

@@ -15,12 +15,14 @@ export const routes: Routes = [
   {
     path: 'panel',
     canActivate: [authGuard],
+    data: { module: 'PANEL' },
     loadComponent: () =>
       import('./features/panel/panel-view/panel-view.component').then(m => m.PanelViewComponent)
   },
   {
     path: 'turnos',
     canActivate: [authGuard],
+    data: { module: 'TURNOS' },
     loadComponent: () =>
       import('./features/appointments/pages/turnos-view/turnos-view.component').then(
         m => m.TurnosViewComponent
@@ -29,6 +31,7 @@ export const routes: Routes = [
   {
     path: 'odontograma/:appointmentId',
     canActivate: [authGuard],
+    data: { module: 'ODONTOGRAMA' },
     loadComponent: () =>
       import('./features/odontograma/components/odontograma-view/odontograma-view.component').then(
         m => m.OdontogramaViewComponent
@@ -42,6 +45,7 @@ export const routes: Routes = [
   {
     path: 'seguimiento',
     canActivate: [authGuard],
+    data: { module: 'SEGUIMIENTO' },
     loadComponent: () =>
       import('./features/seguimiento/seguimiento-view/seguimiento-view.component').then(
         m => m.SeguimientoViewComponent
@@ -50,6 +54,7 @@ export const routes: Routes = [
   {
     path: 'configuraciones',
     canActivate: [authGuard],
+    data: { module: 'CONFIGURACIONES' },
     loadComponent: () =>
       import('./features/configuraciones/configuraciones-view/configuraciones-view.component').then(
         m => m.ConfiguracionesViewComponent

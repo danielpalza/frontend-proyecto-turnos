@@ -10,7 +10,7 @@
         [searchType]="'patient'"
         [showIcon]="true"
         [placeholder]="'Buscar por nombre, DNI o email...'"
-        [selectedValue]="selectedPatient?.nombreApellido || ''"
+        [selectedValue]="selectedPatient ? fullName(selectedPatient.nombre, selectedPatient.apellido) : ''"
         [debounceTime]="300"
         (select)="onPatientSearchSelect($event)"
         (clear)="onClearPatient()"
@@ -19,7 +19,7 @@
     @if (selectedPatient) {
       <div class="alert alert-success mt-2 py-2" data-testid="patient-selected-alert">
         <i class="bi bi-check-circle me-2"></i>Paciente seleccionado:
-        <strong>{{ selectedPatient.nombreApellido }}</strong>
+        <strong>{{ fullName(selectedPatient.nombre, selectedPatient.apellido) }}</strong>
         <div class="small mt-1 text-muted">Para editar los datos del paciente, usá la sección Seguimientos.</div>
       </div>
     }
@@ -35,11 +35,18 @@
 <section class="mb-4" data-testid="patient-personal-section">
   <h6 class="mb-3 text-primary" data-testid="tracking-section-personal-title"><i class="bi bi-person me-2"></i>Datos Personales</h6>
   <div class="row g-3" [formGroup]="form">
-    <div class="col-12 col-md-6">
-      <label class="form-label">Nombre y Apellido *</label>
-      <input class="form-control" type="text" formControlName="nombreApellido" [class.is-invalid]="form.get('nombreApellido')?.invalid && form.get('nombreApellido')?.touched" data-testid="patient-name-input" />
-      @if (form.get('nombreApellido')?.invalid && form.get('nombreApellido')?.touched) {
+    <div class="col-12 col-md-3">
+      <label class="form-label">Nombre *</label>
+      <input class="form-control" type="text" formControlName="nombre" [class.is-invalid]="form.get('nombre')?.invalid && form.get('nombre')?.touched" data-testid="patient-name-input" />
+      @if (form.get('nombre')?.invalid && form.get('nombre')?.touched) {
         <div class="invalid-feedback d-block">El nombre es obligatorio</div>
+      }
+    </div>
+    <div class="col-12 col-md-3">
+      <label class="form-label">Apellido *</label>
+      <input class="form-control" type="text" formControlName="apellido" [class.is-invalid]="form.get('apellido')?.invalid && form.get('apellido')?.touched" data-testid="patient-lastname-input" />
+      @if (form.get('apellido')?.invalid && form.get('apellido')?.touched) {
+        <div class="invalid-feedback d-block">El apellido es obligatorio</div>
       }
     </div>
     <div class="col-12 col-sm-6 col-md-3">
@@ -242,7 +249,7 @@
             <option value="" disabled>No hay profesionales disponibles</option>
           } @else {
             @for (prof of profesionales; track prof.id) {
-              <option [value]="prof.id">{{ prof.nombre }}</option>
+              <option [value]="prof.id">{{ getProfesionalFullName(prof) }}</option>
             }
           }
         </select>

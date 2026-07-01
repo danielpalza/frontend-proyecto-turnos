@@ -6,7 +6,8 @@ import { FormBuilder, Validators } from '@angular/forms';
  */
 export function getPatientFormConfig(fb: FormBuilder) {
   return {
-    nombreApellido: ['', Validators.required],
+    nombre: ['', Validators.required],
+    apellido: ['', Validators.required],
     fechaNacimiento: [''],
     edad: [{ value: '', disabled: true }],
     dni: ['', Validators.required],

@@ -62,6 +62,14 @@ export class AuthService {
     return this.currentUserSubject.value;
   }
 
+  hasRole(role: string): boolean {
+    return this.currentUserSubject.value?.role === role;
+  }
+
+  hasModule(code: string): boolean {
+    return this.currentUserSubject.value?.modules?.includes(code) ?? false;
+  }
+
   private setSession(response: AuthResponse): void {
     localStorage.setItem('auth_token', response.token);
     localStorage.setItem('auth_user', JSON.stringify(response));

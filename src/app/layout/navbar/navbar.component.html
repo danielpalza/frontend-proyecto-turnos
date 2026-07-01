@@ -1,4 +1,6 @@
 <nav class="navbar-container" data-testid="navbar">
+  <span *ngIf="organizationNombre" data-testid="navbar-organization-name">{{ organizationNombre }}</span>
+
   <div class="nav-tabs" data-testid="navbar-tabs">
     <a
       *ngFor="let item of menuItems"

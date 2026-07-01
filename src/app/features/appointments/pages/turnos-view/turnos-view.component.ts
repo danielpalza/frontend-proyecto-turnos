@@ -17,6 +17,7 @@ import {
   filterProfesionalesForNewAppointment,
   isProfesionalAssignableForNewAppointment
 } from '../../../../core/utils/profesional-assignability.util';
+import { fullName } from '../../../../core/utils/full-name.util';
 
 @Component({
   selector: 'app-turnos-view',
@@ -364,9 +365,10 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
     this.deleteCandidateId = id;
     const a = this.appointments.find(ap => ap.id === id);
     const hora = a?.hora ? a.hora.substring(0, 5) : null;
+    const profesionalName = a ? fullName(a.profesionalNombre, a.profesionalApellido) : '';
     const parts = [
-      a?.patientName || 'Paciente',
-      a?.profesionalName ? `- ${a.profesionalName}` : null,
+      (a ? fullName(a.patientNombre, a.patientApellido) : '') || 'Paciente',
+      profesionalName ? `- ${profesionalName}` : null,
       hora ? `(${hora})` : null
     ].filter(Boolean);
     this.deleteCandidateSummary = parts.length ? parts.join(' ') : null;

@@ -4,6 +4,7 @@ import { Appointment } from '../models/appointment.model';
 import { DashboardSummary, ProfessionalStats, DailyPoint } from '../models/dashboard.model';
 import { AppointmentsService } from './appointments.service';
 import { formatDateToYYYYMMDD } from '../utils/date.utils';
+import { fullName } from '../utils/full-name.util';
 
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
@@ -117,10 +118,11 @@ export class DashboardService {
 
     for (const a of appointments) {
       const key = a.profesionalId ?? null;
-      const name = a.profesionalName ?? 'No asignado';
+      const nombre = a.profesionalId ? (a.profesionalNombre ?? '') : 'No asignado';
+      const apellido = a.profesionalId ? (a.profesionalApellido ?? '') : '';
 
       if (!statsMap.has(key)) {
-        statsMap.set(key, { profesionalId: key, profesionalName: name, completados: 0, pendientes: 0, cancelados: 0, facturacion: 0 });
+        statsMap.set(key, { profesionalId: key, profesionalNombre: nombre, profesionalApellido: apellido, completados: 0, pendientes: 0, cancelados: 0, facturacion: 0 });
       }
 
       const stats = statsMap.get(key)!;
@@ -138,7 +140,7 @@ export class DashboardService {
     const assigned = [...statsMap.entries()]
       .filter(([k]) => k !== null)
       .map(([, s]) => s)
-      .sort((a, b) => a.profesionalName.localeCompare(b.profesionalName));
+      .sort((a, b) => fullName(a.profesionalNombre, a.profesionalApellido).localeCompare(fullName(b.profesionalNombre, b.profesionalApellido)));
 
     return [...result, ...assigned];
   }

@@ -10,6 +10,7 @@ import { ConfigurationService } from '../../../core/services/configuration.servi
 import { combineLatest, Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { PatientFormComponent, getPatientFormConfig } from '../../../shared';
+import { fullName } from '../../../core/utils/full-name.util';
 
 @Component({
   selector: 'app-seguimiento-view',
@@ -108,7 +109,7 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
 
     const filteredPatients = term
       ? this.patients.filter(p =>
-          (p.nombreApellido || '').toLowerCase().includes(term) ||
+          fullName(p.nombre, p.apellido).toLowerCase().includes(term) ||
           (p.dni || '').includes(term) ||
           (p.email || '').toLowerCase().includes(term)
         )
@@ -128,6 +129,10 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
   onSearchChange(): void {
     // Solo actualizar cuando cambia el término de búsqueda
     this.updatePatientGroups();
+  }
+
+  fullName(nombre?: string | null, apellido?: string | null): string {
+    return fullName(nombre, apellido);
   }
 
   formatDate(dateStr: string) {
@@ -154,7 +159,8 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
       }
     }
     this.patientForm.patchValue({
-      nombreApellido: patient.nombreApellido,
+      nombre: patient.nombre,
+      apellido: patient.apellido,
       fechaNacimiento: patient.fechaNacimiento || '',
       dni: patient.dni,
       telefono: patient.telefono || '',
@@ -228,7 +234,8 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
 
     const patientData: Partial<Patient> = {
       id: this.selectedPatientForForm?.id,
-      nombreApellido: raw.nombreApellido,
+      nombre: raw.nombre,
+      apellido: raw.apellido,
       fechaNacimiento: raw.fechaNacimiento || undefined,
       dni: raw.dni,
       telefono: raw.telefono,
@@ -277,7 +284,7 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
   }
 
   private trimPatientForm(): void {
-    const fields = ['nombreApellido', 'dni', 'telefono', 'email', 'domicilio', 'localidad'];
+    const fields = ['nombre', 'apellido', 'dni', 'telefono', 'email', 'domicilio', 'localidad'];
     fields.forEach(name => {
       const c = this.patientForm.get(name);
       if (c && typeof c.value === 'string') {
@@ -363,8 +370,8 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
       ? this.selectedAppointment.hora.substring(0, 5)
       : '';
     const fechaStr = this.formatDate(this.selectedAppointment.fecha);
-    const doctor = this.selectedAppointment.profesionalName || 'sin asignar';
-    const paciente = patient.nombreApellido || (this.selectedAppointment.patientName || '');
+    const doctor = fullName(this.selectedAppointment.profesionalNombre, this.selectedAppointment.profesionalApellido) || 'sin asignar';
+    const paciente = fullName(patient.nombre, patient.apellido) || fullName(this.selectedAppointment.patientNombre, this.selectedAppointment.patientApellido);
     const message = this.whatsappConfig.buildMessage(horaStr, fechaStr, doctor, paciente);
     return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
   }

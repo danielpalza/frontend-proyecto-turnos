@@ -4,6 +4,7 @@
 export interface Profesional {
   id?: string;
   nombre: string;
+  apellido: string;
   dni?: string;
   especialidad?: string;
   matricula?: string;
@@ -13,5 +14,20 @@ export interface Profesional {
   userId?: string;
 }
 
-export type ProfesionalCreateDTO = Omit<Profesional, 'id'>;
+/** Módulos habilitables para un usuario, alineados a las pestañas del navbar. */
+export const MODULE_OPTIONS: { code: string; label: string }[] = [
+  { code: 'PANEL', label: 'Panel' },
+  { code: 'TURNOS', label: 'Turnos' },
+  { code: 'ODONTOGRAMA', label: 'Odontograma' },
+  { code: 'SEGUIMIENTO', label: 'Seguimiento' },
+  { code: 'CONFIGURACIONES', label: 'Configuración' }
+];
+
+export type ProfesionalCreateDTO = Omit<Profesional, 'id'> & {
+  /** Si es true, se crea un User (rol USER) vinculado a este profesional. Solo lo puede pedir un OWNER. */
+  crearAcceso?: boolean;
+  username?: string;
+  password?: string;
+  moduleCodes?: string[];
+};
 export type ProfesionalUpdateDTO = Partial<ProfesionalCreateDTO>;

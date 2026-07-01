@@ -39,7 +39,7 @@
 
                 <div class="flex-grow-1">
                   <div class="d-flex align-items-center gap-2 flex-wrap">
-                    <h5 class="m-0 fw-semibold" [attr.data-testid]="'tracking-patient-name-' + group.patient.dni">{{ group.patient.nombreApellido }}</h5>
+                    <h5 class="m-0 fw-semibold" [attr.data-testid]="'tracking-patient-name-' + group.patient.dni">{{ fullName(group.patient.nombre, group.patient.apellido) }}</h5>
                     <span class="total-deuda" *ngIf="group.totalAdeudado > 0" [attr.data-testid]="'tracking-patient-debt-' + group.patient.dni">
                       {{ formatCurrency(group.totalAdeudado) }}
                     </span>
@@ -142,10 +142,10 @@
         </div>
         <div class="modal-body">
           <div class="turn-modal-context mb-3">
-            <span class="fw-semibold" data-testid="tracking-turn-modal-patient-name">{{ selectedAppointment.patientName }}</span>
+            <span class="fw-semibold" data-testid="tracking-turn-modal-patient-name">{{ fullName(selectedAppointment.patientNombre, selectedAppointment.patientApellido) }}</span>
             <span class="text-muted" data-testid="tracking-turn-modal-date"> · {{ formatDate(selectedAppointment.fecha) }}</span>
-            <span class="text-muted" *ngIf="selectedAppointment.profesionalName">
-              · {{ selectedAppointment.profesionalName }}
+            <span class="text-muted" *ngIf="selectedAppointment.profesionalNombre">
+              · {{ fullName(selectedAppointment.profesionalNombre, selectedAppointment.profesionalApellido) }}
             </span>
           </div>
 

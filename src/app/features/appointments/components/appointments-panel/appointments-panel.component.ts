@@ -10,6 +10,7 @@ import {
   filterProfesionalesForReassign,
   isProfesionalAssignableForReassign
 } from '../../../../core/utils/profesional-assignability.util';
+import { fullName } from '../../../../core/utils/full-name.util';
 
 @Component({
   selector: 'app-appointments-panel',
@@ -530,14 +531,18 @@ export class AppointmentsPanelComponent implements OnChanges {
     return !!this.getPatientForAppointment(appointment)?.telefono?.trim();
   }
 
+  fullName(nombre?: string | null, apellido?: string | null): string {
+    return fullName(nombre, apellido);
+  }
+
   getWhatsAppLink(appointment: Appointment): string | null {
     const patient = this.getPatientForAppointment(appointment);
     if (!patient?.telefono) return null;
 
     const horaStr = appointment.hora ? this.formatTime(appointment.hora) : '';
     const fechaStr = this.whatsappConfig.formatAppointmentDate(appointment.fecha);
-    const doctor = appointment.profesionalName || 'sin asignar';
-    const paciente = patient.nombreApellido || appointment.patientName || '';
+    const doctor = fullName(appointment.profesionalNombre, appointment.profesionalApellido) || 'sin asignar';
+    const paciente = fullName(patient.nombre, patient.apellido) || fullName(appointment.patientNombre, appointment.patientApellido);
 
     return this.whatsappConfig.buildWhatsAppLink(patient.telefono, {
       hora: horaStr,
