@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Subject, combineLatest, takeUntil } from 'rxjs';
@@ -29,7 +29,8 @@ interface Comparison {
   imports: [CommonModule, MiniCalendarPickerComponent, BaseChartDirective],
   providers: [provideCharts(withDefaultRegisterables())],
   templateUrl: './panel-view.component.html',
-  styleUrls: ['./panel-view.component.scss']
+  styleUrls: ['./panel-view.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PanelViewComponent implements OnInit, OnDestroy {
   currentDate = new Date();
@@ -144,7 +145,8 @@ export class PanelViewComponent implements OnInit, OnDestroy {
 
   constructor(
     private dashboardService: DashboardService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -155,6 +157,7 @@ export class PanelViewComponent implements OnInit, OnDestroy {
         datasets: [{ ...this.appointmentsChartData.datasets[0], data: [s.turnosCompletados, s.turnosPendientes, s.turnosCancelados] }]
       };
       this.updateDonutLegend(s);
+      this.cdr.markForCheck();
     });
 
     combineLatest([this.dashboardService.summary$, this.dashboardService.previousSummary$])
@@ -165,6 +168,7 @@ export class PanelViewComponent implements OnInit, OnDestroy {
           pendientes: this.pctChange(curr.ingresosPendientes, prev.ingresosPendientes),
           completados: this.pctChange(curr.turnosCompletados, prev.turnosCompletados)
         };
+        this.cdr.markForCheck();
       });
 
     this.dashboardService.dailyIncomeData$.pipe(takeUntil(this.destroy$)).subscribe(daily => {
@@ -175,11 +179,21 @@ export class PanelViewComponent implements OnInit, OnDestroy {
           { ...this.lineChartData.datasets[1], data: daily.map(d => d.pending) }
         ]
       };
+      this.cdr.markForCheck();
     });
 
-    this.dashboardService.professionalStats$.pipe(takeUntil(this.destroy$)).subscribe(s => (this.professionalStats = s));
-    this.dashboardService.loading$.pipe(takeUntil(this.destroy$)).subscribe(v => (this.isLoading = v));
-    this.dashboardService.error$.pipe(takeUntil(this.destroy$)).subscribe(v => (this.hasError = v));
+    this.dashboardService.professionalStats$.pipe(takeUntil(this.destroy$)).subscribe(s => {
+      this.professionalStats = s;
+      this.cdr.markForCheck();
+    });
+    this.dashboardService.loading$.pipe(takeUntil(this.destroy$)).subscribe(v => {
+      this.isLoading = v;
+      this.cdr.markForCheck();
+    });
+    this.dashboardService.error$.pipe(takeUntil(this.destroy$)).subscribe(v => {
+      this.hasError = v;
+      this.cdr.markForCheck();
+    });
 
     this.applyMonthRange();
     this.dashboardService.loadMonth(this.currentDate.getFullYear(), this.currentDate.getMonth());
