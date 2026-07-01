@@ -1,5 +1,7 @@
 <div class="panel-container" data-testid="dashboard-page">
   <div class="container-fluid px-4">
+
+    <!-- Header -->
     <div class="panel-header mb-4" data-testid="dashboard-header">
       <div class="panel-header-left" data-testid="dashboard-header-left">
         <h1 class="title" data-testid="dashboard-title">
@@ -9,6 +11,8 @@
       </div>
 
       <div class="panel-header-right" data-testid="dashboard-header-right">
+        <button type="button" class="btn-today" (click)="goToToday()">Hoy</button>
+
         <div class="month-navigation" data-testid="dashboard-month-nav">
           <button type="button" class="nav-arrow" (click)="previousMonth()" data-testid="dashboard-prev-month-btn">
             <i class="bi bi-chevron-left"></i>
@@ -32,7 +36,6 @@
               (dateChange)="onDateFromChange($event)"
             />
           </div>
-
           <div class="date-field" data-testid="dashboard-date-to-field">
             <label for="panel-date-to" data-testid="dashboard-date-to-label">Hasta</label>
             <app-mini-calendar-picker
@@ -45,102 +48,231 @@
           </div>
         </div>
 
-        <button type="button" class="btn btn-outline-primary btn-sm" (click)="refresh()" data-testid="dashboard-refresh-btn">
-          <i class="bi bi-arrow-clockwise me-1"></i>
-          Actualizar
+        <button type="button" class="btn btn-outline-primary btn-sm" [disabled]="isLoading" (click)="refresh()" data-testid="dashboard-refresh-btn">
+          <i class="bi bi-arrow-clockwise me-1" [class.spin]="isLoading"></i>Actualizar
         </button>
       </div>
     </div>
 
-    <div class="row g-4">
-      <div class="col-lg-7">
-        <section class="panel-section mb-4" data-testid="dashboard-summary-panel">
-          <h2 class="section-title" data-testid="dashboard-summary-title">Resumen general</h2>
-          <div class="row g-3">
-            <div class="col-sm-6">
-              <div class="metric-card" data-testid="dashboard-total-income-card">
-                <span class="metric-label" data-testid="dashboard-total-income-label">Ingresos realizados</span>
-                <span class="metric-value" data-testid="dashboard-total-income-value">—</span>
-              </div>
-            </div>
-            <div class="col-sm-6">
-              <div class="metric-card" data-testid="dashboard-pending-income-card">
-                <span class="metric-label" data-testid="dashboard-pending-income-label">Ingresos pendientes</span>
-                <span class="metric-value" data-testid="dashboard-pending-income-value">—</span>
-              </div>
-            </div>
-            <div class="col-sm-6">
-              <div class="metric-card" data-testid="dashboard-appointments-done-card">
-                <span class="metric-label" data-testid="dashboard-appointments-done-label">Turnos realizados</span>
-                <span class="metric-value" data-testid="dashboard-appointments-done-value">—</span>
-              </div>
-            </div>
-            <div class="col-sm-6">
-              <div class="metric-card" data-testid="dashboard-appointments-cancelled-card">
-                <span class="metric-label" data-testid="dashboard-appointments-cancelled-label">Cancelados</span>
-                <span class="metric-value" data-testid="dashboard-appointments-cancelled-value">—</span>
-              </div>
-            </div>
-          </div>
-        </section>
+    @if (hasError) {
+      <div class="alert alert-danger d-flex align-items-center gap-2 mb-4" role="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span>Error al cargar los datos. Intentá de nuevo con el botón Actualizar.</span>
+      </div>
+    }
 
-        <section class="panel-section" data-testid="dashboard-profesionales-panel">
-          <h2 class="section-title" data-testid="dashboard-profesionales-title">Rendimiento de profesionales</h2>
-          <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0" data-testid="dashboard-profesionales-table">
-              <thead data-testid="dashboard-profesionales-thead">
-                <tr>
-                  <th>Profesional</th>
-                  <th class="text-end">Turnos</th>
-                  <th class="text-end">Facturación</th>
-                </tr>
-              </thead>
-              <tbody data-testid="dashboard-profesionales-tbody">
-                <tr data-testid="dashboard-profesionales-empty-row">
-                  <td colspan="3" class="text-center text-muted py-4">
-                    Sin datos por ahora
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+    <!-- Metric cards -->
+    <div class="row g-3 mb-4" data-testid="dashboard-summary-panel">
+      <div class="col-sm-6 col-xl-3">
+        <div class="metric-card" data-testid="dashboard-total-income-card">
+          <div class="metric-icon-wrap bg-success-subtle">
+            <i class="bi bi-cash-coin text-success"></i>
           </div>
-        </section>
+          <div class="metric-body">
+            <span class="metric-label" data-testid="dashboard-total-income-label">Ingresos realizados</span>
+            @if (isLoading) {
+              <span class="metric-value skeleton" data-testid="dashboard-total-income-value">&nbsp;</span>
+            } @else {
+              <span class="metric-value" data-testid="dashboard-total-income-value">{{ formatCurrency(summary.ingresosTotales) }}</span>
+            }
+            <div [class]="comparisonClass(comparison.ingresos)">
+              <i [class]="comparisonIcon(comparison.ingresos)"></i>
+              {{ comparisonLabel(comparison.ingresos) }}
+              <span class="vs-label">vs {{ getPrevMonthLabel() }}</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="col-lg-5">
-        <section class="panel-section mb-4" data-testid="dashboard-income-chart-panel">
-          <h2 class="section-title" data-testid="dashboard-income-chart-title">Distribución de ingresos</h2>
-          <div class="chart-placeholder" data-testid="dashboard-income-chart-placeholder">
-            <p class="text-muted mb-0">Gráfico donut — pendiente</p>
+      <div class="col-sm-6 col-xl-3">
+        <div class="metric-card" data-testid="dashboard-pending-income-card">
+          <div class="metric-icon-wrap bg-warning-subtle">
+            <i class="bi bi-clock text-warning"></i>
           </div>
-        </section>
+          <div class="metric-body">
+            <span class="metric-label" data-testid="dashboard-pending-income-label">Ingresos pendientes</span>
+            @if (isLoading) {
+              <span class="metric-value skeleton" data-testid="dashboard-pending-income-value">&nbsp;</span>
+            } @else {
+              <span class="metric-value" data-testid="dashboard-pending-income-value">{{ formatCurrency(summary.ingresosPendientes) }}</span>
+            }
+            <div [class]="comparisonClass(comparison.pendientes)">
+              <i [class]="comparisonIcon(comparison.pendientes)"></i>
+              {{ comparisonLabel(comparison.pendientes) }}
+              <span class="vs-label">vs {{ getPrevMonthLabel() }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-        <section class="panel-section" data-testid="dashboard-appointments-chart-panel">
-          <h2 class="section-title" data-testid="dashboard-appointments-chart-title">Estado de turnos</h2>
-          <div class="chart-placeholder" data-testid="dashboard-appointments-chart-placeholder">
-            <p class="text-muted mb-0">Gráfico donut — pendiente</p>
+      <div class="col-sm-6 col-xl-3">
+        <div class="metric-card" data-testid="dashboard-appointments-done-card">
+          <div class="metric-icon-wrap bg-primary-subtle">
+            <i class="bi bi-calendar-check text-primary"></i>
           </div>
-        </section>
+          <div class="metric-body">
+            <span class="metric-label" data-testid="dashboard-appointments-done-label">Turnos realizados</span>
+            @if (isLoading) {
+              <span class="metric-value skeleton" data-testid="dashboard-appointments-done-value">&nbsp;</span>
+            } @else {
+              <span class="metric-value" data-testid="dashboard-appointments-done-value">{{ summary.turnosCompletados }}</span>
+            }
+            <div [class]="comparisonClass(comparison.completados)">
+              <i [class]="comparisonIcon(comparison.completados)"></i>
+              {{ comparisonLabel(comparison.completados) }}
+              <span class="vs-label">vs {{ getPrevMonthLabel() }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-6 col-xl-3">
+        <div class="metric-card" data-testid="dashboard-appointments-cancelled-card">
+          <div class="metric-icon-wrap bg-secondary-subtle">
+            <i class="bi bi-people text-secondary"></i>
+          </div>
+          <div class="metric-body">
+            <span class="metric-label" data-testid="dashboard-appointments-cancelled-label">Pendientes</span>
+            @if (isLoading) {
+              <span class="metric-value skeleton" data-testid="dashboard-appointments-cancelled-value">&nbsp;</span>
+            } @else {
+              <span class="metric-value" data-testid="dashboard-appointments-cancelled-value">{{ summary.turnosPendientes }}</span>
+            }
+          </div>
+        </div>
       </div>
     </div>
+
+    <!-- Charts row -->
+    <div class="row g-4 mb-4">
+
+      <!-- Line chart -->
+      <div class="col-lg-8">
+        <div class="panel-section h-100">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="section-title mb-0">Evolución de ingresos</h2>
+            <div class="line-legend">
+              <span class="line-legend-item"><span class="line-dot" style="background:#198754"></span>Ingresos realizados</span>
+              <span class="line-legend-item"><span class="line-dot" style="background:#fd7e14"></span>Ingresos pendientes</span>
+            </div>
+          </div>
+          <div class="line-chart-wrapper">
+            @if (isLoading) {
+              <div class="chart-placeholder"><span class="spinner-border spinner-border-sm"></span></div>
+            } @else {
+              <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" type="line"></canvas>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Donut chart -->
+      <div class="col-lg-4">
+        <div class="panel-section h-100 d-flex flex-column" data-testid="dashboard-appointments-chart-panel">
+          <h2 class="section-title" data-testid="dashboard-appointments-chart-title">Estado de turnos</h2>
+          <div class="donut-section" data-testid="dashboard-appointments-chart-placeholder">
+            @if (isLoading) {
+              <div class="chart-placeholder flex-grow-1"><span class="spinner-border spinner-border-sm"></span></div>
+            } @else if (summary.turnosCompletados + summary.turnosPendientes + summary.turnosCancelados === 0) {
+              <div class="chart-placeholder flex-grow-1"><p class="text-muted mb-0">Sin datos para mostrar</p></div>
+            } @else {
+              <div class="donut-layout">
+                <div class="donut-canvas-wrap">
+                  <canvas baseChart [data]="appointmentsChartData" [options]="appointmentsChartOptions" [plugins]="donutPlugins" type="doughnut"></canvas>
+                </div>
+                <div class="donut-legend">
+                  @for (item of donutLegendItems; track item.label) {
+                    <div class="donut-legend-item">
+                      <span class="donut-dot" [style.background]="item.color"></span>
+                      <span class="donut-label-text">{{ item.label }}</span>
+                      <span class="donut-count">{{ item.count }}</span>
+                      <span class="donut-pct-badge" [style.background]="item.pctColor" [style.color]="item.color">{{ item.pct }}%</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+          <div class="mt-auto pt-3 border-top">
+            <button type="button" class="btn btn-link btn-sm text-primary w-100 d-flex align-items-center justify-content-center gap-1" (click)="goToTurnos()">
+              Ver detalle de turnos <i class="bi bi-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Professionals table -->
+    <div class="panel-section" data-testid="dashboard-profesionales-panel">
+      <h2 class="section-title" data-testid="dashboard-profesionales-title">Rendimiento de profesionales</h2>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" data-testid="dashboard-profesionales-table">
+          <thead data-testid="dashboard-profesionales-thead">
+            <tr>
+              <th style="width: 3rem"></th>
+              <th>Profesional</th>
+              <th>
+                Turnos
+                <div class="turnos-subheader">
+                  <span class="dot-completado">●</span> Completados
+                  <span class="dot-pendiente">●</span> Pendientes
+                  <span class="dot-cancelado">●</span> Cancelados
+                </div>
+              </th>
+              <th class="text-end">Facturación</th>
+              <th style="min-width: 160px">Tasa de completitud</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody data-testid="dashboard-profesionales-tbody">
+            @if (isLoading) {
+              <tr>
+                <td colspan="6" class="text-center text-muted py-4">
+                  <span class="spinner-border spinner-border-sm me-2"></span>Cargando...
+                </td>
+              </tr>
+            } @else if (professionalStats.length === 0) {
+              <tr data-testid="dashboard-profesionales-empty-row">
+                <td colspan="6" class="text-center text-muted py-4">Sin datos por ahora</td>
+              </tr>
+            } @else {
+              @for (prof of professionalStats; track prof.profesionalId) {
+                <tr>
+                  <td>
+                    <div class="prof-avatar" [class.unassigned]="prof.profesionalId === null">
+                      {{ getInitials(prof.profesionalName) }}
+                    </div>
+                  </td>
+                  <td class="fw-medium">{{ prof.profesionalName }}</td>
+                  <td>
+                    <div class="turnos-pills">
+                      <span class="pill completado">● {{ prof.completados }}</span>
+                      <span class="pill pendiente">● {{ prof.pendientes }}</span>
+                      <span class="pill cancelado">● {{ prof.cancelados }}</span>
+                    </div>
+                  </td>
+                  <td class="text-end">{{ formatCurrency(prof.facturacion) }}</td>
+                  <td>
+                    <div class="tasa-cell">
+                      <span class="tasa-pct">{{ getCompletionRate(prof) }}%</span>
+                      <div class="progress" style="height:5px; flex:1">
+                        <div
+                          class="progress-bar bg-success"
+                          [style.width]="getCompletionRate(prof) + '%'"
+                        ></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <button type="button" class="btn btn-outline-secondary btn-sm">Ver detalle</button>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
 </div>
-
-<ul>
-  <li><strong>Logica de panel:</strong></li>
-  <ol>
-    <p><strong>Filtros:</strong></p>
-    <li>Selector de mes: se selecciona con las flechas de izquierda a derecha el mes que se desea ver los datos</li>
-    <li>Selectores desde y hasta: se selecciona con el calendario el rango de fechas que se desea ver los datos en el mes en curso</li>
-    <li>Boton de actualizar: Actualiza los datos sin cambiar el estado de los filtros</li>
-    
-    <p><strong>Números y graficos:</strong></p>
-    <li>Ingersos totales: se obtiene sumando las entradas de la tabla "appointments -> monto_pago" de los turnos realizados en el mes seleccionado</li>
-    <li>Ingresos pendientes: se obtiene con las entradas de la tabla "appointments -> extras + precio_bono + precio_tratamiento - monto_pago" de los turnos pendientes en el mes seleccionado</li>
-    <li>Turnos realizados: se obtiene el conteo de la tabla "appointments -> estado = 'realizado'" de los turnos realizados en el mes seleccionado</li>
-    <li>Turnos cancelados/no asistió: se obtiene el conteo de la tabla "appointments -> estado = 'cancelado' o 'no asistió'" de los turnos cancelados/no asistió en el mes seleccionado</li>
-    <li>Rendimiento de profesionales: se listan todos los profesiones, la cantidad de turnos realizados (estado = 'realizado') y su facturación total</li>
-    <li>Distribucion de ingresos: grafico de dona donde se ve la distribucion de "Ingresos totales" vs "Ingresos pendientes"</li>
-    <li>Estado de turnos: grafico de dona donde se ve la distribucion de turnas con estado 'realizado' vs turnos con estados 'cancelado' o 'no asistió'</li>
-  </ol>
-</ul>
