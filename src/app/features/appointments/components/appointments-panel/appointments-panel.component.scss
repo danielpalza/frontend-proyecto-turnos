@@ -412,6 +412,10 @@
   @include button-action-small($success-light, $success-dark);
 }
 
+.badge-completado {
+  background-color: $success;
+}
+
 .btn-cancel-price {
   @include button-action-small($danger-light, $danger-dark);
 }

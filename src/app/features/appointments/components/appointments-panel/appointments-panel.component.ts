@@ -115,7 +115,7 @@ export class AppointmentsPanelComponent implements OnChanges {
       case 'CONFIRMADO': return 'bg-success';
       case 'PENDIENTE': return 'bg-warning text-dark';
       case 'EN_CURSO': return 'bg-info';
-      case 'COMPLETADO': return 'bg-secondary';
+      case 'COMPLETADO': return 'badge-completado';
       case 'CANCELADO': return 'bg-danger';
       case 'NO_ASISTIO': return 'bg-dark';
       default: return 'bg-secondary';

@@ -328,7 +328,7 @@
   gap: 0.35rem;
 }
 
-.dot-completado { color: #6c757d; }
+.dot-completado { color: $success; }
 .dot-pendiente  { color: #ffc107; }
 .dot-cancelado  { color: #dc3545; }
 
@@ -347,7 +347,7 @@
   padding: 0.2rem 0.6rem;
   border-radius: 999px;
 
-  &.completado { background: rgba(108,117,125,0.1); color: #495057; }
+  &.completado { background: rgba($success, 0.1); color: $success-dark; }
   &.pendiente  { background: rgba(255,193,7,0.15);  color: #856404; }
   &.cancelado  { background: rgba(220,53,69,0.1);   color: #842029; }
 }

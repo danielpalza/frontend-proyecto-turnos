@@ -105,7 +105,7 @@ export class PanelViewComponent implements OnInit, OnDestroy {
   // Donut chart
   appointmentsChartData: ChartData<'doughnut'> = {
     labels: ['Completados', 'Pendientes', 'Cancelados'],
-    datasets: [{ data: [0, 0, 0], backgroundColor: ['#6c757d', '#ffc107', '#dc3545'], borderWidth: 0 }]
+    datasets: [{ data: [0, 0, 0], backgroundColor: ['#01E17B', '#ffc107', '#dc3545'], borderWidth: 0 }]
   };
 
   appointmentsChartOptions: ChartOptions<'doughnut'> = {
@@ -293,7 +293,7 @@ export class PanelViewComponent implements OnInit, OnDestroy {
     const total = s.turnosCompletados + s.turnosPendientes + s.turnosCancelados;
     const pct = (n: number) => total === 0 ? 0 : Math.round((n / total) * 100);
     this.donutLegendItems = [
-      { label: 'Completados', color: '#6c757d', count: s.turnosCompletados, pct: pct(s.turnosCompletados), pctColor: 'rgba(108,117,125,0.12)' },
+      { label: 'Completados', color: '#01E17B', count: s.turnosCompletados, pct: pct(s.turnosCompletados), pctColor: 'rgba(1,225,123,0.12)' },
       { label: 'Pendientes', color: '#ffc107', count: s.turnosPendientes, pct: pct(s.turnosPendientes), pctColor: 'rgba(255,193,7,0.15)' },
       { label: 'Cancelados', color: '#dc3545', count: s.turnosCancelados, pct: pct(s.turnosCancelados), pctColor: 'rgba(220,53,69,0.12)' }
     ];
