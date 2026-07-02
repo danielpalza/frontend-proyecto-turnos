@@ -49,8 +49,10 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
   deleteCandidateId: string | null = null;
   deleteCandidateSummary: string | null = null;
   
-  // Filtro saldo pendiente (checkbox en búsqueda)
+  // Filtros rápidos (checkboxes de la card de filtros del calendario)
   pendingOnlyFilter = false;
+  pendientesOnlyFilter = false;
+  canceladosOnlyFilter = false;
 
   // Estados de error
   hasError = false;
@@ -192,6 +194,22 @@ export class TurnosViewComponent implements OnInit, OnDestroy {
   onPendingOnlyChange(checked: boolean): void {
     this.pendingOnlyFilter = checked;
     this.appointmentsService.setFilterPendingOnly(checked);
+  }
+
+  /**
+   * Maneja el checkbox "Pendientes" de los filtros rápidos.
+   */
+  onPendientesOnlyChange(checked: boolean): void {
+    this.pendientesOnlyFilter = checked;
+    this.appointmentsService.setFilterPendientesOnly(checked);
+  }
+
+  /**
+   * Maneja el checkbox "Cancelados" de los filtros rápidos.
+   */
+  onCanceladosOnlyChange(checked: boolean): void {
+    this.canceladosOnlyFilter = checked;
+    this.appointmentsService.setFilterCanceladosOnly(checked);
   }
 
   /**

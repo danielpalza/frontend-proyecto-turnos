@@ -1,76 +1,155 @@
-<div class="calendar-container" data-testid="calendar-panel">
-  <!-- Header -->
-  <div class="calendar-header">
-    <!-- Buscador de pacientes / profesionales -->
-    <div class="header-search">
-      <app-search-input
-        [patients]="patients"
-        [profesionales]="profesionales"
-        [searchType]="'both'"
-        [showPendingOnlyFilter]="showPendingOnlyFilter"
-        [pendingOnly]="pendingOnly"
-        [placeholder]="'Paciente, profesional, DNI...'"
-        [selectedValue]="filterTerm"
-        (select)="onSearchSelect($event)"
-        (clear)="onSearchClear()"
-        (searchChange)="onSearchChange($event)"
-        (pendingOnlyChange)="onPendingOnlyChange($event)"
-      />
-    </div>
-    <div class="header-right">
-      <button class="btn-today" (click)="goToToday()" data-testid="calendar-today-btn">Hoy</button>
-      <div class="month-navigation">
-        <button class="nav-arrow" (click)="previousMonth()" data-testid="calendar-prev-month-btn">
-          <i class="bi bi-chevron-left"></i>
-        </button>
-        <button class="month-selector" data-testid="calendar-month-label">
-          {{ getMonthName() }} {{ currentDate.getFullYear() }}
-        </button>
-        <button class="nav-arrow" (click)="nextMonth()" data-testid="calendar-next-month-btn">
-          <i class="bi bi-chevron-right"></i>
-        </button>
+<div class="calendar-column" data-testid="calendar-panel">
+
+  <!-- Resumen del día -->
+  <div class="daily-summary-card" data-testid="daily-summary">
+    <h3 class="card-title">Resumen del día</h3>
+    <div class="summary-grid">
+      <div class="summary-tile" data-testid="summary-total">
+        <div class="tile-icon tile-icon-total"><i class="bi bi-people-fill"></i></div>
+        <div class="tile-info">
+          <span class="tile-value">{{ dailySummary.total }}</span>
+          <span class="tile-label">Turnos</span>
+        </div>
+      </div>
+      <div class="summary-tile" data-testid="summary-completados">
+        <div class="tile-icon tile-icon-completado"><i class="bi bi-check-circle-fill"></i></div>
+        <div class="tile-info">
+          <span class="tile-value">{{ dailySummary.completados }}</span>
+          <span class="tile-label">Completado</span>
+        </div>
+      </div>
+      <div class="summary-tile" data-testid="summary-pendientes">
+        <div class="tile-icon tile-icon-pendiente"><i class="bi bi-clock-fill"></i></div>
+        <div class="tile-info">
+          <span class="tile-value">{{ dailySummary.pendientes }}</span>
+          <span class="tile-label">Pendientes</span>
+        </div>
+      </div>
+      <div class="summary-tile" data-testid="summary-cancelados">
+        <div class="tile-icon tile-icon-cancelado"><i class="bi bi-x-circle-fill"></i></div>
+        <div class="tile-info">
+          <span class="tile-value">{{ dailySummary.cancelados }}</span>
+          <span class="tile-label">Cancelados</span>
+        </div>
+      </div>
+      <div class="summary-tile" data-testid="summary-facturacion">
+        <div class="tile-icon tile-icon-facturacion"><i class="bi bi-cash-coin"></i></div>
+        <div class="tile-info">
+          <span class="tile-value">{{ formatCurrency(dailySummary.facturacion) }}</span>
+          <span class="tile-label">Facturación</span>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Calendario -->
-  <div class="calendar-body">
-    
-    <!-- Días de la semana -->
-    <div class="weekdays">
-      <div class="weekday" *ngFor="let day of weekDays">{{ day }}</div>
+  <div class="calendar-container">
+    <div class="calendar-header">
+      <div class="header-right">
+        <button class="btn-today" (click)="goToToday()" data-testid="calendar-today-btn">Hoy</button>
+        <div class="month-navigation">
+          <button class="nav-arrow" (click)="previousMonth()" data-testid="calendar-prev-month-btn">
+            <i class="bi bi-chevron-left"></i>
+          </button>
+          <button class="month-selector" data-testid="calendar-month-label">
+            {{ getMonthName() }} {{ currentDate.getFullYear() }}
+          </button>
+          <button class="nav-arrow" (click)="nextMonth()" data-testid="calendar-next-month-btn">
+            <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+      </div>
     </div>
 
-    <!-- Grid de días -->
-    <div class="days-grid">
-      <ng-container *ngFor="let day of calendarDays">
-        <!-- Espacios vacíos -->
-        <div *ngIf="day.type === 'empty'" class="day-cell empty"></div>
+    <div class="calendar-body">
 
-        <!-- Días reales -->
-        <button
-          *ngIf="day.type === 'day'"
-          class="day-cell"
-          [class.today]="day.isToday"
-          [class.selected]="day.dateStr === selectedDate"
-          [class.has-appointments]="day.appointmentCount > 0"
-          (click)="onDateClick(day.dateStr)"
-          [attr.data-testid]="'calendar-day-' + day.dateStr"
-        >
-          <span class="day-number">{{ day.day }}</span>
-          
-          <!-- Badge de turnos -->
-          <span 
-            *ngIf="day.appointmentCount > 0" 
-            class="appointment-badge"
-            [class.today-badge]="day.isToday"
-            [attr.data-testid]="day.isToday ? 'calendar-today-badge' : 'calendar-day-badge-' + day.dateStr"
+      <!-- Días de la semana -->
+      <div class="weekdays">
+        <div class="weekday" *ngFor="let day of weekDays">{{ day }}</div>
+      </div>
+
+      <!-- Grid de días -->
+      <div class="days-grid">
+        <ng-container *ngFor="let day of calendarDays">
+          <!-- Espacios vacíos -->
+          <div *ngIf="day.type === 'empty'" class="day-cell empty"></div>
+
+          <!-- Días reales -->
+          <button
+            *ngIf="day.type === 'day'"
+            class="day-cell"
+            [class.today]="day.isToday"
+            [class.selected]="day.dateStr === selectedDate"
+            [class.has-appointments]="(day.total || 0) > 0"
+            (click)="onDateClick(day.dateStr!)"
+            [attr.data-testid]="'calendar-day-' + day.dateStr"
           >
-            {{ day.appointmentCount }}
-          </span>
-        </button>
-      </ng-container>
+            <span class="day-number">{{ day.day }}</span>
+
+            <div class="day-status-badges" *ngIf="(day.total || 0) > 0">
+              <span
+                *ngIf="(day.total || 0) > 0"
+                class="status-dot-badge"
+                [attr.data-testid]="'calendar-day-badge-total-' + day.dateStr"
+              >
+                <i class="status-dot dot-total"></i>{{ day.total }}
+              </span>
+              <span
+                *ngIf="day.dateStr === selectedDate && (day.pendientes || 0) > 0"
+                class="status-dot-badge"
+                [attr.data-testid]="'calendar-day-badge-pendiente-' + day.dateStr"
+              >
+                <i class="status-dot dot-pendiente"></i>{{ day.pendientes }}
+              </span>
+              <span
+                *ngIf="day.dateStr === selectedDate && (day.cancelados || 0) > 0"
+                class="status-dot-badge"
+                [attr.data-testid]="'calendar-day-badge-cancelado-' + day.dateStr"
+              >
+                <i class="status-dot dot-cancelado"></i>{{ day.cancelados }}
+              </span>
+            </div>
+          </button>
+        </ng-container>
+      </div>
+
+      <!-- Leyenda -->
+      <div class="calendar-legend">
+        <span class="legend-item"><i class="status-dot dot-total"></i>Turnos</span>
+        <span class="legend-item"><i class="status-dot dot-pendiente"></i>Pendientes</span>
+        <span class="legend-item"><i class="status-dot dot-cancelado"></i>Cancelados</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtros rápidos -->
+  <div class="quick-filters-card" data-testid="quick-filters">
+    <h3 class="card-title">Filtros rápidos</h3>
+
+    <app-search-input
+      [patients]="patients"
+      [profesionales]="profesionales"
+      [searchType]="'both'"
+      [placeholder]="'Buscar paciente, DNI o teléfono...'"
+      [selectedValue]="filterTerm"
+      (select)="onSearchSelect($event)"
+      (clear)="onSearchClear()"
+      (searchChange)="onSearchChange($event)"
+    />
+
+    <div class="quick-filter-checkboxes">
+      <label class="quick-filter-checkbox">
+        <input type="checkbox" [checked]="pendingOnly" (change)="onPendingOnlyChange($event)" data-testid="filter-debt-checkbox" />
+        Con deuda
+      </label>
+      <label class="quick-filter-checkbox">
+        <input type="checkbox" [checked]="pendientesOnly" (change)="onPendientesOnlyChange($event)" data-testid="filter-pendientes-checkbox" />
+        Pendientes
+      </label>
+      <label class="quick-filter-checkbox">
+        <input type="checkbox" [checked]="canceladosOnly" (change)="onCanceladosOnlyChange($event)" data-testid="filter-cancelados-checkbox" />
+        Cancelados
+      </label>
     </div>
   </div>
 </div>
-

@@ -28,12 +28,15 @@
         [appointments]="appointments"
         [profesionales]="activeProfesionales"
         [patients]="existingPatients"
-        [showPendingOnlyFilter]="true"
         [pendingOnly]="pendingOnlyFilter"
+        [pendientesOnly]="pendientesOnlyFilter"
+        [canceladosOnly]="canceladosOnlyFilter"
         (dateClick)="onDateClick($event)"
         (monthChange)="onMonthChange($event)"
         (filterChange)="onFilterChange($event)"
         (pendingOnlyChange)="onPendingOnlyChange($event)"
+        (pendientesOnlyChange)="onPendientesOnlyChange($event)"
+        (canceladosOnlyChange)="onCanceladosOnlyChange($event)"
       />
     </div>
 

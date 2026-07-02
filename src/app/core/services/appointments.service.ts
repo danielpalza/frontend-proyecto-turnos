@@ -20,6 +20,8 @@ export class AppointmentsService {
   private filterType$ = new BehaviorSubject<'patient' | 'profesional' | 'both' | 'none'>('none');
   private filterTerm$ = new BehaviorSubject<string>('');
   private filterPendingOnly$ = new BehaviorSubject<boolean>(false);
+  private filterPendientesOnly$ = new BehaviorSubject<boolean>(false);
+  private filterCanceladosOnly$ = new BehaviorSubject<boolean>(false);
 
   constructor(
     private http: HttpClient,
@@ -60,17 +62,31 @@ export class AppointmentsService {
     this.filterPendingOnly$.next(value);
   }
 
+  setFilterPendientesOnly(value: boolean): void {
+    this.filterPendientesOnly$.next(value);
+  }
+
+  setFilterCanceladosOnly(value: boolean): void {
+    this.filterCanceladosOnly$.next(value);
+  }
+
   getFilteredAppointments(): Observable<Appointment[]> {
     return combineLatest([
       this.filterPendingOnly$,
+      this.filterPendientesOnly$,
+      this.filterCanceladosOnly$,
       this.filterType$,
       this.filterTerm$,
       this.appointmentsCache$
     ]).pipe(
-      map(([pendingOnly, type, term, appointments]) => {
+      map(([pendingOnly, pendientesOnly, canceladosOnly, type, term, appointments]) => {
         let filtered = appointments;
-        if (pendingOnly) {
-          filtered = filtered.filter(a => (a.totalPrecio ?? 0) > 0);
+        if (pendingOnly || pendientesOnly || canceladosOnly) {
+          filtered = filtered.filter(a =>
+            (pendingOnly && (a.totalPrecio ?? 0) > 0) ||
+            (pendientesOnly && a.estado === 'PENDIENTE') ||
+            (canceladosOnly && (a.estado === 'CANCELADO' || a.estado === 'NO_ASISTIO'))
+          );
         }
         if (!term || type === 'none') {
           return filtered;
@@ -166,8 +182,12 @@ export class AppointmentsService {
     const context = skipGlobal ? skipGlobalErrorHandler() : undefined;
     return this.http.delete<void>(`${this.apiUrl}/${id}`, context ? { context } : undefined).pipe(
       tap(() => {
+        // El backend no borra el turno: lo marca como CANCELADO (cancelación lógica).
+        // Reflejamos lo mismo en el caché para que siga visible con su nuevo estado.
         const current = this.appointmentsCache$.getValue();
-        this.appointmentsCache$.next(current.filter(a => a.id !== id));
+        this.appointmentsCache$.next(
+          current.map(a => a.id === id ? { ...a, estado: 'CANCELADO' as AppointmentStatus } : a)
+        );
       })
     );
   }

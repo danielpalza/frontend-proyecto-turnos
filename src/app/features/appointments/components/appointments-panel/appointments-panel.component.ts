@@ -42,9 +42,10 @@ export class AppointmentsPanelComponent implements OnChanges {
     if (changes['patients']) {
       this.rebuildPatientsMaps();
     }
-    // Limpiar expandedCards cuando cambia la fecha
+    // Limpiar expandedCards y volver a la pestaña "Todos" cuando cambia la fecha
     if (changes['date'] && !changes['date'].firstChange) {
       this.expandedCards.clear();
+      this.activeTab = 'todos';
     }
   }
 
@@ -87,6 +88,89 @@ export class AppointmentsPanelComponent implements OnChanges {
     return this.appointments || [];
   }
 
+  // ---- Pestañas de estado (Todos / Completado / Pendientes / Cancelados) ----
+  activeTab: 'todos' | 'completado' | 'pendiente' | 'cancelado' = 'todos';
+
+  private isCompletado(a: Appointment): boolean {
+    return a.estado === 'COMPLETADO';
+  }
+
+  private isPendiente(a: Appointment): boolean {
+    return a.estado === 'PENDIENTE';
+  }
+
+  private isCancelado(a: Appointment): boolean {
+    return a.estado === 'CANCELADO' || a.estado === 'NO_ASISTIO';
+  }
+
+  setActiveTab(tab: 'todos' | 'completado' | 'pendiente' | 'cancelado'): void {
+    this.activeTab = tab;
+  }
+
+  get completadosCount(): number {
+    return this.displayAppointments.filter(a => this.isCompletado(a)).length;
+  }
+
+  get pendientesCount(): number {
+    return this.displayAppointments.filter(a => this.isPendiente(a)).length;
+  }
+
+  get canceladosCount(): number {
+    return this.displayAppointments.filter(a => this.isCancelado(a)).length;
+  }
+
+  get filteredAppointments(): Appointment[] {
+    let result: Appointment[];
+    switch (this.activeTab) {
+      case 'completado': result = this.displayAppointments.filter(a => this.isCompletado(a)); break;
+      case 'pendiente': result = this.displayAppointments.filter(a => this.isPendiente(a)); break;
+      case 'cancelado': result = this.displayAppointments.filter(a => this.isCancelado(a)); break;
+      default: result = this.displayAppointments;
+    }
+    return [...result].sort((a, b) => {
+      if (!a.hora) return 1;
+      if (!b.hora) return -1;
+      return a.hora.localeCompare(b.hora);
+    });
+  }
+
+  /** Precio total del turno (bono + tratamiento + extras), independiente de lo pagado. */
+  totalPrecio(a: Appointment): number {
+    return (a.precioBono ?? 0) + (a.precioTratamiento ?? 0) + (a.extras ?? 0);
+  }
+
+  /** Iniciales del paciente para el avatar (ej. "Juan Pérez" -> "JP"). */
+  getInitials(nombre?: string | null, apellido?: string | null): string {
+    const first = (nombre || '').trim().charAt(0);
+    const last = (apellido || '').trim().charAt(0);
+    return (first + last).toUpperCase() || '?';
+  }
+
+  private static readonly AVATAR_PALETTE = ['avatar-1', 'avatar-2', 'avatar-3', 'avatar-4', 'avatar-5'];
+
+  /** Clase de color pastel para el avatar, determinística por paciente (mismo paciente = mismo color). */
+  getAvatarColorClass(a: Appointment): string {
+    const key = a.patientId || a.patientDni || '';
+    let hash = 0;
+    for (let i = 0; i < key.length; i++) {
+      hash = (hash + key.charCodeAt(i)) % AppointmentsPanelComponent.AVATAR_PALETTE.length;
+    }
+    return AppointmentsPanelComponent.AVATAR_PALETTE[hash];
+  }
+
+  /** Clase de color del punto indicador de estado (mismo criterio semántico que los badges). */
+  getStatusDotClass(status: string | undefined): string {
+    switch (status) {
+      case 'COMPLETADO': return 'dot-completado';
+      case 'CONFIRMADO':
+      case 'EN_CURSO': return 'dot-en-curso';
+      case 'PENDIENTE': return 'dot-pendiente';
+      case 'CANCELADO':
+      case 'NO_ASISTIO': return 'dot-cancelado';
+      default: return 'dot-sin-estado';
+    }
+  }
+
   formatDisplayDate(dateStr: string) {
     const date = new Date(dateStr + 'T00:00:00');
     return date.toLocaleDateString('es-ES', {
@@ -112,13 +196,13 @@ export class AppointmentsPanelComponent implements OnChanges {
 
   getStatusBadgeClass(status: string | undefined): string {
     switch (status) {
-      case 'CONFIRMADO': return 'bg-success';
-      case 'PENDIENTE': return 'bg-warning text-dark';
-      case 'EN_CURSO': return 'bg-info';
+      case 'CONFIRMADO': return 'badge-confirmado';
+      case 'PENDIENTE': return 'badge-pendiente';
+      case 'EN_CURSO': return 'badge-en-curso';
       case 'COMPLETADO': return 'badge-completado';
-      case 'CANCELADO': return 'bg-danger';
-      case 'NO_ASISTIO': return 'bg-dark';
-      default: return 'bg-secondary';
+      case 'CANCELADO': return 'badge-cancelado';
+      case 'NO_ASISTIO': return 'badge-no-asistio';
+      default: return 'badge-sin-estado';
     }
   }
 

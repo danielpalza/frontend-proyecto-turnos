@@ -12,33 +12,40 @@
 
   <!-- Estado: Día seleccionado -->
   <div class="selected-state" *ngIf="date" data-testid="appointments-selected-state">
-    <div class="header-container" data-testid="appointments-header">
-      <div class="date-header">
-        <div class="date-icon" data-testid="appointments-date-icon">
-          <i class="bi bi-calendar-check"></i>
-        </div>
-        <div class="date-info">
-          <span class="date-day">{{ getFormattedDay(date).dayName }}</span>
-          <h2 class="date-full">
-            {{ getFormattedDay(date).dayNumber }} de {{ getFormattedDay(date).month }}
+    <div class="sticky-top-section">
+      <div class="header-container" data-testid="appointments-header">
+        <div class="date-header">
+          <div class="date-icon" data-testid="appointments-date-icon">
+            <i class="bi bi-calendar-check"></i>
+          </div>
+          <h2 class="date-title">
+            {{ getFormattedDay(date).dayName }} {{ getFormattedDay(date).dayNumber }} de {{ getFormattedDay(date).month }} de {{ getFormattedDay(date).year }}
           </h2>
-          <span class="date-year">{{ getFormattedDay(date).year }}</span>
         </div>
+        <button class="btn-add-turn" *ngIf="appointmentsCount > 0" (click)="addClick.emit()" data-testid="appointment-add-btn">
+          <i class="bi bi-plus-lg"></i>
+          <span>Agregar turno</span>
+        </button>
       </div>
-      <button class="btn-add-turn" *ngIf="appointmentsCount > 0" (click)="addClick.emit()" data-testid="appointment-add-btn">
-        <i class="bi bi-plus-lg"></i>
-        <span>Agregar turno</span>
-      </button>
+
+      <!-- Pestañas de estado -->
+      <div class="status-tabs" data-testid="appointments-status-tabs" *ngIf="appointmentsCount > 0">
+        <button type="button" class="status-tab" [class.active]="activeTab === 'todos'" (click)="setActiveTab('todos')" data-testid="appointments-tab-todos">
+          Todos <span class="tab-count tab-count-todos" data-testid="appointments-day-count">{{ appointmentsCount }}</span>
+        </button>
+        <button type="button" class="status-tab" [class.active]="activeTab === 'completado'" (click)="setActiveTab('completado')" data-testid="appointments-tab-completado">
+          Completado <span class="tab-count tab-count-completado">{{ completadosCount }}</span>
+        </button>
+        <button type="button" class="status-tab" [class.active]="activeTab === 'pendiente'" (click)="setActiveTab('pendiente')" data-testid="appointments-tab-pendiente">
+          Pendientes <span class="tab-count tab-count-pendiente">{{ pendientesCount }}</span>
+        </button>
+        <button type="button" class="status-tab" [class.active]="activeTab === 'cancelado'" (click)="setActiveTab('cancelado')" data-testid="appointments-tab-cancelado">
+          Cancelados <span class="tab-count tab-count-cancelado">{{ canceladosCount }}</span>
+        </button>
+      </div>
     </div>
 
-    <div class="divider"></div>
-
     <div class="turns-section">
-      <h4 class="section-title">
-        <i class="bi bi-clock me-2"></i>Turnos del día
-        <span class="badge bg-primary ms-2" data-testid="appointments-day-count">{{ appointmentsCount }}</span>
-      </h4>
-
       <!-- Sin turnos -->
       <div class="no-turns" *ngIf="appointmentsCount === 0" data-testid="appointments-no-turns">
         <i class="bi bi-inbox"></i>
@@ -46,70 +53,29 @@
         <small>Haga clic en "Agregar Turno" para crear uno</small>
       </div>
 
-      <!-- Lista de turnos -->
-      <div class="turns-list" *ngIf="appointmentsCount > 0" data-testid="appointments-list">
-        <div class="turn-card" *ngFor="let a of displayAppointments; trackBy: trackByAppointment" [attr.data-testid]="'appointment-item-' + a.id">
-          <div class="turn-header" (click)="toggleCard(a.id!, $event)" [attr.data-testid]="'appointment-item-header-' + a.id">
-            <div class="patient-info">
-              <a *ngIf="hasPatientPhone(a)" [href]="getWhatsAppLink(a)!" target="_blank" rel="noopener noreferrer"
-                class="btn-whatsapp" title="Enviar recordatorio por WhatsApp"
-                (click)="$event.stopPropagation()"
-                [attr.data-testid]="'appointment-whatsapp-btn-' + a.id">
-                <i class="bi bi-whatsapp"></i>
-              </a>
-              <span *ngIf="!hasPatientPhone(a)" class="btn-whatsapp-disabled"
-                title="No se cargó teléfono para el paciente"
-                [attr.data-testid]="'appointment-whatsapp-disabled-btn-' + a.id">
-                <i class="bi bi-whatsapp"></i>
+      <!-- Sin coincidencias en la pestaña activa -->
+      <div class="no-turns" *ngIf="appointmentsCount > 0 && filteredAppointments.length === 0">
+        <i class="bi bi-inbox"></i>
+        <p>No hay turnos en esta pestaña</p>
+      </div>
+
+      <!-- Tabla de turnos -->
+      <div class="turns-table" *ngIf="filteredAppointments.length > 0" data-testid="appointments-list">
+        <div class="timeline-row" *ngFor="let a of filteredAppointments; trackBy: trackByAppointment" [attr.data-testid]="'appointment-item-' + a.id">
+
+          <!-- Columna de línea de tiempo: hora + punto de estado -->
+          <div class="timeline-gutter">
+            <div class="col-time hora-edit-container" [attr.data-testid]="'appointment-time-' + a.id">
+              <span *ngIf="!isEditingHora(a.id!)">
+                <strong class="fw-bold text-primary" *ngIf="a.hora">{{ formatTime(a.hora) }}</strong>
+                <span class="text-muted small" *ngIf="!a.hora">Sin hora</span>
               </span>
-              <strong class="fw-bold" [ngClass]="hasPendingDebt(a) ? 'text-danger' : 'text-primary'" [attr.data-testid]="'appointment-patient-name-' + a.id">{{ fullName(a.patientNombre, a.patientApellido)
-                }}</strong>
-              <span class="profesional-edit-container" [attr.data-testid]="'appointment-professional-' + a.id">
-                <span *ngIf="!isEditingProfesional(a.id!)">
-                  <span class="text-muted"> - </span>
-                  <strong class="fw-bold" [ngClass]="hasPendingDebt(a) ? 'text-danger' : 'text-primary'">
-                    {{ fullName(a.profesionalNombre, a.profesionalApellido) || 'Sin asignar' }}
-                  </strong>
-                </span>
-                <span *ngIf="isEditingProfesional(a.id!)" class="d-inline-flex align-items-center gap-1">
-                  <select
-                    class="profesional-select"
-                    [attr.data-testid]="'appointment-profesional-select-' + a.id"
-                    [ngModel]="getProfesionalSelectValue(a.id!)"
-                    (ngModelChange)="updateProfesionalSelect(a.id!, $event)"
-                    [ngModelOptions]="{ standalone: true }"
-                    (keyup.escape)="cancelProfesionalEdit(a.id!); $event.stopPropagation()"
-                    (click)="$event.stopPropagation()"
-                  >
-                    <option value="">Sin asignar</option>
-                    <option *ngFor="let p of getProfesionalesForReassignSelect(a)" [value]="(p.id ?? '') + ''"
-                      [disabled]="isCurrentAssignedProfesional(p, a)">
-                      {{ p.nombre }}{{ isCurrentAssignedProfesional(p, a) ? ' (asignado)' : '' }}
-                    </option>
-                  </select>
-                  <button type="button" class="btn-save-price"
-                    (click)="saveProfesional(a.id!); $event.stopPropagation()" title="Guardar">
-                    <i class="bi bi-check-lg"></i>
-                  </button>
-                  <button type="button" class="btn-cancel-price"
-                    (click)="cancelProfesionalEdit(a.id!); $event.stopPropagation()" title="Cancelar">
-                    <i class="bi bi-x-lg"></i>
-                  </button>
-                </span>
-                <i class="bi bi-pencil text-primary ms-1 price-edit-icon"
-                  (click)="startEditingProfesional(a.id!, a.profesionalId); $event.stopPropagation()"
-                  *ngIf="!isEditingProfesional(a.id!)" title="Editar profesional" [attr.data-testid]="'appointment-edit-professional-' + a.id"></i>
-              </span>
-              <span class="hora-edit-container" [attr.data-testid]="'appointment-time-' + a.id">
-                <span *ngIf="!isEditingHora(a.id!)">
-                  <strong class="fw-bold text-primary" *ngIf="a.hora">{{ formatTime(a.hora) }}</strong>
-                  <span class="text-muted small" *ngIf="!a.hora">Sin hora</span>
-                </span>
-                <span *ngIf="isEditingHora(a.id!)" class="d-inline-flex align-items-center gap-1">
-                  <input type="time" class="hora-edit-input" [attr.data-testid]="'appointment-time-input-' + a.id" [value]="getHoraInput(a.id!)"
-                    (input)="updateHoraInput(a.id!, $any($event.target).value)"
-                    (keyup.escape)="cancelHoraEdit(a.id!); $event.stopPropagation()"
-                    (click)="$event.stopPropagation()" />
+              <span *ngIf="isEditingHora(a.id!)" class="hora-edit-inline">
+                <input type="time" class="hora-edit-input" [attr.data-testid]="'appointment-time-input-' + a.id" [value]="getHoraInput(a.id!)"
+                  (input)="updateHoraInput(a.id!, $any($event.target).value)"
+                  (keyup.escape)="cancelHoraEdit(a.id!); $event.stopPropagation()"
+                  (click)="$event.stopPropagation()" />
+                <span class="hora-edit-actions" (click)="$event.stopPropagation()">
                   <button type="button" class="btn-save-price" (click)="saveHora(a.id!); $event.stopPropagation()"
                     title="Guardar">
                     <i class="bi bi-check-lg"></i>
@@ -119,33 +85,108 @@
                     <i class="bi bi-x-lg"></i>
                   </button>
                 </span>
-                <i class="bi bi-pencil text-primary ms-1 price-edit-icon"
-                  (click)="startEditingHora(a.id!, a.hora); $event.stopPropagation()" *ngIf="!isEditingHora(a.id!)"
-                  title="Editar hora" [attr.data-testid]="'appointment-edit-time-' + a.id"></i>
               </span>
+              <i class="bi bi-pencil text-primary ms-1 price-edit-icon"
+                (click)="startEditingHora(a.id!, a.hora); $event.stopPropagation()" *ngIf="!isEditingHora(a.id!)"
+                title="Editar hora" [attr.data-testid]="'appointment-edit-time-' + a.id"></i>
             </div>
-            <div class="d-flex align-items-center gap-2">
+
+            <div class="timeline-dot-wrapper">
+              <i class="status-dot" [ngClass]="getStatusDotClass(a.estado)" [attr.data-testid]="'appointment-status-dot-' + a.id"></i>
+            </div>
+          </div>
+
+          <div class="turn-row">
+          <div class="turn-row-main" (click)="toggleCard(a.id!, $event)" [attr.data-testid]="'appointment-item-header-' + a.id">
+
+            <!-- Paciente -->
+            <div class="col-patient">
+              <div class="patient-avatar" [ngClass]="getAvatarColorClass(a)">{{ getInitials(a.patientNombre, a.patientApellido) }}</div>
+              <div class="patient-text">
+                <strong class="fw-bold" [ngClass]="hasPendingDebt(a) ? 'text-danger' : 'text-primary'" [attr.data-testid]="'appointment-patient-name-' + a.id">
+                  {{ fullName(a.patientNombre, a.patientApellido) }}
+                </strong>
+                <small class="text-muted" [attr.data-testid]="'appointment-patient-dni-' + a.id">DNI {{ a.patientDni }}</small>
+              </div>
+            </div>
+
+            <!-- Doctor -->
+            <div class="col-doctor profesional-edit-container" [attr.data-testid]="'appointment-professional-' + a.id">
+              <span *ngIf="!isEditingProfesional(a.id!)" class="fw-bold">
+                {{ fullName(a.profesionalNombre, a.profesionalApellido) || 'Sin asignar' }}
+              </span>
+              <span *ngIf="isEditingProfesional(a.id!)" class="d-inline-flex align-items-center gap-1">
+                <select
+                  class="profesional-select"
+                  [attr.data-testid]="'appointment-profesional-select-' + a.id"
+                  [ngModel]="getProfesionalSelectValue(a.id!)"
+                  (ngModelChange)="updateProfesionalSelect(a.id!, $event)"
+                  [ngModelOptions]="{ standalone: true }"
+                  (keyup.escape)="cancelProfesionalEdit(a.id!); $event.stopPropagation()"
+                  (click)="$event.stopPropagation()"
+                >
+                  <option value="">Sin asignar</option>
+                  <option *ngFor="let p of getProfesionalesForReassignSelect(a)" [value]="(p.id ?? '') + ''"
+                    [disabled]="isCurrentAssignedProfesional(p, a)">
+                    {{ p.nombre }}{{ isCurrentAssignedProfesional(p, a) ? ' (asignado)' : '' }}
+                  </option>
+                </select>
+                <button type="button" class="btn-save-price"
+                  (click)="saveProfesional(a.id!); $event.stopPropagation()" title="Guardar">
+                  <i class="bi bi-check-lg"></i>
+                </button>
+                <button type="button" class="btn-cancel-price"
+                  (click)="cancelProfesionalEdit(a.id!); $event.stopPropagation()" title="Cancelar">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </span>
+              <i class="bi bi-pencil text-primary ms-1 price-edit-icon"
+                (click)="startEditingProfesional(a.id!, a.profesionalId); $event.stopPropagation()"
+                *ngIf="!isEditingProfesional(a.id!)" title="Editar profesional" [attr.data-testid]="'appointment-edit-professional-' + a.id"></i>
+            </div>
+
+            <!-- Estado -->
+            <div class="col-status">
               <span class="badge" [ngClass]="getStatusBadgeClass(a.estado)" [attr.data-testid]="'appointment-status-badge-' + a.id">
                 {{ getStatusLabel(a.estado) }}
               </span>
-              <i class="bi expand-icon" [ngClass]="isCardExpanded(a.id!) ? 'bi-chevron-up' : 'bi-chevron-down'" [attr.data-testid]="'appointment-expand-btn-' + a.id"></i>
-              <button type="button" class="btn-start" title="Empezar turno!"
-                (click)="openOdontogram(a.id!); $event.stopPropagation()" [attr.data-testid]="'appointment-start-btn-' + a.id">
+            </div>
+
+            <!-- Montos -->
+            <div class="col-money">
+              <span class="amount-debe" [ngClass]="getPaymentColorClass(a.totalPrecio)" [attr.data-testid]="'appointment-payment-pending-' + a.id">
+                Debe ${{ a.totalPrecio || 0 }}
+              </span>
+              <span class="amount-total">Total ${{ totalPrecio(a) }}</span>
+            </div>
+
+            <!-- Acciones -->
+            <div class="col-actions" (click)="$event.stopPropagation()">
+              <a *ngIf="hasPatientPhone(a)" [href]="getWhatsAppLink(a)!" target="_blank" rel="noopener noreferrer"
+                class="btn-whatsapp" title="Enviar recordatorio por WhatsApp"
+                [attr.data-testid]="'appointment-whatsapp-btn-' + a.id">
+                <i class="bi bi-whatsapp"></i>
+              </a>
+              <span *ngIf="!hasPatientPhone(a)" class="btn-whatsapp-disabled"
+                title="No se cargó teléfono para el paciente"
+                [attr.data-testid]="'appointment-whatsapp-disabled-btn-' + a.id">
+                <i class="bi bi-whatsapp"></i>
+              </span>
+              <button type="button" class="btn-start" title="Historia clínica"
+                (click)="openOdontogram(a.id!)" [attr.data-testid]="'appointment-start-btn-' + a.id">
                 <i class="bi bi-heart-pulse"></i>
               </button>
-              <button type="button" class="btn-delete" title="Cancelar turno" (click)="delete.emit(a.id); $event.stopPropagation()" [attr.data-testid]="'appointment-delete-btn-' + a.id">
+              <button type="button" class="btn-delete" title="Cancelar turno" (click)="delete.emit(a.id)" [attr.data-testid]="'appointment-delete-btn-' + a.id">
                 <i class="bi bi-x-lg"></i>
               </button>
+              <i class="bi expand-icon" [ngClass]="isCardExpanded(a.id!) ? 'bi-chevron-up' : 'bi-chevron-down'"
+                (click)="toggleCard(a.id!, $event)" [attr.data-testid]="'appointment-expand-btn-' + a.id"></i>
             </div>
           </div>
 
           <div class="turn-details" [class.expanded]="isCardExpanded(a.id!)">
-            <div class="detail-row">
+            <div class="detail-row" *ngIf="a.patientObraSocialNumero">
               <div class="detail-item">
-                <small class="text-muted">DNI</small>
-                <span [attr.data-testid]="'appointment-patient-dni-' + a.id">{{ a.patientDni }}</span>
-              </div>
-              <div class="detail-item" *ngIf="a.patientObraSocialNumero">
                 <small class="text-muted">N° Obra Social</small>
                 <span>{{ a.patientObraSocialNumero }}</span>
               </div>
@@ -157,11 +198,6 @@
             <div class="payment-info">
               <i class="bi bi-cash-coin text-secondary"></i>
               <div class="flex-grow-1">
-                <b>
-                  <small class="text-muted">Pago </small>
-                  <small class="text-muted-payment" [ngClass]="getPaymentColorClass(a.totalPrecio)" [attr.data-testid]="'appointment-payment-pending-' + a.id">({{ a.totalPrecio ||
-                    0 }})</small>
-                </b>
                 <div class="d-flex gap-3 align-items-center flex-wrap">
                   <span class="price-edit-container">
                     Bono:
@@ -312,6 +348,7 @@
                 </div>
               </div>
             </div>
+          </div>
           </div>
         </div>
       </div>

@@ -9,7 +9,7 @@
 
 .main-layout {
   display: grid;
-  grid-template-columns: 1fr 40rem;
+  grid-template-columns: 45fr 55fr;
   gap: $spacing-2xl;
   align-items: start;
 }
@@ -21,15 +21,19 @@
 .panel-section {
   position: sticky;
   top: $spacing-xl;
-  max-height: calc(100vh - 14rem);
-  overflow-y: auto;
-  overflow-x: hidden;
+  height: calc(100vh - #{$navbar-height} - #{$spacing-xl} * 2);
+  overflow: hidden;
+  background-color: $card-background;
+  border: 1px solid $border-color;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-sm;
+  padding: $spacing-2xl;
 }
 
 // Responsive
 @include desktop-sm {
   .main-layout {
-    grid-template-columns: 1fr 19rem;
+    grid-template-columns: 45fr 55fr;
   }
 }
 
@@ -40,6 +44,8 @@
 
   .panel-section {
     position: static;
+    height: auto;
+    overflow: visible;
   }
 }
 
