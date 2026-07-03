@@ -243,11 +243,6 @@ export class AppointmentsPanelComponent implements OnChanges {
     return total > 0 ? 'text-danger' : 'text-success';
   }
 
-  /** Indica si el turno tiene saldo pendiente de pago (totalPrecio > 0). */
-  hasPendingDebt(app: Appointment): boolean {
-    return (app.totalPrecio ?? 0) > 0;
-  }
-
   // Toggle del estado expandido/colapsado de una tarjeta
   toggleCard(cardId: string, event: Event): void {
     event.stopPropagation();

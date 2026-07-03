@@ -103,7 +103,7 @@
             <div class="col-patient">
               <div class="patient-avatar" [ngClass]="getAvatarColorClass(a)">{{ getInitials(a.patientNombre, a.patientApellido) }}</div>
               <div class="patient-text">
-                <strong class="fw-bold" [ngClass]="hasPendingDebt(a) ? 'text-danger' : 'text-primary'" [attr.data-testid]="'appointment-patient-name-' + a.id">
+                <strong class="fw-bold text-dark" [attr.data-testid]="'appointment-patient-name-' + a.id">
                   {{ fullName(a.patientNombre, a.patientApellido) }}
                 </strong>
                 <small class="text-muted" [attr.data-testid]="'appointment-patient-dni-' + a.id">DNI {{ a.patientDni }}</small>

@@ -5,14 +5,14 @@
 .calendar-column {
   display: flex;
   flex-direction: column;
-  gap: $spacing-xl;
+  gap: $spacing-md;
 }
 
 .card-title {
   font-size: 1rem;
   font-weight: 600;
   color: $text-primary;
-  margin: 0 0 $spacing-lg;
+  margin: 0 0 $spacing-sm;
 }
 
 // ============================================
@@ -22,7 +22,7 @@
   background-color: $card-background;
   border: 1px solid $border-color;
   border-radius: $radius-xl;
-  padding: $spacing-2xl;
+  padding: $spacing-md;
   box-shadow: $shadow-sm;
 }
 
@@ -36,7 +36,7 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-sm;
-  padding: $spacing-lg;
+  padding: $spacing-md;
   border: 1px solid $border-color;
   border-radius: $radius-lg;
   background-color: $card-background;
@@ -96,6 +96,8 @@
 }
 
 .tile-label {
+  display: block;
+  text-align: left;
   font-size: 0.75rem;
   font-weight: 500;
   color: $text-secondary;
@@ -108,7 +110,7 @@
   background-color: $card-background;
   border: 1px solid $border-color;
   border-radius: $radius-xl;
-  padding: $spacing-2xl;
+  padding: $spacing-md;
   box-shadow: $shadow-sm;
 }
 
@@ -116,7 +118,7 @@
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  margin-bottom: $spacing-xl;
+  margin-bottom: $spacing-xs;
 }
 
 .header-right {
@@ -146,7 +148,7 @@
 .month-navigation {
   display: flex;
   align-items: center;
-  gap: $spacing-xs;
+  // gap: $spacing-xs;
 }
 
 .nav-arrow {
@@ -177,14 +179,14 @@
 }
 
 .calendar-body {
-  padding: $spacing-lg 0 0;
+  // padding: $spacing-lg 0 0;
 }
 
 .weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: $spacing-sm;
-  margin-bottom: $spacing-md;
+  margin-bottom: $spacing-sm;
   padding: 0 $spacing-sm;
 }
 
@@ -192,6 +194,7 @@
   text-align: center;
   font-size: 0.8125rem;
   font-weight: 500;
+  text-decoration: underline 2px $text-muted;
   color: $text-secondary;
   padding: $spacing-sm 0;
 }
@@ -200,7 +203,7 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 0;
-  padding: 0 $spacing-sm;
+  padding: 0 $spacing-lg;
 }
 
 .day-cell {
@@ -256,9 +259,11 @@
 }
 
 .day-number {
-  font-size: 0.9375rem;
-  font-weight: 500;
+  align-self: center;
+  font-size: 1rem;
+  font-weight: 600;
   color: $text-primary;
+  text-align: center;
 }
 
 .day-status-badges {
@@ -286,24 +291,23 @@
 }
 
 .status-dot {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   display: inline-block;
   flex-shrink: 0;
 
-  &.dot-total { background-color: $success; }
+  &.dot-total { background-color: $success-light; }
   &.dot-pendiente { background-color: $warning; }
-  &.dot-cancelado { background-color: $danger; }
+  &.dot-cancelado { background-color: $danger-light; }
 }
 
 .calendar-legend {
   display: flex;
   align-items: center;
   gap: $spacing-lg;
-  margin-top: $spacing-lg;
   padding-top: $spacing-lg;
-  border-top: 1px solid $border-color;
+  padding-left: $spacing-lg;
 }
 
 .legend-item {
@@ -320,7 +324,7 @@
 .quick-filters-card {
   background-color: $card-background;
   border-radius: $radius-xl;
-  padding: $spacing-2xl;
+  padding: $spacing-md;
   box-shadow: $shadow-sm;
 }
 
