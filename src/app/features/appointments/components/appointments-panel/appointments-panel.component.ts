@@ -44,7 +44,7 @@ export class AppointmentsPanelComponent implements OnChanges {
     }
     // Limpiar expandedCards y volver a la pestaña "Todos" cuando cambia la fecha
     if (changes['date'] && !changes['date'].firstChange) {
-      this.expandedCards.clear();
+      this.expandedCardId = null;
       this.activeTab = 'todos';
     }
   }
@@ -62,7 +62,7 @@ export class AppointmentsPanelComponent implements OnChanges {
     });
   }
 
-  expandedCards = new Set<string>(); // Rastrea qué tarjetas están expandidas
+  expandedCardId: string | null = null; // Turno actualmente expandido (solo uno a la vez)
   paymentInputs = new Map<string, number>(); // Rastrea los valores de pago por tarjeta
   editingPrices = new Map<string, boolean>(); // Rastrea qué precios están siendo editados (key: "cardId-priceType")
   priceInputs = new Map<string, number>(); // Rastrea los valores temporales de los inputs de precio (key: "cardId-priceType")
@@ -246,16 +246,12 @@ export class AppointmentsPanelComponent implements OnChanges {
   // Toggle del estado expandido/colapsado de una tarjeta
   toggleCard(cardId: string, event: Event): void {
     event.stopPropagation();
-    if (this.expandedCards.has(cardId)) {
-      this.expandedCards.delete(cardId);
-    } else {
-      this.expandedCards.add(cardId);
-    }
+    this.expandedCardId = this.expandedCardId === cardId ? null : cardId;
   }
 
   // Verifica si una tarjeta está expandida
   isCardExpanded(cardId: string): boolean {
-    return this.expandedCards.has(cardId);
+    return this.expandedCardId === cardId;
   }
 
   // Obtiene el valor del input de pago para una tarjeta

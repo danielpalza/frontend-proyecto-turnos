@@ -65,20 +65,3 @@
     confirmButtonClass="btn-danger" dialogId="confirmDelete" (confirm)="confirmDeleteAppointment()"
     (cancel)="closeDeleteConfirm()" (openChange)="onDeleteConfirmOpenChange($event)" />
 </div>
-
-
-
-<div>
-    <li>Charlar cambio de la logica:</li>
-    <ol>
-      <li>Al cargar la web, el sistema debe usar "/count" de AppointmentController.java para obtener el conteo de turnos
-        por fecha y llenar el calendario con los datos obtenidos. Esto es para no traer todos los turnos de una y cargar
-        el servidor</li>
-      <li>Al utilizar cualquier filtro del calendario se debe usar "/count" de AppointmentController.java para obtener
-        el conteo de turnos por fecha y llenar el calendario con los datos obtenidos. Esto es para no traer todos los
-        turnos de una y cargar el servidor</li>
-      <li>Al hacer click un dia del calendario, el sistema debe usar “/date/fecha“ de AppointmentController.java para
-        obtener los turnos de la fecha seleccionada y llenar el panel de turnos con los datos obtenidos. Esto es para no
-        traer todos los turnos de una y cargar el servidor</li>
-    </ol>
-</div>
