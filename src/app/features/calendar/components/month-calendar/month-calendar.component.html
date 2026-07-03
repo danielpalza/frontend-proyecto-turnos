@@ -5,39 +5,39 @@
     <h3 class="card-title">Resumen del día</h3>
     <div class="summary-grid">
       <div class="summary-tile" data-testid="summary-total">
-        <div class="tile-icon tile-icon-total"><i class="bi bi-people-fill"></i></div>
-        <div class="tile-info">
+        <div class="tile-header">
+          <div class="tile-icon tile-icon-total"><i class="bi bi-people-fill"></i></div>
           <span class="tile-value">{{ dailySummary.total }}</span>
-          <span class="tile-label">Turnos</span>
         </div>
+        <span class="tile-label">Turnos</span>
       </div>
       <div class="summary-tile" data-testid="summary-completados">
-        <div class="tile-icon tile-icon-completado"><i class="bi bi-check-circle-fill"></i></div>
-        <div class="tile-info">
+        <div class="tile-header">
+          <div class="tile-icon tile-icon-completado"><i class="bi bi-check-circle-fill"></i></div>
           <span class="tile-value">{{ dailySummary.completados }}</span>
-          <span class="tile-label">Completado</span>
         </div>
+        <span class="tile-label">Completado</span>
       </div>
       <div class="summary-tile" data-testid="summary-pendientes">
-        <div class="tile-icon tile-icon-pendiente"><i class="bi bi-clock-fill"></i></div>
-        <div class="tile-info">
+        <div class="tile-header">
+          <div class="tile-icon tile-icon-pendiente"><i class="bi bi-clock-fill"></i></div>
           <span class="tile-value">{{ dailySummary.pendientes }}</span>
-          <span class="tile-label">Pendientes</span>
         </div>
+        <span class="tile-label">Pendientes</span>
       </div>
       <div class="summary-tile" data-testid="summary-cancelados">
-        <div class="tile-icon tile-icon-cancelado"><i class="bi bi-x-circle-fill"></i></div>
-        <div class="tile-info">
+        <div class="tile-header">
+          <div class="tile-icon tile-icon-cancelado"><i class="bi bi-x-circle-fill"></i></div>
           <span class="tile-value">{{ dailySummary.cancelados }}</span>
-          <span class="tile-label">Cancelados</span>
         </div>
+        <span class="tile-label">Cancelados</span>
       </div>
       <div class="summary-tile" data-testid="summary-facturacion">
-        <div class="tile-icon tile-icon-facturacion"><i class="bi bi-cash-coin"></i></div>
-        <div class="tile-info">
+        <div class="tile-header">
+          <div class="tile-icon tile-icon-facturacion"><i class="bi bi-cash-coin"></i></div>
           <span class="tile-value">{{ formatCurrency(dailySummary.facturacion) }}</span>
-          <span class="tile-label">Facturación</span>
         </div>
+        <span class="tile-label">Facturación</span>
       </div>
     </div>
   </div>
@@ -95,14 +95,14 @@
                 <i class="status-dot dot-total"></i>{{ day.total }}
               </span>
               <span
-                *ngIf="day.dateStr === selectedDate && (day.pendientes || 0) > 0"
+                *ngIf="(day.pendientes || 0) > 0"
                 class="status-dot-badge"
                 [attr.data-testid]="'calendar-day-badge-pendiente-' + day.dateStr"
               >
                 <i class="status-dot dot-pendiente"></i>{{ day.pendientes }}
               </span>
               <span
-                *ngIf="day.dateStr === selectedDate && (day.cancelados || 0) > 0"
+                *ngIf="(day.cancelados || 0) > 0"
                 class="status-dot-badge"
                 [attr.data-testid]="'calendar-day-badge-cancelado-' + day.dateStr"
               >

@@ -34,12 +34,19 @@
 
 .summary-tile {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: $spacing-sm;
   padding: $spacing-lg;
   border: 1px solid $border-color;
   border-radius: $radius-lg;
   background-color: $card-background;
+  min-width: 0;
+}
+
+.tile-header {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
   min-width: 0;
 }
 
@@ -76,12 +83,6 @@
     background-color: rgba($info, 0.12);
     i { color: $info; }
   }
-}
-
-.tile-info {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
 }
 
 .tile-value {
@@ -198,7 +199,7 @@
 .days-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: $spacing-sm;
+  gap: 0;
   padding: 0 $spacing-sm;
 }
 
@@ -208,7 +209,7 @@
   align-items: flex-start;
   justify-content: flex-start;
   border: 1px solid $border-color;
-  border-radius: $radius-lg;
+  border-radius: 0;
   cursor: pointer;
   transition: all $transition-base;
   background-color: $card-background;
@@ -216,7 +217,7 @@
   min-height: 4.75rem;
   padding: $spacing-sm;
   position: relative;
-  gap: 3px;
+  gap: 4px;
 
   &:hover:not(.empty):not(.selected) {
     border-color: $primary-color;
@@ -252,10 +253,6 @@
       color: white;
     }
   }
-
-  &.has-appointments:not(.selected):not(.today) {
-    border-color: rgba($primary-color, 0.3);
-  }
 }
 
 .day-number {
@@ -269,7 +266,8 @@
   grid-template-columns: repeat(2, 1fr);
   align-items: center;
   justify-items: center;
-  gap: 1px;
+  row-gap: 3px;
+  column-gap: 6px;
   width: 100%;
 
   > :first-child {

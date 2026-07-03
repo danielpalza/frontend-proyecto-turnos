@@ -50,7 +50,7 @@ export class MonthCalendarComponent implements OnInit, OnChanges {
 
   calendarDays: CalendarDay[] = [];
 
-  weekDays = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+  weekDays = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
   months = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
