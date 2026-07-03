@@ -1,5 +1,8 @@
 <nav class="navbar-container" data-testid="navbar">
-  <span *ngIf="organizationNombre" data-testid="navbar-organization-name">{{ organizationNombre }}</span>
+  <div class="navbar-brand" data-testid="navbar-brand">
+    <img src="/landing/images/logo/logo.svg" alt="Logo" class="navbar-logo" data-testid="navbar-logo" />
+    <span *ngIf="organizationNombre" data-testid="navbar-organization-name">{{ organizationNombre }}</span>
+  </div>
 
   <div class="nav-tabs" data-testid="navbar-tabs">
     <a
@@ -17,8 +20,11 @@
     </a>
   </div>
 
-  <button class="btn-logout" (click)="logout()" title="Cerrar sesión" data-testid="navbar-logout-btn">
-    <i class="bi bi-box-arrow-right"></i>
-    <span>Salir</span>
-  </button>
+  <div class="navbar-user" data-testid="navbar-user">
+    <span *ngIf="userFullName" class="navbar-user-name" data-testid="navbar-user-name">{{ userFullName }}</span>
+    <button class="btn-logout" (click)="logout()" title="Cerrar sesión" data-testid="navbar-logout-btn">
+      <i class="bi bi-box-arrow-right"></i>
+      <span>Salir</span>
+    </button>
+  </div>
 </nav>

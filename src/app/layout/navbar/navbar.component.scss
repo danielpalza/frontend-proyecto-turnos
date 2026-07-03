@@ -11,6 +11,25 @@
   position: relative;
 }
 
+.navbar-brand {
+  position: absolute;
+  left: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.navbar-logo {
+  height: 2rem;
+  width: auto;
+}
+
+[data-testid="navbar-organization-name"] {
+  font-size: 1rem;
+  font-weight: 600;
+  color: $text-primary;
+}
+
 .nav-tabs {
   display: flex;
   gap: $spacing-sm;
@@ -56,9 +75,21 @@
   }
 }
 
-.btn-logout {
+.navbar-user {
   position: absolute;
   right: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.navbar-user-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: $text-secondary;
+}
+
+.btn-logout {
   display: flex;
   align-items: center;
   gap: $spacing-sm;

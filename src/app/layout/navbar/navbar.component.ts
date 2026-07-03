@@ -54,6 +54,14 @@ export class NavbarComponent {
     return this.authService.getCurrentUser()?.organizationNombre ?? null;
   }
 
+  get userFullName(): string | null {
+    const user = this.authService.getCurrentUser();
+    if (!user) {
+      return null;
+    }
+    return [user.nombre, user.apellido].filter(Boolean).join(' ') || null;
+  }
+
   isOdontogramaActive(): boolean {
     return this.router.url.startsWith('/odontograma/');
   }
