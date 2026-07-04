@@ -1,15 +1,17 @@
 <div class="panel-container" data-testid="dashboard-page">
-  <div class="container-fluid px-4">
+  <div class="container-fluid">
 
     <!-- Header -->
-    <div class="panel-header mb-4" data-testid="dashboard-header">
+    <div class="panel-header" data-testid="dashboard-header">
+      <!-- Header Left por si se quiere agregar algo-->
       <div class="panel-header-left" data-testid="dashboard-header-left">
-        <h1 class="title" data-testid="dashboard-title">
+        <!-- <h1 class="title" data-testid="dashboard-title">
           <i class="bi bi-speedometer2 me-2 text-primary"></i>Panel
         </h1>
-        <p class="subtitle" data-testid="dashboard-subtitle">Resumen operativo y financiero</p>
+        <p class="subtitle" data-testid="dashboard-subtitle">Resumen operativo y financiero</p> -->
       </div>
 
+      <!-- Header Right -->
       <div class="panel-header-right" data-testid="dashboard-header-right">
         <button type="button" class="btn-today" (click)="goToToday()">Hoy</button>
 
@@ -55,14 +57,14 @@
     </div>
 
     @if (hasError) {
-      <div class="alert alert-danger d-flex align-items-center gap-2 mb-4" role="alert">
+      <div class="alert alert-danger d-flex align-items-center gap-2 mb-3" role="alert">
         <i class="bi bi-exclamation-triangle-fill"></i>
         <span>Error al cargar los datos. Intentá de nuevo con el botón Actualizar.</span>
       </div>
     }
 
     <!-- Metric cards -->
-    <div class="row g-3 mb-4" data-testid="dashboard-summary-panel">
+    <div class="row g-3 mb-3" data-testid="dashboard-summary-panel">
       <div class="col-sm-6 col-xl-3">
         <div class="metric-card" data-testid="dashboard-total-income-card">
           <div class="metric-icon-wrap bg-success-subtle">
@@ -144,7 +146,7 @@
     </div>
 
     <!-- Charts row -->
-    <div class="row g-4 mb-4">
+    <div class="row g-4 mb-3">
 
       <!-- Line chart -->
       <div class="col-lg-8">
@@ -210,17 +212,18 @@
           <thead data-testid="dashboard-profesionales-thead">
             <tr>
               <th style="width: 3rem"></th>
-              <th>Profesional</th>
-              <th>
-                Turnos
-                <div class="turnos-subheader">
-                  <span class="dot-completado">●</span> Completados
-                  <span class="dot-pendiente">●</span> Pendientes
-                  <span class="dot-cancelado">●</span> Cancelados
-                </div>
+              <th class="sortable" (click)="sortBy('profesional', 'asc')">
+                Profesional <i [class]="sortIcon('profesional')"></i>
               </th>
-              <th class="text-end">Facturación</th>
-              <th style="min-width: 160px">Tasa de completitud</th>
+              <th class="text-center sortable" (click)="sortBy('turnos', 'desc')">
+                Turnos <i [class]="sortIcon('turnos')"></i>
+              </th>
+              <th class="text-end sortable" (click)="sortBy('facturacion', 'desc')">
+                Facturación <i [class]="sortIcon('facturacion')"></i>
+              </th>
+              <th class="text-center sortable" style="min-width: 160px" (click)="sortBy('completitud', 'desc')">
+                Tasa de completitud <i [class]="sortIcon('completitud')"></i>
+              </th>
               <th></th>
             </tr>
           </thead>
@@ -236,7 +239,7 @@
                 <td colspan="6" class="text-center text-muted py-4">Sin datos por ahora</td>
               </tr>
             } @else {
-              @for (prof of professionalStats; track prof.profesionalId) {
+              @for (prof of sortedProfessionalStats; track prof.profesionalId) {
                 <tr>
                   <td>
                     <div class="prof-avatar" [class.unassigned]="prof.profesionalId === null">
@@ -246,12 +249,12 @@
                   <td class="fw-medium">{{ getProfesionalFullName(prof) }}</td>
                   <td>
                     <div class="turnos-pills">
-                      <span class="pill completado">● {{ prof.completados }}</span>
-                      <span class="pill pendiente">● {{ prof.pendientes }}</span>
-                      <span class="pill cancelado">● {{ prof.cancelados }}</span>
+                      <span class="pill completado">{{ prof.completados }}</span>
+                      <span class="pill pendiente">{{ prof.pendientes }}</span>
+                      <span class="pill cancelado">{{ prof.cancelados }}</span>
                     </div>
                   </td>
-                  <td class="text-end">{{ formatCurrency(prof.facturacion) }}</td>
+                  <td class="text-center">{{ formatCurrency(prof.facturacion) }}</td>
                   <td>
                     <div class="tasa-cell">
                       <span class="tasa-pct">{{ getCompletionRate(prof) }}%</span>

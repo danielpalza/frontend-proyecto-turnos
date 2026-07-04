@@ -3,7 +3,7 @@
 @use 'mixins' as *;
 
 .panel-container {
-  padding: 1.5rem 0 2rem;
+  padding: $spacing-lg;
 }
 
 .panel-header {
@@ -11,8 +11,8 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: $spacing-lg;
-  padding-bottom: $spacing-xl;
-  border-bottom: 1px solid $border-color;
+  padding-bottom: $spacing-md;
+  // border-bottom: 1px solid $border-color;
 }
 
 .panel-header-left {
@@ -337,6 +337,7 @@
   display: flex;
   gap: 0.4rem;
   flex-wrap: wrap;
+  justify-content: center;
 }
 
 .pill {
@@ -357,6 +358,8 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  margin-left: 5rem;
+  margin-right: 5rem;
 }
 
 .tasa-pct {
@@ -364,6 +367,23 @@
   font-weight: 600;
   color: $text-primary;
   min-width: 2.5rem;
+}
+
+[data-testid="dashboard-profesionales-thead"] th.sortable {
+  cursor: pointer;
+  user-select: none;
+
+  i {
+    font-size: 0.75rem;
+    margin-left: 0.25rem;
+    color: $text-muted;
+  }
+
+  &:hover {
+    color: $primary-color;
+
+    i { color: $primary-color; }
+  }
 }
 
 // ── Utilities ──────────────────────────────────────────────────────────────

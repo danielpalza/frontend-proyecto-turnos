@@ -24,6 +24,9 @@ interface Comparison {
   completados: number | null;
 }
 
+type ProfessionalSortColumn = 'profesional' | 'turnos' | 'facturacion' | 'completitud';
+type SortDirection = 'asc' | 'desc';
+
 @Component({
   selector: 'app-panel-view',
   standalone: true,
@@ -44,6 +47,9 @@ export class PanelViewComponent implements OnInit, OnDestroy {
   hasError = false;
   comparison: Comparison = { ingresos: null, pendientes: null, completados: null };
   donutLegendItems: DonutLegendItem[] = [];
+
+  sortColumn: ProfessionalSortColumn | null = null;
+  sortDirection: SortDirection = 'asc';
 
   // Line chart
   lineChartData: ChartData<'line'> = {
@@ -267,6 +273,41 @@ export class PanelViewComponent implements OnInit, OnDestroy {
   getCompletionRate(prof: ProfessionalStats): number {
     const total = prof.completados + prof.pendientes + prof.cancelados;
     return total === 0 ? 0 : Math.round((prof.completados / total) * 100);
+  }
+
+  get sortedProfessionalStats(): ProfessionalStats[] {
+    if (!this.sortColumn) return this.professionalStats;
+
+    const dir = this.sortDirection === 'asc' ? 1 : -1;
+    return [...this.professionalStats].sort((a, b) => {
+      switch (this.sortColumn) {
+        case 'profesional':
+          return this.getProfesionalFullName(a).localeCompare(this.getProfesionalFullName(b), 'es') * dir;
+        case 'turnos':
+          return (a.completados - b.completados) * dir;
+        case 'facturacion':
+          return (a.facturacion - b.facturacion) * dir;
+        case 'completitud':
+          return (this.getCompletionRate(a) - this.getCompletionRate(b)) * dir;
+        default:
+          return 0;
+      }
+    });
+  }
+
+  sortBy(column: ProfessionalSortColumn, defaultDirection: SortDirection = 'asc'): void {
+    if (this.sortColumn === column) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortColumn = column;
+      this.sortDirection = defaultDirection;
+    }
+    this.cdr.markForCheck();
+  }
+
+  sortIcon(column: ProfessionalSortColumn): string {
+    if (this.sortColumn !== column) return 'bi bi-arrow-down-up';
+    return this.sortDirection === 'asc' ? 'bi bi-arrow-up' : 'bi bi-arrow-down';
   }
 
   comparisonLabel(pct: number | null): string {

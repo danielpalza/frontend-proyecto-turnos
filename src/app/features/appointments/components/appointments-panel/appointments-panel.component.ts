@@ -616,13 +616,13 @@ export class AppointmentsPanelComponent implements OnChanges {
 
     const horaStr = appointment.hora ? this.formatTime(appointment.hora) : '';
     const fechaStr = this.whatsappConfig.formatAppointmentDate(appointment.fecha);
-    const doctor = fullName(appointment.profesionalNombre, appointment.profesionalApellido) || 'sin asignar';
+    const profesional = fullName(appointment.profesionalNombre, appointment.profesionalApellido) || 'sin asignar';
     const paciente = fullName(patient.nombre, patient.apellido) || fullName(appointment.patientNombre, appointment.patientApellido);
 
     return this.whatsappConfig.buildWhatsAppLink(patient.telefono, {
       hora: horaStr,
       fecha: fechaStr,
-      doctor,
+      profesional,
       paciente
     });
   }
