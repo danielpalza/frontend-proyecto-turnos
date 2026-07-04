@@ -35,7 +35,7 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
   whatsappTemplate = '';
   whatsappSaved = false;
   readonly whatsappMaxLength = 1024;
-  readonly whatsappPlaceholder = 'Hola {paciente}, te hablamos de Clinica del Oeste, te recordamos que tenes un turno el día {fecha} a las {hora} con el profesional {profesional}.\nEn caso de cualquier eventualidad te pedimos que nos contactes por este medio.\n¡Muchas gracias!';
+  readonly whatsappPlaceholder = 'Hola {paciente}, te hablamos de Clinica del Oeste, te recordamos que tenes un turno el día {fecha} a las {hora} con el profesional {profesional}.\n\nEn caso de cualquier eventualidad te pedimos que nos contactes por este medio.\n\n¡Muchas gracias!';
   readonly whatsappPreviewData = {
     hora: '10:30',
     fecha: '15/07/2026',
@@ -43,10 +43,10 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
     paciente: 'María García'
   } as const;
   readonly whatsappPlaceholderOptions = [
-    { key: 'hora' as const, label: '{hora}', icon: 'bi-clock', legend: 'hora del turno' },
-    { key: 'fecha' as const, label: '{fecha}', icon: 'bi-calendar3', legend: 'fecha del turno' },
-    { key: 'profesional' as const, label: '{profesional}', icon: 'bi-heart-pulse', legend: 'nombre del profesional' },
-    { key: 'paciente' as const, label: '{paciente}', icon: 'bi-person', legend: 'nombre del paciente' }
+    { key: 'paciente' as const, label: 'Paciente', icon: 'bi-person' },
+    { key: 'fecha' as const, label: 'Fecha', icon: 'bi-calendar3' },
+    { key: 'hora' as const, label: 'Hora', icon: 'bi-clock' },
+    { key: 'profesional' as const, label: 'Profesional', icon: 'bi-heart-pulse' }
   ];
 
   @ViewChild('whatsappTemplateInput') whatsappTemplateInput?: ElementRef<HTMLTextAreaElement>;
@@ -299,6 +299,14 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
     return this.whatsappTemplate?.length ?? 0;
   }
 
+  get whatsappCharPercent(): number {
+    return Math.min(100, (this.whatsappCharCount / this.whatsappMaxLength) * 100);
+  }
+
+  get whatsappCharsRemaining(): number {
+    return this.whatsappMaxLength - this.whatsappCharCount;
+  }
+
   get whatsappPreviewParts(): Array<{ text: string; highlight: boolean }> {
     const template = this.whatsappTemplate ?? '';
     const parts: Array<{ text: string; highlight: boolean }> = [];
@@ -342,6 +350,10 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
       const cursor = Math.min(start + token.length, nextValue.length);
       textarea.setSelectionRange(cursor, cursor);
     });
+  }
+
+  restoreDefaultWhatsappTemplate(): void {
+    this.whatsappTemplate = this.whatsappPlaceholder;
   }
 
   saveWhatsappTemplate(): void {

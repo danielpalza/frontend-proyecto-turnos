@@ -6,7 +6,7 @@ import { API_CONFIG } from './api.config';
 import { Configuration } from '../models';
 import { AuthService } from './auth.service';
 
-const DEFAULT_TEMPLATE = 'Hola {paciente}, te hablamos de la clinica, te recordamos tu turno del {fecha} a las {hora} con {doctor}.';
+const DEFAULT_TEMPLATE = 'Hola {paciente}, te hablamos de la clinica, te recordamos tu turno del {fecha} a las {hora} con {profesional}.';
 
 @Injectable({ providedIn: 'root' })
 export class ConfigurationService {
@@ -60,26 +60,27 @@ export class ConfigurationService {
     return this.saveMensajeWhatsapp(DEFAULT_TEMPLATE);
   }
 
-  buildMessage(hora: string, fecha: string, doctor: string, paciente: string): string {
+  buildMessage(hora: string, fecha: string, profesional: string, paciente: string): string {
     let msg = this.getMensajeWhatsapp();
     if (!msg) {
       msg = DEFAULT_TEMPLATE;
     }
     msg = msg.replace(/\{hora\}/g, hora);
     msg = msg.replace(/\{fecha\}/g, fecha);
-    msg = msg.replace(/\{doctor\}/g, doctor);
+    msg = msg.replace(/\{profesional\}/g, profesional);
+    msg = msg.replace(/\{doctor\}/g, profesional);
     msg = msg.replace(/\{paciente\}/g, paciente);
     return msg;
   }
 
   buildWhatsAppLink(
     telefono: string | undefined,
-    params: { hora: string; fecha: string; doctor: string; paciente: string }
+    params: { hora: string; fecha: string; profesional: string; paciente: string }
   ): string | null {
     if (!telefono?.trim()) return null;
     const phone = telefono.replace(/[\s\-\(\)\+]/g, '');
     if (!phone) return null;
-    const message = this.buildMessage(params.hora, params.fecha, params.doctor, params.paciente);
+    const message = this.buildMessage(params.hora, params.fecha, params.profesional, params.paciente);
     return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
   }
 

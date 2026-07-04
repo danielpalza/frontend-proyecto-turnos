@@ -336,9 +336,29 @@
 }
 
 .whatsapp-config-header {
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
+
   h2 {
     color: $text-primary;
     font-size: 1.5rem;
+  }
+}
+
+.whatsapp-header-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: $radius-full;
+  background-color: rgba($success, 0.14);
+  color: $success;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  i {
+    font-size: 1.25rem;
   }
 }
 
@@ -357,39 +377,128 @@
 .whatsapp-template-editor {
   position: relative;
   margin-bottom: $spacing-lg;
+  border: 1px solid $border-color;
+  border-radius: $radius-md;
+  background-color: $card-background;
+  overflow: hidden;
+}
+
+.whatsapp-editor-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: $spacing-sm $spacing-md;
+  border-bottom: 1px solid $border-color;
+}
+
+.whatsapp-restore-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0;
+  border: none;
+  background: none;
+  color: $text-secondary;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: color $transition-base;
+
+  i {
+    font-size: 0.875rem;
+  }
+
+  &:hover {
+    color: $primary-color;
+  }
 }
 
 .whatsapp-template-textarea {
   resize: vertical;
-  min-height: 8.5rem;
+  min-height: 15rem;
   font-size: 0.9rem;
   line-height: 1.5;
-  padding-bottom: 2rem;
+  padding: $spacing-md $spacing-lg;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+
+  &:focus {
+    border: none;
+    box-shadow: none;
+    outline: none;
+  }
 }
 
-.whatsapp-char-count {
-  position: absolute;
-  right: $spacing-md;
-  bottom: $spacing-sm;
+.whatsapp-char-limit {
+  margin-bottom: $spacing-lg;
+}
+
+.whatsapp-char-limit-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-md;
+  margin-bottom: $spacing-sm;
+}
+
+.whatsapp-char-limit-label {
+  color: $text-secondary;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.whatsapp-char-limit-count {
+  color: $text-secondary;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.whatsapp-char-limit-bar {
+  height: 0.375rem;
+  background-color: $hover-bg;
+  border-radius: $radius-full;
+  overflow: hidden;
+}
+
+.whatsapp-char-limit-bar-fill {
+  height: 100%;
+  background-color: $success;
+  border-radius: $radius-full;
+  transition: width $transition-base;
+}
+
+.whatsapp-char-limit-hint {
+  margin: $spacing-sm 0 0;
   color: $text-muted;
   font-size: 0.75rem;
-  pointer-events: none;
 }
 
 .whatsapp-placeholders-section {
-  margin-bottom: $spacing-lg;
+  margin-top: $spacing-lg;
+  padding: $spacing-lg;
+  background-color: $card-background;
+  border: 1px solid $border-color;
+  border-radius: $radius-lg;
 }
 
 .whatsapp-placeholders-title {
   margin: 0 0 $spacing-md;
-  font-size: 0.8125rem;
+  font-size: 0.9375rem;
   font-weight: 600;
-  color: $text-secondary;
+  color: $text-primary;
+}
+
+.whatsapp-placeholders-hint {
+  margin: 0;
+  color: $text-muted;
+  font-size: 0.75rem;
 }
 
 .whatsapp-placeholder-chips {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: $spacing-sm;
   margin-bottom: $spacing-sm;
 }
@@ -418,13 +527,6 @@
   }
 }
 
-.whatsapp-placeholder-legend {
-  margin: 0;
-  color: $text-muted;
-  font-size: 0.75rem;
-  line-height: 1.5;
-}
-
 .whatsapp-info-box {
   display: flex;
   align-items: flex-start;
@@ -450,19 +552,28 @@
   }
 }
 
-.whatsapp-save-row {
+.whatsapp-panel-footer {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: $spacing-md;
   flex-wrap: wrap;
+  // margin-top: $spacing-2xl;
+
+  button {
+    padding: $spacing-md $spacing-lg;
+  }
 }
 
 .whatsapp-preview {
+  display: flex;
+  flex-direction: column;
   border: 1px solid $border-color;
   border-radius: $radius-lg;
   overflow: hidden;
   background-color: #ECE5DD;
-  min-height: 16rem;
+  min-height: 17.5rem;
+  max-height: 17.5rem;
 }
 
 .whatsapp-preview-header {
@@ -472,6 +583,7 @@
   padding: $spacing-md $spacing-lg;
   background-color: #075E54;
   color: white;
+  flex-shrink: 0;
 }
 
 .whatsapp-preview-avatar {
@@ -501,6 +613,25 @@
 .whatsapp-preview-body {
   padding: $spacing-lg;
   min-height: 10rem;
+  overflow-y: auto;
+  flex: 1 1 auto;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 3px;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.25);
+    }
+  }
 }
 
 .whatsapp-preview-bubble {

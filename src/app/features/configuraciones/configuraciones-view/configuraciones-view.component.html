@@ -103,60 +103,52 @@
       <div class="col-lg-7 col-xl-7">
         <div class="whatsapp-config-panel" data-testid="settings-whatsapp-panel">
           <div class="whatsapp-config-header mb-4">
-            <h2 class="fw-bold mb-0">
-              <i class="bi bi-whatsapp me-2 text-success"></i>Mensaje de WhatsApp
-            </h2>
-            <p class="text-muted mb-0">Personaliza el recordatorio que se envia al paciente</p>
+            <div class="whatsapp-header-icon">
+              <i class="bi bi-whatsapp"></i>
+            </div>
+            <div>
+              <h2 class="fw-bold mb-0">Mensaje de WhatsApp</h2>
+              <p class="text-muted mb-0">Configurá el recordatorio automático que recibirán tus pacientes.</p>
+            </div>
           </div>
 
           <div class="whatsapp-editor-layout">
             <div class="whatsapp-editor-column">
-              <label class="form-label fw-semibold">Template del mensaje</label>
+              <label class="form-label fw-semibold">Plantilla del mensaje</label>
               <div class="whatsapp-template-editor">
+                <div class="whatsapp-editor-toolbar">
+                  <button type="button" class="whatsapp-restore-btn" (click)="restoreDefaultWhatsappTemplate()"
+                    data-testid="settings-whatsapp-restore-btn">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                    Restaurar mensaje por defecto
+                  </button>
+                </div>
                 <textarea #whatsappTemplateInput class="form-control whatsapp-template-textarea" rows="5"
                   [(ngModel)]="whatsappTemplate"
                   [placeholder]="whatsappPlaceholder"
                   [maxlength]="whatsappMaxLength"
                   data-testid="settings-whatsapp-template-input"></textarea>
-                <span class="whatsapp-char-count">{{ whatsappCharCount }} / {{ whatsappMaxLength }} caracteres</span>
               </div>
 
-              <div class="whatsapp-placeholders-section">
-                <p class="whatsapp-placeholders-title">Placeholders disponibles — hacé clic para insertar</p>
-                <div class="whatsapp-placeholder-chips">
-                  <button type="button" class="whatsapp-placeholder-chip"
-                    *ngFor="let placeholder of whatsappPlaceholderOptions"
-                    (click)="insertWhatsappPlaceholder(placeholder.key)"
-                    [attr.data-testid]="'settings-whatsapp-placeholder-' + placeholder.key">
-                    <i class="bi" [ngClass]="placeholder.icon"></i>
-                    {{ placeholder.label }}
-                  </button>
+              <div class="whatsapp-char-limit">
+                <div class="whatsapp-char-limit-row">
+                  <span class="whatsapp-char-limit-label">Límite de caracteres</span>
+                  <span class="whatsapp-char-limit-count">{{ whatsappCharCount }} / {{ whatsappMaxLength }}</span>
                 </div>
-                <p class="whatsapp-placeholder-legend">
-                  <span *ngFor="let placeholder of whatsappPlaceholderOptions; let last = last">
-                    {{ placeholder.label }} = {{ placeholder.legend }}<span *ngIf="!last"> · </span>
-                  </span>
-                </p>
+                <div class="whatsapp-char-limit-bar">
+                  <div class="whatsapp-char-limit-bar-fill" [style.width.%]="whatsappCharPercent"></div>
+                </div>
+                <p class="whatsapp-char-limit-hint">Te quedan {{ whatsappCharsRemaining }} caracteres disponibles.</p>
               </div>
 
               <div class="whatsapp-info-box">
                 <i class="bi bi-info-circle-fill"></i>
-                <p>Este mensaje se enviará desde la sesión de WhatsApp Web asociada. Recordá no superar los 1024 caracteres.</p>
-              </div>
-
-              <div class="whatsapp-save-row">
-                <button type="button" class="btn btn-success" (click)="saveWhatsappTemplate()"
-                  data-testid="settings-whatsapp-save-btn">
-                  <i class="bi bi-check-lg me-1"></i>Guardar
-                </button>
-                <span class="text-success small fw-semibold" *ngIf="whatsappSaved">
-                  <i class="bi bi-check-circle me-1"></i>Configuracion guardada
-                </span>
+                <p>Se utilizará la sesión activa de WhatsApp Web para enviar los mensajes.</p>
               </div>
             </div>
 
             <div class="whatsapp-preview-column">
-              <label class="form-label fw-semibold">Vista previa</label>
+              <!-- <label class="form-label fw-semibold">Vista previa</label> -->
               <div class="whatsapp-preview" data-testid="settings-whatsapp-preview">
                 <div class="whatsapp-preview-header">
                   <div class="whatsapp-preview-avatar">CL</div>
@@ -179,7 +171,31 @@
                   </div>
                 </div>
               </div>
+
+              <div class="whatsapp-placeholders-section">
+                <p class="whatsapp-placeholders-title">Variables disponibles</p>
+                <div class="whatsapp-placeholder-chips">
+                  <button type="button" class="whatsapp-placeholder-chip"
+                    *ngFor="let placeholder of whatsappPlaceholderOptions"
+                    (click)="insertWhatsappPlaceholder(placeholder.key)"
+                    [attr.data-testid]="'settings-whatsapp-placeholder-' + placeholder.key">
+                    <i class="bi" [ngClass]="placeholder.icon"></i>
+                    {{ placeholder.label }}
+                  </button>
+                </div>
+                <p class="whatsapp-placeholders-hint">Hacé clic en una variable para insertarla en el mensaje.</p>
+              </div>
             </div>
+          </div>
+
+          <div class="whatsapp-panel-footer">
+            <span class="text-success small fw-semibold" *ngIf="whatsappSaved">
+              <i class="bi bi-check-circle me-1"></i>Configuracion guardada
+            </span>
+            <button type="button" class="btn btn-success" (click)="saveWhatsappTemplate()"
+              data-testid="settings-whatsapp-save-btn">
+              <i class="bi bi-floppy me-1"></i>Guardar cambios
+            </button>
           </div>
         </div>
       </div>
