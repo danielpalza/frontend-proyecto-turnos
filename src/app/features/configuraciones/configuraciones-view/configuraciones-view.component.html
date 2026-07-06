@@ -204,105 +204,16 @@
   </div>
 
   <!-- Modal Agregar/Editar profesional -->
-  <div class="modal fade show d-block" tabindex="-1" role="dialog" *ngIf="showProfesionalForm" data-testid="settings-profesional-dialog">
-    <div class="modal-dialog modal-dialog-profesional" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">
-            {{ editingProfesional ? 'Editar profesional' : 'Agregar profesional' }}
-          </h5>
-          <button type="button" class="btn btn-modal-close" aria-label="Close" (click)="closeAddProfesional()" data-testid="settings-profesional-close-btn">
-            <i class="bi bi-x-lg"></i>
-          </button>
-        </div>
-        <form #profForm="ngForm" (ngSubmit)="onSaveProfesional(profForm)" data-testid="settings-profesional-form">
-          <div class="modal-body">
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label">Nombre *</label>
-                <input type="text" class="form-control" name="nombre" [(ngModel)]="nuevoProfesional.nombre"
-                  placeholder="Dr. Juan" required data-testid="settings-profesional-name-input" />
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Apellido *</label>
-                <input type="text" class="form-control" name="apellido" [(ngModel)]="nuevoProfesional.apellido"
-                  placeholder="Terracota" required data-testid="settings-profesional-lastname-input" />
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">DNI</label>
-                <input type="text" class="form-control" name="dni" [(ngModel)]="nuevoProfesional.dni"
-                  placeholder="12345678" />
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Especialidad</label>
-                <input type="text" class="form-control" name="especialidad" [(ngModel)]="nuevoProfesional.especialidad"
-                  placeholder="Odontología General" />
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Matrícula</label>
-                <input type="text" class="form-control" name="matricula" [(ngModel)]="nuevoProfesional.matricula"
-                  placeholder="MP 12345" />
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Email</label>
-                <input type="email" class="form-control" name="email" [(ngModel)]="nuevoProfesional.email"
-                  [required]="!!nuevoProfesional.crearAcceso" placeholder="email@ejemplo.com" />
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Teléfono</label>
-                <input type="text" class="form-control" name="telefono" [(ngModel)]="nuevoProfesional.telefono"
-                  placeholder="1123456789" />
-              </div>
-            </div>
-
-            <div class="form-check mt-3" *ngIf="isOwner && !editingProfesional">
-              <input type="checkbox" class="form-check-input" id="crearAccesoCheck" name="crearAcceso"
-                [(ngModel)]="nuevoProfesional.crearAcceso" data-testid="settings-profesional-crear-acceso-check" />
-              <label class="form-check-label" for="crearAccesoCheck">Crear acceso de usuario para este profesional</label>
-            </div>
-
-            <div class="row g-3 mt-1" *ngIf="isOwner && !editingProfesional && nuevoProfesional.crearAcceso">
-              <div class="col-md-6">
-                <label class="form-label">Nombre de usuario *</label>
-                <input type="text" class="form-control" name="username" [(ngModel)]="nuevoProfesional.username"
-                  [required]="!!nuevoProfesional.crearAcceso" placeholder="jperez"
-                  data-testid="settings-profesional-username-input" />
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Contraseña *</label>
-                <input type="password" class="form-control" name="password" [(ngModel)]="nuevoProfesional.password"
-                  [required]="!!nuevoProfesional.crearAcceso" placeholder="Mínimo 6 caracteres"
-                  data-testid="settings-profesional-password-input" />
-              </div>
-              <div class="col-12">
-                <label class="form-label d-block">Módulos habilitados</label>
-                <div class="d-flex flex-wrap gap-3">
-                  <div class="form-check" *ngFor="let opt of moduleOptions">
-                    <input type="checkbox" class="form-check-input" [id]="'module-' + opt.code"
-                      [checked]="isModuleSelected(opt.code)"
-                      (change)="toggleModuleCode(opt.code, $any($event.target).checked)"
-                      [attr.data-testid]="'settings-profesional-module-' + opt.code" />
-                    <label class="form-check-label" [for]="'module-' + opt.code">{{ opt.label }}</label>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div *ngIf="saveProfesionalError" class="alert alert-danger py-2 mt-3">
-              {{ saveProfesionalError }}
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-outline-secondary" (click)="closeAddProfesional()" data-testid="settings-profesional-cancel-btn">Cancelar</button>
-            <button type="submit" class="btn btn-primary" [disabled]="profForm.invalid || isSavingProfesional" data-testid="settings-profesional-save-btn">
-              {{ isSavingProfesional ? 'Guardando...' : 'Guardar profesional' }}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-  <div class="modal-backdrop fade show" *ngIf="showProfesionalForm"></div>
+  <app-profesional-dialog
+    [open]="showProfesionalForm"
+    (openChange)="closeAddProfesional()"
+    [editingProfesional]="editingProfesional"
+    [isOwner]="isOwner"
+    [moduleOptions]="moduleOptions"
+    [isSaving]="isSavingProfesional"
+    [saveError]="saveProfesionalError"
+    (save)="onSaveProfesional($event)">
+  </app-profesional-dialog>
 
   <!-- Modal confirmación eliminación profesional -->
   <div class="modal fade show d-block" tabindex="-1" role="dialog" *ngIf="isDeleteConfirmOpen" data-testid="settings-delete-user-dialog">

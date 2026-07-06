@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, NgForm } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { ProfesionalService } from '../../../core/services/profesional.service';
 import { ConfigurationService } from '../../../core/services/configuration.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -8,13 +8,14 @@ import { ProfesionalCreateDTO, Profesional, MODULE_OPTIONS } from '../../../core
 import { fullName } from '../../../core/utils/full-name.util';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
+import { ProfesionalDialogComponent } from '../components/profesional-dialog/profesional-dialog.component';
 import { Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-configuraciones-view',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ProfesionalDialogComponent],
   templateUrl: './configuraciones-view.component.html',
   styleUrls: ['./configuraciones-view.component.scss']
 })
@@ -51,21 +52,6 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
 
   @ViewChild('whatsappTemplateInput') whatsappTemplateInput?: ElementRef<HTMLTextAreaElement>;
 
-  nuevoProfesional: ProfesionalCreateDTO = {
-    nombre: '',
-    apellido: '',
-    dni: '',
-    especialidad: '',
-    matricula: '',
-    email: '',
-    telefono: '',
-    activo: true,
-    crearAcceso: false,
-    username: '',
-    password: '',
-    moduleCodes: []
-  };
-
   readonly moduleOptions = MODULE_OPTIONS;
 
   private subscriptions = new Subscription();
@@ -81,17 +67,6 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
 
   get isOwner(): boolean {
     return this.authService.hasRole('OWNER');
-  }
-
-  isModuleSelected(code: string): boolean {
-    return this.nuevoProfesional.moduleCodes?.includes(code) ?? false;
-  }
-
-  toggleModuleCode(code: string, checked: boolean): void {
-    const current = this.nuevoProfesional.moduleCodes ?? [];
-    this.nuevoProfesional.moduleCodes = checked
-      ? [...current, code]
-      : current.filter(c => c !== code);
   }
 
   ngOnInit(): void {
@@ -153,61 +128,28 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
   openAddProfesional(): void {
     this.editingProfesional = null;
     this.saveProfesionalError = '';
-    this.resetProfesionalForm();
     this.showProfesionalForm = true;
   }
 
   openEditProfesional(profesional: Profesional): void {
     this.editingProfesional = profesional;
     this.saveProfesionalError = '';
-    this.nuevoProfesional = {
-      nombre: profesional.nombre || '',
-      apellido: profesional.apellido || '',
-      dni: profesional.dni || '',
-      especialidad: profesional.especialidad || '',
-      matricula: profesional.matricula || '',
-      email: profesional.email || '',
-      telefono: profesional.telefono || '',
-      activo: profesional.activo !== false,
-      crearAcceso: false,
-      username: '',
-      password: '',
-      moduleCodes: []
-    };
     this.showProfesionalForm = true;
   }
 
   closeAddProfesional(): void {
     this.showProfesionalForm = false;
     this.editingProfesional = null;
-    this.resetProfesionalForm();
-  }
-
-  private resetProfesionalForm(): void {
-    this.nuevoProfesional = {
-      nombre: '',
-      apellido: '',
-      dni: '',
-      especialidad: '',
-      matricula: '',
-      email: '',
-      telefono: '',
-      activo: true,
-      crearAcceso: false,
-      username: '',
-      password: '',
-      moduleCodes: []
-    };
     this.isSavingProfesional = false;
   }
 
-  onSaveProfesional(form: NgForm): void {
-    if (form.invalid || this.isSavingProfesional) return;
+  onSaveProfesional(dto: ProfesionalCreateDTO): void {
+    if (this.isSavingProfesional) return;
     this.isSavingProfesional = true;
     this.saveProfesionalError = '';
     const operation = this.editingProfesional?.id
-      ? this.profesionalService.update(this.editingProfesional.id, this.nuevoProfesional)
-      : this.profesionalService.create(this.nuevoProfesional);
+      ? this.profesionalService.update(this.editingProfesional.id, dto)
+      : this.profesionalService.create(dto);
     operation.subscribe({
       next: () => {
         this.isSavingProfesional = false;

@@ -749,7 +749,6 @@
     animation: settingsModalBackdropFadeIn $transition-slow forwards;
   }
 
-  [data-testid='settings-profesional-dialog'],
   [data-testid='settings-profesional-status-dialog'],
   [data-testid='settings-delete-user-dialog'] {
     z-index: 1050;
@@ -765,10 +764,6 @@
       width: 100%;
       max-width: 36rem;
       animation: settingsModalFadeIn $transition-slow forwards;
-
-      &.modal-dialog-profesional {
-        max-width: 44rem;
-      }
 
       &.modal-dialog-estado {
         max-width: 32rem;
@@ -1210,7 +1205,6 @@
   }
 
   @include mobile {
-    [data-testid='settings-profesional-dialog'],
     [data-testid='settings-profesional-status-dialog'],
     [data-testid='settings-delete-user-dialog'] {
       display: flex !important;

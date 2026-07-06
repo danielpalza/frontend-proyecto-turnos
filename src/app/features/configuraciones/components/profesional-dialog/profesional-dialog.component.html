@@ -1,0 +1,147 @@
+<div class="modal fade show d-block" tabindex="-1" role="dialog" *ngIf="open" data-testid="settings-profesional-dialog">
+  <div class="modal-backdrop fade show" (click)="close()"></div>
+
+  <div class="modal-dialog modal-dialog-profesional" role="document">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <div class="title-block">
+          <div class="icon-circle"><i class="bi bi-person-badge"></i></div>
+          <div>
+            <h5 class="modal-title">{{ isEditing ? 'Editar profesional' : 'Agregar profesional' }}</h5>
+            <p class="modal-subtitle">Datos de contacto, matrícula y accesos al sistema</p>
+          </div>
+        </div>
+        <button type="button" class="btn-modal-close" aria-label="Close" (click)="close()"
+          data-testid="settings-profesional-close-btn">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="handleSubmit()" data-testid="settings-profesional-form">
+        <div class="modal-body">
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Nombre <span class="req">*</span></label>
+              <input type="text" class="form-control" formControlName="nombre" placeholder="Dr. Juan"
+                [class.is-invalid]="form.get('nombre')?.invalid && form.get('nombre')?.touched"
+                data-testid="settings-profesional-name-input" />
+              <div class="invalid-feedback" [class.show]="form.get('nombre')?.invalid && form.get('nombre')?.touched">
+                El nombre es obligatorio
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Apellido <span class="req">*</span></label>
+              <input type="text" class="form-control" formControlName="apellido" placeholder="Terracota"
+                [class.is-invalid]="form.get('apellido')?.invalid && form.get('apellido')?.touched"
+                data-testid="settings-profesional-lastname-input" />
+              <div class="invalid-feedback" [class.show]="form.get('apellido')?.invalid && form.get('apellido')?.touched">
+                El apellido es obligatorio
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">DNI</label>
+              <input type="text" class="form-control" formControlName="dni" placeholder="12345678"
+                data-testid="settings-profesional-dni-input" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Especialidad</label>
+              <input type="text" class="form-control" formControlName="especialidad" placeholder="Odontología General"
+                data-testid="settings-profesional-especialidad-input" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Matrícula</label>
+              <input type="text" class="form-control" formControlName="matricula" placeholder="MP 12345"
+                data-testid="settings-profesional-matricula-input" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" formControlName="email" placeholder="email@ejemplo.com"
+                [class.is-invalid]="form.get('email')?.invalid && form.get('email')?.touched"
+                data-testid="settings-profesional-email-input" />
+              <div class="invalid-feedback" [class.show]="form.get('email')?.invalid && form.get('email')?.touched">
+                Ingresá un email válido
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Teléfono</label>
+              <input type="text" class="form-control" formControlName="telefono" placeholder="1123456789"
+                data-testid="settings-profesional-phone-input" />
+            </div>
+          </div>
+
+          <div class="divider-check" *ngIf="canCreateAccess">
+            <div class="custom-checkbox" [class.checked]="form.value.crearAcceso" role="checkbox"
+              [attr.aria-checked]="!!form.value.crearAcceso" tabindex="0" (click)="toggleCrearAcceso()"
+              (keydown.enter)="toggleCrearAcceso()" (keydown.space)="toggleCrearAcceso()"
+              data-testid="settings-profesional-crear-acceso-check">
+              <i class="bi bi-check-lg"></i>
+            </div>
+            <label (click)="toggleCrearAcceso()">Crear acceso de usuario para este profesional</label>
+          </div>
+
+          <div class="access-section" *ngIf="canCreateAccess && form.value.crearAcceso">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Nombre de usuario <span class="req">*</span></label>
+                <input type="text" class="form-control" formControlName="username" placeholder="jperez"
+                  [class.is-invalid]="form.get('username')?.invalid && form.get('username')?.touched"
+                  data-testid="settings-profesional-username-input" />
+                <div class="invalid-feedback"
+                  [class.show]="form.get('username')?.invalid && form.get('username')?.touched">
+                  El nombre de usuario es obligatorio
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Contraseña <span class="req">*</span></label>
+                <div class="password-wrap">
+                  <input [type]="showPassword ? 'text' : 'password'" class="form-control" formControlName="password"
+                    placeholder="Mínimo 6 caracteres"
+                    [class.is-invalid]="form.get('password')?.invalid && form.get('password')?.touched"
+                    data-testid="settings-profesional-password-input" />
+                  <button type="button" class="toggle-password" (click)="togglePasswordVisibility()"
+                    [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                    data-testid="settings-profesional-password-toggle">
+                    <i class="bi" [ngClass]="showPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
+                  </button>
+                </div>
+                <div class="strength-track">
+                  <div class="strength-fill" [style.width]="passwordStrength().width"
+                    [style.background]="passwordStrength().color"></div>
+                </div>
+                <div class="strength-label">{{ passwordStrength().label }}</div>
+                <div class="invalid-feedback"
+                  [class.show]="form.get('password')?.invalid && form.get('password')?.touched">
+                  La contraseña debe tener al menos 6 caracteres
+                </div>
+              </div>
+
+              <div class="col-12">
+                <span class="modules-label">Módulos habilitados</span>
+                <div class="modules-grid" data-testid="settings-profesional-modules-grid">
+                  <div class="module-card" *ngFor="let opt of moduleOptions" [class.selected]="isModuleSelected(opt.code)"
+                    (click)="toggleModule(opt.code)" [attr.data-testid]="'settings-profesional-module-' + opt.code">
+                    <i class="bi" [ngClass]="moduleIcon(opt.code)"></i>
+                    <span>{{ opt.label }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="saveError" class="alert alert-danger py-2 mt-3">{{ saveError }}</div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" (click)="close()"
+            data-testid="settings-profesional-cancel-btn">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="form.invalid || isSaving"
+            data-testid="settings-profesional-save-btn">
+            {{ isSaving ? 'Guardando...' : 'Guardar profesional' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
