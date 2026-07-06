@@ -26,6 +26,8 @@ import { fullName } from '../../../core/utils/full-name.util';
 })
 export class PatientFormComponent implements OnInit, OnChanges, OnDestroy {
   @Input() form!: FormGroup;
+  /** Paso activo del wizard (null = mostrar todas las secciones, comportamiento standalone) */
+  @Input() activeStep: number | null = null;
   /** Mostrar bloque de búsqueda de paciente existente */
   @Input() showSearch = false;
   /** Mostrar sección de datos del turno */
@@ -114,7 +116,20 @@ export class PatientFormComponent implements OnInit, OnChanges, OnDestroy {
 
     this.form.get('obraSocialNombre')?.valueChanges
       .pipe(takeUntil(this.destroy$))
-      .subscribe(() => updateTitularValidators());
+      .subscribe((value: string) => {
+        if (value === 'Particular') {
+          this.form.patchValue({
+            planCategoria: '',
+            obraSocialNumero: '',
+            obraSocialVencimiento: '',
+            esTitular: 'si',
+            nombreTitular: '',
+            dniTitular: '',
+            parentesco: ''
+          }, { emitEvent: false });
+        }
+        updateTitularValidators();
+      });
   }
 
   onPatientSearchSelect(result: SearchResult): void {

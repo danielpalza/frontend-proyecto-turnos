@@ -5,12 +5,12 @@ import { Subject } from 'rxjs';
 import { takeUntil, debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { Patient, Profesional, AppointmentCreateDTO } from '../../../../core/models';
 import { AppointmentsService } from '../../../../core/services/appointments.service';
-import { PatientFormComponent, getPatientFormConfig } from '../../../../shared';
+import { PatientWizardComponent, getPatientFormConfig } from '../../../../shared';
 
 @Component({
   selector: 'app-appointment-dialog',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, PatientFormComponent],
+  imports: [CommonModule, ReactiveFormsModule, PatientWizardComponent],
   templateUrl: './appointment-dialog.component.html',
   styleUrls: ['./appointment-dialog.component.scss']
 })

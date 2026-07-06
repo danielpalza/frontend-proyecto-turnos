@@ -1,5 +1,5 @@
 @if (showSearch) {
-  <section class="mb-4" data-testid="patient-search-section">
+  <section class="mb-4" data-testid="patient-search-section" [hidden]="activeStep !== null && activeStep !== 1">
     <h6 class="mb-3 text-primary">
       <i class="bi bi-search me-2"></i>Buscar Paciente Existente
     </h6>
@@ -32,7 +32,7 @@
 }
 
 <!-- Datos Personales -->
-<section class="mb-4" data-testid="patient-personal-section">
+<section class="mb-4" data-testid="patient-personal-section" [hidden]="activeStep !== null && activeStep !== 1">
   <h6 class="mb-3 text-primary" data-testid="tracking-section-personal-title"><i class="bi bi-person me-2"></i>Datos Personales</h6>
   <div class="row g-3" [formGroup]="form">
     <div class="col-12 col-md-3">
@@ -126,7 +126,7 @@
 </section>
 
 <!-- Antecedentes médicos -->
-<section class="mb-4" data-testid="patient-medical-section">
+<section class="mb-4" data-testid="patient-medical-section" [hidden]="activeStep !== null && activeStep !== 2">
   <h6 class="mb-3 text-primary" data-testid="tracking-section-medical-title"><i class="bi bi-person me-2"></i>Antecedentes médicos</h6>
   <div class="row g-3" [formGroup]="form">
     <div class="col-12 col-md-6">
@@ -161,7 +161,7 @@
 </section>
 
 <!-- Obra social -->
-<section class="mb-4" data-testid="patient-coverage-section">
+<section class="mb-4" data-testid="patient-coverage-section" [hidden]="activeStep !== null && activeStep !== 3">
   <h6 class="mb-3 text-primary" data-testid="tracking-section-coverage-title"><i class="bi bi-shield-check me-2"></i>Cobertura</h6>
   <div class="row g-3" [formGroup]="form">
     <div class="col-12 col-md-6 col-lg-4">
@@ -199,21 +199,21 @@
       @if (form.get('esTitular')?.value === 'no') {
         <div class="col-12 col-md-6 col-lg-3">
           <label class="form-label">Nombre del Titular *</label>
-          <input class="form-control" type="text" formControlName="nombreTitular" [class.is-invalid]="form.get('nombreTitular')?.invalid && form.get('nombreTitular')?.touched" />
+          <input class="form-control" type="text" formControlName="nombreTitular" [class.is-invalid]="form.get('nombreTitular')?.invalid && form.get('nombreTitular')?.touched" data-testid="patient-titular-name-input" />
           @if (form.get('nombreTitular')?.invalid && form.get('nombreTitular')?.touched) {
             <div class="invalid-feedback d-block">El nombre del titular es obligatorio</div>
           }
         </div>
         <div class="col-12 col-md-6 col-lg-3">
           <label class="form-label">DNI del Titular *</label>
-          <input class="form-control" type="text" formControlName="dniTitular" [class.is-invalid]="form.get('dniTitular')?.invalid && form.get('dniTitular')?.touched" />
+          <input class="form-control" type="text" formControlName="dniTitular" [class.is-invalid]="form.get('dniTitular')?.invalid && form.get('dniTitular')?.touched" data-testid="patient-titular-dni-input" />
           @if (form.get('dniTitular')?.invalid && form.get('dniTitular')?.touched) {
             <div class="invalid-feedback d-block">El DNI del titular es obligatorio</div>
           }
         </div>
         <div class="col-12 col-md-6 col-lg-3">
           <label class="form-label">Parentesco *</label>
-          <select class="form-select" formControlName="parentesco" [class.is-invalid]="form.get('parentesco')?.invalid && form.get('parentesco')?.touched">
+          <select class="form-select" formControlName="parentesco" [class.is-invalid]="form.get('parentesco')?.invalid && form.get('parentesco')?.touched" data-testid="patient-parentesco-select">
             <option value="">Seleccione...</option>
             <option value="padre">Padre</option>
             <option value="madre">Madre</option>
@@ -229,6 +229,8 @@
   </div>
 </section>
 
+@if (showAppointmentDetails || showPaymentDetails) {
+<div data-testid="patient-appointment-payment-section" [hidden]="activeStep !== null && activeStep !== 4">
 @if (showAppointmentDetails) {
   <!-- Datos del Turno -->
   <section class="mb-4" data-testid="patient-appointment-section">
@@ -326,7 +328,7 @@
               [class.text-success]="calcularResto() <= 0"
               data-testid="patient-balance-display"
             >
-              $ {{ calcularResto() }}
+              $ {{ calcularResto() | number:'1.2-2' }}
             </strong>
           </div>
         </div>
@@ -337,4 +339,6 @@
       </div>
     </div>
   </section>
+}
+</div>
 }

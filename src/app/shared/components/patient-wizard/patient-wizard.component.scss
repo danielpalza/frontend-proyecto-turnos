@@ -1,0 +1,271 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+// El host reemplaza a .modal-body/.modal-footer de Bootstrap: gestiona su propio
+// scroll interno (sidebar+contenido) dejando el footer siempre visible, para que
+// .modal-dialog-scrollable del modal padre siga funcionando sin esas clases.
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.wizard-shell {
+  display: flex;
+  align-items: stretch;
+  flex: 1 1 auto;
+  min-height: 420px;
+  overflow-y: auto;
+}
+
+// ---- Sidebar (desktop-only por ahora) ----
+.wizard-sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  padding: $spacing-2xl $spacing-xl;
+  background-color: $sidebar-bg;
+  border-right: 1px solid $border-color;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2xl;
+}
+
+.wizard-stepper {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: $spacing-md;
+    padding: $spacing-sm;
+    border-radius: $radius-md;
+    cursor: pointer;
+    transition: all $transition-base;
+    margin-bottom: $spacing-sm;
+
+    &:hover {
+      background-color: $hover-bg;
+    }
+
+    &.active {
+      background-color: rgba($primary-color, 0.08);
+
+      .stepper-circle {
+        background-color: $primary-color;
+        border-color: $primary-color;
+        color: white;
+        box-shadow: $shadow-primary;
+      }
+
+      .stepper-title {
+        color: $text-primary;
+      }
+    }
+
+    &.done .stepper-circle {
+      background-color: $success;
+      border-color: $success;
+      color: white;
+    }
+  }
+}
+
+.stepper-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  border: 2px solid $border-color;
+  background-color: $card-background;
+  color: $text-secondary;
+  transition: all $transition-base;
+}
+
+.stepper-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.stepper-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: $text-muted;
+}
+
+.stepper-subtitle {
+  font-size: 0.78rem;
+  color: $text-muted;
+}
+
+.wizard-progress {
+  background-color: $card-background;
+  border: 1px solid $border-color;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.82rem;
+    color: $text-secondary;
+    margin-bottom: $spacing-sm;
+  }
+
+  .progress-track {
+    height: 8px;
+    background-color: $border-color;
+    border-radius: $radius-full;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+    transition: width $transition-slow;
+  }
+
+  .progress-step {
+    font-size: 0.78rem;
+    color: $text-muted;
+    margin-top: $spacing-sm;
+  }
+}
+
+.required-hint {
+  display: flex;
+  gap: $spacing-sm;
+  font-size: 0.8rem;
+  color: $text-secondary;
+  background-color: rgba($primary-color, 0.06);
+  border: 1px solid rgba($primary-color, 0.25);
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+
+  i {
+    color: $primary-color;
+  }
+}
+
+// ---- Content ----
+.wizard-content {
+  flex: 1;
+  padding: $spacing-2xl;
+  min-width: 0;
+
+  h2 {
+    font-size: 1.1rem;
+    margin: 0 0 0.15rem 0;
+    color: $text-primary;
+
+    &:focus {
+      outline: none;
+    }
+
+    &:focus-visible {
+      outline: 2px solid $primary-color;
+      outline-offset: 3px;
+      border-radius: 3px;
+    }
+  }
+
+  .wizard-step-subtitle {
+    margin: 0 0 $spacing-xl 0;
+  }
+}
+
+// ---- Revisión (acordeón) ----
+.accordion-item {
+  @include card-hover($radius-lg);
+  margin-bottom: $spacing-md;
+  overflow: hidden;
+
+  &.open .accordion-chevron {
+    transform: rotate(180deg);
+  }
+}
+
+.accordion-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-lg;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+
+  .ah-left {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    font-weight: 600;
+    font-size: 0.9rem;
+
+    .step-check {
+      color: $success;
+    }
+  }
+
+  .accordion-chevron {
+    color: $text-secondary;
+    transition: transform $transition-base;
+  }
+}
+
+.accordion-body {
+  @include container-light-bg($radius-md, $spacing-lg);
+  margin: 0 $spacing-lg $spacing-lg $spacing-lg;
+}
+
+.review-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-sm $spacing-2xl;
+  margin: 0 0 $spacing-md 0;
+
+  dt {
+    font-size: 0.82rem;
+    color: $text-secondary;
+    font-weight: 500;
+  }
+
+  dd {
+    margin: 0.1rem 0 0 0;
+    font-size: 0.86rem;
+    color: $text-primary;
+  }
+}
+
+.review-empty {
+  color: $text-muted;
+  font-style: italic;
+}
+
+// ---- Footer ----
+.wizard-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+  padding: $spacing-lg $spacing-2xl;
+  border-top: 1px solid $border-color;
+
+  .wizard-footer-right {
+    display: flex;
+    gap: $spacing-md;
+  }
+
+  [data-testid="wizard-next-btn"],
+  [data-testid="wizard-finish-btn"] {
+    @include button-gradient-primary();
+    padding: 0.5rem 1.5rem;
+  }
+}

@@ -2,13 +2,18 @@
   <div class="container-fluid px-4">
     <div class="row g-4">
       <!-- Columna principal: Lista de pacientes -->
-      <div class="col-lg-8">
+      <div class="col-12">
         <!-- Título -->
-        <div class="header-section mb-4">
-          <h1 class="fw-bold mb-0" data-testid="tracking-page-title">
-            <i class="bi bi-clipboard-data me-2 text-primary"></i>Seguimiento de Pacientes
-          </h1>
-          <p class="text-muted mb-0" data-testid="tracking-page-subtitle">Historial y seguimiento de todos los pacientes</p>
+        <div class="header-section mb-4 d-flex justify-content-between align-items-start flex-wrap gap-2">
+          <div>
+            <h1 class="fw-bold mb-0" data-testid="tracking-page-title">
+              <i class="bi bi-clipboard-data me-2 text-primary"></i>Seguimiento de Pacientes
+            </h1>
+            <p class="text-muted mb-0" data-testid="tracking-page-subtitle">Historial y seguimiento de todos los pacientes</p>
+          </div>
+          <button type="button" class="btn btn-primary" (click)="openNewPatientWizard()" data-testid="tracking-new-patient-btn">
+            <i class="bi bi-person-plus me-1"></i>Nuevo paciente
+          </button>
         </div>
 
         <!-- Buscador -->
@@ -85,37 +90,31 @@
         </div>
       </div>
 
-      <!-- Columna derecha: Formulario Paciente -->
-      <div class="col-lg-4">
-        <div class="patient-form-panel" data-testid="tracking-patient-form-panel">
-          <div class="patient-form-header mb-3">
-            <h2 class="fw-bold mb-0" data-testid="tracking-form-title">
-              <i class="bi bi-person-plus me-2 text-primary"></i>Paciente
-            </h2>
-            <p class="text-muted mb-3 small" data-testid="tracking-form-subtitle">Crear o editar datos del paciente</p>
-            <div *ngIf="patientFormError" class="alert alert-danger py-2 mb-3">
-              {{ patientFormError }}
-            </div>
-          </div>
-          <div class="patient-form-body">
-            <app-patient-form [form]="patientForm" [showSearch]="false" [existingPatients]="patients"
-              [selectedPatient]="selectedPatientForForm" (patientSelect)="onPatientFormSelect($event)"
-              (clearPatient)="onClearPatientForm()" />
-            <div class="d-flex gap-1 mt-3 mb-5">
-              <button type="button" class="btn btn-outline-secondary" (click)="onClearPatientForm()" data-testid="tracking-patient-clear-btn">
-                <i class="bi bi-trash"></i> Limpiar formulario
-              </button>
-              <button type="button" class="btn btn-primary flex-grow-1" (click)="savePatient()"
-                [disabled]="patientForm.invalid || isSavingPatient" data-testid="tracking-patient-save-btn">
-                <span *ngIf="isSavingPatient" class="spinner-border spinner-border-sm me-1"></span>
-                {{ isSavingPatient ? 'Guardando...' : 'Guardar' }}
-              </button>
-            </div>
-          </div>
+    </div>
+  </div>
+
+  <!-- Modal wizard de paciente (crear/editar) -->
+  <div class="modal fade show d-block" *ngIf="isPatientWizardOpen" data-testid="tracking-patient-wizard-dialog">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" data-testid="tracking-form-title">
+            {{ selectedPatientForForm ? 'Editar paciente' : 'Nuevo paciente' }}
+          </h5>
+          <button type="button" class="btn-close" (click)="closePatientWizard()" data-testid="tracking-patient-wizard-close-btn"></button>
         </div>
+        <div *ngIf="patientFormError" class="alert alert-danger py-2 mx-3 mt-3 mb-0">
+          {{ patientFormError }}
+        </div>
+        <app-patient-wizard
+          [form]="patientForm" [includeAppointmentStep]="false" [showSearch]="false"
+          [existingPatients]="patients" [selectedPatient]="selectedPatientForForm"
+          [isSubmitting]="isSavingPatient"
+          (finish)="savePatient()" (cancel)="closePatientWizard()" />
       </div>
     </div>
   </div>
+  <div class="modal-backdrop fade show" *ngIf="isPatientWizardOpen" (click)="closePatientWizard()"></div>
 
   <!-- Modal Pago y observaciones del turno -->
   <div class="modal fade show d-block" tabindex="-1" role="dialog" *ngIf="showTurnModal && selectedAppointment" data-testid="tracking-turn-modal">

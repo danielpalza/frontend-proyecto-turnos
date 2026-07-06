@@ -18,6 +18,7 @@ export {
   getPatientFormConfig,
   OBRAS_SOCIALES
 } from './components/patient-form/patient-form.component';
+export { PatientWizardComponent } from './components/patient-wizard/patient-wizard.component';
 // export * from './components/loading-spinner/loading-spinner.component';
 
 // Exportar pipes compartidos

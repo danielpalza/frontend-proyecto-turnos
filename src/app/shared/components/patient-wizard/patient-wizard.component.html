@@ -1,0 +1,148 @@
+<div class="wizard-shell">
+  <aside class="wizard-sidebar" data-testid="wizard-sidebar">
+    <ul class="wizard-stepper">
+      @for (step of steps; track step.id) {
+        <li
+          [attr.data-testid]="'wizard-stepper-item-' + step.id"
+          [class.active]="step.id === currentStep"
+          [class.done]="isStepDone(step.id)"
+          (click)="goToStep(step.id)"
+        >
+          <span class="stepper-circle">
+            @if (isStepDone(step.id)) {
+              <i class="bi bi-check-lg"></i>
+            } @else {
+              <i [class]="'bi ' + step.icon"></i>
+            }
+          </span>
+          <span class="stepper-text">
+            <span class="stepper-title">{{ step.title }}</span>
+            <span class="stepper-subtitle">{{ step.subtitle }}</span>
+          </span>
+        </li>
+      }
+    </ul>
+
+    <div class="wizard-progress" data-testid="wizard-progress-box">
+      <div class="progress-label">
+        <span>Progreso del registro</span>
+        <span data-testid="wizard-progress-percent">{{ progressPercent }}%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" [style.width.%]="progressPercent" data-testid="wizard-progress-bar"></div>
+      </div>
+      <div class="progress-step" data-testid="wizard-progress-step-label">Paso {{ stepIndex }} de {{ steps.length }}</div>
+    </div>
+
+    <div class="required-hint">
+      <i class="bi bi-shield-check"></i>
+      <span><strong>Campos obligatorios</strong><br />Los campos marcados con <strong>*</strong> son obligatorios.</span>
+    </div>
+  </aside>
+
+  <div class="wizard-content">
+    <h2 #stepHeading tabindex="-1" data-testid="wizard-step-heading">{{ currentStepDef?.title }}</h2>
+    <p class="wizard-step-subtitle text-muted">{{ currentStepDef?.subtitle }}</p>
+
+    <div [hidden]="isLastStep">
+      <app-patient-form
+        [form]="form"
+        [activeStep]="currentStep"
+        [showSearch]="showSearch"
+        [showAppointmentDetails]="includeAppointmentStep"
+        [showPaymentDetails]="includeAppointmentStep"
+        [existingPatients]="existingPatients"
+        [selectedPatient]="selectedPatient"
+        [profesionales]="profesionales"
+        [isCheckingAvailability]="isCheckingAvailability"
+        [availabilityError]="availabilityError"
+        [calcularResto]="calcularResto"
+        (patientSelect)="onPatientSelect($event)"
+        (clearPatient)="onClearPatient()"
+      />
+    </div>
+
+    @if (isLastStep) {
+      <div class="wizard-review-accordion" data-testid="wizard-review-accordion">
+        @for (group of reviewGroups; track group.stepId) {
+          <div
+            class="accordion-item"
+            [class.open]="openAccordionStep === group.stepId"
+            [attr.data-testid]="'wizard-review-accordion-' + group.stepId"
+          >
+            <button type="button" class="accordion-header" (click)="toggleAccordion(group.stepId)">
+              <span class="ah-left">
+                <i [class]="'bi ' + group.icon"></i>
+                {{ group.title }}
+                @if (isStepValid(group.stepId)) {
+                  <i class="bi bi-check-circle-fill step-check" title="Completo"></i>
+                }
+              </span>
+              <i class="bi bi-chevron-down accordion-chevron"></i>
+            </button>
+            @if (openAccordionStep === group.stepId) {
+              <div class="accordion-body">
+                <dl class="review-grid">
+                  @for (f of group.fields; track f.name) {
+                    <div class="review-field">
+                      <dt>{{ f.label }}</dt>
+                      <dd [class.review-empty]="!formatReviewValue(f)">{{ formatReviewValue(f) || 'Sin datos' }}</dd>
+                    </div>
+                  }
+                  @if (group.stepId === 4) {
+                    <div class="review-field">
+                      <dt>Profesional</dt>
+                      <dd [class.review-empty]="!getProfesionalLabel()">{{ getProfesionalLabel() || 'Sin datos' }}</dd>
+                    </div>
+                  }
+                </dl>
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary btn-sm"
+                  (click)="goToStep(group.stepId); $event.stopPropagation()"
+                  [attr.data-testid]="'wizard-review-edit-' + group.stepId"
+                >
+                  <i class="bi bi-pencil"></i> Editar
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
+
+<div class="wizard-footer">
+  <button type="button" class="btn btn-outline-secondary" data-testid="wizard-cancel-btn" (click)="cancel.emit()">
+    Cancelar
+  </button>
+  <div class="wizard-footer-right">
+    @if (!isFirstStep) {
+      <button type="button" class="btn btn-outline-secondary" data-testid="wizard-back-btn" (click)="back()">
+        <i class="bi bi-arrow-left"></i> Anterior
+      </button>
+    }
+    @if (!isLastStep) {
+      <button
+        type="button"
+        class="btn btn-primary"
+        data-testid="wizard-next-btn"
+        [disabled]="!isStepValid(currentStep)"
+        (click)="next()"
+      >
+        Siguiente <i class="bi bi-arrow-right"></i>
+      </button>
+    } @else {
+      <button
+        type="button"
+        class="btn btn-primary"
+        data-testid="wizard-finish-btn"
+        [disabled]="isSubmitting"
+        (click)="finish.emit()"
+      >
+        {{ isSubmitting ? 'Guardando...' : 'Finalizar registro' }}
+      </button>
+    }
+  </div>
+</div>

@@ -9,13 +9,13 @@ import { ErrorHandlerService } from '../../../core/services/error-handler.servic
 import { ConfigurationService } from '../../../core/services/configuration.service';
 import { combineLatest, Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
-import { PatientFormComponent, getPatientFormConfig } from '../../../shared';
+import { PatientWizardComponent, getPatientFormConfig } from '../../../shared';
 import { fullName } from '../../../core/utils/full-name.util';
 
 @Component({
   selector: 'app-seguimiento-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, PatientFormComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, PatientWizardComponent],
   templateUrl: './seguimiento-view.component.html',
   styleUrls: ['./seguimiento-view.component.scss']
 })
@@ -27,11 +27,12 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
   searchTerm = '';
   patientGroups: Array<{ patient: Patient; appointments: Appointment[]; totalAdeudado: number }> = [];
 
-  // Formulario cliente (crear/editar) - columna derecha
+  // Formulario cliente (crear/editar) - modal wizard
   patientForm!: FormGroup;
   selectedPatientForForm: Patient | null = null;
   isSavingPatient = false;
   patientFormError = '';
+  isPatientWizardOpen = false;
 
   // Modal pago y observaciones del turno
   showTurnModal = false;
@@ -209,7 +210,25 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
 
   /** Editar paciente desde la tarjeta de la lista */
   editPatientFromGroup(group: { patient: Patient; appointments: Appointment[]; totalAdeudado: number }): void {
-    this.loadPatientIntoForm(group.patient);
+    this.openEditPatientWizard(group.patient);
+  }
+
+  /** Abrir el wizard con el formulario limpio (paciente nuevo) */
+  openNewPatientWizard(): void {
+    this.onClearPatientForm();
+    this.isPatientWizardOpen = true;
+  }
+
+  /** Abrir el wizard precargado con un paciente existente */
+  openEditPatientWizard(patient: Patient): void {
+    this.loadPatientIntoForm(patient);
+    this.isPatientWizardOpen = true;
+  }
+
+  /** Cerrar el wizard y limpiar la selección */
+  closePatientWizard(): void {
+    this.isPatientWizardOpen = false;
+    this.onClearPatientForm();
   }
 
   /** Guardar paciente (crear o actualizar) */
@@ -262,13 +281,11 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
       : this.patientService.create(patientData as Patient, true);
 
     operation.pipe(finalize(() => { this.isSavingPatient = false; })).subscribe({
-      next: (saved) => {
+      next: () => {
         this.notification.showSuccess(
           this.selectedPatientForForm?.id ? 'Paciente actualizado correctamente.' : 'Paciente creado correctamente.'
         );
-        this.selectedPatientForForm = saved;
-        this.loadPatientIntoForm(saved);
-        this.onClearPatientForm();
+        this.closePatientWizard();
       },
       error: (err) => {
         const msg = this.errorHandler.getErrorMessage(

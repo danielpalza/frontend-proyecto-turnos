@@ -9,44 +9,22 @@
         <button type="button" class="btn-close" (click)="close()" [disabled]="isLoading" data-testid="appointment-close-btn"></button>
       </div>
 
-      <form [formGroup]="form" (ngSubmit)="onSubmit()" data-testid="appointment-form">
-        <div class="modal-body">
-          <app-patient-form
-            [form]="form"
-            [showSearch]="true"
-            [showPaymentDetails]="true"
-            [showAppointmentDetails]="true"
-            [existingPatients]="existingPatients"
-            [selectedPatient]="selectedPatient"
-            [profesionales]="profesionales"
-            [isCheckingAvailability]="isCheckingAvailability"
-            [availabilityError]="availabilityError"
-            [calcularResto]="calcularResto.bind(this)"
-            (patientSelect)="selectPatient($event)"
-            (clearPatient)="clearPatientSelection()"
-          />
-        </div>
-
-        <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-outline-secondary"
-            (click)="close()"
-            [disabled]="isLoading"
-            data-testid="appointment-cancel-btn"
-          >
-            Cancelar
-          </button>
-          <button 
-            type="submit" 
-            class="btn btn-primary" 
-            [disabled]="form.invalid || isLoading || isCheckingAvailability || availabilityError !== null"
-            data-testid="appointment-save-btn">
-            <span *ngIf="isLoading || isCheckingAvailability" class="spinner-border spinner-border-sm me-2"></span>
-            {{ isLoading ? 'Guardando...' : (isCheckingAvailability ? 'Verificando...' : 'Guardar Cita') }}
-          </button>
-        </div>
-      </form>
+      <app-patient-wizard
+        [form]="form"
+        [includeAppointmentStep]="true"
+        [showSearch]="true"
+        [existingPatients]="existingPatients"
+        [selectedPatient]="selectedPatient"
+        [profesionales]="profesionales"
+        [isCheckingAvailability]="isCheckingAvailability"
+        [availabilityError]="availabilityError"
+        [calcularResto]="calcularResto.bind(this)"
+        [isSubmitting]="isLoading"
+        (patientSelect)="selectPatient($event)"
+        (clearPatient)="clearPatientSelection()"
+        (finish)="onSubmit()"
+        (cancel)="close()"
+      />
     </div>
   </div>
 </div>

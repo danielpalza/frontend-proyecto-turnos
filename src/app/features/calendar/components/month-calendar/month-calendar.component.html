@@ -92,7 +92,9 @@
                 class="status-dot-badge"
                 [attr.data-testid]="'calendar-day-badge-total-' + day.dateStr"
               >
-                <i class="status-dot dot-total"></i>{{ day.total }}
+                <!-- <i class="status-dot dot-total"></i> -->
+                <i class="bi bi-person"></i>
+                {{ day.total }}
               </span>
               <span
                 *ngIf="(day.pendientes || 0) > 0"

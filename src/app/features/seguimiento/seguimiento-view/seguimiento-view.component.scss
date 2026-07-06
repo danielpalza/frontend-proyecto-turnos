@@ -114,40 +114,6 @@
   border: 1px solid $border-color;
 }
 
-// Panel formulario cliente (columna derecha)
-.patient-form-panel {
-  position: sticky;
-  top: 2rem;
-  max-height: calc(100vh - #{$navbar-height} - 3.5rem);
-  overflow-y: auto;
-  padding-right: 0.5rem;
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: $hover-bg;
-    border-radius: 3px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: color.mix($border-color, $text-muted, 55%);
-    border-radius: 3px;
-
-    &:hover {
-      background: $text-muted;
-    }
-  }
-}
-
-.patient-form-header {
-  h2 {
-    color: $text-primary;
-    font-size: 1.25rem;
-  }
-}
-
 .patients-list {
   width: 100%;
   max-height: calc(100vh - #{$navbar-height} - 14rem);
@@ -294,12 +260,6 @@
 @media (max-width: 992px) {
   .patients-list {
     max-height: 400px;
-  }
-
-  .patient-form-panel {
-    position: relative;
-    top: 0;
-    max-height: 500px;
   }
 }
 
