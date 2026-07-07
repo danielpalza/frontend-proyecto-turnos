@@ -32,7 +32,7 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
   private readonly PATIENT_FIELDS = [
     'nombre', 'apellido', 'fechaNacimiento', 'edad', 'dni', 'telefono', 'email',
     'domicilio', 'localidad', 'contactoEmergencia',
-    'enfermedades', 'alergias', 'medicacion', 'cirugias', 'embarazo', 'marcapasos', 'consumos',
+    'enfermedades', 'alergias', 'medicacion', 'cirugias', 'embarazo', 'marcapasos', 'consumos', 'otrosAntecedentes',
     'obraSocialNombre', 'planCategoria', 'obraSocialNumero', 'obraSocialVencimiento',
     'esTitular', 'nombreTitular', 'dniTitular', 'parentesco'
   ];
@@ -119,6 +119,7 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
       embarazo: anamnesisData.embarazo || '',
       marcapasos: anamnesisData.marcapasos || '',
       consumos: anamnesisData.consumos || '',
+      otrosAntecedentes: anamnesisData.otrosAntecedentes || '',
       obraSocialNombre: patient.obraSocialNombre || '',
       planCategoria: patient.planCategoria || '',
       obraSocialNumero: patient.obraSocialNumero || '',
@@ -151,7 +152,8 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
       cirugias: '',
       embarazo: '',
       marcapasos: '',
-      consumos: ''
+      consumos: '',
+      otrosAntecedentes: ''
     });
   }
 
@@ -389,6 +391,7 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
     if (raw.embarazo) anamnesisData.embarazo = raw.embarazo;
     if (raw.marcapasos) anamnesisData.marcapasos = raw.marcapasos;
     if (raw.consumos) anamnesisData.consumos = raw.consumos;
+    if (raw.otrosAntecedentes) anamnesisData.otrosAntecedentes = raw.otrosAntecedentes;
 
     const anamnesis = Object.keys(anamnesisData).length > 0 
       ? JSON.stringify(anamnesisData) 

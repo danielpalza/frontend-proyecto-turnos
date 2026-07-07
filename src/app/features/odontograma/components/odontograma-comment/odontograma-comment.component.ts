@@ -30,6 +30,10 @@ export class OdontogramaCommentComponent implements OnInit, OnDestroy {
     } else if (this.title === 'Plan de tratamiento') {
       this.isEditable = true;
       this.sub = this.stateService.planTratamiento$.subscribe(v => (this.value = v));
+    } else if (this.title === 'Comentarios del turno anterior') {
+      this.sub = this.stateService.comentarioAnterior$.subscribe(v => (this.value = v));
+    } else if (this.title === 'Historia clinica del paciente') {
+      this.sub = this.stateService.historiaClinica$.subscribe(v => (this.value = v));
     }
   }
 

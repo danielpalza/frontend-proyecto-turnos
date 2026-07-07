@@ -62,6 +62,7 @@ export interface OdontogramaResponse {
   patientId: string;
   comentario?: string;
   planTratamiento?: string;
+  comentarioAnterior?: string;
   creadoEn?: string;
   estadoActual: OdontogramaEstadoActual;
   cambiosTurno: OdontogramaEstadoActual;

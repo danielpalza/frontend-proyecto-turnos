@@ -94,54 +94,40 @@
                 <i class="bi bi-clipboard2-pulse me-2 text-primary"></i>Resumen del Turno
               </h6>
 
-              <!-- Leyenda -->
-              <div class="bg-white rounded p-3 shadow-sm mb-4">
-                <p class="fw-semibold mb-2">Leyenda de Estados:</p>
-
-                <div class="row g-2 small">
-                  <div class="col-6 d-flex align-items-center gap-2">
-                    <div class="legend-box border"></div> <span>Sano</span>
-                  </div>
-                  <div class="col-6 d-flex align-items-center gap-2">
-                    <div class="legend-box bg-danger"></div> <span>Caries</span>
-                  </div>
-                  <div class="col-6 d-flex align-items-center gap-2">
-                    <div class="legend-box bg-primary"></div> <span>Obturación</span>
-                  </div>
-                  <div class="col-6 d-flex align-items-center gap-2">
-                    <div class="legend-box bg-secondary"></div> <span>Ausente</span>
-                  </div>
-                </div>
+              <div class="bg-white rounded p-3 shadow-sm mb-3" data-testid="odontogram-save-summary-comment">
+                <p class="fw-semibold mb-2">Comentarios del turno</p>
+                @if (comentarioTurno()) {
+                  <p class="small mb-0 summary-text">{{ comentarioTurno() }}</p>
+                } @else {
+                  <p class="small text-muted fst-italic mb-0">Sin contenido</p>
+                }
               </div>
 
-              <div class="bg-white p-3 rounded shadow-sm" data-testid="odontogram-save-dental-status">
-                <p class="fw-semibold mb-2">Estado Dental Actual:</p>
-
-                <p class="small text-muted">
-                  El odontograma muestra el estado actual de todas las piezas dentales del paciente.
-                </p>
-
-                <hr>
-
-                <ul class="small ms-3 mb-0">
-                  <li>Estado de cada cara dental</li>
-                  <li>Presencia de caries activas</li>
-                  <li>Obturaciones previas</li>
-                  <li>Piezas dentales ausentes</li>
-                  <li>Tratamientos realizados</li>
-                </ul>
-
+              <div class="bg-white rounded p-3 shadow-sm mb-3" data-testid="odontogram-save-summary-treatment-plan">
+                <p class="fw-semibold mb-2">Plan de tratamiento</p>
+                @if (planTratamiento()) {
+                  <p class="small mb-0 summary-text">{{ planTratamiento() }}</p>
+                } @else {
+                  <p class="small text-muted fst-italic mb-0">Sin contenido</p>
+                }
               </div>
 
-              <div class="bg-white p-3 rounded shadow-sm mt-3 small text-muted" data-testid="odontogram-save-reminder-section">
-                <strong class="text-dark">
-                  <i class="bi bi-lightbulb me-1"></i>Recordatorio:
-                </strong>
-                <ul class="mt-2 mb-0">
-                  <li>Completa las observaciones profesionales</li>
-                  <li>Registra los detalles de pago</li>
-                  <li>Verifica que el odontograma esté actualizado</li>
-                </ul>
+              <div class="bg-white rounded p-3 shadow-sm mb-3" data-testid="odontogram-save-summary-previous-comment">
+                <p class="fw-semibold mb-2">Comentarios del turno anterior</p>
+                @if (comentarioAnterior()) {
+                  <p class="small mb-0 summary-text">{{ comentarioAnterior() }}</p>
+                } @else {
+                  <p class="small text-muted fst-italic mb-0">Sin contenido</p>
+                }
+              </div>
+
+              <div class="bg-white rounded p-3 shadow-sm" data-testid="odontogram-save-summary-clinical-history">
+                <p class="fw-semibold mb-2">Historia clínica del paciente</p>
+                @if (historiaClinica()) {
+                  <p class="small mb-0 summary-text">{{ historiaClinica() }}</p>
+                } @else {
+                  <p class="small text-muted fst-italic mb-0">Sin contenido</p>
+                }
               </div>
 
             </div>

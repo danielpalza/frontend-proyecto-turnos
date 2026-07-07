@@ -90,7 +90,8 @@ export const PATIENT_WIZARD_REVIEW_GROUPS: ReviewGroup[] = [
       { name: 'cirugias', label: 'Cirugías/tratamientos' },
       { name: 'embarazo', label: 'Embarazo o lactancia' },
       { name: 'marcapasos', label: 'Marcapasos/prótesis' },
-      { name: 'consumos', label: 'Consumos' }
+      { name: 'consumos', label: 'Consumos' },
+      { name: 'otrosAntecedentes', label: 'Otros antecedentes' }
     ]
   },
   {

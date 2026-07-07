@@ -165,6 +165,12 @@
   }
 }
 
+// Textos del resumen: respetar saltos de línea escritos en los textareas
+.summary-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 // Labels y forms
 .form-label {
   color: $text-primary;

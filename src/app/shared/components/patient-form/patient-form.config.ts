@@ -23,6 +23,7 @@ export function getPatientFormConfig(fb: FormBuilder) {
     embarazo: [''],
     marcapasos: [''],
     consumos: [''],
+    otrosAntecedentes: ['', Validators.maxLength(300)],
     obraSocialNombre: ['', Validators.required],
     planCategoria: [''],
     obraSocialNumero: [''],

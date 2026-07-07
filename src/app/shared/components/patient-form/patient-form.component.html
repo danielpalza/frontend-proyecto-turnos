@@ -157,6 +157,21 @@
       <label class="form-label">Consumos (tabaco, alcohol, drogas)</label>
       <input class="form-control" type="text" formControlName="consumos" data-testid="patient-substances-input" />
     </div>
+    <div class="col-12">
+      <label class="form-label">Otros antecedentes</label>
+      <textarea
+        class="form-control"
+        rows="3"
+        formControlName="otrosAntecedentes"
+        maxlength="300"
+        data-testid="patient-other-history-input"
+      ></textarea>
+      <div class="d-flex justify-content-end">
+        <small class="text-muted" data-testid="patient-other-history-counter">
+          {{ otrosAntecedentesLength }} / 300
+        </small>
+      </div>
+    </div>
   </div>
 </section>
 

@@ -1,4 +1,5 @@
-import { Component, Input, Output, EventEmitter, signal } from '@angular/core';
+import { Component, Input, Output, EventEmitter, Signal, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { OdontogramaStateService } from '../../services/odontograma-state.service';
@@ -41,11 +42,22 @@ export class SaveOdontogramaDialogComponent {
     observacionesProfesional: ''
   });
 
+  // Textos de los paneles de comentarios, para el resumen de la columna derecha.
+  readonly comentarioTurno: Signal<string>;
+  readonly planTratamiento: Signal<string>;
+  readonly comentarioAnterior: Signal<string>;
+  readonly historiaClinica: Signal<string>;
+
   constructor(
     private readonly stateService: OdontogramaStateService,
     private readonly notification: NotificationService,
     private readonly router: Router
-  ) {}
+  ) {
+    this.comentarioTurno = toSignal(this.stateService.comentario$, { initialValue: '' });
+    this.planTratamiento = toSignal(this.stateService.planTratamiento$, { initialValue: '' });
+    this.comentarioAnterior = toSignal(this.stateService.comentarioAnterior$, { initialValue: '' });
+    this.historiaClinica = toSignal(this.stateService.historiaClinica$, { initialValue: '' });
+  }
 
   private prefillFromAppointment(): void {
     const p = this.stateService.appointmentPaymentSnapshot;

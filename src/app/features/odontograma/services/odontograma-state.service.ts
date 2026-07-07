@@ -92,6 +92,14 @@ export class OdontogramaStateService {
   private readonly planTratamientoSubject = new BehaviorSubject<string>('');
   readonly planTratamiento$ = this.planTratamientoSubject.asObservable();
 
+  // Hoy el backend no envía estos campos: quedan vacíos hasta que exista la fuente,
+  // pero page y diálogo de guardado ya leen del mismo lugar.
+  private readonly comentarioAnteriorSubject = new BehaviorSubject<string>('');
+  readonly comentarioAnterior$ = this.comentarioAnteriorSubject.asObservable();
+
+  private readonly historiaClinicaSubject = new BehaviorSubject<string>('');
+  readonly historiaClinica$ = this.historiaClinicaSubject.asObservable();
+
   private readonly appointmentPaymentSubject = new BehaviorSubject<{
     precioBono: number;
     precioTratamiento: number;
@@ -187,6 +195,7 @@ export class OdontogramaStateService {
         this.applyOdontoState(mergedOdonto);
         this.comentarioSubject.next(odonto.comentario ?? '');
         this.planTratamientoSubject.next(odonto.planTratamiento ?? '');
+        this.comentarioAnteriorSubject.next(odonto.comentarioAnterior ?? '');
 
         const mergedPerio = this.mergePerioEstado(
           this.normalizePerioEstado(perio.estadoActual),
@@ -346,6 +355,14 @@ export class OdontogramaStateService {
 
   setPlanTratamiento(value: string): void {
     this.planTratamientoSubject.next(value);
+  }
+
+  setComentarioAnterior(value: string): void {
+    this.comentarioAnteriorSubject.next(value);
+  }
+
+  setHistoriaClinica(value: string): void {
+    this.historiaClinicaSubject.next(value);
   }
 
   getPerioTeethMap(): Map<number, PerioToothMvp> {

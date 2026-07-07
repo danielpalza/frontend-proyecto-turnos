@@ -47,6 +47,10 @@ export class PatientFormComponent implements OnInit, OnChanges, OnDestroy {
   readonly OBRAS_SOCIALES = OBRAS_SOCIALES;
   private destroy$ = new Subject<void>();
 
+  get otrosAntecedentesLength(): number {
+    return (this.form?.get('otrosAntecedentes')?.value ?? '').length;
+  }
+
   constructor(private fb: FormBuilder) {}
 
   ngOnInit(): void {
