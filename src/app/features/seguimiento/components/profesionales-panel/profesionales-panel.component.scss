@@ -1,0 +1,444 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+:host {
+  display: contents;
+}
+
+.profesionales-panel {
+  @include sticky-container;
+  top: $spacing-3xl;
+  background-color: $card-background;
+  border: 1px solid $border-color;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-sm;
+  padding: $spacing-xl;
+}
+
+.profesionales-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-lg;
+  margin-bottom: $spacing-lg;
+
+  .profesionales-count {
+    color: $text-secondary;
+    font-size: 0.9375rem;
+    font-weight: 500;
+  }
+
+  .btn-primary {
+    @include button-gradient-primary($radius-md);
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    white-space: nowrap;
+  }
+}
+
+.profesionales-list {
+  max-height: calc(100vh - #{$navbar-height} - 16rem);
+  overflow-y: auto;
+  margin: 0 (-$spacing-sm);
+  padding: 0 $spacing-sm;
+
+  @include scrollbar-thin;
+}
+
+.profesional-row {
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
+  padding: $spacing-lg 0;
+  border-bottom: 1px solid $border-color;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &.profesional-inactive {
+    opacity: 0.65;
+  }
+}
+
+.profesional-avatar {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: $radius-full;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.profesional-info {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.profesional-name {
+  font-weight: 600;
+  color: $text-primary;
+  font-size: 0.9375rem;
+  line-height: 1.3;
+}
+
+.profesional-detail {
+  margin-top: 0.125rem;
+  color: $text-secondary;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+}
+
+.profesional-badges {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  flex-shrink: 0;
+}
+
+.badge-soft {
+  font-weight: 500;
+  font-size: 0.75rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: $radius-full;
+  line-height: 1;
+}
+
+.badge-role {
+  background-color: rgba($success, 0.12);
+  color: $success-dark;
+}
+
+.profesional-row.profesional-inactive .badge-role {
+  background-color: rgba($text-muted, 0.15);
+  color: $text-muted;
+}
+
+.profesional-actions {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  flex-shrink: 0;
+}
+
+.btn-action {
+  padding: 0.3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: $radius-sm;
+  background-color: transparent;
+  transition: all $transition-base;
+
+  i {
+    font-size: 0.95rem;
+  }
+
+  &:hover {
+    background-color: $hover-bg;
+  }
+}
+
+.btn-action-edit i {
+  color: $info;
+}
+
+.btn-action-flag i {
+  color: $text-secondary;
+}
+
+.btn-action-delete i {
+  color: $danger-light;
+}
+
+.profesionales-empty {
+  padding: $spacing-3xl $spacing-lg;
+}
+
+@include tablet {
+  .profesionales-panel {
+    position: relative;
+    top: 0;
+    max-height: none;
+    margin-top: 0;
+    padding: $spacing-lg;
+  }
+
+  .profesionales-list {
+    max-height: 400px;
+  }
+
+  .profesionales-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+
+    .btn-primary {
+      justify-content: center;
+    }
+  }
+
+  .profesional-row {
+    flex-wrap: wrap;
+    gap: $spacing-md;
+  }
+
+  .profesional-badges {
+    order: 3;
+    width: 100%;
+    padding-left: calc(2.75rem + #{$spacing-lg});
+  }
+
+  .profesional-actions {
+    margin-left: auto;
+  }
+}
+
+// Modal confirmación de eliminación de profesional
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba($text-primary, 0.45);
+  backdrop-filter: blur(4px);
+  z-index: 1040;
+  animation: modalBackdropFadeIn $transition-slow forwards;
+}
+
+[data-testid='settings-delete-user-dialog'] {
+  z-index: 1050;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-md;
+
+  .modal-dialog {
+    position: relative;
+    z-index: 1055;
+    margin: 0;
+    width: 100%;
+    max-width: 36rem;
+    animation: modalDialogFadeIn $transition-slow forwards;
+
+    &.modal-dialog-delete {
+      max-width: 32rem;
+    }
+  }
+
+  .modal-content {
+    background: $card-background;
+    border: 1px solid $border-color;
+    border-radius: $radius-xl;
+    box-shadow: $shadow-xl;
+    overflow: hidden;
+  }
+
+  .delete-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: $spacing-lg;
+    padding: $spacing-xl $spacing-2xl $spacing-lg;
+    background: $card-background;
+  }
+
+  .delete-modal-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    min-width: 0;
+  }
+
+  .delete-modal-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: $radius-full;
+    background-color: rgba($danger-light, 0.12);
+    color: $danger-light;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    i {
+      font-size: 1rem;
+    }
+  }
+
+  .delete-modal-title {
+    margin: 0;
+    font-weight: 600;
+    font-size: 1.125rem;
+    color: $text-primary;
+    line-height: 1.4;
+  }
+
+  .btn-modal-close {
+    @include btn-modal-close;
+    margin-left: auto;
+  }
+
+  .modal-body {
+    padding: $spacing-2xl;
+    max-height: calc(100vh - 12rem);
+    overflow-y: auto;
+
+    .delete-modal-message {
+      margin: 0 0 $spacing-sm;
+      color: $text-primary;
+      font-size: 0.9375rem;
+      line-height: 1.5;
+    }
+
+    .delete-modal-submessage {
+      margin: 0 0 $spacing-xl;
+      color: $text-secondary;
+      font-size: 0.9375rem;
+      line-height: 1.5;
+    }
+
+    .delete-user-details {
+      @include container-light-bg($radius-lg, $spacing-lg);
+      border: 1px solid $border-color;
+      margin-bottom: $spacing-lg;
+    }
+
+    .delete-user-detail-row {
+      display: flex;
+      align-items: center;
+      gap: $spacing-sm;
+      flex-wrap: wrap;
+
+      + .delete-user-detail-row {
+        margin-top: $spacing-md;
+      }
+    }
+
+    .delete-user-detail-label {
+      color: $text-secondary;
+      font-size: 0.875rem;
+    }
+
+    .delete-user-detail-row strong {
+      color: $text-primary;
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+
+    .delete-user-warning {
+      display: flex;
+      align-items: flex-start;
+      gap: $spacing-md;
+      padding: $spacing-md $spacing-lg;
+      background-color: rgba($warning, 0.14);
+      border: 1px solid rgba($warning, 0.45);
+      border-radius: $radius-lg;
+
+      i {
+        color: #D97706;
+        font-size: 1rem;
+        flex-shrink: 0;
+        margin-top: 0.125rem;
+      }
+
+      p {
+        margin: 0;
+        color: #92400E;
+        font-size: 0.8125rem;
+        line-height: 1.5;
+      }
+    }
+  }
+
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+    border-top: 1px solid $border-color;
+    padding: $spacing-lg $spacing-2xl;
+    background: $card-background;
+
+    .btn {
+      padding: 0.625rem 1.25rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border-radius: $radius-md;
+      transition: all $transition-base;
+      cursor: pointer;
+
+      &:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+    }
+
+    .btn-outline-secondary {
+      background-color: transparent;
+      border: 1px solid $border-color;
+      color: $text-primary;
+
+      &:hover:not(:disabled) {
+        background-color: $hover-bg;
+        border-color: $primary-color;
+        color: $primary-color;
+      }
+    }
+
+    .btn-danger {
+      background-color: $danger-light;
+      border: 1px solid $danger-light;
+      color: white;
+
+      &:hover:not(:disabled) {
+        background-color: $danger-dark;
+        border-color: $danger-dark;
+      }
+    }
+
+    .btn-delete-user {
+      display: inline-flex;
+      align-items: center;
+      gap: $spacing-sm;
+
+      i {
+        font-size: 0.875rem;
+      }
+    }
+  }
+
+  @include mobile {
+    align-items: flex-end;
+    padding: $spacing-md;
+
+    .modal-dialog {
+      margin: 0;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .modal-content {
+      border-radius: $radius-lg $radius-lg 0 0;
+    }
+
+    .delete-modal-header,
+    .modal-body {
+      padding: $spacing-lg;
+    }
+
+    .modal-footer {
+      flex-direction: column-reverse;
+      padding: $spacing-lg;
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  }
+}

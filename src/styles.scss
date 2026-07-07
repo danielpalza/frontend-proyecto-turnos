@@ -207,6 +207,29 @@ html.seguimiento-view-active body::-webkit-scrollbar {
   animation: fadeIn $transition-slow forwards;
 }
 
+// Entrada compartida de modales (backdrop + dialog). Referenciadas por nombre desde
+// los estilos de cada componente de modal (confirm-dialog, profesional-dialog,
+// profesionales-panel, etc.) para no redeclarar la misma animación en cada uno.
+@keyframes modalBackdropFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalDialogFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 // ============================================
 // CLASES DE CARDS Y CONTENEDORES
 // ============================================
@@ -289,6 +312,21 @@ html.seguimiento-view-active body::-webkit-scrollbar {
   @include empty-state(2rem, 1rem);
 }
 
+.empty-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: $text-primary;
+  margin-bottom: $spacing-sm;
+}
+
+.empty-description {
+  font-size: 0.875rem;
+  color: $text-secondary;
+  line-height: 1.6;
+  max-width: 220px;
+  margin: 0;
+}
+
 // ============================================
 // CLASES DE BADGES
 // ============================================
@@ -307,6 +345,79 @@ html.seguimiento-view-active body::-webkit-scrollbar {
 
 .badge-danger {
   @include badge($danger-light);
+}
+
+// Chips de estado de turno (soft/pill), aplicados vía getStatusBadgeClass().
+.badge-completado,
+.badge-confirmado,
+.badge-pendiente,
+.badge-en-curso,
+.badge-cancelado,
+.badge-no-asistio,
+.badge-sin-estado {
+  font-weight: 600;
+  font-size: 0.75rem;
+  padding: 0.3rem 0.625rem;
+  border-radius: $radius-full;
+}
+
+.badge-completado,
+.badge-confirmado {
+  @include badge-soft($success, 0.15, -20%);
+}
+
+.badge-pendiente {
+  @include badge-soft($warning, 0.18, -30%);
+}
+
+.badge-en-curso {
+  @include badge-soft($info, 0.15, -15%);
+}
+
+.badge-cancelado,
+.badge-no-asistio {
+  @include badge-soft($danger, 0.15, -10%);
+}
+
+.badge-sin-estado {
+  background-color: $hover-bg;
+  color: $text-secondary;
+}
+
+// Contadores por estado (versión mini de los chips, mismo sistema de colores).
+.tab-count-todos {
+  @include badge-soft($primary-color, 0.14, 0%);
+}
+
+.tab-count-completado {
+  @include badge-soft($success, 0.16, -20%);
+}
+
+.tab-count-pendiente {
+  @include badge-soft($warning, 0.2, -30%);
+}
+
+.tab-count-cancelado {
+  @include badge-soft($danger, 0.14, -10%);
+}
+
+// Avatar circular con inicial del paciente y color pastel determinístico.
+.patient-avatar {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.6875rem;
+  font-weight: 700;
+
+  &.avatar-1 { @include badge-soft($avatar-violet, 0.1, 0%); }
+  &.avatar-2 { @include badge-soft($avatar-amber, 0.1, 0%); }
+  &.avatar-3 { @include badge-soft($avatar-green, 0.1, 0%); }
+  &.avatar-4 { @include badge-soft($avatar-pink, 0.1, 0%); }
+  &.avatar-5 { @include badge-soft($avatar-blue, 0.1, 0%); }
 }
 
 // ============================================

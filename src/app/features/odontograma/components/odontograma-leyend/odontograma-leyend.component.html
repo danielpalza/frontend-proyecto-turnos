@@ -1,93 +1,83 @@
-<div class="card shadow-sm mb-3" data-testid="odontogram-legend-panel">
-  <div class="card-body p-0">
-    <div class="dropdown w-100">
-      <button
-        type="button"
-        class="btn btn-light dropdown-toggle w-100 d-flex align-items-center justify-content-between rounded-0 border-0 py-3 px-3 text-start shadow-none"
-        id="leyenda-dropdown"
-        (click)="legendOpen = !legendOpen"
-        data-testid="odontogram-legend-toggle-btn"
-        [attr.aria-expanded]="legendOpen"
-        aria-controls="leyenda-dropdown-panel"
-      >
-        <span class="h5 mb-0 fw-semibold d-flex align-items-center text-body">
-          <i class="bi bi-list-check me-2"></i>Leyenda
-        </span>
-      </button>
-      <div
-        id="leyenda-dropdown-panel"
-        class="dropdown-menu w-100 border-0 shadow-none px-3 pb-3 pt-0"
-        [class.show]="legendOpen"
-        style="position: static; transform: none !important; float: none"
-      >
-    <div class="mb-3">
-      <p class="fw-semibold mb-2">Estados:</p>
-      <div class="d-flex flex-column gap-2">
-        <label *ngFor="let estado of estados; let idx = index" class="form-check d-flex align-items-center gap-2 mb-0">
-          <input
-            class="form-check-input mt-0"
-            type="checkbox"
-            [id]="'estado-' + idx"
-            [disabled]="!selectedTooth"
-            [checked]="isItemSelected(estado.label)"
-            (change)="onToggleEstado(estado, $event)"
-            [attr.data-testid]="'odontogram-estado-checkbox-' + idx"
-          />
-          <span class="small">{{ estado.label || ' ' }}</span>
-          <i [ngClass]="estado.icono"></i>
-        </label>
-      </div>
+<div class="card shadow-sm mb-3 legend-panel-card" data-testid="odontogram-legend-panel">
+  <button
+    type="button"
+    class="legend-toggle-btn"
+    [class.open]="legendOpen"
+    id="leyenda-dropdown"
+    (click)="legendOpen = !legendOpen"
+    data-testid="odontogram-legend-toggle-btn"
+    [attr.aria-expanded]="legendOpen"
+    aria-controls="leyenda-dropdown-panel"
+  >
+    <span><i class="bi bi-list-check me-2"></i>Leyenda</span>
+    <i class="bi bi-chevron-down chevron"></i>
+  </button>
+
+  <div id="leyenda-dropdown-panel" class="legend-panel-body" [class.open]="legendOpen">
+    <div class="legend-hint" *ngIf="!selectedTooth">
+      Seleccioná un diente en el odontograma para habilitar estos controles.
     </div>
 
-    <div>
-      <p class="fw-semibold mb-2">Condiciones</p>
-      <div class="d-flex flex-column gap-2 mb-3">
-        <label *ngFor="let condicion of condiciones; let idx = index"
-          class="form-check d-flex align-items-center gap-2 mb-0">
-          <input
-            class="form-check-input mt-0"
-            type="checkbox"
-            [id]="'condicion-' + idx"
-            [disabled]="!selectedTooth"
-            [checked]="isItemSelected(condicion.label)"
-            (change)="onToggleCondicion(condicion, $event)"
-            [attr.data-testid]="'odontogram-condicion-checkbox-' + idx"
-          />
-          <span class="small">{{ condicion.label }}</span>
-          <i [ngClass]="condicion.icono"></i> </label>
-      </div>
-
-      <label class="form-label small mb-1" for="movilidad-select">Movilidad</label>
-      <select
-        id="movilidad-select"
-        class="form-select form-select-sm mb-3"
-        [disabled]="!selectedTooth"
-        [value]="getSelectedMovilidadLabel()"
-        (change)="onMovilidadChange($event)"
-        data-testid="odontogram-mobility-select"
-      >
-        <option value="">Seleccionar movilidad</option>
-        <option *ngFor="let opcion of movilidadOpciones" [value]="opcion.label">
-          {{ opcion.label }}
-        </option>
-      </select>
-
-      <label class="form-label small mb-1" for="furca-select">Furca</label>
-      <select
-        id="furca-select"
-        class="form-select form-select-sm"
-        [disabled]="!selectedTooth"
-        [value]="getSelectedFurcaLabel()"
-        (change)="onFurcaChange($event)"
-        data-testid="odontogram-furcation-select"
-      >
-        <option value="">Seleccionar furca</option>
-        <option *ngFor="let opcion of furcaOpciones" [value]="opcion.label">
-          {{ opcion.label }}
-        </option>
-      </select>
+    <p class="legend-group-title">Estados</p>
+    <div class="legend-group">
+      <label *ngFor="let estado of estados; let idx = index" class="legend-check-row">
+        <input
+          type="checkbox"
+          [id]="'estado-' + idx"
+          [disabled]="!selectedTooth"
+          [checked]="isItemSelected(estado.label)"
+          (change)="onToggleEstado(estado, $event)"
+          [attr.data-testid]="'odontogram-estado-checkbox-' + idx"
+        />
+        <span>{{ estado.label || ' ' }}</span>
+        <i [ngClass]="estado.icono"></i>
+      </label>
     </div>
-      </div>
+
+    <p class="legend-group-title">Condiciones</p>
+    <div class="legend-group">
+      <label *ngFor="let condicion of condiciones; let idx = index" class="legend-check-row">
+        <input
+          type="checkbox"
+          [id]="'condicion-' + idx"
+          [disabled]="!selectedTooth"
+          [checked]="isItemSelected(condicion.label)"
+          (change)="onToggleCondicion(condicion, $event)"
+          [attr.data-testid]="'odontogram-condicion-checkbox-' + idx"
+        />
+        <span>{{ condicion.label }}</span>
+        <i [ngClass]="condicion.icono"></i>
+      </label>
     </div>
+
+    <label class="legend-select-label" for="movilidad-select">Movilidad</label>
+    <select
+      id="movilidad-select"
+      class="legend-select"
+      [disabled]="!selectedTooth"
+      [value]="getSelectedMovilidadLabel()"
+      (change)="onMovilidadChange($event)"
+      data-testid="odontogram-mobility-select"
+    >
+      <option value="">Seleccionar movilidad</option>
+      <option *ngFor="let opcion of movilidadOpciones" [value]="opcion.label">
+        {{ opcion.label }}
+      </option>
+    </select>
+
+    <label class="legend-select-label" for="furca-select">Furca</label>
+    <select
+      id="furca-select"
+      class="legend-select"
+      [disabled]="!selectedTooth"
+      [value]="getSelectedFurcaLabel()"
+      (change)="onFurcaChange($event)"
+      data-testid="odontogram-furcation-select"
+    >
+      <option value="">Seleccionar furca</option>
+      <option *ngFor="let opcion of furcaOpciones" [value]="opcion.label">
+        {{ opcion.label }}
+      </option>
+    </select>
   </div>
 </div>

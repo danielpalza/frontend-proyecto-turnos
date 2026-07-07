@@ -1,5 +1,6 @@
 @use 'sass:color' as color;
 @use 'variables' as *;
+@use 'mixins' as *;
 
 // La barra de la página se oculta vía clase en html (seguimiento-view-active) desde el .ts y estilos en styles.scss
 
@@ -7,10 +8,21 @@
   padding: 2rem;
   background-color: $background-color;
   padding-bottom: 3rem;
+  margin: 0 12rem;
 }
 
 // Modal Pago y observaciones del turno
 .turn-modal-content {
+  .title-block {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+  }
+
+  .icon-circle {
+    @include icon-wrapper-circle-sm;
+  }
+
   .turn-modal-context {
     font-size: 0.9rem;
   }
@@ -56,6 +68,36 @@
     }
   }
 
+  .icon-btn {
+    background: none;
+    border: none;
+    padding: 0.15rem 0.3rem;
+    border-radius: $radius-sm;
+    cursor: pointer;
+    transition: all $transition-base;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    &:hover:not(:disabled) {
+      background-color: $hover-bg;
+    }
+  }
+
+  .icon-btn-success {
+    color: $success-dark;
+  }
+
+  .icon-btn-muted {
+    color: $text-muted;
+  }
+
+  .icon-btn-primary {
+    color: $primary-color;
+  }
+
   .btn-whatsapp {
     background: none;
     border: none;
@@ -87,7 +129,15 @@
 .header-section {
   h1 {
     color: $text-primary;
-    font-size: 1.875rem;
+    font-size: 1.5rem;
+  }
+
+  p {
+    font-size: 0.875rem;
+  }
+
+  [data-testid="tracking-new-patient-btn"] {
+    @include button-gradient-primary();
   }
 }
 
@@ -95,7 +145,7 @@
   .form-control {
     border-radius: $radius-lg;
     border: 1px solid $border-color;
-    padding: 0.75rem 1rem 0.75rem 2.75rem;
+    padding: 0.65rem 0.9rem 0.65rem 2.4rem;
     transition: all $transition-base;
 
     &:focus {
@@ -120,23 +170,10 @@
   overflow-y: auto;
   padding-right: 0.5rem;
 
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: $hover-bg;
-    border-radius: 3px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: color.mix($border-color, $text-muted, 55%);
-    border-radius: 3px;
-
-    &:hover {
-      background: $text-muted;
-    }
-  }
+  @include scrollbar-thin(
+    $thumb: color.mix($border-color, $text-muted, 55%),
+    $thumb-hover: $text-muted
+  );
 }
 
 .patient-card {
@@ -151,29 +188,40 @@
 
   .card-header {
     border-bottom: 1px solid $border-color;
-    padding: 1.25rem 1.5rem;
+    padding: 1.1rem 1.25rem;
   }
 
   .card-body {
-    padding: 1.5rem;
+    padding: 1.1rem 1.25rem;
+  }
+
+  [data-testid^="tracking-patient-edit-btn-"] {
+    color: $primary-color;
+    border-color: $primary-color;
+
+    &:hover {
+      background-color: $primary-color;
+      border-color: $primary-color;
+      color: white;
+    }
+  }
+
+  [data-testid^="tracking-patient-dni-display-"] {
+    color: $primary-color;
   }
 }
 
 .avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background-color: rgba($primary-color, 0.1);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-shrink: 0;
+  @include icon-wrapper-circle-sm($primary-color, 0.1, 44px, 1.5rem);
 }
 
 .total-deuda {
-  font-size: 1.25rem;
-  font-weight: 700;
+  background-color: rgba($danger-light, 0.1);
   color: $danger-dark;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.15rem 0.55rem;
+  border-radius: $radius-full;
   white-space: nowrap;
 }
 
@@ -184,12 +232,13 @@
 }
 
 .appointment-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 92px;
+  padding: 0.45rem 0.75rem;
+  border-radius: $radius-md;
+  font-size: 0.78rem;
   font-weight: 500;
   transition: all 0.2s ease;
   cursor: pointer;
@@ -201,6 +250,7 @@
 
   .appointment-date {
     color: inherit;
+    font-weight: 600;
   }
 
   .appointment-amount {
@@ -269,7 +319,7 @@
   }
 
   .header-section h1 {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
   }
 
   .patient-card {
@@ -280,16 +330,8 @@
   }
 
   .avatar {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
   }
 
-  .total-deuda {
-    font-size: 1rem;
-  }
-
-  .appointment-badge {
-    font-size: 0.8125rem;
-    padding: 0.375rem 0.625rem;
-  }
 }

@@ -2,7 +2,7 @@
   <div class="container-fluid px-4">
     <div class="row g-4">
       <!-- Columna principal: Lista de pacientes -->
-      <div class="col-12">
+      <div class="col-lg-7 col-xl-7">
         <!-- Título -->
         <div class="header-section mb-4 d-flex justify-content-between align-items-start flex-wrap gap-2">
           <div>
@@ -39,7 +39,7 @@
             <div class="card-header bg-white">
               <div class="d-flex align-items-center gap-3">
                 <div class="avatar">
-                  <i class="bi bi-person fs-4 text-primary"></i>
+                  <i class="bi bi-person"></i>
                 </div>
 
                 <div class="flex-grow-1">
@@ -90,6 +90,10 @@
         </div>
       </div>
 
+      <!-- Columna: Profesionales -->
+      <div class="col-lg-5 col-xl-5">
+        <app-profesionales-panel></app-profesionales-panel>
+      </div>
     </div>
   </div>
 
@@ -121,9 +125,10 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content turn-modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" data-testid="tracking-turn-modal-title">
-            <i class="bi bi-cash-coin me-2 text-primary"></i>Pago y observaciones
-          </h5>
+          <div class="title-block">
+            <div class="icon-circle"><i class="bi bi-cash-coin"></i></div>
+            <h5 class="modal-title" data-testid="tracking-turn-modal-title">Pago y observaciones</h5>
+          </div>
           <div class="d-flex align-items-center gap-2 ms-auto">
             <a *ngIf="hasPatientPhone()" [href]="getWhatsAppLink()" target="_blank"
               class="btn-whatsapp" title="Enviar recordatorio por WhatsApp"
@@ -160,16 +165,16 @@
                   <span *ngIf="editingPriceBono" class="d-inline-flex align-items-center gap-1">
                     <input type="number" class="form-control form-control-sm price-edit-input" placeholder="0" min="0"
                       step="0.01" [(ngModel)]="inputBono" (keyup.escape)="cancelEditingPriceBono()" />
-                    <button type="button" class="btn btn-sm btn-success" (click)="savePriceBono()"
+                    <button type="button" class="icon-btn icon-btn-success" (click)="savePriceBono()"
                       [disabled]="isSavingPrice" title="Guardar">
                       <i class="bi bi-check-lg"></i>
                     </button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="cancelEditingPriceBono()"
+                    <button type="button" class="icon-btn icon-btn-muted" (click)="cancelEditingPriceBono()"
                       title="Cancelar">
                       <i class="bi bi-x-lg"></i>
                     </button>
                   </span>
-                  <button type="button" class="btn btn-sm btn-link p-0 text-primary" *ngIf="!editingPriceBono"
+                  <button type="button" class="icon-btn icon-btn-primary" *ngIf="!editingPriceBono"
                     (click)="startEditingPriceBono()" title="Editar bono" data-testid="tracking-turn-edit-bono-btn">
                     <i class="bi bi-pencil"></i>
                   </button>
@@ -184,16 +189,16 @@
                   <span *ngIf="editingPriceTratamiento" class="d-inline-flex align-items-center gap-1">
                     <input type="number" class="form-control form-control-sm price-edit-input" placeholder="0" min="0"
                       step="0.01" [(ngModel)]="inputTratamiento" (keyup.escape)="cancelEditingPriceTratamiento()" />
-                    <button type="button" class="btn btn-sm btn-success" (click)="savePriceTratamiento()"
+                    <button type="button" class="icon-btn icon-btn-success" (click)="savePriceTratamiento()"
                       [disabled]="isSavingPrice" title="Guardar">
                       <i class="bi bi-check-lg"></i>
                     </button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                    <button type="button" class="icon-btn icon-btn-muted"
                       (click)="cancelEditingPriceTratamiento()" title="Cancelar">
                       <i class="bi bi-x-lg"></i>
                     </button>
                   </span>
-                  <button type="button" class="btn btn-sm btn-link p-0 text-primary" *ngIf="!editingPriceTratamiento"
+                  <button type="button" class="icon-btn icon-btn-primary" *ngIf="!editingPriceTratamiento"
                     (click)="startEditingPriceTratamiento()" title="Editar tratamiento" data-testid="tracking-turn-edit-treatment-btn">
                     <i class="bi bi-pencil"></i>
                   </button>
@@ -207,16 +212,16 @@
                   <span *ngIf="editingPriceExtras" class="d-inline-flex align-items-center gap-1">
                     <input type="number" class="form-control form-control-sm price-edit-input" placeholder="0" min="0"
                       step="0.01" [(ngModel)]="inputExtras" (keyup.escape)="cancelEditingPriceExtras()" />
-                    <button type="button" class="btn btn-sm btn-success" (click)="savePriceExtras()"
+                    <button type="button" class="icon-btn icon-btn-success" (click)="savePriceExtras()"
                       [disabled]="isSavingPrice" title="Guardar">
                       <i class="bi bi-check-lg"></i>
                     </button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="cancelEditingPriceExtras()"
+                    <button type="button" class="icon-btn icon-btn-muted" (click)="cancelEditingPriceExtras()"
                       title="Cancelar">
                       <i class="bi bi-x-lg"></i>
                     </button>
                   </span>
-                  <button type="button" class="btn btn-sm btn-link p-0 text-primary" *ngIf="!editingPriceExtras"
+                  <button type="button" class="icon-btn icon-btn-primary" *ngIf="!editingPriceExtras"
                     (click)="startEditingPriceExtras()" title="Editar extras" data-testid="tracking-turn-edit-extras-btn">
                     <i class="bi bi-pencil"></i>
                   </button>

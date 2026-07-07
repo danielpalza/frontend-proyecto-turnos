@@ -24,6 +24,20 @@ $success-dark: #059669;
 $danger-light: #ef4444;
 $danger-dark: #dc2626;
 
+// Paleta del gráfico de periodontograma (nic/pocket/calculus/suppuration),
+// compartida entre perio-tooth-sparkline y periodontograma-form.
+$chart-nic: #2563eb;
+$chart-suppuration: #7c3aed;
+$chart-calculus: #8b4513;
+
+// Paleta pastel determinística para avatares de pacientes
+// (mismo paciente = mismo color; ver getAvatarColorClass()).
+$avatar-violet: $secondary-color;
+$avatar-amber: #f59e0b;
+$avatar-green: $success-light;
+$avatar-pink: #ec4899;
+$avatar-blue: #3b82f6;
+
 // ============================================
 // VARIABLES DE ESPACIADO Y TAMAÑOS
 // ============================================

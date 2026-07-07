@@ -11,11 +11,12 @@ import { combineLatest, Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { PatientWizardComponent, getPatientFormConfig } from '../../../shared';
 import { fullName } from '../../../core/utils/full-name.util';
+import { ProfesionalesPanelComponent } from '../components/profesionales-panel/profesionales-panel.component';
 
 @Component({
   selector: 'app-seguimiento-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, PatientWizardComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, PatientWizardComponent, ProfesionalesPanelComponent],
   templateUrl: './seguimiento-view.component.html',
   styleUrls: ['./seguimiento-view.component.scss']
 })

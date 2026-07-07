@@ -88,11 +88,11 @@
 }
 
 .line--nic {
-  stroke: #2563eb;
+  stroke: $chart-nic;
 }
 
 .line--probing {
-  stroke: #dc2626;
+  stroke: $danger-dark;
 }
 
 .line--margin {
@@ -114,14 +114,14 @@
 }
 
 .dot--suppuration {
-  fill: #7c3aed;
+  fill: $chart-suppuration;
   stroke: $card-background;
   stroke-width: 0.35;
   vector-effect: non-scaling-stroke;
 }
 
 .dot--calculus {
-  fill: #8B4513;
+  fill: $chart-calculus;
   stroke: $card-background;
   stroke-width: 0.3;
   vector-effect: non-scaling-stroke;

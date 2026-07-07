@@ -1,0 +1,148 @@
+@use 'variables' as *;
+
+.legend-panel-card {
+  padding: 0;
+  overflow: hidden;
+  border-radius: $radius-lg;
+}
+
+.legend-toggle-btn {
+  width: 100%;
+  border: none;
+  background: $card-background;
+  padding: 1rem 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: $text-primary;
+
+  i.bi-list-check {
+    color: $primary-color;
+  }
+
+  .chevron {
+    transition: transform $transition-base;
+    color: $text-muted;
+  }
+
+  &.open .chevron {
+    transform: rotate(180deg);
+  }
+}
+
+.legend-panel-body {
+  display: none;
+  padding: 0 1.1rem 1.1rem;
+
+  &.open {
+    display: block;
+  }
+}
+
+.legend-group-title {
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin: 0 0 0.6rem;
+  color: $text-primary;
+
+  &:not(:first-of-type) {
+    margin-top: 1rem;
+  }
+}
+
+.legend-group {
+  margin-bottom: 0.75rem;
+}
+
+.legend-check-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0;
+  margin: 0;
+  font-size: 0.85rem;
+  color: $text-secondary;
+  cursor: pointer;
+
+  input[type='checkbox'] {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid $border-color;
+    border-radius: 0.3rem;
+    flex-shrink: 0;
+    cursor: pointer;
+    position: relative;
+    transition: all $transition-base;
+
+    &:checked {
+      background: $primary-color;
+      border-color: $primary-color;
+
+      &::after {
+        content: '\f26e'; // bi-check
+        font-family: 'bootstrap-icons';
+        position: absolute;
+        color: #fff;
+        font-size: 11px;
+        left: 2px;
+        top: 0;
+      }
+    }
+
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+  }
+
+  i {
+    margin-left: auto;
+    color: $text-muted;
+  }
+}
+
+.legend-select-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 500;
+  margin-bottom: 0.3rem;
+  color: $text-primary;
+}
+
+.legend-select {
+  width: 100%;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid $border-color;
+  border-radius: $radius-sm;
+  font-size: 0.85rem;
+  background: $card-background;
+  color: $text-primary;
+
+  &:not(:last-child) {
+    margin-bottom: 0.9rem;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.12);
+  }
+
+  &:disabled {
+    background: $hover-bg;
+    cursor: not-allowed;
+  }
+}
+
+.legend-hint {
+  font-size: 0.78rem;
+  color: $text-muted;
+  padding: 0.6rem 0.9rem;
+  background: $hover-bg;
+  border-radius: $radius-sm;
+  margin-bottom: 1rem;
+}

@@ -150,7 +150,7 @@
 }
 
 .legend-swatch--ps {
-  background: #dc2626;
+  background: $danger-dark;
 }
 
 .legend-swatch--mg {
@@ -158,12 +158,12 @@
 }
 
 .legend-swatch--nic {
-  background: #2563eb;
+  background: $chart-nic;
 }
 
 .legend-swatch--pocket {
-  background: rgba(#2563eb, 0.14);
-  border: 1px solid rgba(#2563eb, 0.35);
+  background: rgba($chart-nic, 0.14);
+  border: 1px solid rgba($chart-nic, 0.35);
 }
 
 .legend-swatch--axis {
@@ -233,7 +233,7 @@
 }
 
 .arc-face-title {
-  margin: 0 0 0.35rem;
+  margin: 0 0 0 0;
   font-size: 0.72rem;
   font-weight: 600;
   color: $text-muted;
@@ -242,7 +242,7 @@
 }
 
 .teeth-row + .arc-face-title {
-  margin-top: $spacing-md;
+  margin-top: $spacing-xs;
 }
 
 .tooth-form--lingual {
@@ -411,13 +411,13 @@
 }
 
 .perio-grid .suppuration-checkbox:checked {
-  background: radial-gradient(circle at center, #7c3aed 0 32%, transparent 36%);
+  background: radial-gradient(circle at center, $chart-suppuration 0 32%, transparent 36%);
   border-radius: 0;
   border-color: $border-color;
 }
 
 .perio-grid .calculus-checkbox:checked {
-  background: radial-gradient(circle at center, #8B4513 0 32%, transparent 36%);
+  background: radial-gradient(circle at center, $chart-calculus 0 32%, transparent 36%);
   border-radius: 0;
   border-color: $border-color;
 }
@@ -451,15 +451,15 @@
 // MG es un campo derivado (NIC − PS): no editable, fondo neutro y color
 // rojo para alinearse visualmente con la línea roja del sparkline.
 .perio-grid input[type='number'].perio-val--mg {
-  color: #dc2626;
-  background: color-mix(in srgb, #dc2626 8%, $card-background);
+  color: $danger-dark;
+  background: color-mix(in srgb, $danger-dark 8%, $card-background);
   cursor: not-allowed;
   opacity: 1;
 }
 
 .perio-grid input[type='number'].perio-val--mg:disabled {
   opacity: 1;
-  color: #dc2626;
+  color: $danger-dark;
 }
 
 .present-check {

@@ -63,26 +63,11 @@
     font-size: 1rem;
   }
 
-  &.tile-icon-total {
-    background-color: rgba($primary-color, 0.12);
-    i { color: $primary-color; }
-  }
-  &.tile-icon-completado {
-    background-color: rgba($success, 0.15);
-    i { color: $success; }
-  }
-  &.tile-icon-pendiente {
-    background-color: rgba($warning, 0.18);
-    i { color: color.adjust($warning, $lightness: -15%); }
-  }
-  &.tile-icon-cancelado {
-    background-color: rgba($danger, 0.12);
-    i { color: $danger; }
-  }
-  &.tile-icon-facturacion {
-    background-color: rgba($info, 0.12);
-    i { color: $info; }
-  }
+  &.tile-icon-total { @include badge-soft($primary-color, 0.12, 0%); }
+  &.tile-icon-completado { @include badge-soft($success, 0.15, 0%); }
+  &.tile-icon-pendiente { @include badge-soft($warning, 0.18, -15%); }
+  &.tile-icon-cancelado { @include badge-soft($danger, 0.12, 0%); }
+  &.tile-icon-facturacion { @include badge-soft($info, 0.12, 0%); }
 }
 
 .tile-value {
@@ -152,23 +137,7 @@
 }
 
 .nav-arrow {
-  width: 2.25rem;
-  height: 2.25rem;
-  border: none;
-  background-color: transparent;
-  color: $text-secondary;
-  font-size: 1rem;
-  border-radius: $radius-md;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all $transition-base;
-
-  &:hover {
-    background-color: $hover-bg;
-    color: $primary-color;
-  }
+  @include nav-arrow-button;
 }
 
 .month-selector {

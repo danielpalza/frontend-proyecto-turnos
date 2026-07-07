@@ -1,5 +1,6 @@
 @use 'sass:color' as color;
 @use 'variables' as *;
+@use 'mixins' as *;
 
 // Modal personalizado
 .modal {
@@ -54,7 +55,17 @@
       font-size: 1.25rem;
       font-weight: 600;
       color: $text-primary;
+
+      i {
+        color: $primary-color;
+      }
     }
+  }
+
+  // Bootstrap no está tematizado global: dentro del diálogo el azul
+  // por defecto de .text-primary se re-brandea a la paleta indigo.
+  .text-primary {
+    color: $primary-color !important;
   }
 
   .modal-body {
@@ -80,23 +91,12 @@
   overflow-y: auto;
   padding-right: 0.75rem;
 
-  &::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: $hover-bg;
-    border-radius: 4px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: color.mix($border-color, $text-muted, 55%);
-    border-radius: 4px;
-
-    &:hover {
-      background: $text-muted;
-    }
-  }
+  @include scrollbar-thin(
+    $width: 8px,
+    $thumb: color.mix($border-color, $text-muted, 55%),
+    $thumb-hover: $text-muted,
+    $radius: 4px
+  );
 
   @media (max-width: 992px) {
     max-height: 50vh;
@@ -115,7 +115,11 @@
 
 // Área de totales
 .bg-indigo-light {
-  background-color: color.mix(white, $primary-color, 88%) !important;
+  background-color: color.mix(white, $primary-color, 92%) !important;
+
+  .text-primary {
+    color: $primary-dark !important;
+  }
 }
 
 .border-indigo {
@@ -150,18 +154,11 @@
   }
 
   .btn-primary {
-    background: linear-gradient(to right, $primary-color, $secondary-color);
-    border: none;
-    color: white;
+    @include button-gradient-secondary;
     font-weight: 500;
     transition: all $transition-slow;
 
     &:hover {
-      background: linear-gradient(
-        to right,
-        $primary-dark,
-        color.adjust($secondary-color, $lightness: -8%)
-      );
       transform: translateY(-1px);
       box-shadow: 0 10px 25px -5px rgba($primary-color, 0.4);
     }

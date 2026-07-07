@@ -1,5 +1,6 @@
 <div class="odontograma-container" data-testid="odontogram-page">
-  <div class="odontograma-content">
+  <div class="odontograma-content" [class.odontograma-content--perio]="activeForm === 'periodontograma'">
+
     @if (loading()) {
       <div class="text-center py-5" data-testid="odontogram-loading">
         <div class="spinner-border text-primary" role="status"></div>

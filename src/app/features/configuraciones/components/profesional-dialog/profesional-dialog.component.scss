@@ -11,7 +11,7 @@
   background: rgba($text-primary, 0.45);
   backdrop-filter: blur(4px);
   z-index: 1040;
-  animation: profesionalModalBackdropFadeIn $transition-slow forwards;
+  animation: modalBackdropFadeIn $transition-slow forwards;
 }
 
 .modal {
@@ -28,7 +28,7 @@
   margin: 0;
   width: 100%;
   max-width: 44rem;
-  animation: profesionalModalFadeIn $transition-slow forwards;
+  animation: modalDialogFadeIn $transition-slow forwards;
 }
 
 .modal-content {
@@ -72,27 +72,7 @@
 }
 
 .btn-modal-close {
-  width: 2rem;
-  height: 2rem;
-  padding: 0;
-  border: 1px solid $border-color;
-  border-radius: $radius-md;
-  background-color: $card-background;
-  color: $text-secondary;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: all $transition-base;
-
-  i {
-    font-size: 0.875rem;
-  }
-
-  &:hover {
-    background-color: $hover-bg;
-    color: $text-primary;
-  }
+  @include btn-modal-close;
 }
 
 .modal-body {
@@ -362,25 +342,5 @@
       width: 100%;
       justify-content: center;
     }
-  }
-}
-
-@keyframes profesionalModalBackdropFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes profesionalModalFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
   }
 }
