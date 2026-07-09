@@ -8,7 +8,7 @@ export interface Appointment {
   patientNombre?: string;
   patientApellido?: string;
   patientDni?: string;
-  patientObraSocialNumero?: string;
+  patientCoberturaNumero?: string;
   profesionalNombre?: string;
   profesionalApellido?: string;
   fecha: string;

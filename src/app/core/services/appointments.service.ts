@@ -96,23 +96,23 @@ export class AppointmentsService {
           if (type === 'both') {
             const name = fullName(app.patientNombre, app.patientApellido).toLowerCase();
             const dni = (app.patientDni || '').toLowerCase();
-            const obraSocial = (app.patientObraSocialNumero || '').toLowerCase();
+            const cobertura = (app.patientCoberturaNumero || '').toLowerCase();
             const profesionalName = fullName(app.profesionalNombre, app.profesionalApellido).toLowerCase();
             return (
               name.includes(t) ||
               dni.includes(t) ||
-              obraSocial.includes(t) ||
+              cobertura.includes(t) ||
               profesionalName.includes(t)
             );
           }
           if (type === 'patient') {
             const name = fullName(app.patientNombre, app.patientApellido).toLowerCase();
             const dni = (app.patientDni || '').toLowerCase();
-            const obraSocial = (app.patientObraSocialNumero || '').toLowerCase();
+            const cobertura = (app.patientCoberturaNumero || '').toLowerCase();
             return (
               name.includes(t) ||
               dni.includes(t) ||
-              obraSocial.includes(t)
+              cobertura.includes(t)
             );
           }
           if (type === 'profesional') {

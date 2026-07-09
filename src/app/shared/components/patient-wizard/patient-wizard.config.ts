@@ -27,9 +27,9 @@ export const PATIENT_WIZARD_STEPS: WizardStepDef[] = [
   {
     id: 3,
     title: 'Cobertura',
-    subtitle: 'Obra social y datos del titular',
+    subtitle: 'Cobertura y datos del titular',
     icon: 'bi-shield-check',
-    requiredControls: ['obraSocialNombre', 'nombreTitular', 'dniTitular', 'parentesco']
+    requiredControls: ['coberturaNombre', 'nombreTitular', 'dniTitular', 'parentesco']
   },
   {
     id: 4,
@@ -99,10 +99,10 @@ export const PATIENT_WIZARD_REVIEW_GROUPS: ReviewGroup[] = [
     title: 'Cobertura',
     icon: 'bi-shield-check',
     fields: [
-      { name: 'obraSocialNombre', label: 'Obra social' },
+      { name: 'coberturaNombre', label: 'Cobertura' },
       { name: 'planCategoria', label: 'Plan/Categoría' },
-      { name: 'obraSocialNumero', label: 'N° de afiliado' },
-      { name: 'obraSocialVencimiento', label: 'Vencimiento' },
+      { name: 'coberturaNumero', label: 'N° de afiliado' },
+      { name: 'coberturaVencimiento', label: 'Vencimiento' },
       { name: 'esTitular', label: '¿Es titular?', format: (v: string) => (v === 'no' ? 'No' : 'Sí') },
       { name: 'nombreTitular', label: 'Nombre del titular' },
       { name: 'dniTitular', label: 'DNI del titular' },

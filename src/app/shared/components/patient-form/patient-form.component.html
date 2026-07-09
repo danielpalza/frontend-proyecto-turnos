@@ -175,34 +175,34 @@
   </div>
 </section>
 
-<!-- Obra social -->
+<!-- Cobertura -->
 <section class="mb-4" data-testid="patient-coverage-section" [hidden]="activeStep !== null && activeStep !== 3">
   <h6 class="mb-3 text-primary" data-testid="tracking-section-coverage-title"><i class="bi bi-shield-check me-2"></i>Cobertura</h6>
   <div class="row g-3" [formGroup]="form">
     <div class="col-12 col-md-6 col-lg-4">
-      <label class="form-label">Obra Social *</label>
-      <select class="form-select" formControlName="obraSocialNombre" [class.is-invalid]="form.get('obraSocialNombre')?.invalid && form.get('obraSocialNombre')?.touched" data-testid="patient-insurance-select">
+      <label class="form-label">Cobertura *</label>
+      <select class="form-select" formControlName="coberturaNombre" [class.is-invalid]="form.get('coberturaNombre')?.invalid && form.get('coberturaNombre')?.touched" data-testid="patient-insurance-select">
         <option value="">Seleccione...</option>
         @for (os of OBRAS_SOCIALES; track os) {
           <option [value]="os">{{ os }}</option>
         }
       </select>
-      @if (form.get('obraSocialNombre')?.invalid && form.get('obraSocialNombre')?.touched) {
-        <div class="invalid-feedback d-block">Debe seleccionar una obra social</div>
+      @if (form.get('coberturaNombre')?.invalid && form.get('coberturaNombre')?.touched) {
+        <div class="invalid-feedback d-block">Debe seleccionar una cobertura</div>
       }
     </div>
-    @if (form.get('obraSocialNombre')?.value !== 'Particular') {
+    @if (form.get('coberturaNombre')?.value !== 'Particular') {
       <div class="col-12 col-md-6 col-lg-4">
         <label class="form-label">Plan / Categoría</label>
         <input class="form-control" type="text" formControlName="planCategoria" data-testid="patient-plan-input" />
       </div>
       <div class="col-12 col-md-6 col-lg-4">
         <label class="form-label">Número de Afiliado</label>
-        <input class="form-control" type="text" formControlName="obraSocialNumero" data-testid="patient-affiliate-number-input" />
+        <input class="form-control" type="text" formControlName="coberturaNumero" data-testid="patient-affiliate-number-input" />
       </div>
       <div class="col-12 col-md-6 col-lg-4">
         <label class="form-label">Fecha de Vencimiento</label>
-        <input class="form-control" type="date" formControlName="obraSocialVencimiento" data-testid="patient-insurance-expiry-input" />
+        <input class="form-control" type="date" formControlName="coberturaVencimiento" data-testid="patient-insurance-expiry-input" />
       </div>
       <div class="col-12 col-md-6 col-lg-3">
         <label class="form-label">¿Es titular?</label>

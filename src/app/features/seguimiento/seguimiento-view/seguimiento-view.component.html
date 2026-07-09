@@ -56,8 +56,8 @@
                   <small class="text-primary d-block mt-1" *ngIf="group.patient.dni" [attr.data-testid]="'tracking-patient-dni-display-' + group.patient.dni">
                     DNI: {{ group.patient.dni }}
                   </small>
-                  <small class="text-muted d-block mt-1" *ngIf="getObraSocialInfo(group.patient.dni || '')" [attr.data-testid]="'tracking-patient-insurance-display-' + group.patient.dni">
-                    Obra Social: {{ getObraSocialInfo(group.patient.dni || '') }}
+                  <small class="text-muted d-block mt-1" *ngIf="getCoberturaInfo(group.patient.dni || '')" [attr.data-testid]="'tracking-patient-insurance-display-' + group.patient.dni">
+                    Cobertura: {{ getCoberturaInfo(group.patient.dni || '') }}
                   </small>
                 </div>
               </div>

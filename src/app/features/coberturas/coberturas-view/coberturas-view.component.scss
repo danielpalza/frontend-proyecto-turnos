@@ -1,0 +1,457 @@
+@use 'sass:color';
+@use 'variables' as *;
+@use 'mixins' as *;
+
+.cob-module {
+  background-color: $background-color;
+  padding: $spacing-xl;
+  border-radius: $radius-lg;
+}
+
+.cob-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-xl;
+}
+
+.cob-title {
+  color: $text-primary;
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.btn-primary {
+  @include button-gradient-primary($radius-md);
+  padding: $spacing-sm $spacing-lg;
+  font-size: 0.875rem;
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.cob-label {
+  color: $text-secondary;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  margin: 0 0 $spacing-sm;
+
+  &--spaced {
+    margin-top: $spacing-2xl;
+  }
+}
+
+.cob-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-lg;
+
+  &--cols-3 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+
+    .cob-chip {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      grid-template-rows: auto;
+      align-items: center;
+      gap: $spacing-xs;
+      height: 100%;
+
+      input {
+        justify-self: start;
+        align-self: center;
+        margin: 0;
+      }
+
+      span {
+        min-width: 0;
+        white-space: normal;
+        word-break: break-word;
+        line-height: 1.35;
+        padding-right: $spacing-md;
+      }
+    }
+  }
+}
+
+.cob-chip {
+  @include badge-soft($text-secondary, 0, 0%);
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  border: 1px solid $border-color;
+  border-radius: $radius-md;
+  padding: 0.3rem $spacing-md;
+  font-size: 0.8125rem;
+  color: $text-secondary;
+  cursor: pointer;
+  background-color: $card-background;
+  transition: all $transition-base;
+
+  input {
+    margin: 0;
+  }
+
+  &--on {
+    @include badge-soft($primary-color, 0.1, -10%);
+    border-color: $primary-color;
+    font-weight: 500;
+  }
+}
+
+.cob-chip-add {
+  @include input-focus($radius-md);
+  border: 1px dashed $border-color;
+  padding: 0.3rem $spacing-md;
+  font-size: 0.8125rem;
+  color: $text-secondary;
+  cursor: pointer;
+  background-color: $card-background;
+}
+
+.cob-search {
+  position: relative;
+  margin-bottom: $spacing-xl;
+
+  i {
+    position: absolute;
+    left: $spacing-md;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $text-muted;
+    font-size: 0.9rem;
+  }
+
+  input {
+    @include input-focus($radius-md);
+    width: 100%;
+    padding: $spacing-sm $spacing-lg $spacing-sm $spacing-3xl;
+    font-size: 0.875rem;
+  }
+}
+
+.cob-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-lg;
+}
+
+.cob-card {
+  @include card-hover($radius-lg);
+  overflow: hidden;
+}
+
+.cob-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md $spacing-lg;
+  cursor: pointer;
+
+  &-left {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+  }
+}
+
+.cob-star--on {
+  color: $warning;
+}
+
+.bi-star {
+  color: $text-muted;
+}
+
+.cob-sigla {
+  font-size: 0.875rem;
+  color: $text-primary;
+  font-weight: 500;
+}
+
+.cob-badge-pais {
+  @include badge($text-muted);
+  background-color: transparent;
+  color: $text-muted;
+  border: 1px solid $border-color;
+}
+
+.cob-detail {
+  @include container-light-bg($radius-sm, $spacing-lg);
+  border-top: 1px solid $border-color;
+  border-radius: 0;
+  font-size: 0.8125rem;
+  color: $text-secondary;
+}
+
+.cob-detail-nombre {
+  margin: 0 0 $spacing-sm;
+  color: $text-primary;
+  font-weight: 500;
+}
+
+.cob-detail-row {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin: $spacing-xs 0;
+  flex-wrap: wrap;
+
+  a {
+    color: $primary-color;
+    text-decoration: none;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &--nota {
+    color: $text-muted;
+    font-style: italic;
+  }
+
+  &--doc {
+    padding-left: $spacing-lg;
+  }
+}
+
+.cob-report-link {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: $text-muted;
+  font-size: 0.75rem;
+  text-decoration: underline;
+  cursor: pointer;
+
+  &:hover {
+    color: $danger;
+  }
+}
+
+.cob-confianza {
+  @include badge($text-muted, $radius-full);
+  font-size: 0.625rem;
+  text-transform: uppercase;
+
+  &--alta {
+    background-color: $success;
+  }
+  &--media {
+    background-color: $warning;
+  }
+  &--baja {
+    background-color: $danger-light;
+  }
+}
+
+.cob-nota-textarea {
+  @include input-focus($radius-sm);
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  font-size: 0.8125rem;
+  margin: $spacing-xs 0 $spacing-md;
+  resize: vertical;
+}
+
+.cob-upload-row {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin: $spacing-xs 0;
+}
+
+.cob-tipo-doc-select {
+  @include input-focus($radius-sm);
+  padding: 0.3rem $spacing-sm;
+  font-size: 0.75rem;
+}
+
+.cob-upload-label {
+  @include button-action-small($primary-color, $primary-dark);
+  cursor: pointer;
+}
+
+.cob-doc-nombre {
+  cursor: pointer;
+  color: $primary-color;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.cob-icon-btn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: $text-muted;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0.15rem 0.4rem;
+
+  &:hover {
+    color: $text-primary;
+  }
+
+  &--danger:hover {
+    color: $danger;
+  }
+}
+
+.cob-int-header {
+  @include section-bordered-left;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin: $spacing-md;
+
+  i {
+    color: $primary-color;
+  }
+}
+
+.cob-int-nombre {
+  font-weight: 500;
+  color: $text-primary;
+}
+
+.cob-int-actions {
+  margin-left: auto;
+  display: flex;
+  gap: $spacing-xs;
+}
+
+.cob-int-body {
+  padding: 0 $spacing-lg $spacing-md;
+  font-size: 0.8125rem;
+  color: $text-secondary;
+}
+
+.cob-int-row {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin: $spacing-xs 0;
+
+  a {
+    color: $primary-color;
+    text-decoration: none;
+  }
+
+  &--nota {
+    color: $text-muted;
+    font-style: italic;
+  }
+}
+
+.cob-empty {
+  @include empty-state(1.5rem, $spacing-lg);
+  color: $text-muted;
+  font-size: 0.8125rem;
+}
+
+.cob-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  padding: $spacing-lg;
+  overflow-y: auto;
+}
+
+.cob-modal {
+  @include card-hover($radius-lg);
+  background-color: $card-background;
+  box-shadow: $shadow-xl;
+  padding: $spacing-2xl;
+  width: 100%;
+  max-width: 28rem;
+  max-height: 90vh;
+  overflow-y: auto;
+
+  &--wide {
+    max-width: 40rem;
+  }
+
+  input,
+  textarea,
+  select {
+    @include input-focus($radius-sm);
+    width: 100%;
+    padding: $spacing-sm $spacing-md;
+    font-size: 0.875rem;
+    margin-bottom: $spacing-md;
+  }
+}
+
+.cob-reporte-info {
+  font-size: 0.8125rem;
+  color: $text-secondary;
+  margin: 0 0 $spacing-lg;
+  line-height: 1.5;
+}
+
+.cob-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-lg;
+
+  h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: $text-primary;
+  }
+}
+
+.btn-modal-close {
+  @include btn-modal-close;
+}
+
+.cob-field-label {
+  display: block;
+  font-size: 0.8125rem;
+  color: $text-secondary;
+  margin-bottom: $spacing-xs;
+}
+
+.cob-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: $spacing-sm;
+  margin-top: $spacing-lg;
+
+  button {
+    padding: $spacing-sm $spacing-lg;
+    border-radius: $radius-md;
+    font-size: 0.875rem;
+    border: 1px solid $border-color;
+    background-color: $card-background;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
+@include mobile {
+  .cob-modal {
+    max-width: 100%;
+    margin: $spacing-lg;
+  }
+
+  .cob-chips--cols-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

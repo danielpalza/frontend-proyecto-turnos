@@ -131,6 +131,25 @@
                 />
               </div>
             </div>
+
+            <div class="form-group">
+              <label for="orgPais" class="form-label">País *</label>
+              <div class="input-wrapper">
+                <i class="bi bi-globe-americas input-icon"></i>
+                <select
+                  id="orgPais"
+                  class="form-select form-input"
+                  [(ngModel)]="pais"
+                  name="pais"
+                  data-testid="register-org-pais-select"
+                >
+                  <option value="">Seleccione un país...</option>
+                  @for (p of paisesLatam; track p.code) {
+                    <option [value]="p.code">{{ p.nombre }}</option>
+                  }
+                </select>
+              </div>
+            </div>
           </div>
         }
 

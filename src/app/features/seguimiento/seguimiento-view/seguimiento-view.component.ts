@@ -178,11 +178,11 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
       marcapasos: anamnesisData['marcapasos'] || '',
       consumos: anamnesisData['consumos'] || '',
       otrosAntecedentes: anamnesisData['otrosAntecedentes'] || '',
-      obraSocialNombre: patient.obraSocialNombre || '',
+      coberturaNombre: patient.coberturaNombre || '',
       planCategoria: patient.planCategoria || '',
-      obraSocialNumero: patient.obraSocialNumero || '',
-      obraSocialVencimiento: patient.obraSocialVencimiento || '',
-      esTitular: (patient.obraSocialNombre === 'Particular' || patient.esTitular) ? 'si' : 'no',
+      coberturaNumero: patient.coberturaNumero || '',
+      coberturaVencimiento: patient.coberturaVencimiento || '',
+      esTitular: (patient.coberturaNombre === 'Particular' || patient.esTitular) ? 'si' : 'no',
       nombreTitular: patient.nombreTitular || '',
       dniTitular: patient.dniTitular || '',
       parentesco: patient.parentesco || ''
@@ -267,10 +267,10 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
       localidad: raw.localidad,
       contactoEmergencia: raw.contactoEmergencia || undefined,
       anamnesis,
-      obraSocialNombre: raw.obraSocialNombre,
+      coberturaNombre: raw.coberturaNombre,
       planCategoria: raw.planCategoria || undefined,
-      obraSocialNumero: raw.obraSocialNumero || undefined,
-      obraSocialVencimiento: raw.obraSocialVencimiento || undefined,
+      coberturaNumero: raw.coberturaNumero || undefined,
+      coberturaVencimiento: raw.coberturaVencimiento || undefined,
       esTitular: raw.esTitular === 'si',
       nombreTitular: raw.nombreTitular || undefined,
       dniTitular: raw.dniTitular || undefined,
@@ -315,19 +315,19 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
     });
   }
 
-  getObraSocialInfo(dni: string): string {
+  getCoberturaInfo(dni: string): string {
     const patient = this.getPatientByDni(dni);
     if (!patient) return '';
     
     const parts: string[] = [];
-    if (patient.obraSocialNombre) {
-      parts.push(patient.obraSocialNombre);
+    if (patient.coberturaNombre) {
+      parts.push(patient.coberturaNombre);
     }
     if (patient.planCategoria) {
       parts.push(patient.planCategoria);
     }
-    if (patient.obraSocialNumero) {
-      parts.push(`(${patient.obraSocialNumero})`);
+    if (patient.coberturaNumero) {
+      parts.push(`(${patient.coberturaNumero})`);
     }
     
     return parts.length > 0 ? parts.join(' ') : '';

@@ -33,7 +33,7 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
     'nombre', 'apellido', 'fechaNacimiento', 'edad', 'dni', 'telefono', 'email',
     'domicilio', 'localidad', 'contactoEmergencia',
     'enfermedades', 'alergias', 'medicacion', 'cirugias', 'embarazo', 'marcapasos', 'consumos', 'otrosAntecedentes',
-    'obraSocialNombre', 'planCategoria', 'obraSocialNumero', 'obraSocialVencimiento',
+    'coberturaNombre', 'planCategoria', 'coberturaNumero', 'coberturaVencimiento',
     'esTitular', 'nombreTitular', 'dniTitular', 'parentesco'
   ];
   isCheckingAvailability = false;
@@ -120,11 +120,11 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
       marcapasos: anamnesisData.marcapasos || '',
       consumos: anamnesisData.consumos || '',
       otrosAntecedentes: anamnesisData.otrosAntecedentes || '',
-      obraSocialNombre: patient.obraSocialNombre || '',
+      coberturaNombre: patient.coberturaNombre || '',
       planCategoria: patient.planCategoria || '',
-      obraSocialNumero: patient.obraSocialNumero || '',
-      obraSocialVencimiento: patient.obraSocialVencimiento || '',
-      esTitular: (patient.obraSocialNombre === 'Particular' || patient.esTitular) ? 'si' : 'no',
+      coberturaNumero: patient.coberturaNumero || '',
+      coberturaVencimiento: patient.coberturaVencimiento || '',
+      esTitular: (patient.coberturaNombre === 'Particular' || patient.esTitular) ? 'si' : 'no',
       nombreTitular: patient.nombreTitular || '',
       dniTitular: patient.dniTitular || '',
       parentesco: patient.parentesco || ''
@@ -410,10 +410,10 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
       localidad: raw.localidad,
       contactoEmergencia: raw.contactoEmergencia || undefined,
       anamnesis: anamnesis,
-      obraSocialNombre: raw.obraSocialNombre,
+      coberturaNombre: raw.coberturaNombre,
       planCategoria: raw.planCategoria || undefined,
-      obraSocialNumero: raw.obraSocialNumero || undefined,
-      obraSocialVencimiento: raw.obraSocialVencimiento || undefined,
+      coberturaNumero: raw.coberturaNumero || undefined,
+      coberturaVencimiento: raw.coberturaVencimiento || undefined,
       esTitular: raw.esTitular === 'si',
       nombreTitular: raw.nombreTitular || undefined,
       dniTitular: raw.dniTitular || undefined,

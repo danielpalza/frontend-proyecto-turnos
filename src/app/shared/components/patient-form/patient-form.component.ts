@@ -96,11 +96,11 @@ export class PatientFormComponent implements OnInit, OnChanges, OnDestroy {
     // Validaciones condicionales titular
     const updateTitularValidators = () => {
       const esTitular = this.form.get('esTitular')?.value;
-      const obraSocial = this.form.get('obraSocialNombre')?.value;
+      const cobertura = this.form.get('coberturaNombre')?.value;
       const nombreTitular = this.form.get('nombreTitular')!;
       const dniTitular = this.form.get('dniTitular')!;
       const parentesco = this.form.get('parentesco')!;
-      if (esTitular === 'no' && obraSocial !== 'Particular') {
+      if (esTitular === 'no' && cobertura !== 'Particular') {
         nombreTitular.setValidators([Validators.required]);
         dniTitular.setValidators([Validators.required]);
         parentesco.setValidators([Validators.required]);
@@ -118,14 +118,14 @@ export class PatientFormComponent implements OnInit, OnChanges, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => updateTitularValidators());
 
-    this.form.get('obraSocialNombre')?.valueChanges
+    this.form.get('coberturaNombre')?.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe((value: string) => {
         if (value === 'Particular') {
           this.form.patchValue({
             planCategoria: '',
-            obraSocialNumero: '',
-            obraSocialVencimiento: '',
+            coberturaNumero: '',
+            coberturaVencimiento: '',
             esTitular: 'si',
             nombreTitular: '',
             dniTitular: '',

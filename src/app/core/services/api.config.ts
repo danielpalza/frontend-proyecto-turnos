@@ -12,6 +12,8 @@ export const API_CONFIG = {
     profesionales: '/profesionales',
     appointments: '/appointments',
     auth: '/auth',
-    configuration: '/configuration'
+    configuration: '/configuration',
+    coberturas: '/coberturas',
+    intermediarios: '/intermediarios'
   }
 };

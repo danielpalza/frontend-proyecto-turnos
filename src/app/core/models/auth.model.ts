@@ -17,6 +17,7 @@ export interface RegisterRequest {
   dni?: string;
   telefono?: string;
   organizacionNombre?: string;
+  pais?: string;
   organizationId?: string;
 }
 
@@ -30,5 +31,6 @@ export interface AuthResponse {
   role: string;
   organizationId: string;
   organizationNombre: string;
+  organizationPais: string;
   modules: string[];
 }

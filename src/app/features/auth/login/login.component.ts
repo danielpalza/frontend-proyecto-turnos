@@ -15,6 +15,27 @@ const PATTERNS = {
   email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
 };
 
+const PAISES_LATAM = [
+  { code: 'AR', nombre: 'Argentina' },
+  { code: 'MX', nombre: 'México' },
+  { code: 'CO', nombre: 'Colombia' },
+  { code: 'CL', nombre: 'Chile' },
+  { code: 'PE', nombre: 'Perú' },
+  { code: 'EC', nombre: 'Ecuador' },
+  { code: 'BO', nombre: 'Bolivia' },
+  { code: 'PY', nombre: 'Paraguay' },
+  { code: 'UY', nombre: 'Uruguay' },
+  { code: 'VE', nombre: 'Venezuela' },
+  { code: 'BR', nombre: 'Brasil' },
+  { code: 'CR', nombre: 'Costa Rica' },
+  { code: 'PA', nombre: 'Panamá' },
+  { code: 'GT', nombre: 'Guatemala' },
+  { code: 'HN', nombre: 'Honduras' },
+  { code: 'SV', nombre: 'El Salvador' },
+  { code: 'NI', nombre: 'Nicaragua' },
+  { code: 'DO', nombre: 'República Dominicana' }
+];
+
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -27,6 +48,8 @@ export class LoginComponent {
   loading = false;
   errorMessage = '';
   fieldErrors: Record<string, string> = {};
+
+  readonly paisesLatam = PAISES_LATAM;
 
   loginData: LoginRequest = { username: '', password: '' };
 
@@ -45,6 +68,7 @@ export class LoginComponent {
   };
   confirmPassword = '';
   organizacionNombre = '';
+  pais = '';
 
   constructor(
     private authService: AuthService,
@@ -69,6 +93,7 @@ export class LoginComponent {
     };
     this.confirmPassword = '';
     this.organizacionNombre = '';
+    this.pais = '';
     this.organizationCode = '';
   }
 
@@ -77,6 +102,7 @@ export class LoginComponent {
     this.errorMessage = '';
     this.organizationCode = '';
     this.organizacionNombre = '';
+    this.pais = '';
   }
 
   onFieldInput(field: string): void {
@@ -90,6 +116,10 @@ export class LoginComponent {
     if (this.registerStep === 'org') {
       if (this.selectedOrgMode === 'new' && !this.organizacionNombre.trim()) {
         this.errorMessage = 'Ingresa el nombre de tu organización';
+        return;
+      }
+      if (this.selectedOrgMode === 'new' && !this.pais.trim()) {
+        this.errorMessage = 'Seleccioná el país de tu organización';
         return;
       }
       if (this.selectedOrgMode === 'join' && !this.organizationCode.trim()) {
@@ -189,10 +219,12 @@ export class LoginComponent {
 
     if (this.selectedOrgMode === 'new') {
       this.registerData.organizacionNombre = this.organizacionNombre.trim();
+      this.registerData.pais = this.pais.trim();
       delete this.registerData.organizationId;
     } else {
       this.registerData.organizationId = this.organizationCode.trim();
       delete this.registerData.organizacionNombre;
+      delete this.registerData.pais;
     }
 
     this.loading = true;

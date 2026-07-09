@@ -43,6 +43,7 @@ export class NavbarComponent {
     { title: 'Turnos', icon: 'bi-calendar', route: '/turnos', moduleCode: 'TURNOS' },
     { title: 'Odontograma', icon: 'bi-heart-pulse', requiresAppointment: true, moduleCode: 'ODONTOGRAMA' },
     { title: 'Seguimiento', icon: 'bi-clipboard-data', route: '/seguimiento', moduleCode: 'SEGUIMIENTO' },
+    { title: 'Cobertura', icon: 'bi-shield-check', route: '/coberturas', moduleCode: 'COBERTURA' },
     { title: 'Configuraciones', icon: 'bi-gear', route: '/configuraciones', moduleCode: 'CONFIGURACIONES' }
   ];
 

@@ -1,0 +1,385 @@
+<div class="cob-module" data-testid="coberturas-module">
+
+  <div class="cob-header">
+    <h2 class="cob-title">Cobertura</h2>
+    <button
+      class="btn-primary"
+      type="button"
+      data-testid="coberturas-add-intermediario-btn"
+      (click)="abrirModal()"
+    >
+      <i class="bi bi-plus-lg"></i>
+      Agregar agrupación
+    </button>
+  </div>
+
+  <!-- Filtro de países: solo se muestran como chip los que el usuario activó. El resto de los
+       países con catálogo real quedan en el desplegable "+ Agregar país". -->
+  <p class="cob-label">Mostrar entidades de</p>
+  <div class="cob-chips" data-testid="coberturas-country-filter">
+    @for (pais of chipsActivos(); track pais.codigo) {
+      <label
+        class="cob-chip cob-chip--on"
+        [attr.data-testid]="'coberturas-country-chip-' + pais.codigo.toLowerCase()"
+      >
+        <input type="checkbox" checked (change)="togglePais(pais.codigo)" />
+        {{ pais.nombre }}
+      </label>
+    }
+    @if (paisesParaAgregar().length > 0) {
+      <select
+        class="cob-chip-add"
+        data-testid="coberturas-country-add-select"
+        (change)="togglePais($any($event.target).value); $any($event.target).value = ''"
+      >
+        <option value="" disabled selected>+ Agregar país</option>
+        @for (pais of paisesParaAgregar(); track pais.codigo) {
+          <option [value]="pais.codigo">{{ pais.nombre }}</option>
+        }
+      </select>
+    }
+  </div>
+
+  <!-- Buscador -->
+  <div class="cob-search">
+    <i class="bi bi-search"></i>
+    <input
+      type="text"
+      placeholder="Buscar cobertura, sigla o agrupación..."
+      data-testid="coberturas-search-input"
+      [value]="busqueda()"
+      (input)="onBuscar($any($event.target).value)"
+    />
+  </div>
+
+  @if (cargando()) {
+    <p class="cob-empty" data-testid="coberturas-cargando">Cargando catálogo...</p>
+  }
+
+  <!-- Favoritas -->
+  @if (favoritas().length > 0) {
+    <p class="cob-label">Tus coberturas</p>
+    <div class="cob-list" data-testid="coberturas-favoritas-list">
+      @for (os of favoritas(); track os.id) {
+        <ng-container *ngTemplateOutlet="coberturaCard; context: { $implicit: os }"></ng-container>
+      }
+    </div>
+  }
+
+  <!-- Intermediarios / círculos -->
+  <p class="cob-label cob-label--spaced">Agrupaciones y círculos</p>
+  <div class="cob-list" data-testid="coberturas-intermediarios-list">
+    @if (intermediariosVisibles().length > 0) {
+      @for (i of intermediariosVisibles(); track i.id) {
+        <div class="cob-card" [attr.data-testid]="'coberturas-intermediario-card-' + i.id">
+          <div class="cob-int-header">
+            <i class="bi bi-buildings"></i>
+            <span class="cob-int-nombre">{{ i.nombre }}</span>
+            <span class="cob-badge-pais">{{ i.pais }}</span>
+            <div class="cob-int-actions">
+              <button
+                type="button"
+                class="cob-icon-btn"
+                [attr.data-testid]="'coberturas-intermediario-editar-' + i.id"
+                (click)="abrirModalEdicion(i, $event)"
+                title="Editar"
+              >
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button
+                type="button"
+                class="cob-icon-btn cob-icon-btn--danger"
+                [attr.data-testid]="'coberturas-intermediario-borrar-' + i.id"
+                (click)="eliminarIntermediario(i, $event)"
+                title="Eliminar"
+              >
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </div>
+          <div class="cob-int-body">
+            @if (i.web) {
+              <div class="cob-int-row">
+                <i class="bi bi-box-arrow-up-right"></i>
+                <a [href]="i.web" target="_blank" rel="noopener">{{ i.web }}</a>
+              </div>
+            }
+            @if (i.telefono) {
+              <div class="cob-int-row">
+                <i class="bi bi-telephone"></i>
+                <span>{{ i.telefono }}</span>
+              </div>
+            }
+            @if (i.coberturaIds.length > 0) {
+              <div class="cob-int-row">
+                <i class="bi bi-link-45deg"></i>
+                <span>Gestiona: {{ nombresCoberturasDe(i) }}</span>
+              </div>
+            }
+            @if (i.notas) {
+              <div class="cob-int-row cob-int-row--nota">
+                <i class="bi bi-info-circle"></i>
+                <span>{{ i.notas }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    } @else {
+      <p class="cob-empty" data-testid="coberturas-sin-intermediarios">
+        Todavía no cargaste ninguna. Agregá tu círculo o federación con el botón de arriba.
+      </p>
+    }
+  </div>
+
+  <!-- Todas -->
+  <p class="cob-label cob-label--spaced">Todas las coberturas</p>
+  <div class="cob-list" data-testid="coberturas-todas-list">
+    @if (resto().length > 0) {
+      @for (os of resto(); track os.id) {
+        <ng-container *ngTemplateOutlet="coberturaCard; context: { $implicit: os }"></ng-container>
+      }
+    } @else if (!cargando()) {
+      <p class="cob-empty" data-testid="coberturas-sin-resultados">
+        Sin resultados para este filtro.
+      </p>
+    }
+  </div>
+
+  <!-- Template reutilizable de tarjeta de cobertura -->
+  <ng-template #coberturaCard let-os>
+    <div class="cob-card" [attr.data-testid]="'coberturas-card-' + os.id">
+      <div class="cob-row" (click)="toggleCard(os.id)" [attr.data-testid]="'coberturas-row-' + os.id">
+        <div class="cob-row-left">
+          <i
+            class="bi"
+            [class.bi-star-fill]="os.favorito"
+            [class.bi-star]="!os.favorito"
+            [class.cob-star--on]="os.favorito"
+            [attr.data-testid]="'coberturas-star-toggle-' + os.id"
+            (click)="toggleFavorito(os, $event)"
+          ></i>
+          <span class="cob-sigla">{{ os.sigla || os.nombre }}</span>
+          <span class="cob-badge-pais">{{ os.pais }}</span>
+        </div>
+        <i class="bi" [class.bi-chevron-up]="cardAbierta() === os.id" [class.bi-chevron-down]="cardAbierta() !== os.id"></i>
+      </div>
+
+      @if (cardAbierta() === os.id) {
+        <div class="cob-detail" [attr.data-testid]="'coberturas-detail-' + os.id">
+          <p class="cob-detail-nombre">{{ os.nombre }}</p>
+
+          @for (link of os.links; track link.id) {
+            <div class="cob-detail-row">
+              <i class="bi bi-box-arrow-up-right"></i>
+              <a [href]="link.url" target="_blank" rel="noopener">{{ tipoLinkLabels[link.tipo] || 'Ver más' }}</a>
+              <span
+                class="cob-confianza"
+                [class.cob-confianza--alta]="link.confianza === 'alta'"
+                [class.cob-confianza--media]="link.confianza === 'media'"
+                [class.cob-confianza--baja]="link.confianza === 'baja'"
+              >
+                {{ link.confianza }}
+              </span>
+              <button
+                type="button"
+                class="cob-report-link"
+                [attr.data-testid]="'coberturas-reportar-link-' + link.id"
+                (click)="abrirReporte(link.id, $event)"
+              >
+                Este link no funciona
+              </button>
+            </div>
+            @if (link.notasAcceso) {
+              <div class="cob-detail-row cob-detail-row--nota">
+                <i class="bi bi-info-circle"></i>
+                <span>{{ link.notasAcceso }}</span>
+              </div>
+            }
+          }
+
+          <div class="cob-detail-row">
+            <i class="bi bi-journal-text"></i>
+            <span>Nota interna</span>
+          </div>
+          <textarea
+            class="cob-nota-textarea"
+            rows="2"
+            placeholder="Ej: valida por FOPBA para odontología"
+            [attr.data-testid]="'coberturas-nota-input-' + os.id"
+            [value]="notaValor(os)"
+            (input)="onNotaChange(os.id, $any($event.target).value)"
+            (blur)="guardarNota(os)"
+          ></textarea>
+
+          <div class="cob-detail-row">
+            <i class="bi bi-file-earmark"></i>
+            <span>Documentos ({{ os.documentos.length }})</span>
+          </div>
+          <div class="cob-upload-row">
+            <select class="cob-tipo-doc-select" [attr.data-testid]="'coberturas-tipo-doc-select-' + os.id" #tipoDocSel>
+              @for (tipo of tiposDocumento; track tipo.codigo) {
+                <option [value]="tipo.codigo">{{ tipo.nombre }}</option>
+              }
+            </select>
+            <label class="cob-upload-label" [attr.data-testid]="'coberturas-upload-btn-' + os.id">
+              Subir archivo
+              <input
+                type="file"
+                accept=".pdf,.docx,.doc"
+                hidden
+                (change)="onSubirDocumento(os, $any($event.target).files, tipoDocSel.value); $any($event.target).value = ''"
+              />
+            </label>
+          </div>
+
+          @for (doc of os.documentos; track doc.id) {
+            <div class="cob-detail-row cob-detail-row--doc">
+              <i class="bi bi-file-earmark-text"></i>
+              <span
+                class="cob-doc-nombre"
+                [attr.data-testid]="'coberturas-doc-descargar-' + doc.id"
+                (click)="onDescargarDocumento(doc.id, doc.nombreArchivo)"
+              >{{ doc.nombreArchivo }}</span>
+              <button
+                type="button"
+                class="cob-icon-btn cob-icon-btn--danger"
+                [attr.data-testid]="'coberturas-doc-borrar-' + doc.id"
+                (click)="onEliminarDocumento(os, doc.id)"
+                title="Eliminar"
+              >
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </ng-template>
+
+  <!-- Modal: agregar/editar institución -->
+  @if (modalAbierto()) {
+    <div class="cob-modal-backdrop" data-testid="coberturas-modal-backdrop">
+      <div class="cob-modal cob-modal--wide" [formGroup]="form" data-testid="coberturas-modal">
+        <div class="cob-modal-header">
+          <h3>{{ intermediarioEditandoId() ? 'Editar institución' : 'Agregar institución' }}</h3>
+          <button type="button" class="btn-modal-close" data-testid="coberturas-modal-close-btn" (click)="cerrarModal()">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+
+        <label class="cob-field-label">Nombre</label>
+        <input type="text" formControlName="nombre" placeholder="" data-testid="coberturas-modal-nombre-input" />
+
+        <label class="cob-field-label">País</label>
+        <select formControlName="pais" data-testid="coberturas-modal-pais-select">
+          @for (pais of paisesModal(); track pais.codigo) {
+            <option [value]="pais.codigo">{{ pais.nombre }}</option>
+          }
+        </select>
+
+        <label class="cob-field-label">Teléfono</label>
+        <input type="text" formControlName="telefono" placeholder="1234-1234 0800-5888 ..." data-testid="coberturas-modal-telefono-input" />
+
+        <label class="cob-field-label">Sitio web / portal</label>
+        <input type="text" formControlName="web" placeholder="https://institución.org https://institución.portal.gov" data-testid="coberturas-modal-web-input" />
+
+        <label class="cob-field-label">Notas</label>
+        <textarea
+          formControlName="notas"
+          rows="2"
+          placeholder="Institución válida para... Al momento de verificar... etc."
+          data-testid="coberturas-modal-notas-input"
+        ></textarea>
+
+        <label class="cob-field-label">Gestiona estas coberturas ({{ modalPaisSeleccionado() }})</label>
+        <div class="cob-search" data-testid="coberturas-modal-search-wrapper">
+          <i class="bi bi-search"></i>
+          <input
+            type="text"
+            placeholder="Buscar cobertura..."
+            data-testid="coberturas-modal-search-input"
+            [value]="busquedaModal()"
+            (input)="onBuscarModal($any($event.target).value)"
+          />
+        </div>
+        <div class="cob-chips cob-chips--cols-3" data-testid="coberturas-modal-coberturas-grid">
+          @for (os of coberturasDelPaisModal(); track os.id) {
+            <label class="cob-chip">
+              <input
+                type="checkbox"
+                [checked]="form.value.coberturaIds?.includes(os.id)"
+                (change)="toggleCoberturaEnForm(os.id, $any($event.target).checked)"
+              />
+              <span>{{ os.sigla || os.nombre }}</span>
+            </label>
+          }
+        </div>
+
+        <div class="cob-modal-actions">
+          <button type="button" (click)="cerrarModal()" data-testid="coberturas-modal-cancel-btn">Cancelar</button>
+          <button
+            type="button"
+            class="btn-primary"
+            [disabled]="form.invalid"
+            (click)="guardarIntermediario()"
+            data-testid="coberturas-modal-save-btn"
+          >
+            {{ intermediarioEditandoId() ? 'Guardar cambios' : 'Guardar agrupación' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Modal: reportar link roto -->
+  @if (reporteLinkId()) {
+    <div class="cob-modal-backdrop" data-testid="coberturas-reporte-modal-backdrop">
+      <div class="cob-modal" data-testid="coberturas-reporte-modal">
+        <div class="cob-modal-header">
+          <h3>Avisar que un link no funciona</h3>
+          <button type="button" class="btn-modal-close" data-testid="coberturas-reporte-close-btn" (click)="cerrarReporte()">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+
+        <p class="cob-reporte-info">
+          Le vamos a avisar a Gestia que este link tiene un problema. Si sabés cuál es el motivo o
+          conocés el link actualizado, contanoslo abajo para poder arreglarlo más rápido.
+        </p>
+
+        <label class="cob-field-label">¿Qué pasó con el link?</label>
+        <textarea
+          rows="3"
+          placeholder="Ej: da error 404 / pide un usuario que no tenemos"
+          data-testid="coberturas-reporte-mensaje-input"
+          [value]="reporteMensaje()"
+          (input)="reporteMensaje.set($any($event.target).value)"
+        ></textarea>
+
+        <label class="cob-field-label">¿Conocés el motivo o el link correcto? (opcional)</label>
+        <input
+          type="text"
+          placeholder="Ej: el nuevo portal es https://..."
+          data-testid="coberturas-reporte-contacto-input"
+          [value]="reporteInfoContacto()"
+          (input)="reporteInfoContacto.set($any($event.target).value)"
+        />
+
+        <div class="cob-modal-actions">
+          <button type="button" (click)="cerrarReporte()" data-testid="coberturas-reporte-cancel-btn">Cancelar</button>
+          <button
+            type="button"
+            class="btn-primary"
+            [disabled]="!reporteMensaje().trim()"
+            (click)="enviarReporte()"
+            data-testid="coberturas-reporte-enviar-btn"
+          >
+            Enviar aviso
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+</div>

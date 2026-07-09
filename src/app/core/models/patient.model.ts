@@ -13,11 +13,11 @@ export interface Patient {
   localidad?: string;
   contactoEmergencia?: string;
   anamnesis?: string;
-  // Obra Social
-  obraSocialNombre?: string;
+  // Cobertura
+  coberturaNombre?: string;
   planCategoria?: string;
-  obraSocialNumero?: string;
-  obraSocialVencimiento?: string;
+  coberturaNumero?: string;
+  coberturaVencimiento?: string;
   esTitular?: boolean;
   nombreTitular?: string;
   dniTitular?: string;

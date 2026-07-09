@@ -61,6 +61,15 @@ export const routes: Routes = [
       )
   },
   {
+    path: 'coberturas',
+    canActivate: [authGuard],
+    data: { module: 'COBERTURA' },
+    loadComponent: () =>
+      import('./features/coberturas/coberturas-view/coberturas-view.component').then(
+        m => m.CoberturasViewComponent
+      )
+  },
+  {
     path: '**',
     redirectTo: 'panel'
   }
