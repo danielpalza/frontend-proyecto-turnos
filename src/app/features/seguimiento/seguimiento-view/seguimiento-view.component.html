@@ -131,7 +131,7 @@
           </div>
           <div class="d-flex align-items-center gap-2 ms-auto">
             <a *ngIf="hasPatientPhone()" [href]="getWhatsAppLink()" target="_blank"
-              class="btn-whatsapp" title="Enviar recordatorio por WhatsApp"
+              class="btn-whatsapp" title="Enviar mensaje por WhatsApp"
               data-testid="tracking-turn-whatsapp-btn">
               <i class="bi bi-whatsapp"></i>
             </a>
@@ -155,7 +155,12 @@
 
           <!-- Información de pago (montos editables) -->
           <div class="turn-modal-section">
-            <h6 class="section-label"><i class="bi bi-cash-stack me-2"></i>Información de pago</h6>
+            <h6 class="section-label d-flex align-items-center gap-2">
+              <span><i class="bi bi-cash-stack me-2"></i>Información de pago</span>
+              <span class="badge" [ngClass]="getStatusBadgeClass(selectedAppointment.estado)" data-testid="tracking-turn-modal-status-badge">
+                {{ getStatusLabel(selectedAppointment.estado) }}
+              </span>
+            </h6>
             <div class="payment-summary">
               <!-- Bono -->
               <div class="d-flex justify-content-between align-items-center mb-2 payment-row" data-testid="tracking-turn-bono-row">

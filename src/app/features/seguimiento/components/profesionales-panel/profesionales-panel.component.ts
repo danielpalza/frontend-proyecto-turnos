@@ -78,8 +78,8 @@ export class ProfesionalesPanelComponent implements OnInit, OnDestroy {
 
   getProfesionalDetalle(prof: Profesional): string {
     const parts: string[] = [];
-    if (prof.especialidad) parts.push(prof.especialidad);
-    if (prof.matricula) parts.push(`Mat. ${prof.matricula}`);
+    if (prof.dni) parts.push(`DNI ${prof.dni}`);
+    // if (prof.matricula) parts.push(`Mat. ${prof.matricula}`);
     return parts.join(' • ');
   }
 

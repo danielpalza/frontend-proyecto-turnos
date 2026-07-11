@@ -15,6 +15,7 @@ const MODULE_ICONS: Record<string, string> = {
   TURNOS: 'bi-calendar',
   ODONTOGRAMA: 'bi-heart-pulse',
   SEGUIMIENTO: 'bi-clipboard-data',
+  COBERTURA: 'bi-shield-check',
   CONFIGURACIONES: 'bi-gear'
 };
 
@@ -59,6 +60,19 @@ export class ProfesionalDialogComponent implements OnChanges {
   /** Solo un OWNER puede otorgar acceso al sistema, y solo al crear (no al editar). */
   get canCreateAccess(): boolean {
     return this.isOwner && !this.isEditing;
+  }
+
+  get hasLinkedUser(): boolean {
+    return !!this.editingProfesional?.userId;
+  }
+
+  /** Un OWNER puede editar los módulos habilitados de un profesional que ya tiene usuario. */
+  get canEditModules(): boolean {
+    return this.isOwner && this.isEditing && this.hasLinkedUser;
+  }
+
+  get showModulesSection(): boolean {
+    return (this.canCreateAccess && this.form.value.crearAcceso) || this.canEditModules;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -110,7 +124,7 @@ export class ProfesionalDialogComponent implements OnChanges {
       username: '',
       password: ''
     });
-    this.moduleCodes = [];
+    this.moduleCodes = prof?.moduleCodes ? [...prof.moduleCodes] : [];
     this.showPassword = false;
     this.updateAccesoValidators();
   }
@@ -181,7 +195,7 @@ export class ProfesionalDialogComponent implements OnChanges {
       crearAcceso,
       username: crearAcceso ? value.username : undefined,
       password: crearAcceso ? value.password : undefined,
-      moduleCodes: crearAcceso ? [...this.moduleCodes] : []
+      moduleCodes: crearAcceso || this.canEditModules ? [...this.moduleCodes] : undefined
     };
     this.save.emit(dto);
   }

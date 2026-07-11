@@ -2,39 +2,59 @@
 @use 'variables' as *;
 @use 'mixins' as *;
 
-.cob-module {
+// ---------------------------------------------------------------
+// Página: mismo patrón que panel-view / configuraciones-view
+// (contenedor plano, sin "card" envolviendo toda la vista).
+// ---------------------------------------------------------------
+.cob-container {
+  padding: $spacing-3xl;
   background-color: $background-color;
-  padding: $spacing-xl;
-  border-radius: $radius-lg;
+  padding-bottom: $spacing-3xl + $spacing-lg;
 }
 
 .cob-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: $spacing-xl;
+  gap: $spacing-lg;
+  flex-wrap: wrap;
+  margin-bottom: $spacing-2xl;
 }
 
 .cob-title {
   color: $text-primary;
-  font-size: 1.125rem;
+  font-size: 1.5rem;
   font-weight: 600;
+  margin: 0 0 $spacing-xs;
+
+  i {
+    color: $primary-color;
+    margin-right: $spacing-sm;
+  }
+}
+
+.cob-subtitle {
+  color: $text-secondary;
+  font-size: 0.875rem;
   margin: 0;
 }
 
 .btn-primary {
   @include button-gradient-primary($radius-md);
-  padding: $spacing-sm $spacing-lg;
+  padding: 0.625rem 1.25rem;
   font-size: 0.875rem;
   display: inline-flex;
   align-items: center;
   gap: $spacing-xs;
+  white-space: nowrap;
 }
 
 .cob-label {
   color: $text-secondary;
   font-size: 0.8125rem;
-  font-weight: 500;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
   margin: 0 0 $spacing-sm;
 
   &--spaced {
@@ -113,6 +133,9 @@
   background-color: $card-background;
 }
 
+// ---------------------------------------------------------------
+// Buscador: mismo patrón que .search-container de seguimiento-view.
+// ---------------------------------------------------------------
 .cob-search {
   position: relative;
   margin-bottom: $spacing-xl;
@@ -127,13 +150,22 @@
   }
 
   input {
-    @include input-focus($radius-md);
+    @include input-focus($radius-lg);
     width: 100%;
-    padding: $spacing-sm $spacing-lg $spacing-sm $spacing-3xl;
+    padding: 0.65rem $spacing-lg 0.65rem $spacing-3xl;
     font-size: 0.875rem;
+    border: 1px solid $border-color;
+
+    &:focus {
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+    }
   }
 }
 
+// ---------------------------------------------------------------
+// Listado y tarjetas: mismo hover lift que .patient-card.
+// ---------------------------------------------------------------
 .cob-list {
   display: flex;
   flex-direction: column;
@@ -142,8 +174,16 @@
 }
 
 .cob-card {
-  @include card-hover($radius-lg);
+  border-radius: $radius-lg;
+  border: 1px solid $border-color;
+  background-color: $card-background;
   overflow: hidden;
+  transition: all $transition-base;
+
+  &:hover {
+    box-shadow: $shadow-lg;
+    transform: translateY(-2px);
+  }
 }
 
 .cob-row {
@@ -356,41 +396,108 @@
   font-size: 0.8125rem;
 }
 
-.cob-modal-backdrop {
+// ---------------------------------------------------------------
+// Modales: mismo patrón que profesional-dialog / confirm-dialog
+// (backdrop con blur + fade-in, modal-content con icon-circle en el header).
+// ---------------------------------------------------------------
+.modal-backdrop {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.45);
+  background: rgba($text-primary, 0.45);
+  backdrop-filter: blur(4px);
+  z-index: 1040;
+  animation: modalBackdropFadeIn $transition-slow forwards;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1050;
   padding: $spacing-lg;
   overflow-y: auto;
 }
 
-.cob-modal {
-  @include card-hover($radius-lg);
-  background-color: $card-background;
-  box-shadow: $shadow-xl;
-  padding: $spacing-2xl;
+.modal-dialog-cob {
+  position: relative;
   width: 100%;
   max-width: 28rem;
-  max-height: 90vh;
-  overflow-y: auto;
+  animation: modalDialogFadeIn $transition-slow forwards;
 
   &--wide {
-    max-width: 40rem;
+    max-width: 42rem;
   }
+}
 
-  input,
-  textarea,
-  select {
-    @include input-focus($radius-sm);
-    width: 100%;
-    padding: $spacing-sm $spacing-md;
-    font-size: 0.875rem;
-    margin-bottom: $spacing-md;
-  }
+.modal-content {
+  background: $card-background;
+  border: 1px solid $border-color;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-xl;
+  overflow: hidden;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-lg;
+  padding: $spacing-xl $spacing-2xl;
+  border-bottom: 1px solid $border-color;
+}
+
+.title-block {
+  display: flex;
+  gap: $spacing-md;
+  align-items: flex-start;
+}
+
+.icon-circle {
+  @include icon-wrapper-circle-sm;
+}
+
+.modal-title {
+  margin: 0 0 0.2rem;
+  font-weight: 600;
+  font-size: 1.125rem;
+  color: $text-primary;
+}
+
+.modal-subtitle {
+  margin: 0;
+  color: $text-secondary;
+  font-size: 0.85rem;
+}
+
+.btn-modal-close {
+  @include btn-modal-close;
+}
+
+.modal-body {
+  padding: $spacing-2xl;
+  overflow-y: auto;
+}
+
+.form-label {
+  display: block;
+  font-weight: 500;
+  color: $text-secondary;
+  font-size: 0.875rem;
+  margin-bottom: $spacing-sm;
+}
+
+.form-control {
+  @include input-focus($radius-sm, 3px);
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.9375rem;
+  color: $text-primary;
+  resize: vertical;
 }
 
 .cob-reporte-info {
@@ -400,58 +507,85 @@
   line-height: 1.5;
 }
 
-.cob-modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: $spacing-lg;
-
-  h3 {
-    margin: 0;
-    font-size: 1rem;
-    color: $text-primary;
-  }
-}
-
-.btn-modal-close {
-  @include btn-modal-close;
-}
-
-.cob-field-label {
-  display: block;
-  font-size: 0.8125rem;
-  color: $text-secondary;
-  margin-bottom: $spacing-xs;
-}
-
-.cob-modal-actions {
+.modal-footer {
   display: flex;
   justify-content: flex-end;
+  flex-wrap: wrap;
   gap: $spacing-sm;
-  margin-top: $spacing-lg;
+  padding: $spacing-lg $spacing-2xl;
+  border-top: 1px solid $border-color;
 
-  button {
-    padding: $spacing-sm $spacing-lg;
-    border-radius: $radius-md;
+  .btn {
+    padding: 0.625rem 1.25rem;
     font-size: 0.875rem;
-    border: 1px solid $border-color;
-    background-color: $card-background;
+    font-weight: 500;
+    border-radius: $radius-md;
+    transition: all $transition-base;
     cursor: pointer;
 
     &:disabled {
-      opacity: 0.5;
+      opacity: 0.65;
       cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
     }
+  }
+
+  .btn-outline-secondary {
+    background-color: transparent;
+    border: 1px solid $border-color;
+    color: $text-primary;
+
+    &:hover:not(:disabled) {
+      background-color: $hover-bg;
+      border-color: $primary-color;
+      color: $primary-color;
+    }
+  }
+
+  .btn-primary {
+    @include button-gradient-primary();
   }
 }
 
 @include mobile {
-  .cob-modal {
-    max-width: 100%;
-    margin: $spacing-lg;
+  .cob-container {
+    padding: $spacing-lg;
   }
 
   .cob-chips--cols-3 {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .modal {
+    align-items: flex-end;
+    padding: $spacing-md;
+  }
+
+  .modal-dialog-cob {
+    max-width: 100%;
+
+    &--wide {
+      max-width: 100%;
+    }
+  }
+
+  .modal-content {
+    border-radius: $radius-lg $radius-lg 0 0;
+  }
+
+  .modal-header,
+  .modal-body {
+    padding: $spacing-lg;
+  }
+
+  .modal-footer {
+    flex-direction: column-reverse;
+    padding: $spacing-lg;
+
+    .btn {
+      width: 100%;
+      justify-content: center;
+    }
   }
 }

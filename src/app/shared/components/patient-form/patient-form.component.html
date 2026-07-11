@@ -181,12 +181,41 @@
   <div class="row g-3" [formGroup]="form">
     <div class="col-12 col-md-6 col-lg-4">
       <label class="form-label">Cobertura *</label>
-      <select class="form-select" formControlName="coberturaNombre" [class.is-invalid]="form.get('coberturaNombre')?.invalid && form.get('coberturaNombre')?.touched" data-testid="patient-insurance-select">
-        <option value="">Seleccione...</option>
-        @for (os of OBRAS_SOCIALES; track os) {
-          <option [value]="os">{{ os }}</option>
+      <div class="position-relative">
+        <input
+          type="text"
+          class="form-control"
+          formControlName="coberturaNombre"
+          autocomplete="off"
+          placeholder="Escriba para buscar..."
+          (input)="onCoberturaInput()"
+          (focus)="onCoberturaFocus()"
+          (blur)="onCoberturaBlur()"
+          [class.is-invalid]="form.get('coberturaNombre')?.invalid && form.get('coberturaNombre')?.touched"
+          data-testid="patient-insurance-select"
+        />
+        @if (showCoberturaDropdown) {
+          <div
+            class="position-absolute w-100 bg-white border rounded shadow-sm mt-1"
+            style="z-index: 1000; max-height: 220px; overflow-y: auto"
+            data-testid="patient-insurance-dropdown"
+          >
+            @for (opt of filteredCoberturaOptions; track opt.id + opt.value) {
+              <div
+                class="p-2 border-bottom"
+                style="cursor: pointer"
+                (mousedown)="selectCobertura(opt); $event.preventDefault()"
+                [attr.data-testid]="'patient-insurance-option-' + opt.value"
+              >
+                {{ opt.label }}
+              </div>
+            }
+            @if (filteredCoberturaOptions.length === 0) {
+              <div class="p-2 text-muted small">Sin resultados</div>
+            }
+          </div>
         }
-      </select>
+      </div>
       @if (form.get('coberturaNombre')?.invalid && form.get('coberturaNombre')?.touched) {
         <div class="invalid-feedback d-block">Debe seleccionar una cobertura</div>
       }

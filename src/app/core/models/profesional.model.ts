@@ -12,6 +12,7 @@ export interface Profesional {
   telefono?: string;
   activo?: boolean;
   userId?: string;
+  moduleCodes?: string[];
 }
 
 /** Módulos habilitables para un usuario, alineados a las pestañas del navbar. */
@@ -20,6 +21,7 @@ export const MODULE_OPTIONS: { code: string; label: string }[] = [
   { code: 'TURNOS', label: 'Turnos' },
   { code: 'ODONTOGRAMA', label: 'Odontograma' },
   { code: 'SEGUIMIENTO', label: 'Seguimiento' },
+  { code: 'COBERTURA', label: 'Cobertura' },
   { code: 'CONFIGURACIONES', label: 'Configuración' }
 ];
 

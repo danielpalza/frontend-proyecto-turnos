@@ -16,7 +16,7 @@ export * from './components/mini-calendar-picker/mini-calendar-picker.component'
 export {
   PatientFormComponent,
   getPatientFormConfig,
-  OBRAS_SOCIALES
+  COBERTURA_PARTICULAR
 } from './components/patient-form/patient-form.component';
 export { PatientWizardComponent } from './components/patient-wizard/patient-wizard.component';
 // export * from './components/loading-spinner/loading-spinner.component';

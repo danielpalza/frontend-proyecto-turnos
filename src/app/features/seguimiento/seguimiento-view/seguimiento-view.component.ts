@@ -179,6 +179,7 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
       consumos: anamnesisData['consumos'] || '',
       otrosAntecedentes: anamnesisData['otrosAntecedentes'] || '',
       coberturaNombre: patient.coberturaNombre || '',
+      coberturaId: patient.coberturaId || '',
       planCategoria: patient.planCategoria || '',
       coberturaNumero: patient.coberturaNumero || '',
       coberturaVencimiento: patient.coberturaVencimiento || '',
@@ -268,6 +269,7 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
       contactoEmergencia: raw.contactoEmergencia || undefined,
       anamnesis,
       coberturaNombre: raw.coberturaNombre,
+      coberturaId: raw.coberturaId || undefined,
       planCategoria: raw.planCategoria || undefined,
       coberturaNumero: raw.coberturaNumero || undefined,
       coberturaVencimiento: raw.coberturaVencimiento || undefined,
@@ -368,6 +370,30 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
     if (!amount || amount === 0) return '';
     // Formato: $12.800 (punto como separador de miles)
     return '$' + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  }
+
+  getStatusBadgeClass(status: string | undefined): string {
+    switch (status) {
+      case 'CONFIRMADO': return 'badge-confirmado';
+      case 'PENDIENTE': return 'badge-pendiente';
+      case 'EN_CURSO': return 'badge-en-curso';
+      case 'COMPLETADO': return 'badge-completado';
+      case 'CANCELADO': return 'badge-cancelado';
+      case 'NO_ASISTIO': return 'badge-no-asistio';
+      default: return 'badge-sin-estado';
+    }
+  }
+
+  getStatusLabel(status: string | undefined): string {
+    switch (status) {
+      case 'CONFIRMADO': return 'Confirmado';
+      case 'PENDIENTE': return 'Pendiente';
+      case 'EN_CURSO': return 'En Curso';
+      case 'COMPLETADO': return 'Completado';
+      case 'CANCELADO': return 'Cancelado';
+      case 'NO_ASISTIO': return 'No Asistió';
+      default: return status || 'Sin estado';
+    }
   }
 
   // --- Modal Pago y observaciones del turno ---

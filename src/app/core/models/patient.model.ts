@@ -14,6 +14,8 @@ export interface Patient {
   contactoEmergencia?: string;
   anamnesis?: string;
   // Cobertura
+  /** Referencia al catálogo global de coberturas (tabla coberturas). Null/undefined = texto libre sin vincular. */
+  coberturaId?: string;
   coberturaNombre?: string;
   planCategoria?: string;
   coberturaNumero?: string;

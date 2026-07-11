@@ -20,7 +20,11 @@
       </div>
 
       <div class="profesional-info">
-        <div class="profesional-name">{{ getProfesionalFullName(prof) }}</div>
+        <div class="profesional-name">
+          {{ getProfesionalFullName(prof) }}
+          <span class="badge badge-soft badge-usuario text-nowrap" *ngIf="prof.userId"
+            [attr.data-testid]="'settings-profesional-usuario-badge-' + prof.id">Usuario</span>
+        </div>
         <div class="profesional-detail" *ngIf="getProfesionalDetalle(prof)">
           {{ getProfesionalDetalle(prof) }}
         </div>

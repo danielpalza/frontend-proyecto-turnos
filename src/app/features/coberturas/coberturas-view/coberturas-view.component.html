@@ -1,7 +1,10 @@
-<div class="cob-module" data-testid="coberturas-module">
+<div class="cob-container" data-testid="coberturas-module">
 
   <div class="cob-header">
-    <h2 class="cob-title">Cobertura</h2>
+    <div>
+      <h2 class="cob-title"><i class="bi bi-shield-check"></i>Cobertura</h2>
+      <p class="cob-subtitle">Obras sociales, prepagas y agrupaciones que atiende tu organización</p>
+    </div>
     <button
       class="btn-primary"
       type="button"
@@ -259,74 +262,95 @@
 
   <!-- Modal: agregar/editar institución -->
   @if (modalAbierto()) {
-    <div class="cob-modal-backdrop" data-testid="coberturas-modal-backdrop">
-      <div class="cob-modal cob-modal--wide" [formGroup]="form" data-testid="coberturas-modal">
-        <div class="cob-modal-header">
-          <h3>{{ intermediarioEditandoId() ? 'Editar institución' : 'Agregar institución' }}</h3>
-          <button type="button" class="btn-modal-close" data-testid="coberturas-modal-close-btn" (click)="cerrarModal()">
-            <i class="bi bi-x-lg"></i>
-          </button>
-        </div>
+    <div class="modal-backdrop" (click)="cerrarModal()"></div>
+    <div class="modal" data-testid="coberturas-modal-backdrop">
+      <div class="modal-dialog-cob modal-dialog-cob--wide" [formGroup]="form" data-testid="coberturas-modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div class="title-block">
+              <div class="icon-circle"><i class="bi bi-buildings"></i></div>
+              <div>
+                <h3 class="modal-title">{{ intermediarioEditandoId() ? 'Editar institución' : 'Agregar institución' }}</h3>
+                <p class="modal-subtitle">Círculos, federaciones o agrupaciones que gestionan coberturas</p>
+              </div>
+            </div>
+            <button type="button" class="btn-modal-close" data-testid="coberturas-modal-close-btn" (click)="cerrarModal()">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
 
-        <label class="cob-field-label">Nombre</label>
-        <input type="text" formControlName="nombre" placeholder="" data-testid="coberturas-modal-nombre-input" />
+          <div class="modal-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Nombre</label>
+                <input type="text" class="form-control" formControlName="nombre" placeholder="FOPBA" data-testid="coberturas-modal-nombre-input" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">País</label>
+                <select class="form-control" formControlName="pais" data-testid="coberturas-modal-pais-select">
+                  @for (pais of paisesModal(); track pais.codigo) {
+                    <option [value]="pais.codigo">{{ pais.nombre }}</option>
+                  }
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Teléfono</label>
+                <input type="text" class="form-control" formControlName="telefono" placeholder="1234-1234 0800-5888 ..." data-testid="coberturas-modal-telefono-input" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Sitio web / portal</label>
+                <input type="text" class="form-control" formControlName="web" placeholder="https://institución.org" data-testid="coberturas-modal-web-input" />
+              </div>
+              <div class="col-12">
+                <label class="form-label">Notas</label>
+                <textarea
+                  class="form-control"
+                  formControlName="notas"
+                  rows="2"
+                  placeholder="Institución válida para... Al momento de verificar... etc."
+                  data-testid="coberturas-modal-notas-input"
+                ></textarea>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Gestiona estas coberturas ({{ modalPaisSeleccionado() }})</label>
+                <div class="cob-search" data-testid="coberturas-modal-search-wrapper">
+                  <i class="bi bi-search"></i>
+                  <input
+                    type="text"
+                    placeholder="Buscar cobertura..."
+                    data-testid="coberturas-modal-search-input"
+                    [value]="busquedaModal()"
+                    (input)="onBuscarModal($any($event.target).value)"
+                  />
+                </div>
+                <div class="cob-chips cob-chips--cols-3" data-testid="coberturas-modal-coberturas-grid">
+                  @for (os of coberturasDelPaisModal(); track os.id) {
+                    <label class="cob-chip">
+                      <input
+                        type="checkbox"
+                        [checked]="form.value.coberturaIds?.includes(os.id)"
+                        (change)="toggleCoberturaEnForm(os.id, $any($event.target).checked)"
+                      />
+                      <span>{{ os.sigla || os.nombre }}</span>
+                    </label>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
 
-        <label class="cob-field-label">País</label>
-        <select formControlName="pais" data-testid="coberturas-modal-pais-select">
-          @for (pais of paisesModal(); track pais.codigo) {
-            <option [value]="pais.codigo">{{ pais.nombre }}</option>
-          }
-        </select>
-
-        <label class="cob-field-label">Teléfono</label>
-        <input type="text" formControlName="telefono" placeholder="1234-1234 0800-5888 ..." data-testid="coberturas-modal-telefono-input" />
-
-        <label class="cob-field-label">Sitio web / portal</label>
-        <input type="text" formControlName="web" placeholder="https://institución.org https://institución.portal.gov" data-testid="coberturas-modal-web-input" />
-
-        <label class="cob-field-label">Notas</label>
-        <textarea
-          formControlName="notas"
-          rows="2"
-          placeholder="Institución válida para... Al momento de verificar... etc."
-          data-testid="coberturas-modal-notas-input"
-        ></textarea>
-
-        <label class="cob-field-label">Gestiona estas coberturas ({{ modalPaisSeleccionado() }})</label>
-        <div class="cob-search" data-testid="coberturas-modal-search-wrapper">
-          <i class="bi bi-search"></i>
-          <input
-            type="text"
-            placeholder="Buscar cobertura..."
-            data-testid="coberturas-modal-search-input"
-            [value]="busquedaModal()"
-            (input)="onBuscarModal($any($event.target).value)"
-          />
-        </div>
-        <div class="cob-chips cob-chips--cols-3" data-testid="coberturas-modal-coberturas-grid">
-          @for (os of coberturasDelPaisModal(); track os.id) {
-            <label class="cob-chip">
-              <input
-                type="checkbox"
-                [checked]="form.value.coberturaIds?.includes(os.id)"
-                (change)="toggleCoberturaEnForm(os.id, $any($event.target).checked)"
-              />
-              <span>{{ os.sigla || os.nombre }}</span>
-            </label>
-          }
-        </div>
-
-        <div class="cob-modal-actions">
-          <button type="button" (click)="cerrarModal()" data-testid="coberturas-modal-cancel-btn">Cancelar</button>
-          <button
-            type="button"
-            class="btn-primary"
-            [disabled]="form.invalid"
-            (click)="guardarIntermediario()"
-            data-testid="coberturas-modal-save-btn"
-          >
-            {{ intermediarioEditandoId() ? 'Guardar cambios' : 'Guardar agrupación' }}
-          </button>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" (click)="cerrarModal()" data-testid="coberturas-modal-cancel-btn">Cancelar</button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              [disabled]="form.invalid"
+              (click)="guardarIntermediario()"
+              data-testid="coberturas-modal-save-btn"
+            >
+              {{ intermediarioEditandoId() ? 'Guardar cambios' : 'Guardar agrupación' }}
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -334,49 +358,62 @@
 
   <!-- Modal: reportar link roto -->
   @if (reporteLinkId()) {
-    <div class="cob-modal-backdrop" data-testid="coberturas-reporte-modal-backdrop">
-      <div class="cob-modal" data-testid="coberturas-reporte-modal">
-        <div class="cob-modal-header">
-          <h3>Avisar que un link no funciona</h3>
-          <button type="button" class="btn-modal-close" data-testid="coberturas-reporte-close-btn" (click)="cerrarReporte()">
-            <i class="bi bi-x-lg"></i>
-          </button>
-        </div>
+    <div class="modal-backdrop" (click)="cerrarReporte()"></div>
+    <div class="modal" data-testid="coberturas-reporte-modal-backdrop">
+      <div class="modal-dialog-cob" data-testid="coberturas-reporte-modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div class="title-block">
+              <div class="icon-circle"><i class="bi bi-exclamation-triangle"></i></div>
+              <div>
+                <h3 class="modal-title">Avisar que un link no funciona</h3>
+                <p class="modal-subtitle">Se lo comunicamos a Gestia para que lo revisen</p>
+              </div>
+            </div>
+            <button type="button" class="btn-modal-close" data-testid="coberturas-reporte-close-btn" (click)="cerrarReporte()">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
 
-        <p class="cob-reporte-info">
-          Le vamos a avisar a Gestia que este link tiene un problema. Si sabés cuál es el motivo o
-          conocés el link actualizado, contanoslo abajo para poder arreglarlo más rápido.
-        </p>
+          <div class="modal-body">
+            <p class="cob-reporte-info">
+              Le vamos a avisar a Gestia que este link tiene un problema. Si sabés cuál es el motivo o
+              conocés el link actualizado, contanoslo abajo para poder arreglarlo más rápido.
+            </p>
 
-        <label class="cob-field-label">¿Qué pasó con el link?</label>
-        <textarea
-          rows="3"
-          placeholder="Ej: da error 404 / pide un usuario que no tenemos"
-          data-testid="coberturas-reporte-mensaje-input"
-          [value]="reporteMensaje()"
-          (input)="reporteMensaje.set($any($event.target).value)"
-        ></textarea>
+            <label class="form-label">¿Qué pasó con el link?</label>
+            <textarea
+              class="form-control"
+              rows="3"
+              placeholder="Ej: da error 404 / pide un usuario que no tenemos"
+              data-testid="coberturas-reporte-mensaje-input"
+              [value]="reporteMensaje()"
+              (input)="reporteMensaje.set($any($event.target).value)"
+            ></textarea>
 
-        <label class="cob-field-label">¿Conocés el motivo o el link correcto? (opcional)</label>
-        <input
-          type="text"
-          placeholder="Ej: el nuevo portal es https://..."
-          data-testid="coberturas-reporte-contacto-input"
-          [value]="reporteInfoContacto()"
-          (input)="reporteInfoContacto.set($any($event.target).value)"
-        />
+            <label class="form-label mt-3">¿Conocés el motivo o el link correcto? (opcional)</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Ej: el nuevo portal es https://..."
+              data-testid="coberturas-reporte-contacto-input"
+              [value]="reporteInfoContacto()"
+              (input)="reporteInfoContacto.set($any($event.target).value)"
+            />
+          </div>
 
-        <div class="cob-modal-actions">
-          <button type="button" (click)="cerrarReporte()" data-testid="coberturas-reporte-cancel-btn">Cancelar</button>
-          <button
-            type="button"
-            class="btn-primary"
-            [disabled]="!reporteMensaje().trim()"
-            (click)="enviarReporte()"
-            data-testid="coberturas-reporte-enviar-btn"
-          >
-            Enviar aviso
-          </button>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" (click)="cerrarReporte()" data-testid="coberturas-reporte-cancel-btn">Cancelar</button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              [disabled]="!reporteMensaje().trim()"
+              (click)="enviarReporte()"
+              data-testid="coberturas-reporte-enviar-btn"
+            >
+              Enviar aviso
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -33,7 +33,7 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
     'nombre', 'apellido', 'fechaNacimiento', 'edad', 'dni', 'telefono', 'email',
     'domicilio', 'localidad', 'contactoEmergencia',
     'enfermedades', 'alergias', 'medicacion', 'cirugias', 'embarazo', 'marcapasos', 'consumos', 'otrosAntecedentes',
-    'coberturaNombre', 'planCategoria', 'coberturaNumero', 'coberturaVencimiento',
+    'coberturaNombre', 'coberturaId', 'planCategoria', 'coberturaNumero', 'coberturaVencimiento',
     'esTitular', 'nombreTitular', 'dniTitular', 'parentesco'
   ];
   isCheckingAvailability = false;
@@ -121,6 +121,7 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
       consumos: anamnesisData.consumos || '',
       otrosAntecedentes: anamnesisData.otrosAntecedentes || '',
       coberturaNombre: patient.coberturaNombre || '',
+      coberturaId: patient.coberturaId || '',
       planCategoria: patient.planCategoria || '',
       coberturaNumero: patient.coberturaNumero || '',
       coberturaVencimiento: patient.coberturaVencimiento || '',
@@ -411,6 +412,7 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
       contactoEmergencia: raw.contactoEmergencia || undefined,
       anamnesis: anamnesis,
       coberturaNombre: raw.coberturaNombre,
+      coberturaId: raw.coberturaId || undefined,
       planCategoria: raw.planCategoria || undefined,
       coberturaNumero: raw.coberturaNumero || undefined,
       coberturaVencimiento: raw.coberturaVencimiento || undefined,

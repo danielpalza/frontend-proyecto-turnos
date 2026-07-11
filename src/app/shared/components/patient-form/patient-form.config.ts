@@ -25,6 +25,8 @@ export function getPatientFormConfig(fb: FormBuilder) {
     consumos: [''],
     otrosAntecedentes: ['', Validators.maxLength(300)],
     coberturaNombre: ['', Validators.required],
+    /** Vinculación al catálogo global de coberturas (tabla coberturas). Vacío = texto libre sin vincular. */
+    coberturaId: [''],
     planCategoria: [''],
     coberturaNumero: [''],
     coberturaVencimiento: [''],
@@ -35,13 +37,5 @@ export function getPatientFormConfig(fb: FormBuilder) {
   };
 }
 
-export const OBRAS_SOCIALES = [
-  'Particular', 'OSDEPYM', 'PAMI', 'OSPAT', 'OSPE', 'OSDE', 'OSDOP', 'OSPJN', 'OSMATA', 'OSPRERA', 'OSSEG',
-  'OSDIPP', 'OSPAP', 'OSPECON', 'OSPERYHRA', 'OSPM', 'OSPT', 'OSPRA', 'OSECAC', 'UOM Salud', 'OSEIV', 'OSMITA',
-  'OSPDH', 'OSPIF', 'OSPED', 'OSPIT', 'OSPF', 'OSPTR', 'UOM', 'UOCRA Salud', 'OSCHOCA (Camioneros)', 'UTEDYC',
-  'OSPEDYC', 'OSPIM', 'OSPLAD', 'SUTEBA', 'FEB', 'AMET', 'OSPSA (Sanidad)', 'OSPAGA', 'OSPACP', 'OSPAC (Aeronavegantes)',
-  'OSPIL', 'OSFE', 'OSPIA', 'OSUOMRA', 'OSPPRA', 'OSBA (Bancaria)', 'OSUTHGRA', 'Swiss Medical', 'Medicus', 'Galeno',
-  'Omint', 'Sancor Salud', 'Hominis', 'Avalian', 'Prevención Salud', 'Hospital Italiano Plan de Salud', 'Accord Salud',
-  'Medifé', 'Boreal Salud', 'ACA Salud', 'AMEBPBA', 'Staff Médico', 'IOMA', 'OSEP', 'IPROSS', 'ISSN', 'IOSCOR', 'APROSS',
-  'ISJ', 'SEROS', 'DOSEP', 'OSPTDF', 'OSEPJ', 'IAPOS', 'ISSSyP', 'IPS Misiones', 'IPS Salta'
-];
+/** Opción fija fuera del catálogo (paciente sin obra social). El resto de las opciones viene de GET /api/coberturas. */
+export const COBERTURA_PARTICULAR = 'Particular';

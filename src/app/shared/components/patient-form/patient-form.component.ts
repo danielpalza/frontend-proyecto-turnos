@@ -14,8 +14,16 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Patient, Profesional } from '../../../core/models';
 import { SearchInputComponent, SearchResult } from '../search-input/search-input.component';
-import { getPatientFormConfig, OBRAS_SOCIALES } from './patient-form.config';
+import { getPatientFormConfig, COBERTURA_PARTICULAR } from './patient-form.config';
 import { fullName } from '../../../core/utils/full-name.util';
+import { CoberturasService } from '../../../features/coberturas/coberturas.service';
+import { AuthService } from '../../../core/services/auth.service';
+
+export interface CoberturaOption {
+  id: string;
+  value: string;
+  label: string;
+}
 
 @Component({
   selector: 'app-patient-form',
@@ -44,17 +52,40 @@ export class PatientFormComponent implements OnInit, OnChanges, OnDestroy {
   @Output() patientSelect = new EventEmitter<Patient>();
   @Output() clearPatient = new EventEmitter<void>();
 
-  readonly OBRAS_SOCIALES = OBRAS_SOCIALES;
+  readonly COBERTURA_PARTICULAR = COBERTURA_PARTICULAR;
+  coberturaOptions: CoberturaOption[] = [];
   private destroy$ = new Subject<void>();
 
   get otrosAntecedentesLength(): number {
     return (this.form?.get('otrosAntecedentes')?.value ?? '').length;
   }
 
-  constructor(private fb: FormBuilder) {}
+  constructor(
+    private fb: FormBuilder,
+    private coberturasService: CoberturasService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
     this.setupFormLogic();
+    this.loadCoberturaOptions();
+  }
+
+  private loadCoberturaOptions(): void {
+    const pais = this.authService.getCurrentUser()?.organizationPais || 'AR';
+    this.coberturasService.listar([pais]).subscribe({
+      next: coberturas => {
+        this.coberturaOptions = coberturas
+          .map(c => {
+            const value = c.sigla?.trim() || c.nombre;
+            return { id: c.id, value, label: value };
+          })
+          .sort((a, b) => a.value.localeCompare(b.value));
+      },
+      error: () => {
+        this.coberturaOptions = [];
+      }
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -121,8 +152,9 @@ export class PatientFormComponent implements OnInit, OnChanges, OnDestroy {
     this.form.get('coberturaNombre')?.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe((value: string) => {
-        if (value === 'Particular') {
+        if (value === COBERTURA_PARTICULAR) {
           this.form.patchValue({
+            coberturaId: '',
             planCategoria: '',
             coberturaNumero: '',
             coberturaVencimiento: '',
@@ -134,6 +166,38 @@ export class PatientFormComponent implements OnInit, OnChanges, OnDestroy {
         }
         updateTitularValidators();
       });
+  }
+
+  showCoberturaDropdown = false;
+
+  get filteredCoberturaOptions(): CoberturaOption[] {
+    const term = (this.form.get('coberturaNombre')?.value || '').toString().toLowerCase().trim();
+    const todas: CoberturaOption[] = [
+      { id: '', value: COBERTURA_PARTICULAR, label: COBERTURA_PARTICULAR },
+      ...this.coberturaOptions
+    ];
+    if (!term) return todas;
+    return todas.filter(o => o.value.toLowerCase().includes(term));
+  }
+
+  /** Dispara solo con tipeo real del usuario (evento DOM nativo, no con patchValue programático). */
+  onCoberturaInput(): void {
+    this.form.get('coberturaId')?.setValue('', { emitEvent: false });
+    this.showCoberturaDropdown = true;
+  }
+
+  onCoberturaFocus(): void {
+    this.showCoberturaDropdown = true;
+  }
+
+  onCoberturaBlur(): void {
+    // Delay para que el (mousedown) del item del dropdown se procese antes de cerrar
+    setTimeout(() => { this.showCoberturaDropdown = false; }, 150);
+  }
+
+  selectCobertura(opt: CoberturaOption): void {
+    this.form.patchValue({ coberturaNombre: opt.value, coberturaId: opt.id });
+    this.showCoberturaDropdown = false;
   }
 
   onPatientSearchSelect(result: SearchResult): void {
@@ -160,4 +224,4 @@ export class PatientFormComponent implements OnInit, OnChanges, OnDestroy {
   }
 }
 
-export { getPatientFormConfig, OBRAS_SOCIALES };
+export { getPatientFormConfig, COBERTURA_PARTICULAR };

@@ -81,40 +81,47 @@
             <label (click)="toggleCrearAcceso()">Crear acceso de usuario para este profesional</label>
           </div>
 
-          <div class="access-section" *ngIf="canCreateAccess && form.value.crearAcceso">
+          <div class="access-section" *ngIf="showModulesSection">
             <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label">Nombre de usuario <span class="req">*</span></label>
-                <input type="text" class="form-control" formControlName="username" placeholder="jperez"
-                  [class.is-invalid]="form.get('username')?.invalid && form.get('username')?.touched"
-                  data-testid="settings-profesional-username-input" />
-                <div class="invalid-feedback"
-                  [class.show]="form.get('username')?.invalid && form.get('username')?.touched">
-                  El nombre de usuario es obligatorio
+              <ng-container *ngIf="canCreateAccess && form.value.crearAcceso">
+                <div class="col-md-6">
+                  <label class="form-label">Nombre de usuario <span class="req">*</span></label>
+                  <input type="text" class="form-control" formControlName="username" placeholder="jperez"
+                    [class.is-invalid]="form.get('username')?.invalid && form.get('username')?.touched"
+                    data-testid="settings-profesional-username-input" />
+                  <div class="invalid-feedback"
+                    [class.show]="form.get('username')?.invalid && form.get('username')?.touched">
+                    El nombre de usuario es obligatorio
+                  </div>
                 </div>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Contraseña <span class="req">*</span></label>
-                <div class="password-wrap">
-                  <input [type]="showPassword ? 'text' : 'password'" class="form-control" formControlName="password"
-                    placeholder="Mínimo 6 caracteres"
-                    [class.is-invalid]="form.get('password')?.invalid && form.get('password')?.touched"
-                    data-testid="settings-profesional-password-input" />
-                  <button type="button" class="toggle-password" (click)="togglePasswordVisibility()"
-                    [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
-                    data-testid="settings-profesional-password-toggle">
-                    <i class="bi" [ngClass]="showPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
-                  </button>
+                <div class="col-md-6">
+                  <label class="form-label">Contraseña <span class="req">*</span></label>
+                  <div class="password-wrap">
+                    <input [type]="showPassword ? 'text' : 'password'" class="form-control" formControlName="password"
+                      placeholder="Mínimo 6 caracteres"
+                      [class.is-invalid]="form.get('password')?.invalid && form.get('password')?.touched"
+                      data-testid="settings-profesional-password-input" />
+                    <button type="button" class="toggle-password" (click)="togglePasswordVisibility()"
+                      [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                      data-testid="settings-profesional-password-toggle">
+                      <i class="bi" [ngClass]="showPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
+                    </button>
+                  </div>
+                  <div class="strength-track">
+                    <div class="strength-fill" [style.width]="passwordStrength().width"
+                      [style.background]="passwordStrength().color"></div>
+                  </div>
+                  <div class="strength-label">{{ passwordStrength().label }}</div>
+                  <div class="invalid-feedback"
+                    [class.show]="form.get('password')?.invalid && form.get('password')?.touched">
+                    La contraseña debe tener al menos 6 caracteres
+                  </div>
                 </div>
-                <div class="strength-track">
-                  <div class="strength-fill" [style.width]="passwordStrength().width"
-                    [style.background]="passwordStrength().color"></div>
-                </div>
-                <div class="strength-label">{{ passwordStrength().label }}</div>
-                <div class="invalid-feedback"
-                  [class.show]="form.get('password')?.invalid && form.get('password')?.touched">
-                  La contraseña debe tener al menos 6 caracteres
-                </div>
+              </ng-container>
+
+              <div class="col-12" *ngIf="canEditModules">
+                <span class="modules-label">Acceso de usuario para profesional</span>
+                <p class="modules-hint">Este profesional ya tiene un usuario vinculado. Editá sus módulos habilitados.</p>
               </div>
 
               <div class="col-12">

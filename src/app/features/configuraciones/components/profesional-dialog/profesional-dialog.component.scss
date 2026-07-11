@@ -221,6 +221,12 @@
   display: block;
 }
 
+.modules-hint {
+  font-size: 0.8rem;
+  color: $text-secondary;
+  margin: -0.2rem 0 $spacing-md;
+}
+
 .modules-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
