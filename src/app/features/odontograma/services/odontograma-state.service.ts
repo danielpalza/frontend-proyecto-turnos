@@ -5,118 +5,29 @@ import { PeriodontogramaService } from '../../../core/services/periodontograma.s
 import { AppointmentsService } from '../../../core/services/appointments.service';
 import { Appointment } from '../../../core/models/appointment.model';
 import {
-  CaraDelta,
-  EstadoCara,
   FaceKey,
-  FACE_KEY_TO_CARA,
-  LeyendaDelta,
-  LEYENDA_LABEL_TO_VALOR,
-  OdontogramaDeltaRequest,
-  OdontogramaEstadoActual,
   OdontogramaPagoDelta,
   TurnoCompletoDeltaRequest,
-  TurnoCompletoResponse,
-  VALOR_TO_LEYENDA_LABEL
+  TurnoCompletoResponse
 } from '../../../core/models/odontograma.model';
-import {
-  PerioToothMvp,
-  PeriodontogramaDeltaRequest,
-  PeriodontogramaDienteDelta,
-  PeriodontogramaEstadoActual
-} from '../../../core/models/periodontograma.model';
-import {
-  normalizeOdontoEstado,
-  emptyOdontoResponse,
-  mergeOdontoEstado,
-  leyendaHasData,
-  leyendaChanged,
-  cloneOdontoEstado,
-  emptyFaces,
-  nextFaceState,
-  caraToFaceKey
-} from './odonto-delta.util';
-import {
-  normalizePerioEstado,
-  emptyPerioResponse,
-  mergePerioEstado,
-  toothToDelta,
-  dienteDeltaToTooth,
-  dienteDeltaEquals,
-  hasPerioData,
-  makeEmptyPerioTooth,
-  clonePerioEstado
-} from './perio-delta.util';
+import { PerioToothMvp } from '../../../core/models/periodontograma.model';
+import { emptyOdontoResponse } from './odonto-delta.util';
+import { emptyPerioResponse } from './perio-delta.util';
+import { OdontoStateService, LeyendaItem } from './odonto-state.service';
+import { PerioStateService } from './perio-state.service';
 
-export interface LeyendaItem {
-  label: string;
-  icono: string;
-}
+export type { LeyendaItem };
 
-const PERIO_TOOTH_IDS = [
-  18, 17, 16, 15, 14, 13, 12, 11, 21, 22, 23, 24, 25, 26, 27, 28,
-  48, 47, 46, 45, 44, 43, 42, 41, 31, 32, 33, 34, 35, 36, 37, 38
-];
-
-const ALL_ODONTO_TOOTH_IDS = [
-  ...PERIO_TOOTH_IDS,
-  55, 54, 53, 52, 51, 61, 62, 63, 64, 65,
-  85, 84, 83, 82, 81, 71, 72, 73, 74, 75
-];
-
-const LEYENDA_ICONS: Record<string, string> = {
-  Ausencia: 'bi bi-0-circle',
-  Implante: 'bi bi-1-circle',
-  Corona: 'bi bi-2-circle',
-  Puente: 'bi bi-3-circle',
-  Eripcion: 'bi bi-4-circle',
-  'Retención': 'bi bi-5-circle',
-  Erupcion: 'bi bi-6-circle',
-  Impactado: 'bi bi-7-circle',
-  Extraer: 'bi bi-8-circle',
-  Endodoncia: 'bi bi-0-square',
-  Fractura: 'bi bi-1-square',
-  Lesion: 'bi bi-2-square',
-  'Dolor/Sensibilidad': 'bi bi-3-square',
-  M0: 'bi bi-0-circle-fill',
-  M1: 'bi bi-1-circle-fill',
-  M2: 'bi bi-2-circle-fill',
-  M3: 'bi bi-3-circle-fill',
-  F0: 'bi bi-0-square-fill',
-  F1: 'bi bi-1-square-fill',
-  F2: 'bi bi-2-square-fill',
-  F3: 'bi bi-3-square-fill'
-};
-
-const MOBILITY_LABELS = ['M0', 'M1', 'M2', 'M3'];
-const FURCA_LABELS = ['F0', 'F1', 'F2', 'F3'];
 const LAST_APPOINTMENT_KEY = 'odontograma_last_appointment_id';
 
+/**
+ * Fachada delgada que orquesta la carga y guardado combinados de odontograma+periodontograma.
+ * El estado propio de cada uno vive en OdontoStateService/PerioStateService; esta clase solo
+ * coordina la identidad del turno, el snapshot de pago, y las dos llamadas HTTP combinadas.
+ */
 @Injectable({ providedIn: 'root' })
 export class OdontogramaStateService {
   private appointmentId: string | null = null;
-
-  private readonly selectedToothSubject = new BehaviorSubject<number | null>(null);
-  readonly selectedTooth$ = this.selectedToothSubject.asObservable();
-
-  private readonly facesSubject = new BehaviorSubject<Map<number, Record<FaceKey, EstadoCara>>>(new Map());
-  readonly faces$ = this.facesSubject.asObservable();
-
-  private readonly toothIconsSubject = new BehaviorSubject<Record<number, LeyendaItem[]>>({});
-  readonly toothIcons$ = this.toothIconsSubject.asObservable();
-
-  private readonly comentarioSubject = new BehaviorSubject<string>('');
-  readonly comentario$ = this.comentarioSubject.asObservable();
-
-  private readonly planTratamientoSubject = new BehaviorSubject<string>('');
-  readonly planTratamiento$ = this.planTratamientoSubject.asObservable();
-
-  // Hoy el backend no envía estos campos: quedan vacíos hasta que exista la fuente,
-  // pero page y diálogo de guardado ya leen del mismo lugar.
-  private readonly comentarioAnteriorSubject = new BehaviorSubject<string>('');
-  readonly comentarioAnterior$ = this.comentarioAnteriorSubject.asObservable();
-
-  private readonly historiaClinicaSubject = new BehaviorSubject<string>('');
-  readonly historiaClinica$ = this.historiaClinicaSubject.asObservable();
 
   private readonly appointmentPaymentSubject = new BehaviorSubject<{
     precioBono: number;
@@ -133,23 +44,18 @@ export class OdontogramaStateService {
     observaciones: '',
     observacionesTurno: ''
   });
+
   get appointmentPaymentSnapshot() {
     return this.appointmentPaymentSubject.value;
   }
 
-  private readonly perioTeethSubject = new BehaviorSubject<Map<number, PerioToothMvp>>(new Map());
-  readonly perioTeeth$ = this.perioTeethSubject.asObservable();
-
-  private baselineOdonto: OdontogramaEstadoActual = { caras: [], leyendas: [] };
-  private baselinePerio: PeriodontogramaEstadoActual = { dientes: [] };
-
   constructor(
     private readonly odontogramaService: OdontogramaService,
     private readonly periodontogramaService: PeriodontogramaService,
-    private readonly appointmentsService: AppointmentsService
-  ) {
-    this.initEmptyPerioMap();
-  }
+    private readonly appointmentsService: AppointmentsService,
+    private readonly odontoState: OdontoStateService,
+    private readonly perioState: PerioStateService
+  ) {}
 
   get appointmentIdValue(): string | null {
     if (this.appointmentId != null) {
@@ -199,22 +105,8 @@ export class OdontogramaStateService {
           }
         }
 
-        const mergedOdonto = mergeOdontoEstado(
-          normalizeOdontoEstado(odonto.estadoActual),
-          normalizeOdontoEstado(odonto.cambiosTurno)
-        );
-        this.baselineOdonto = cloneOdontoEstado(mergedOdonto);
-        this.applyOdontoState(mergedOdonto);
-        this.comentarioSubject.next(odonto.comentario ?? '');
-        this.planTratamientoSubject.next(odonto.planTratamiento ?? '');
-        this.comentarioAnteriorSubject.next(odonto.comentarioAnterior ?? '');
-
-        const mergedPerio = mergePerioEstado(
-          normalizePerioEstado(perio.estadoActual),
-          normalizePerioEstado(perio.cambiosTurno)
-        );
-        this.baselinePerio = clonePerioEstado(mergedPerio);
-        this.applyPerioState(mergedPerio);
+        this.odontoState.loadOdonto(odonto);
+        this.perioState.loadPerio(perio);
       }),
       map(() => undefined)
     );
@@ -225,8 +117,8 @@ export class OdontogramaStateService {
       throw new Error('No hay turno cargado');
     }
 
-    const odontoDelta = this.buildOdontogramDelta(pago);
-    const perioDelta = this.buildPeriodontogramDelta();
+    const odontoDelta = this.odontoState.buildOdontogramDelta(pago);
+    const perioDelta = this.perioState.buildPeriodontogramDelta();
 
     const combined: TurnoCompletoDeltaRequest = {
       odontograma: odontoDelta,
@@ -235,284 +127,75 @@ export class OdontogramaStateService {
 
     return this.odontogramaService.saveTurnoCompleto(this.appointmentId, combined).pipe(
       tap(response => {
-        // Actualizar baseline odonto
         if (response.odontograma) {
-          const mergedOdonto = mergeOdontoEstado(
-            response.odontograma.estadoActual,
-            response.odontograma.cambiosTurno
-          );
-          this.baselineOdonto = cloneOdontoEstado(mergedOdonto);
-          this.applyOdontoState(mergedOdonto);
-          this.comentarioSubject.next(response.odontograma.comentario ?? '');
-          this.planTratamientoSubject.next(response.odontograma.planTratamiento ?? '');
+          this.odontoState.applySaveResponse(response.odontograma);
         }
-
-        // Actualizar baseline perio
         if (response.periodontograma) {
-          const mergedPerio = mergePerioEstado(
-            response.periodontograma.estadoActual,
-            response.periodontograma.cambiosTurno
-          );
-          this.baselinePerio = clonePerioEstado(mergedPerio);
-          this.applyPerioState(mergedPerio);
+          this.perioState.applySaveResponse(response.periodontograma);
         }
       })
     );
   }
 
+  // --- Pass-throughs de odonto (mantienen la API pública sin cambios para los consumidores) ---
+
+  get selectedTooth$() { return this.odontoState.selectedTooth$; }
+  get faces$() { return this.odontoState.faces$; }
+  get toothIcons$() { return this.odontoState.toothIcons$; }
+  get comentario$() { return this.odontoState.comentario$; }
+  get planTratamiento$() { return this.odontoState.planTratamiento$; }
+  get comentarioAnterior$() { return this.odontoState.comentarioAnterior$; }
+  get historiaClinica$() { return this.odontoState.historiaClinica$; }
+
   selectTooth(tooth: number | null): void {
-    this.selectedToothSubject.next(tooth);
+    this.odontoState.selectTooth(tooth);
   }
 
-  getFaceState(toothNumber: number, face: FaceKey): EstadoCara {
-    return this.facesSubject.value.get(toothNumber)?.[face] ?? 'normal';
+  getFaceState(toothNumber: number, face: FaceKey) {
+    return this.odontoState.getFaceState(toothNumber, face);
   }
 
   cycleFace(toothNumber: number, face: FaceKey): void {
-    const map = new Map(this.facesSubject.value);
-    const current = { ...(map.get(toothNumber) ?? emptyFaces()) };
-    current[face] = nextFaceState(current[face]);
-    map.set(toothNumber, current);
-    this.facesSubject.next(map);
+    this.odontoState.cycleFace(toothNumber, face);
   }
 
   toggleItemForSelectedTooth(item: LeyendaItem, checked: boolean): void {
-    const selectedTooth = this.selectedToothSubject.value;
-    if (!selectedTooth) {
-      return;
-    }
-
-    const currentState = { ...this.toothIconsSubject.value };
-    const currentItems = [...(currentState[selectedTooth] ?? [])];
-    const alreadySelected = currentItems.some(existing => existing.label === item.label);
-
-    let nextItems = currentItems;
-    if (checked && !alreadySelected) {
-      nextItems = [...currentItems, item];
-    } else if (!checked && alreadySelected) {
-      nextItems = currentItems.filter(existing => existing.label !== item.label);
-    }
-
-    currentState[selectedTooth] = nextItems;
-    this.toothIconsSubject.next(currentState);
+    this.odontoState.toggleItemForSelectedTooth(item, checked);
   }
 
   isItemSelectedForCurrentTooth(label: string): boolean {
-    const selectedTooth = this.selectedToothSubject.value;
-    if (!selectedTooth) {
-      return false;
-    }
-    const toothItems = this.toothIconsSubject.value[selectedTooth] ?? [];
-    return toothItems.some(item => item.label === label);
+    return this.odontoState.isItemSelectedForCurrentTooth(label);
   }
 
   getIconsForTooth(tooth: number): LeyendaItem[] {
-    return this.toothIconsSubject.value[tooth] ?? [];
+    return this.odontoState.getIconsForTooth(tooth);
   }
 
   removeItemsByLabelsForSelectedTooth(labels: string[]): void {
-    const selectedTooth = this.selectedToothSubject.value;
-    if (!selectedTooth) {
-      return;
-    }
-
-    const currentState = { ...this.toothIconsSubject.value };
-    const currentItems = currentState[selectedTooth] ?? [];
-    currentState[selectedTooth] = currentItems.filter(item => !labels.includes(item.label));
-    this.toothIconsSubject.next(currentState);
+    this.odontoState.removeItemsByLabelsForSelectedTooth(labels);
   }
 
   setComentario(value: string): void {
-    this.comentarioSubject.next(value);
+    this.odontoState.setComentario(value);
   }
 
   setPlanTratamiento(value: string): void {
-    this.planTratamientoSubject.next(value);
+    this.odontoState.setPlanTratamiento(value);
   }
 
+  // --- Pass-throughs de perio ---
+
+  get perioTeeth$() { return this.perioState.perioTeeth$; }
+
   getPerioTeethMap(): Map<number, PerioToothMvp> {
-    return this.perioTeethSubject.value;
+    return this.perioState.getPerioTeethMap();
   }
 
   notifyPerioChange(): void {
-    this.perioTeethSubject.next(new Map(this.perioTeethSubject.value));
+    this.perioState.notifyPerioChange();
   }
 
   updatePerioTooth(toothId: number, updater: (tooth: PerioToothMvp) => void): void {
-    const map = new Map(this.perioTeethSubject.value);
-    const tooth = map.get(toothId);
-    if (!tooth) {
-      return;
-    }
-    updater(tooth);
-    map.set(toothId, tooth);
-    this.perioTeethSubject.next(map);
+    this.perioState.updatePerioTooth(toothId, updater);
   }
-
-  private initEmptyPerioMap(): void {
-    const map = new Map<number, PerioToothMvp>();
-    PERIO_TOOTH_IDS.forEach(id => map.set(id, makeEmptyPerioTooth(id)));
-    this.perioTeethSubject.next(map);
-  }
-
-  private applyOdontoState(state: OdontogramaEstadoActual): void {
-    const facesMap = new Map<number, Record<FaceKey, EstadoCara>>();
-    ALL_ODONTO_TOOTH_IDS.forEach(id => facesMap.set(id, emptyFaces()));
-
-    for (const cara of state.caras ?? []) {
-      const faceKey = caraToFaceKey(cara.cara);
-      if (!faceKey) {
-        continue;
-      }
-      const toothFaces = facesMap.get(cara.numeroDiente) ?? emptyFaces();
-      toothFaces[faceKey] = cara.estado;
-      facesMap.set(cara.numeroDiente, toothFaces);
-    }
-    this.facesSubject.next(facesMap);
-
-    const icons: Record<number, LeyendaItem[]> = {};
-    for (const leyenda of state.leyendas ?? []) {
-      const items = icons[leyenda.numeroDiente] ?? [];
-
-      // Leyendas de estado y condicion
-      for (const valor in VALOR_TO_LEYENDA_LABEL) {
-        const label = VALOR_TO_LEYENDA_LABEL[valor as keyof typeof VALOR_TO_LEYENDA_LABEL];
-        if (!label) continue;
-        const field = valor as keyof LeyendaDelta;
-        if (leyenda[field]) {
-          if (!items.some(i => i.label === label)) {
-            items.push({ label, icono: LEYENDA_ICONS[label] ?? 'bi bi-circle' });
-          }
-        }
-      }
-
-      // Movilidad
-      if (leyenda.movilidad != null) {
-        const label = `M${leyenda.movilidad}`;
-        if (!items.some(i => MOBILITY_LABELS.includes(i.label))) {
-          items.push({ label, icono: LEYENDA_ICONS[label] ?? 'bi bi-circle-fill' });
-        }
-      }
-
-      // Furca
-      if (leyenda.furca != null) {
-        const label = `F${leyenda.furca}`;
-        if (!items.some(i => FURCA_LABELS.includes(i.label))) {
-          items.push({ label, icono: LEYENDA_ICONS[label] ?? 'bi bi-square-fill' });
-        }
-      }
-
-      icons[leyenda.numeroDiente] = items;
-    }
-    this.toothIconsSubject.next(icons);
-  }
-
-  private applyPerioState(state: PeriodontogramaEstadoActual): void {
-    const map = new Map<number, PerioToothMvp>();
-    PERIO_TOOTH_IDS.forEach(id => map.set(id, makeEmptyPerioTooth(id)));
-
-    for (const d of state.dientes ?? []) {
-      map.set(d.numeroDiente, dienteDeltaToTooth(d));
-    }
-    this.perioTeethSubject.next(map);
-  }
-
-  private buildOdontogramDelta(pago?: OdontogramaPagoDelta): OdontogramaDeltaRequest {
-    const current = this.snapshotCurrentOdonto();
-    const delta: OdontogramaDeltaRequest = {};
-
-    const comentario = this.comentarioSubject.value;
-    const plan = this.planTratamientoSubject.value;
-    if (comentario !== (this.baselineOdonto as unknown as { comentario?: string }).comentario) {
-      delta.comentario = comentario;
-    }
-    delta.planTratamiento = plan;
-
-    delta.caras = current.caras.filter(c => {
-      const baseline = this.baselineOdonto.caras.find(
-        b => b.numeroDiente === c.numeroDiente && b.cara === c.cara
-      );
-      const baselineEstado = baseline?.estado ?? 'normal';
-      return c.estado !== baselineEstado;
-    });
-
-    // Delta de leyendas unificado: incluir dientes que cambiaron respecto al baseline
-    delta.leyendas = current.leyendas.filter(l => {
-      const baseline = this.baselineOdonto.leyendas.find(b => b.numeroDiente === l.numeroDiente);
-      if (!baseline) {
-        return leyendaHasData(l);
-      }
-      return leyendaChanged(baseline, l);
-    });
-
-    if (pago) {
-      delta.pago = pago;
-    }
-
-    return delta;
-  }
-
-  private buildPeriodontogramDelta(): PeriodontogramaDeltaRequest {
-    const changed: PeriodontogramaDienteDelta[] = [];
-
-    for (const tooth of this.perioTeethSubject.value.values()) {
-      const current = toothToDelta(tooth);
-      const baseline = this.baselinePerio.dientes.find(d => d.numeroDiente === tooth.id);
-      if (!baseline) {
-        if (hasPerioData(current)) {
-          changed.push(current);
-        }
-      } else if (!dienteDeltaEquals(current, baseline)) {
-        changed.push(current);
-      }
-    }
-
-    return { dientes: changed };
-  }
-
-  private snapshotCurrentOdonto(): OdontogramaEstadoActual {
-    const caras: CaraDelta[] = [];
-    this.facesSubject.value.forEach((faces, numeroDiente) => {
-      (Object.keys(faces) as FaceKey[]).forEach(faceKey => {
-        const estado = faces[faceKey];
-        if (estado !== 'normal') {
-          caras.push({
-            numeroDiente,
-            cara: FACE_KEY_TO_CARA[faceKey],
-            estado
-          });
-        }
-      });
-    });
-
-    const leyendas: LeyendaDelta[] = [];
-    Object.entries(this.toothIconsSubject.value).forEach(([toothStr, items]) => {
-      const numeroDiente = Number(toothStr);
-      const entry: LeyendaDelta = { numeroDiente };
-
-      for (const item of items) {
-        if (MOBILITY_LABELS.includes(item.label)) {
-          entry.movilidad = Number(item.label.replace('M', ''));
-          continue;
-        }
-        if (FURCA_LABELS.includes(item.label)) {
-          entry.furca = Number(item.label.replace('F', ''));
-          continue;
-        }
-        const mapping = LEYENDA_LABEL_TO_VALOR[item.label];
-        if (mapping) {
-          const key = mapping.valor as keyof LeyendaDelta;
-          (entry as any)[key] = true;
-          if (mapping.valor === 'ausencia') {
-            entry.ausente = true;
-          }
-        }
-      }
-
-      leyendas.push(entry);
-    });
-
-    return { caras, leyendas };
-  }
-
 }
