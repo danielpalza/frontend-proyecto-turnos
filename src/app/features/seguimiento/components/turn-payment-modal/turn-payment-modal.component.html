@@ -1,0 +1,218 @@
+<div class="modal fade show d-block" tabindex="-1" role="dialog" *ngIf="open && appointment" data-testid="tracking-turn-modal">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content turn-modal-content">
+      <div class="modal-header">
+        <div class="title-block">
+          <div class="icon-circle"><i class="bi bi-cash-coin"></i></div>
+          <h5 class="modal-title" data-testid="tracking-turn-modal-title">Pago y observaciones</h5>
+        </div>
+        <div class="d-flex align-items-center gap-2 ms-auto">
+          <a *ngIf="hasPatientPhone()" [href]="getWhatsAppLink()" target="_blank"
+            class="btn-whatsapp" title="Enviar mensaje por WhatsApp"
+            data-testid="tracking-turn-whatsapp-btn">
+            <i class="bi bi-whatsapp"></i>
+          </a>
+          <button *ngIf="!hasPatientPhone()" type="button" disabled
+            class="btn-whatsapp-disabled"
+            title="No se cargo telefono para el paciente"
+            data-testid="tracking-turn-whatsapp-disabled-btn">
+            <i class="bi bi-whatsapp"></i>
+          </button>
+          <button type="button" class="btn-close" aria-label="Cerrar" (click)="close()" data-testid="tracking-turn-close-btn"></button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="turn-modal-context mb-3">
+          <span class="fw-semibold" data-testid="tracking-turn-modal-patient-name">{{ fullName(appointment.patientNombre, appointment.patientApellido) }}</span>
+          <span class="text-muted" data-testid="tracking-turn-modal-date"> · {{ formatDate(appointment.fecha) }}</span>
+          <span class="text-muted" *ngIf="appointment.profesionalNombre">
+            · {{ fullName(appointment.profesionalNombre, appointment.profesionalApellido) }}
+          </span>
+        </div>
+
+        <!-- Información de pago (montos editables) -->
+        <div class="turn-modal-section">
+          <h6 class="section-label d-flex align-items-center gap-2">
+            <span><i class="bi bi-cash-stack me-2"></i>Información de pago</span>
+            <span class="badge" [ngClass]="getStatusBadgeClass(appointment.estado)" data-testid="tracking-turn-modal-status-badge">
+              {{ getStatusLabel(appointment.estado) }}
+            </span>
+          </h6>
+          <div class="payment-summary">
+            <!-- Bono -->
+            <div class="d-flex justify-content-between align-items-center mb-2 payment-row" data-testid="tracking-turn-bono-row">
+              <span class="text-muted">Bono:</span>
+              <div class="d-flex align-items-center gap-2">
+                <span *ngIf="!editingPriceBono" data-testid="tracking-turn-bono-value">{{ formatCurrency(appointment.precioBono) || '$0' }}</span>
+                <span *ngIf="editingPriceBono" class="d-inline-flex align-items-center gap-1">
+                  <input type="number" class="form-control form-control-sm price-edit-input" placeholder="0" min="0"
+                    step="0.01" [(ngModel)]="inputBono" (keyup.escape)="cancelEditingPriceBono()" />
+                  <button type="button" class="icon-btn icon-btn-success" (click)="savePriceBono()"
+                    [disabled]="isSavingPrice" title="Guardar">
+                    <i class="bi bi-check-lg"></i>
+                  </button>
+                  <button type="button" class="icon-btn icon-btn-muted" (click)="cancelEditingPriceBono()"
+                    title="Cancelar">
+                    <i class="bi bi-x-lg"></i>
+                  </button>
+                </span>
+                <button type="button" class="icon-btn icon-btn-primary" *ngIf="!editingPriceBono"
+                  (click)="startEditingPriceBono()" title="Editar bono" data-testid="tracking-turn-edit-bono-btn">
+                  <i class="bi bi-pencil"></i>
+                </button>
+              </div>
+            </div>
+            <!-- Tratamiento -->
+            <div class="d-flex justify-content-between align-items-center mb-2 payment-row" data-testid="tracking-turn-treatment-row">
+              <span class="text-muted">Tratamiento:</span>
+              <div class="d-flex align-items-center gap-2">
+                <span *ngIf="!editingPriceTratamiento" data-testid="tracking-turn-treatment-value">{{ formatCurrency(appointment.precioTratamiento) ||
+                  '$0' }}</span>
+                <span *ngIf="editingPriceTratamiento" class="d-inline-flex align-items-center gap-1">
+                  <input type="number" class="form-control form-control-sm price-edit-input" placeholder="0" min="0"
+                    step="0.01" [(ngModel)]="inputTratamiento" (keyup.escape)="cancelEditingPriceTratamiento()" />
+                  <button type="button" class="icon-btn icon-btn-success" (click)="savePriceTratamiento()"
+                    [disabled]="isSavingPrice" title="Guardar">
+                    <i class="bi bi-check-lg"></i>
+                  </button>
+                  <button type="button" class="icon-btn icon-btn-muted"
+                    (click)="cancelEditingPriceTratamiento()" title="Cancelar">
+                    <i class="bi bi-x-lg"></i>
+                  </button>
+                </span>
+                <button type="button" class="icon-btn icon-btn-primary" *ngIf="!editingPriceTratamiento"
+                  (click)="startEditingPriceTratamiento()" title="Editar tratamiento" data-testid="tracking-turn-edit-treatment-btn">
+                  <i class="bi bi-pencil"></i>
+                </button>
+              </div>
+            </div>
+            <!-- Extras -->
+            <div class="d-flex justify-content-between align-items-center mb-2 payment-row" data-testid="tracking-turn-extras-row">
+              <span class="text-muted">Extras:</span>
+              <div class="d-flex align-items-center gap-2">
+                <span *ngIf="!editingPriceExtras" data-testid="tracking-turn-extras-value">{{ formatCurrency(appointment.extras) || '$0' }}</span>
+                <span *ngIf="editingPriceExtras" class="d-inline-flex align-items-center gap-1">
+                  <input type="number" class="form-control form-control-sm price-edit-input" placeholder="0" min="0"
+                    step="0.01" [(ngModel)]="inputExtras" (keyup.escape)="cancelEditingPriceExtras()" />
+                  <button type="button" class="icon-btn icon-btn-success" (click)="savePriceExtras()"
+                    [disabled]="isSavingPrice" title="Guardar">
+                    <i class="bi bi-check-lg"></i>
+                  </button>
+                  <button type="button" class="icon-btn icon-btn-muted" (click)="cancelEditingPriceExtras()"
+                    title="Cancelar">
+                    <i class="bi bi-x-lg"></i>
+                  </button>
+                </span>
+                <button type="button" class="icon-btn icon-btn-primary" *ngIf="!editingPriceExtras"
+                  (click)="startEditingPriceExtras()" title="Editar extras" data-testid="tracking-turn-edit-extras-btn">
+                  <i class="bi bi-pencil"></i>
+                </button>
+              </div>
+            </div>
+            <div class="d-flex justify-content-between mb-2 payment-row">
+              <span class="text-muted">Pagado:</span>
+              <span class="text-success" data-testid="tracking-turn-paid-value">-{{ formatCurrency(appointment.montoPago) || '$0' }}</span>
+            </div>
+            <div class="d-flex justify-content-between pt-2 border-top fw-semibold">
+              <span>A pagar:</span>
+              <span [class.text-danger]="(appointment.totalPrecio ?? 0) > 0"
+                [class.text-success]="(appointment.totalPrecio ?? 0) === 0"
+                data-testid="tracking-turn-total-value">
+                {{ formatCurrency(appointment.totalPrecio) || '$0' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sección para pago -->
+        <div class="turn-modal-section">
+          <h6 class="section-label"><i class="bi bi-wallet2 me-2"></i>Agregar pago</h6>
+          <div class="add-payment-row d-flex flex-wrap align-items-center gap-2">
+            <label class="mb-0">Monto:</label>
+            <input type="number" class="form-control payment-input-inline" placeholder="0" min="0.01" step="0.01"
+              [value]="getTurnModalPaymentInput()"
+              (input)="updateTurnModalPaymentInput(+$any($event.target).value)" data-testid="tracking-turn-payment-input" />
+            <button type="button" class="btn btn-primary btn-sm" (click)="onTurnModalAddPayment()"
+              [disabled]="isAddingPayment" data-testid="tracking-turn-add-payment-btn">
+              {{ isAddingPayment ? 'Agregando...' : 'Agregar' }}
+            </button>
+            <label class="mb-0 d-flex align-items-center gap-1 payment-total-label" data-testid="tracking-turn-full-payment-label">
+              <input type="checkbox"
+                [checked]="getTurnModalPaymentInput() === (appointment.totalPrecio ?? 0) && (appointment.totalPrecio ?? 0) > 0"
+                (change)="$any($event.target).checked ? updateTurnModalPaymentInput(appointment.totalPrecio ?? 0) : updateTurnModalPaymentInput(0)"
+                data-testid="tracking-turn-full-payment-checkbox" />
+              Pago total
+            </label>
+          </div>
+          <p class="small text-muted mb-0 mt-2" *ngIf="(appointment.totalPrecio ?? 0) > 0" data-testid="tracking-turn-pending-balance">
+            Saldo pendiente: {{ formatCurrency(appointment.totalPrecio) }}
+          </p>
+        </div>
+
+        <!-- Observaciones de pago -->
+        <div class="turn-modal-section">
+          <h6 class="section-label d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-chat-text me-2"></i>Observaciones de pago</span>
+            <button type="button" class="btn btn-sm btn-outline-primary" *ngIf="!editingObservacionesPago"
+              (click)="startEditingObservacionesPago()" data-testid="tracking-turn-edit-payment-obs-btn">
+              <i class="bi bi-pencil"></i>
+            </button>
+          </h6>
+          <div *ngIf="!editingObservacionesPago">
+            <p class="mb-0 small" *ngIf="appointment.observaciones" data-testid="tracking-turn-payment-obs-text">{{ appointment.observaciones }}
+            </p>
+            <p class="mb-0 small text-muted" *ngIf="!appointment.observaciones">Sin observaciones</p>
+          </div>
+          <div *ngIf="editingObservacionesPago" class="d-flex flex-column gap-2">
+            <textarea class="form-control" rows="3" placeholder="Ingrese las observaciones de pago..."
+              [(ngModel)]="observacionesPagoInput"></textarea>
+            <div class="d-flex gap-2 justify-content-end">
+              <button type="button" class="btn btn-sm btn-outline-secondary"
+                (click)="cancelEditingObservacionesPago()">
+                Cancelar
+              </button>
+              <button type="button" class="btn btn-sm btn-primary" (click)="saveObservacionesPago()">
+                Guardar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Observaciones del turno -->
+        <div class="turn-modal-section">
+          <h6 class="section-label d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-journal-text me-2"></i>Observaciones del turno</span>
+            <button type="button" class="btn btn-sm btn-outline-primary" *ngIf="!editingObservacionesTurno"
+              (click)="startEditingObservacionesTurno()" data-testid="tracking-turn-edit-turn-obs-btn">
+              <i class="bi bi-pencil"></i>
+            </button>
+          </h6>
+          <div *ngIf="!editingObservacionesTurno">
+            <p class="mb-0 small" *ngIf="appointment.observacionesTurno" data-testid="tracking-turn-turn-obs-text">{{
+              appointment.observacionesTurno }}</p>
+            <p class="mb-0 small text-muted" *ngIf="!appointment.observacionesTurno">Sin observaciones del
+              turno</p>
+          </div>
+          <div *ngIf="editingObservacionesTurno" class="d-flex flex-column gap-2">
+            <textarea class="form-control" rows="3" placeholder="Ingrese las observaciones del turno..."
+              [(ngModel)]="observacionesTurnoInput"></textarea>
+            <div class="d-flex gap-2 justify-content-end">
+              <button type="button" class="btn btn-sm btn-outline-secondary"
+                (click)="cancelEditingObservacionesTurno()">
+                Cancelar
+              </button>
+              <button type="button" class="btn btn-sm btn-primary" (click)="saveObservacionesTurno()">
+                Guardar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="close()" data-testid="tracking-turn-dismiss-btn">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop fade show" *ngIf="open"></div>
