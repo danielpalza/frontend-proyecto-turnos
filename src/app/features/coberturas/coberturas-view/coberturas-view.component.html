@@ -152,7 +152,9 @@
   <!-- Template reutilizable de tarjeta de cobertura -->
   <ng-template #coberturaCard let-os>
     <div class="cob-card" [attr.data-testid]="'coberturas-card-' + os.id">
-      <div class="cob-row" (click)="toggleCard(os.id)" [attr.data-testid]="'coberturas-row-' + os.id">
+      <div class="cob-row" role="button" tabindex="0" (click)="toggleCard(os.id)"
+        (keydown.enter)="toggleCard(os.id)" (keydown.space)="toggleCard(os.id); $event.preventDefault()"
+        [attr.data-testid]="'coberturas-row-' + os.id">
         <div class="cob-row-left">
           <i
             class="bi"
@@ -184,14 +186,6 @@
               >
                 {{ link.confianza }}
               </span>
-              <button
-                type="button"
-                class="cob-report-link"
-                [attr.data-testid]="'coberturas-reportar-link-' + link.id"
-                (click)="abrirReporte(link.id, $event)"
-              >
-                Este link no funciona
-              </button>
             </div>
             @if (link.notasAcceso) {
               <div class="cob-detail-row cob-detail-row--nota">
@@ -203,17 +197,68 @@
 
           <div class="cob-detail-row">
             <i class="bi bi-journal-text"></i>
-            <span>Nota interna</span>
+            <span>Notas internas</span>
           </div>
+
+          <div class="cob-nota-inline-row">
+            <input
+              type="text"
+              class="cob-nota-textarea"
+              placeholder="agrega una direccion web..."
+              [attr.data-testid]="'coberturas-web-input-' + os.id"
+              [value]="webValor(os)"
+              (input)="onWebChange(os.id, $any($event.target).value)"
+            />
+            <button
+              type="button"
+              class="cob-nota-guardar-btn"
+              [attr.data-testid]="'coberturas-web-guardar-' + os.id"
+              [disabled]="!webSinGuardar(os)"
+              (click)="guardarWeb(os)"
+            >
+              Guardar
+            </button>
+          </div>
+
+          <div class="cob-nota-inline-row">
+            <input
+              type="text"
+              class="cob-nota-textarea"
+              placeholder="agrega un telefono..."
+              [attr.data-testid]="'coberturas-telefono-input-' + os.id"
+              [value]="telefonoValor(os)"
+              (input)="onTelefonoChange(os.id, $any($event.target).value)"
+            />
+            <button
+              type="button"
+              class="cob-nota-guardar-btn"
+              [attr.data-testid]="'coberturas-telefono-guardar-' + os.id"
+              [disabled]="!telefonoSinGuardar(os)"
+              (click)="guardarTelefono(os)"
+            >
+              Guardar
+            </button>
+          </div>
+
           <textarea
             class="cob-nota-textarea"
             rows="2"
-            placeholder="Ej: valida por FOPBA para odontología"
+            placeholder="Ej: válido hasta el próximo mes. Buscar nuevo convenio en..."
             [attr.data-testid]="'coberturas-nota-input-' + os.id"
             [value]="notaValor(os)"
             (input)="onNotaChange(os.id, $any($event.target).value)"
-            (blur)="guardarNota(os)"
           ></textarea>
+          <div class="cob-nota-actions">
+            <button
+              type="button"
+              class="cob-nota-guardar-btn"
+              [attr.data-testid]="'coberturas-nota-guardar-' + os.id"
+              [disabled]="!notaSinGuardar(os)"
+              (click)="guardarNota(os)"
+            >
+              Guardar
+            </button>
+          </div>
 
           <div class="cob-detail-row">
             <i class="bi bi-file-earmark"></i>
@@ -349,69 +394,6 @@
               data-testid="coberturas-modal-save-btn"
             >
               {{ intermediarioEditandoId() ? 'Guardar cambios' : 'Guardar agrupación' }}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  }
-
-  <!-- Modal: reportar link roto -->
-  @if (reporteLinkId()) {
-    <div class="modal-backdrop" (click)="cerrarReporte()"></div>
-    <div class="modal" data-testid="coberturas-reporte-modal-backdrop">
-      <div class="modal-dialog-cob" data-testid="coberturas-reporte-modal">
-        <div class="modal-content">
-          <div class="modal-header">
-            <div class="title-block">
-              <div class="icon-circle"><i class="bi bi-exclamation-triangle"></i></div>
-              <div>
-                <h3 class="modal-title">Avisar que un link no funciona</h3>
-                <p class="modal-subtitle">Se lo comunicamos a Gestia para que lo revisen</p>
-              </div>
-            </div>
-            <button type="button" class="btn-modal-close" data-testid="coberturas-reporte-close-btn" (click)="cerrarReporte()">
-              <i class="bi bi-x-lg"></i>
-            </button>
-          </div>
-
-          <div class="modal-body">
-            <p class="cob-reporte-info">
-              Le vamos a avisar a Gestia que este link tiene un problema. Si sabés cuál es el motivo o
-              conocés el link actualizado, contanoslo abajo para poder arreglarlo más rápido.
-            </p>
-
-            <label class="form-label">¿Qué pasó con el link?</label>
-            <textarea
-              class="form-control"
-              rows="3"
-              placeholder="Ej: da error 404 / pide un usuario que no tenemos"
-              data-testid="coberturas-reporte-mensaje-input"
-              [value]="reporteMensaje()"
-              (input)="reporteMensaje.set($any($event.target).value)"
-            ></textarea>
-
-            <label class="form-label mt-3">¿Conocés el motivo o el link correcto? (opcional)</label>
-            <input
-              type="text"
-              class="form-control"
-              placeholder="Ej: el nuevo portal es https://..."
-              data-testid="coberturas-reporte-contacto-input"
-              [value]="reporteInfoContacto()"
-              (input)="reporteInfoContacto.set($any($event.target).value)"
-            />
-          </div>
-
-          <div class="modal-footer">
-            <button type="button" class="btn btn-outline-secondary" (click)="cerrarReporte()" data-testid="coberturas-reporte-cancel-btn">Cancelar</button>
-            <button
-              type="button"
-              class="btn btn-primary"
-              [disabled]="!reporteMensaje().trim()"
-              (click)="enviarReporte()"
-              data-testid="coberturas-reporte-enviar-btn"
-            >
-              Enviar aviso
             </button>
           </div>
         </div>

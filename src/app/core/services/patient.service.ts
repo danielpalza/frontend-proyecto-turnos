@@ -5,6 +5,8 @@ import { Patient, PatientCreateDTO } from '../models';
 import { API_CONFIG } from './api.config';
 import { skipGlobalErrorHandler } from '../interceptors/http-context';
 import { AuthService } from './auth.service';
+import { NotificationService } from './notification.service';
+import { ErrorHandlerService } from './error-handler.service';
 
 @Injectable({ providedIn: 'root' })
 export class PatientService {
@@ -12,17 +14,27 @@ export class PatientService {
 
   private patientsCache$ = new BehaviorSubject<Patient[]>([]);
 
-  constructor(private http: HttpClient, private auth: AuthService) {
+  constructor(
+    private http: HttpClient,
+    private auth: AuthService,
+    private notification: NotificationService,
+    private errorHandler: ErrorHandlerService
+  ) {
     this.auth.currentUser$.pipe(
       filter(user => user !== null),
       switchMap(() => this.http.get<Patient[]>(this.apiUrl)),
       catchError((err) => {
         console.error('Error loading patients:', err);
+        if (err?.status !== 404 && !this.errorHandler.isNetworkError(err)) {
+          this.notification.showError(this.errorHandler.getErrorMessage(err, 'cargar los pacientes'));
+        }
         return of([]);
       })
     ).subscribe({
       next: (patients) => this.patientsCache$.next(patients)
     });
+
+    this.auth.loggedOut$.subscribe(() => this.patientsCache$.next([]));
   }
 
   loadPatients(skipGlobal: boolean = false): void {

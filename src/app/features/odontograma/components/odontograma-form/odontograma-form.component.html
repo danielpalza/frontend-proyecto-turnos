@@ -6,7 +6,8 @@
         <div class="teeth-container">
           <div class="teeth-group">
             <div *ngFor="let tooth of permanentTeeth.topRight" class="tooth-item" [attr.data-testid]="'odontogram-tooth-' + tooth" [class.selected]="isToothSelected(tooth)"
-              (click)="selectTooth(tooth)">
+              role="button" tabindex="0" (click)="selectTooth(tooth)"
+              (keydown.enter)="selectTooth(tooth)" (keydown.space)="selectTooth(tooth); $event.preventDefault()">
               <div class="tooth-icons-top">
                 <i *ngIf="getMovilidadIconForTooth(tooth) as m" [ngClass]="m.icono" [title]="m.label"></i>
                 <i *ngIf="getFurcaIconForTooth(tooth) as f" [ngClass]="f.icono" [title]="f.label"></i>
@@ -23,7 +24,8 @@
 
           <div class="teeth-group">
             <div *ngFor="let tooth of permanentTeeth.topLeft" class="tooth-item" [attr.data-testid]="'odontogram-tooth-' + tooth" [class.selected]="isToothSelected(tooth)"
-              (click)="selectTooth(tooth)">
+              role="button" tabindex="0" (click)="selectTooth(tooth)"
+              (keydown.enter)="selectTooth(tooth)" (keydown.space)="selectTooth(tooth); $event.preventDefault()">
               <div class="tooth-icons-top">
                 <i *ngIf="getMovilidadIconForTooth(tooth) as m" [ngClass]="m.icono" [title]="m.label"></i>
                 <i *ngIf="getFurcaIconForTooth(tooth) as f" [ngClass]="f.icono" [title]="f.label"></i>
@@ -42,7 +44,8 @@
         <div class="teeth-container">
           <div class="teeth-group">
             <div *ngFor="let tooth of primaryTeeth.topRight" class="tooth-item" [attr.data-testid]="'odontogram-tooth-' + tooth" [class.selected]="isToothSelected(tooth)"
-              (click)="selectTooth(tooth)">
+              role="button" tabindex="0" (click)="selectTooth(tooth)"
+              (keydown.enter)="selectTooth(tooth)" (keydown.space)="selectTooth(tooth); $event.preventDefault()">
               <div class="tooth-icons-top">
                 <i *ngIf="getMovilidadIconForTooth(tooth) as m" [ngClass]="m.icono" [title]="m.label"></i>
                 <i *ngIf="getFurcaIconForTooth(tooth) as f" [ngClass]="f.icono" [title]="f.label"></i>
@@ -59,7 +62,8 @@
 
           <div class="teeth-group">
             <div *ngFor="let tooth of primaryTeeth.topLeft" class="tooth-item" [attr.data-testid]="'odontogram-tooth-' + tooth" [class.selected]="isToothSelected(tooth)"
-              (click)="selectTooth(tooth)">
+              role="button" tabindex="0" (click)="selectTooth(tooth)"
+              (keydown.enter)="selectTooth(tooth)" (keydown.space)="selectTooth(tooth); $event.preventDefault()">
               <div class="tooth-icons-top">
                 <i *ngIf="getMovilidadIconForTooth(tooth) as m" [ngClass]="m.icono" [title]="m.label"></i>
                 <i *ngIf="getFurcaIconForTooth(tooth) as f" [ngClass]="f.icono" [title]="f.label"></i>
@@ -95,7 +99,8 @@
 
           <div class="teeth-group">
             <div *ngFor="let tooth of primaryTeeth.bottomLeft" class="tooth-item" [attr.data-testid]="'odontogram-tooth-' + tooth" [class.selected]="isToothSelected(tooth)"
-              (click)="selectTooth(tooth)">
+              role="button" tabindex="0" (click)="selectTooth(tooth)"
+              (keydown.enter)="selectTooth(tooth)" (keydown.space)="selectTooth(tooth); $event.preventDefault()">
               <div class="tooth-icons-top">
                 <i *ngIf="getMovilidadIconForTooth(tooth) as m" [ngClass]="m.icono" [title]="m.label"></i>
                 <i *ngIf="getFurcaIconForTooth(tooth) as f" [ngClass]="f.icono" [title]="f.label"></i>
@@ -114,7 +119,8 @@
         <div class="teeth-container">
           <div class="teeth-group">
             <div *ngFor="let tooth of permanentTeeth.bottomRight" class="tooth-item" [attr.data-testid]="'odontogram-tooth-' + tooth" [class.selected]="isToothSelected(tooth)"
-              (click)="selectTooth(tooth)">
+              role="button" tabindex="0" (click)="selectTooth(tooth)"
+              (keydown.enter)="selectTooth(tooth)" (keydown.space)="selectTooth(tooth); $event.preventDefault()">
               <div class="tooth-icons-top">
                 <i *ngIf="getMovilidadIconForTooth(tooth) as m" [ngClass]="m.icono" [title]="m.label"></i>
                 <i *ngIf="getFurcaIconForTooth(tooth) as f" [ngClass]="f.icono" [title]="f.label"></i>
@@ -131,7 +137,8 @@
 
           <div class="teeth-group">
             <div *ngFor="let tooth of permanentTeeth.bottomLeft" class="tooth-item" [attr.data-testid]="'odontogram-tooth-' + tooth" [class.selected]="isToothSelected(tooth)"
-              (click)="selectTooth(tooth)">
+              role="button" tabindex="0" (click)="selectTooth(tooth)"
+              (keydown.enter)="selectTooth(tooth)" (keydown.space)="selectTooth(tooth); $event.preventDefault()">
               <div class="tooth-icons-top">
                 <i *ngIf="getMovilidadIconForTooth(tooth) as m" [ngClass]="m.icono" [title]="m.label"></i>
                 <i *ngIf="getFurcaIconForTooth(tooth) as f" [ngClass]="f.icono" [title]="f.label"></i>

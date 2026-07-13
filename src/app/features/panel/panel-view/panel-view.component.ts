@@ -9,6 +9,7 @@ import { MiniCalendarPickerComponent } from '../../../shared';
 import { DashboardService } from '../../../core/services/dashboard.service';
 import { DashboardSummary, ProfessionalStats } from '../../../core/models/dashboard.model';
 import { fullName } from '../../../core/utils/full-name.util';
+import { formatCurrency as formatCurrencyShared } from '../../../core/utils/currency.util';
 
 interface DonutLegendItem {
   label: string;
@@ -259,7 +260,7 @@ export class PanelViewComponent implements OnInit, OnDestroy {
   }
 
   formatCurrency(value: number): string {
-    return value.toLocaleString('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 0 });
+    return formatCurrencyShared(value);
   }
 
   getInitials(name: string): string {

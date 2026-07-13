@@ -291,13 +291,6 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      // Debug: mostrar campos inválidos
-      const invalidFields = Object.keys(this.form.controls).filter(key => this.form.get(key)?.invalid);
-      console.warn('Formulario inválido. Campos inválidos:', invalidFields);
-      invalidFields.forEach(key => {
-        const control = this.form.get(key);
-        console.warn(`  ${key}: value=`, control?.value, 'errors=', control?.errors);
-      });
       return;
     }
 

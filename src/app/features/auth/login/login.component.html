@@ -109,7 +109,7 @@
               <i class="bi bi-people"></i>
             </div>
             <h3 class="role-title">Unirme a una existente</h3>
-            <p class="role-desc">Te sumó alguien del equipo. Pegá el código de la organización.</p>
+            <p class="role-desc">Te invitaron a un equipo. Pegá el código de invitación que te compartieron.</p>
           </div>
         </div>
 
@@ -156,17 +156,17 @@
         @if (selectedOrgMode === 'join') {
           <div class="login-form mt-3">
             <div class="form-group">
-              <label for="orgCode" class="form-label">Código de la organización *</label>
+              <label for="orgCode" class="form-label">Código de invitación *</label>
               <div class="input-wrapper">
                 <i class="bi bi-key input-icon"></i>
                 <input
                   id="orgCode"
                   type="text"
                   class="form-control form-input"
-                  placeholder="UUID que te pasaron"
-                  [(ngModel)]="organizationCode"
-                  name="organizationCode"
-                  data-testid="register-org-code-input"
+                  placeholder="Código de invitación"
+                  [(ngModel)]="invitationCode"
+                  name="invitationCode"
+                  data-testid="register-invitation-code-input"
                 />
               </div>
             </div>

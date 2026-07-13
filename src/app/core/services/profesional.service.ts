@@ -4,6 +4,8 @@ import { Observable, BehaviorSubject, tap, catchError, of, switchMap, filter } f
 import { Profesional, ProfesionalCreateDTO } from '../models';
 import { API_CONFIG } from './api.config';
 import { AuthService } from './auth.service';
+import { NotificationService } from './notification.service';
+import { ErrorHandlerService } from './error-handler.service';
 
 @Injectable({ providedIn: 'root' })
 export class ProfesionalService {
@@ -11,17 +13,27 @@ export class ProfesionalService {
 
   private profesionalesCache$ = new BehaviorSubject<Profesional[]>([]);
 
-  constructor(private http: HttpClient, private auth: AuthService) {
+  constructor(
+    private http: HttpClient,
+    private auth: AuthService,
+    private notification: NotificationService,
+    private errorHandler: ErrorHandlerService
+  ) {
     this.auth.currentUser$.pipe(
       filter(user => user !== null),
       switchMap(() => this.http.get<Profesional[]>(this.apiUrl)),
       catchError((err) => {
         console.error('Error loading profesionales:', err);
+        if (err?.status !== 404 && !this.errorHandler.isNetworkError(err)) {
+          this.notification.showError(this.errorHandler.getErrorMessage(err, 'cargar los profesionales'));
+        }
         return of([]);
       })
     ).subscribe({
       next: (data) => this.profesionalesCache$.next(data)
     });
+
+    this.auth.loggedOut$.subscribe(() => this.profesionalesCache$.next([]));
   }
 
   loadProfesionales(): void {

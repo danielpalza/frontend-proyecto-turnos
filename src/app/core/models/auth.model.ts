@@ -6,7 +6,8 @@ export interface LoginRequest {
 /**
  * Request de registro.
  * - Si se envia `organizacionNombre` se crea una organizacion nueva (el usuario queda como OWNER).
- * - Si se envia `organizationId` el usuario se une a esa organizacion como USER.
+ * - Si se envia `invitationToken` el usuario se une a la organizacion de esa invitacion como USER,
+ *   con los modulos que el dueño le haya otorgado al generarla.
  */
 export interface RegisterRequest {
   username: string;
@@ -18,7 +19,7 @@ export interface RegisterRequest {
   telefono?: string;
   organizacionNombre?: string;
   pais?: string;
-  organizationId?: string;
+  invitationToken?: string;
 }
 
 export interface AuthResponse {

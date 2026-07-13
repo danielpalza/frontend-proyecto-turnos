@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpContext, HttpErrorResponse } from '@angular/common/http';
 import { Observable, BehaviorSubject, Subject, tap, map, catchError, of, combineLatest, EMPTY, throwError } from 'rxjs';
-import { Appointment, AppointmentCreateDTO, AppointmentPartialUpdateDTO, AppointmentStatus, AppointmentCountByDate } from '../models';
+import { Appointment, AppointmentCreateDTO, AppointmentPartialUpdateDTO, AppointmentStatus, AppointmentCountByDate, PatientSeguimientoResumen } from '../models';
 import { API_CONFIG } from './api.config';
 import { skipGlobalErrorHandler } from '../interceptors/http-context';
 import { ErrorHandlerService } from './error-handler.service';
 import { NotificationService } from './notification.service';
+import { AuthService } from './auth.service';
 import { fullName } from '../utils/full-name.util';
+import { formatDateToYYYYMMDD } from '../utils/date.utils';
 
 @Injectable({ providedIn: 'root' })
 export class AppointmentsService {
@@ -26,23 +28,10 @@ export class AppointmentsService {
   constructor(
     private http: HttpClient,
     private errorHandler: ErrorHandlerService,
-    private notification: NotificationService
-  ) {}
-
-  loadAppointments(skipGlobal: boolean = false): void {
-    const context = skipGlobal ? skipGlobalErrorHandler() : undefined;
-    this.http.get<Appointment[]>(this.apiUrl, context ? { context } : undefined).pipe(
-      catchError((err: HttpErrorResponse) => {
-        console.error('Error loading appointments:', err);
-        if (err.status === 401 || err.status === 403) {
-          const message = this.errorHandler.getErrorMessage(err, 'cargar los turnos');
-          this.notification.showError(message);
-        }
-        return of([]);
-      })
-    ).subscribe({
-      next: (appointments) => this.appointmentsCache$.next(appointments)
-    });
+    private notification: NotificationService,
+    private auth: AuthService
+  ) {
+    this.auth.loggedOut$.subscribe(() => this.appointmentsCache$.next([]));
   }
 
   private refreshFiltered(): void {
@@ -153,6 +142,10 @@ export class AppointmentsService {
     });
   }
 
+  getSeguimientoResumen(): Observable<PatientSeguimientoResumen[]> {
+    return this.http.get<PatientSeguimientoResumen[]>(`${this.apiUrl}/seguimiento-resumen`);
+  }
+
   getAppointmentCountByDateRange(startDate: string, endDate: string): Observable<AppointmentCountByDate> {
     return this.http.get<AppointmentCountByDate>(`${this.apiUrl}/count`, {
       params: { startDate, endDate }
@@ -254,6 +247,8 @@ export class AppointmentsService {
   }
 
   checkAvailability(profesionalId: string, fecha: string, hora: string): Observable<boolean> {
+    // No se traga el error acá: un fallo de red no es lo mismo que "horario ocupado",
+    // y los componentes que llaman a esto ya distinguen ambos casos en su propio `error:`.
     return this.http.get<{ available: boolean }>(`${this.apiUrl}/check-availability`, {
       params: {
         profesionalId,
@@ -261,11 +256,7 @@ export class AppointmentsService {
         hora
       }
     }).pipe(
-      map(response => response.available),
-      catchError((err: HttpErrorResponse) => {
-        console.error('Error checking availability:', err);
-        return of(false);
-      })
+      map(response => response.available)
     );
   }
 
@@ -278,8 +269,8 @@ export class AppointmentsService {
   }
 
   loadAppointmentsForMonth(year: number, month: number): void {
-    const start = this.formatDate(new Date(year, month, 1));
-    const end = this.formatDate(new Date(year, month + 1, 0));
+    const start = formatDateToYYYYMMDD(new Date(year, month, 1));
+    const end = formatDateToYYYYMMDD(new Date(year, month + 1, 0));
     this.findByDateRange(start, end).subscribe({
       next: appointments => {
         this.appointmentsCache$.next(appointments);
@@ -288,12 +279,5 @@ export class AppointmentsService {
         this.loadErrorSubject.next(err);
       }
     });
-  }
-
-  private formatDate(d: Date): string {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
   }
 }

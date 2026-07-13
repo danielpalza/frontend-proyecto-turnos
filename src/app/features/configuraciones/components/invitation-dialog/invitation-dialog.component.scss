@@ -1,0 +1,277 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+:host {
+  display: contents;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba($text-primary, 0.45);
+  backdrop-filter: blur(4px);
+  z-index: 1040;
+  animation: modalBackdropFadeIn $transition-slow forwards;
+}
+
+.modal {
+  z-index: 1050;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-md;
+}
+
+.modal-dialog-invitation {
+  position: relative;
+  z-index: 1055;
+  margin: 0;
+  width: 100%;
+  max-width: 38rem;
+  animation: modalDialogFadeIn $transition-slow forwards;
+}
+
+.modal-content {
+  background: $card-background;
+  border: 1px solid $border-color;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-xl;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-lg;
+  padding: $spacing-xl $spacing-2xl;
+  border-bottom: 1px solid $border-color;
+}
+
+.title-block {
+  display: flex;
+  gap: $spacing-md;
+  align-items: flex-start;
+}
+
+.icon-circle {
+  @include icon-wrapper-circle-sm;
+}
+
+.modal-title {
+  margin: 0 0 0.2rem;
+  font-weight: 600;
+  font-size: 1.125rem;
+  color: $text-primary;
+}
+
+.modal-subtitle {
+  margin: 0;
+  color: $text-secondary;
+  font-size: 0.85rem;
+}
+
+.btn-modal-close {
+  @include btn-modal-close;
+}
+
+.modal-body {
+  padding: $spacing-2xl;
+  max-height: calc(100vh - 12rem);
+  overflow-y: auto;
+}
+
+.form-label {
+  display: block;
+  font-weight: 500;
+  color: $text-secondary;
+  font-size: 0.875rem;
+  margin-bottom: $spacing-sm;
+}
+
+.form-control {
+  @include input-focus($radius-sm, 3px);
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.9375rem;
+  color: $text-primary;
+}
+
+.access-section {
+  padding: $spacing-lg $spacing-xl;
+  border-radius: $radius-md;
+  background: $hover-bg;
+  border-left: 3px solid $primary-color;
+}
+
+.modules-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: $spacing-sm;
+  display: block;
+}
+
+.modules-hint {
+  font-size: 0.8rem;
+  color: $text-secondary;
+  margin: -0.2rem 0 $spacing-md;
+}
+
+.modules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: $spacing-md;
+}
+
+.module-card {
+  border: 2px solid $border-color;
+  border-radius: $radius-md;
+  padding: $spacing-md 0.6rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  transition: all $transition-base;
+  background: $card-background;
+  text-align: center;
+
+  i {
+    font-size: 1.15rem;
+    color: $text-muted;
+    transition: color $transition-base;
+  }
+
+  span {
+    font-size: 0.78rem;
+    color: $text-secondary;
+    font-weight: 500;
+  }
+
+  &.selected {
+    border-color: $primary-color;
+    background: rgba($primary-color, 0.06);
+    box-shadow: $shadow-primary;
+
+    i,
+    span {
+      color: $primary-color;
+    }
+  }
+}
+
+.alert-danger {
+  background-color: rgba($danger-light, 0.1);
+  border: 1px solid rgba($danger-light, 0.25);
+  color: $danger-dark;
+  border-radius: $radius-md;
+  font-size: 0.875rem;
+}
+
+.generated-token {
+  padding: $spacing-lg $spacing-xl;
+  border-radius: $radius-md;
+  background: $hover-bg;
+  border-left: 3px solid $primary-color;
+}
+
+.token-row {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  flex-wrap: wrap;
+  margin-top: $spacing-sm;
+
+  code {
+    flex: 1;
+    min-width: 0;
+    padding: 0.6rem 0.8rem;
+    background: $card-background;
+    border: 1px solid $border-color;
+    border-radius: $radius-sm;
+    word-break: break-all;
+    font-size: 0.85rem;
+  }
+}
+
+.pending-invitations {
+  margin-top: $spacing-2xl;
+  padding-top: $spacing-lg;
+  border-top: 1px solid $border-color;
+}
+
+.invitation-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+
+  li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-md;
+    padding: $spacing-sm $spacing-md;
+    border: 1px solid $border-color;
+    border-radius: $radius-md;
+  }
+}
+
+.invitation-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.invitation-modules {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: $text-primary;
+}
+
+.invitation-status {
+  font-size: 0.75rem;
+  width: fit-content;
+  padding: 0.1rem 0.5rem;
+  border-radius: $radius-sm;
+
+  &.status-active {
+    background: rgba($primary-color, 0.1);
+    color: $primary-color;
+  }
+
+  &.status-used {
+    background: rgba($text-muted, 0.15);
+    color: $text-secondary;
+  }
+
+  &.status-revoked {
+    background: rgba($danger-light, 0.1);
+    color: $danger-dark;
+  }
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  padding: $spacing-lg $spacing-2xl;
+  border-top: 1px solid $border-color;
+
+  .btn {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: $radius-md;
+    transition: all $transition-base;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.65;
+    }
+  }
+}

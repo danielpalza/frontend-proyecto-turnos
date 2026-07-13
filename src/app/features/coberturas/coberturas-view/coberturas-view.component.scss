@@ -260,20 +260,6 @@
   }
 }
 
-.cob-report-link {
-  margin-left: auto;
-  background: none;
-  border: none;
-  color: $text-muted;
-  font-size: 0.75rem;
-  text-decoration: underline;
-  cursor: pointer;
-
-  &:hover {
-    color: $danger;
-  }
-}
-
 .cob-confianza {
   @include badge($text-muted, $radius-full);
   font-size: 0.625rem;
@@ -295,8 +281,40 @@
   width: 100%;
   padding: $spacing-sm $spacing-md;
   font-size: 0.8125rem;
-  margin: $spacing-xs 0 $spacing-md;
+  margin: $spacing-xs 0;
   resize: vertical;
+}
+
+.cob-nota-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 $spacing-md;
+}
+
+.cob-nota-inline-row {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin: 0 0 $spacing-md;
+
+  .cob-nota-textarea {
+    margin: 0;
+  }
+
+  .cob-nota-guardar-btn {
+    flex-shrink: 0;
+  }
+}
+
+.cob-nota-guardar-btn {
+  @include button-action-small($primary-color, $primary-dark);
+  cursor: pointer;
+  border: none;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
 }
 
 .cob-upload-row {
@@ -498,13 +516,6 @@
   font-size: 0.9375rem;
   color: $text-primary;
   resize: vertical;
-}
-
-.cob-reporte-info {
-  font-size: 0.8125rem;
-  color: $text-secondary;
-  margin: 0 0 $spacing-lg;
-  line-height: 1.5;
 }
 
 .modal-footer {

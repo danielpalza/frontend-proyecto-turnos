@@ -25,6 +25,8 @@ export class ConfigurationService {
     ).subscribe(c => {
       if (c) this.config$.next(c);
     });
+
+    this.auth.loggedOut$.subscribe(() => this.config$.next(null));
   }
 
   getConfig(): Observable<Configuration | null> {
@@ -81,7 +83,7 @@ export class ConfigurationService {
     const phone = telefono.replace(/[\s\-\(\)\+]/g, '');
     if (!phone) return null;
     const message = this.buildMessage(params.hora, params.fecha, params.profesional, params.paciente);
-    return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+    return `https://wa.me/${encodeURIComponent(phone)}?text=${encodeURIComponent(message)}`;
   }
 
   formatAppointmentDate(dateStr: string): string {

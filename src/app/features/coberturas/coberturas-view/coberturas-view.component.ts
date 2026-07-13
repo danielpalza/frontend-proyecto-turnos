@@ -1,4 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -32,11 +33,13 @@ export class CoberturasViewComponent implements OnInit {
   readonly tiposDocumento = TIPOS_DOCUMENTO;
   readonly tipoLinkLabels = TIPO_LINK_LABELS;
 
-  private readonly paisOrganizacion = inject(AuthService).getCurrentUser()?.organizationPais || 'AR';
+  private readonly currentUser = inject(AuthService).getCurrentUser();
+  private readonly paisOrganizacion = this.currentUser?.organizationPais || 'AR';
+  private readonly paisesActivosStorageKey = `coberturas.paisesActivos.${this.currentUser?.organizationId ?? 'sin-organizacion'}`;
 
   /** Países que tienen datos reales cargados en el catálogo (viene de GET /coberturas/paises). */
   readonly paisesConDatos = signal<string[]>([]);
-  readonly paisesActivos = signal<Set<string>>(new Set([this.paisOrganizacion]));
+  readonly paisesActivos = signal<Set<string>>(this.cargarPaisesActivosGuardados());
   readonly cargando = signal(false);
 
   readonly coberturas = signal<Cobertura[]>([]);
@@ -45,15 +48,13 @@ export class CoberturasViewComponent implements OnInit {
   readonly busqueda = signal('');
   readonly cardAbierta = signal<string | null>(null);
   readonly notaEnEdicion = signal<Record<string, string>>({});
+  readonly webEnEdicion = signal<Record<string, string>>({});
+  readonly telefonoEnEdicion = signal<Record<string, string>>({});
 
   readonly modalAbierto = signal(false);
   readonly intermediarioEditandoId = signal<string | null>(null);
   readonly modalPaisSeleccionado = signal(this.paisOrganizacion);
   readonly busquedaModal = signal('');
-
-  readonly reporteLinkId = signal<string | null>(null);
-  readonly reporteMensaje = signal('');
-  readonly reporteInfoContacto = signal('');
 
   private readonly visibles = computed(() => {
     const paises = this.paisesActivos();
@@ -117,7 +118,9 @@ export class CoberturasViewComponent implements OnInit {
       coberturaIds: this.fb.control<string[]>([])
     });
 
-    this.form.get('pais')!.valueChanges.subscribe(pais => this.modalPaisSeleccionado.set(pais));
+    this.form.get('pais')!.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(pais => this.modalPaisSeleccionado.set(pais));
   }
 
   ngOnInit(): void {
@@ -167,6 +170,35 @@ export class CoberturasViewComponent implements OnInit {
     const actuales = new Set(this.paisesActivos());
     actuales.has(codigo) ? actuales.delete(codigo) : actuales.add(codigo);
     this.paisesActivos.set(actuales);
+    this.guardarPaisesActivos(actuales);
+  }
+
+  private activarPais(codigo: string): void {
+    if (this.paisesActivos().has(codigo)) return;
+    const actuales = new Set(this.paisesActivos()).add(codigo);
+    this.paisesActivos.set(actuales);
+    this.guardarPaisesActivos(actuales);
+  }
+
+  private cargarPaisesActivosGuardados(): Set<string> {
+    try {
+      const guardado = localStorage.getItem(this.paisesActivosStorageKey);
+      const paises: unknown = guardado ? JSON.parse(guardado) : null;
+      if (Array.isArray(paises) && paises.length > 0) {
+        return new Set(paises);
+      }
+    } catch {
+      // localStorage corrupto o inaccesible (modo privado, etc.): seguimos con el default.
+    }
+    return new Set([this.paisOrganizacion]);
+  }
+
+  private guardarPaisesActivos(paises: Set<string>): void {
+    try {
+      localStorage.setItem(this.paisesActivosStorageKey, JSON.stringify([...paises]));
+    } catch {
+      // Si falla (modo privado, cuota excedida), no persistimos pero no rompemos la UI.
+    }
   }
 
   onBuscar(valor: string): void {
@@ -197,6 +229,10 @@ export class CoberturasViewComponent implements OnInit {
     return this.notaEnEdicion()[os.id] ?? os.notasPropias ?? '';
   }
 
+  notaSinGuardar(os: Cobertura): boolean {
+    return os.id in this.notaEnEdicion();
+  }
+
   onNotaChange(coberturaId: string, valor: string): void {
     this.notaEnEdicion.update(actual => ({ ...actual, [coberturaId]: valor }));
   }
@@ -206,10 +242,72 @@ export class CoberturasViewComponent implements OnInit {
     this.coberturasService.actualizarNota(os.id, nota).subscribe({
       next: actualizada => {
         this.coberturas.update(lista => lista.map(o => (o.id === os.id ? actualizada : o)));
+        this.notaEnEdicion.update(actual => {
+          const { [os.id]: _quitada, ...resto } = actual;
+          return resto;
+        });
         this.notification.showSuccess('Nota guardada.');
       },
       error: (err: HttpErrorResponse) => {
         this.notification.showError(this.errorHandler.getErrorMessage(err, 'guardar la nota'));
+      }
+    });
+  }
+
+  webValor(os: Cobertura): string {
+    return this.webEnEdicion()[os.id] ?? os.webPropia ?? '';
+  }
+
+  webSinGuardar(os: Cobertura): boolean {
+    return os.id in this.webEnEdicion();
+  }
+
+  onWebChange(coberturaId: string, valor: string): void {
+    this.webEnEdicion.update(actual => ({ ...actual, [coberturaId]: valor }));
+  }
+
+  guardarWeb(os: Cobertura): void {
+    const web = this.webValor(os);
+    this.coberturasService.actualizarWeb(os.id, web).subscribe({
+      next: actualizada => {
+        this.coberturas.update(lista => lista.map(o => (o.id === os.id ? actualizada : o)));
+        this.webEnEdicion.update(actual => {
+          const { [os.id]: _quitada, ...resto } = actual;
+          return resto;
+        });
+        this.notification.showSuccess('Web guardada.');
+      },
+      error: (err: HttpErrorResponse) => {
+        this.notification.showError(this.errorHandler.getErrorMessage(err, 'guardar la web'));
+      }
+    });
+  }
+
+  telefonoValor(os: Cobertura): string {
+    return this.telefonoEnEdicion()[os.id] ?? os.telefonoPropio ?? '';
+  }
+
+  telefonoSinGuardar(os: Cobertura): boolean {
+    return os.id in this.telefonoEnEdicion();
+  }
+
+  onTelefonoChange(coberturaId: string, valor: string): void {
+    this.telefonoEnEdicion.update(actual => ({ ...actual, [coberturaId]: valor }));
+  }
+
+  guardarTelefono(os: Cobertura): void {
+    const telefono = this.telefonoValor(os);
+    this.coberturasService.actualizarTelefono(os.id, telefono).subscribe({
+      next: actualizada => {
+        this.coberturas.update(lista => lista.map(o => (o.id === os.id ? actualizada : o)));
+        this.telefonoEnEdicion.update(actual => {
+          const { [os.id]: _quitada, ...resto } = actual;
+          return resto;
+        });
+        this.notification.showSuccess('Teléfono guardado.');
+      },
+      error: (err: HttpErrorResponse) => {
+        this.notification.showError(this.errorHandler.getErrorMessage(err, 'guardar el teléfono'));
       }
     });
   }
@@ -263,36 +361,6 @@ export class CoberturasViewComponent implements OnInit {
         this.notification.showError(this.errorHandler.getErrorMessage(err, 'eliminar el archivo'));
       }
     });
-  }
-
-  // --- Reporte de link roto ---
-
-  abrirReporte(linkId: string, event: Event): void {
-    event.stopPropagation();
-    event.preventDefault();
-    this.reporteLinkId.set(linkId);
-    this.reporteMensaje.set('');
-    this.reporteInfoContacto.set('');
-  }
-
-  cerrarReporte(): void {
-    this.reporteLinkId.set(null);
-  }
-
-  enviarReporte(): void {
-    const linkId = this.reporteLinkId();
-    if (!linkId || !this.reporteMensaje().trim()) return;
-
-    this.coberturasService.reportarLinkRoto(linkId, this.reporteMensaje().trim(), this.reporteInfoContacto().trim() || undefined)
-      .subscribe({
-        next: () => {
-          this.notification.showSuccess('¡Gracias! Le avisamos a Gestia sobre este link.');
-          this.cerrarReporte();
-        },
-        error: (err: HttpErrorResponse) => {
-          this.notification.showError(this.errorHandler.getErrorMessage(err, 'enviar el aviso'));
-        }
-      });
   }
 
   // --- Modal de intermediarios (crear/editar) ---
@@ -357,6 +425,9 @@ export class CoberturasViewComponent implements OnInit {
         this.intermediarios.update(lista =>
           editandoId ? lista.map(i => (i.id === editandoId ? resultado : i)) : [...lista, resultado]
         );
+        if (!editandoId) {
+          this.activarPais(resultado.pais);
+        }
         this.notification.showSuccess(editandoId ? 'Agrupación actualizada.' : 'Agrupación creada.');
         this.cerrarModal();
       },

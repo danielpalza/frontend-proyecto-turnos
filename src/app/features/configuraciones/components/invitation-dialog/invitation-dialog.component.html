@@ -1,0 +1,102 @@
+<div class="modal fade show d-block" tabindex="-1" role="dialog" *ngIf="open" data-testid="settings-invitation-dialog">
+  <div class="modal-backdrop fade show" (click)="close()"></div>
+
+  <div class="modal-dialog modal-dialog-invitation" role="document">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <div class="title-block">
+          <div class="icon-circle"><i class="bi bi-envelope-plus"></i></div>
+          <div>
+            <h5 class="modal-title">Invitar usuario</h5>
+            <p class="modal-subtitle">Generá un código de invitación de un solo uso para sumar a alguien del equipo</p>
+          </div>
+        </div>
+        <button type="button" class="btn-modal-close" aria-label="Close" (click)="close()"
+          data-testid="settings-invitation-close-btn">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+
+        <div class="access-section" *ngIf="!lastCreated">
+          <div class="row g-3">
+            <div class="col-12">
+              <span class="modules-label">Módulos habilitados</span>
+              <div class="modules-grid" data-testid="settings-invitation-modules-grid">
+                <div class="module-card" *ngFor="let opt of moduleOptions" [class.selected]="isModuleSelected(opt.code)"
+                  role="button" tabindex="0" (click)="toggleModule(opt.code)"
+                  (keydown.enter)="toggleModule(opt.code)" (keydown.space)="toggleModule(opt.code); $event.preventDefault()"
+                  [attr.data-testid]="'settings-invitation-module-' + opt.code">
+                  <i class="bi" [ngClass]="moduleIcon(opt.code)"></i>
+                  <span>{{ opt.label }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Vigencia (días)</label>
+              <input type="number" class="form-control" min="1" max="30" placeholder="7"
+                [(ngModel)]="expiresInDays" data-testid="settings-invitation-expires-input" />
+            </div>
+          </div>
+
+          <div *ngIf="createError" class="alert alert-danger py-2 mt-3" data-testid="settings-invitation-error">{{ createError }}</div>
+
+          <button type="button" class="btn btn-primary mt-3" [disabled]="isCreating"
+            (click)="generate()" data-testid="settings-invitation-generate-btn">
+            {{ isCreating ? 'Generando...' : 'Generar invitación' }}
+          </button>
+        </div>
+
+        <div class="generated-token" *ngIf="lastCreated" data-testid="settings-invitation-generated">
+          <p class="modules-label">Código generado</p>
+          <p class="modules-hint">Compartilo con la persona que se va a unir. No vas a poder verlo de nuevo.</p>
+          <div class="token-row">
+            <code data-testid="settings-invitation-token-value">{{ lastCreated.token }}</code>
+            <button type="button" class="btn btn-outline-secondary btn-sm" (click)="copyToken(lastCreated.token!)"
+              data-testid="settings-invitation-copy-btn">
+              <i class="bi bi-clipboard"></i> Copiar
+            </button>
+          </div>
+          <button type="button" class="btn btn-outline-secondary mt-3" (click)="lastCreated = null"
+            data-testid="settings-invitation-generate-another-btn">
+            Generar otra invitación
+          </button>
+        </div>
+
+        <div class="pending-invitations">
+          <p class="modules-label">Invitaciones pendientes</p>
+          <div *ngIf="isLoadingInvitations" class="text-muted small">Cargando...</div>
+          <div *ngIf="!isLoadingInvitations && invitations.length === 0" class="text-muted small">
+            No hay invitaciones generadas todavía.
+          </div>
+          <ul class="invitation-list" *ngIf="!isLoadingInvitations && invitations.length > 0" data-testid="settings-invitation-list">
+            <li *ngFor="let inv of invitations" [attr.data-testid]="'settings-invitation-item-' + inv.id">
+              <div class="invitation-info">
+                <span class="invitation-modules">{{ inv.moduleCodes.join(', ') }}</span>
+                <span class="invitation-status" [ngClass]="{
+                  'status-used': inv.usedAt,
+                  'status-revoked': inv.revokedAt,
+                  'status-active': !inv.usedAt && !inv.revokedAt
+                }">
+                  {{ inv.usedAt ? 'Usada' : (inv.revokedAt ? 'Revocada' : 'Vigente') }}
+                </span>
+              </div>
+              <button type="button" class="btn btn-outline-danger btn-sm" *ngIf="!inv.usedAt && !inv.revokedAt"
+                [disabled]="revokingId === inv.id" (click)="revoke(inv)"
+                [attr.data-testid]="'settings-invitation-revoke-btn-' + inv.id">
+                Revocar
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="close()"
+          data-testid="settings-invitation-dismiss-btn">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -39,6 +39,8 @@ export interface Cobertura {
   esPlaceholder: boolean;
   favorito: boolean;
   notasPropias: string | null;
+  telefonoPropio: string | null;
+  webPropia: string | null;
   links: CoberturaLink[];
   documentos: DocumentoAdjunto[];
 }

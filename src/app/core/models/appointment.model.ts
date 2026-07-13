@@ -50,3 +50,11 @@ export interface AppointmentPartialUpdateDTO extends Partial<AppointmentCreateDT
 }
 
 export type AppointmentCountByDate = Record<string, number>;
+
+export interface PatientSeguimientoResumen {
+  patientId: string;
+  patientDni: string;
+  totalAdeudado: number;
+  totalTurnos: number;
+  availableYears: number[];
+}

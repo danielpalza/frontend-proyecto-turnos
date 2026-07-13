@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Profesional, ProfesionalCreateDTO, MODULE_OPTIONS } from '../../../../core/models';
@@ -50,7 +51,9 @@ export class ProfesionalDialogComponent implements OnChanges {
 
   constructor(private readonly fb: FormBuilder) {
     this.form = this.buildForm();
-    this.form.get('crearAcceso')!.valueChanges.subscribe(() => this.updateAccesoValidators());
+    this.form.get('crearAcceso')!.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.updateAccesoValidators());
   }
 
   get isEditing(): boolean {

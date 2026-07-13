@@ -55,7 +55,7 @@ export class LoginComponent {
 
   registerStep: RegisterStep = 'org';
   selectedOrgMode: 'new' | 'join' = 'new';
-  organizationCode = '';
+  invitationCode = '';
 
   registerData: RegisterRequest = {
     username: '',
@@ -94,13 +94,13 @@ export class LoginComponent {
     this.confirmPassword = '';
     this.organizacionNombre = '';
     this.pais = '';
-    this.organizationCode = '';
+    this.invitationCode = '';
   }
 
   selectOrgMode(mode: 'new' | 'join'): void {
     this.selectedOrgMode = mode;
     this.errorMessage = '';
-    this.organizationCode = '';
+    this.invitationCode = '';
     this.organizacionNombre = '';
     this.pais = '';
   }
@@ -122,8 +122,8 @@ export class LoginComponent {
         this.errorMessage = 'Seleccioná el país de tu organización';
         return;
       }
-      if (this.selectedOrgMode === 'join' && !this.organizationCode.trim()) {
-        this.errorMessage = 'Ingresa el código de la organización a la que te querés unir';
+      if (this.selectedOrgMode === 'join' && !this.invitationCode.trim()) {
+        this.errorMessage = 'Ingresá el código de invitación que te compartieron';
         return;
       }
       this.registerStep = 'account';
@@ -220,9 +220,9 @@ export class LoginComponent {
     if (this.selectedOrgMode === 'new') {
       this.registerData.organizacionNombre = this.organizacionNombre.trim();
       this.registerData.pais = this.pais.trim();
-      delete this.registerData.organizationId;
+      delete this.registerData.invitationToken;
     } else {
-      this.registerData.organizationId = this.organizationCode.trim();
+      this.registerData.invitationToken = this.invitationCode.trim();
       delete this.registerData.organizacionNombre;
       delete this.registerData.pais;
     }

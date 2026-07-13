@@ -7,18 +7,21 @@ import { fullName } from '../../../../core/utils/full-name.util';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { ErrorHandlerService } from '../../../../core/services/error-handler.service';
 import { ProfesionalDialogComponent } from '../../../configuraciones/components/profesional-dialog/profesional-dialog.component';
+import { InvitationDialogComponent } from '../../../configuraciones/components/invitation-dialog/invitation-dialog.component';
 import { Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-profesionales-panel',
   standalone: true,
-  imports: [CommonModule, ProfesionalDialogComponent],
+  imports: [CommonModule, ProfesionalDialogComponent, InvitationDialogComponent],
   templateUrl: './profesionales-panel.component.html',
   styleUrls: ['./profesionales-panel.component.scss']
 })
 export class ProfesionalesPanelComponent implements OnInit, OnDestroy {
   profesionales: Profesional[] = [];
+
+  showInvitationDialog = false;
 
   showProfesionalForm = false;
   isSavingProfesional = false;
@@ -90,6 +93,14 @@ export class ProfesionalesPanelComponent implements OnInit, OnDestroy {
       { backgroundColor: 'rgba(253, 205, 15, 0.22)', color: '#D97706' }
     ];
     return palette[index % palette.length];
+  }
+
+  openInviteUser(): void {
+    this.showInvitationDialog = true;
+  }
+
+  closeInviteUser(): void {
+    this.showInvitationDialog = false;
   }
 
   openAddProfesional(): void {

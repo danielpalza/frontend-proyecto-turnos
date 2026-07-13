@@ -4,11 +4,18 @@
       {{ profesionales.length }}
       {{ profesionales.length === 1 ? 'profesional registrado' : 'profesionales registrados' }}
     </span>
-    <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-2"
-      (click)="openAddProfesional()" data-testid="settings-add-profesional-btn">
-      <i class="bi bi-person-plus"></i>
-      Agregar profesional
-    </button>
+    <div class="d-inline-flex align-items-center gap-2">
+      <button type="button" class="btn btn-outline-primary d-inline-flex align-items-center gap-2" *ngIf="isOwner"
+        (click)="openInviteUser()" data-testid="settings-invite-user-btn">
+        <i class="bi bi-envelope-plus"></i>
+        Invitar usuario
+      </button>
+      <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-2"
+        (click)="openAddProfesional()" data-testid="settings-add-profesional-btn">
+        <i class="bi bi-person-plus"></i>
+        Agregar profesional
+      </button>
+    </div>
   </div>
 
   <div class="profesionales-list" *ngIf="profesionales.length > 0">
@@ -61,6 +68,12 @@
     <p class="mb-0">No hay profesionales registrados</p>
   </div>
 </div>
+
+<!-- Modal Invitar usuario -->
+<app-invitation-dialog
+  [open]="showInvitationDialog"
+  (openChange)="closeInviteUser()">
+</app-invitation-dialog>
 
 <!-- Modal Agregar/Editar profesional -->
 <app-profesional-dialog

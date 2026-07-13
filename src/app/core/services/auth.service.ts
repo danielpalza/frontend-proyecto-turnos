@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, tap } from 'rxjs';
 import { API_CONFIG } from './api.config';
 import { AuthResponse, LoginRequest, RegisterRequest } from '../models/auth.model';
 import { skipGlobalErrorHandler } from '../interceptors/http-context';
@@ -11,6 +11,10 @@ export class AuthService {
   private readonly apiUrl = `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.auth}`;
   private currentUserSubject = new BehaviorSubject<AuthResponse | null>(this.getStoredUser());
   currentUser$ = this.currentUserSubject.asObservable();
+
+  /** Emite en cada logout, para que los servicios con cache compartido (paciente, turnos, etc.) la limpien. */
+  private readonly loggedOutSubject = new Subject<void>();
+  readonly loggedOut$ = this.loggedOutSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
@@ -34,6 +38,7 @@ export class AuthService {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('auth_user');
     this.currentUserSubject.next(null);
+    this.loggedOutSubject.next();
   }
 
   getToken(): string | null {

@@ -65,26 +65,35 @@
 
             <div class="card-body">
               <!-- Historial de turnos -->
-              <p class="fw-semibold text-secondary mb-2" [attr.data-testid]="'tracking-patient-history-label-' + group.patient.dni">
-                <i class="bi bi-calendar-check me-2"></i>Historial de turnos ({{
-                group.appointments.length
-                }})
-              </p>
-
-              <div *ngIf="group.appointments.length === 0" class="text-muted small mb-2">
-                Sin turnos registrados
-              </div>
-              <div class="appointments-list" *ngIf="group.appointments.length > 0" [attr.data-testid]="'tracking-patient-appointments-' + group.patient.dni">
-                <div *ngFor="let app of group.appointments" class="appointment-badge"
-                  [ngClass]="'appointment-' + getAppointmentColor(app)" (click)="openTurnModal(app)" role="button"
-                  tabindex="0" (keydown.enter)="openTurnModal(app)"
-                  (keydown.space)="openTurnModal(app); $event.preventDefault()" [attr.data-testid]="'tracking-appointment-item-' + app.id">
-                  <span class="appointment-date" [attr.data-testid]="'tracking-appointment-date-' + app.id">{{ formatDate(app.fecha) }}</span>
-                  <span class="appointment-amount" *ngIf="app.totalPrecio && app.totalPrecio > 0" [attr.data-testid]="'tracking-appointment-amount-' + app.id">
-                    {{ formatCurrency(app.totalPrecio) }}
-                  </span>
+              <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                <p class="fw-semibold text-secondary mb-0" [attr.data-testid]="'tracking-patient-history-label-' + group.patient.dni">
+                  <i class="bi bi-calendar-check me-2"></i>Historial de turnos ({{
+                  group.totalTurnos
+                  }})
+                </p>
+                <div class="d-flex gap-2" *ngIf="group.totalTurnos > 0">
+                  <select class="form-select form-select-sm year-filter"
+                    [ngModel]="getSelectedYear(group.patient.dni)" (ngModelChange)="onYearFilterChange(group.patient.dni, $event)"
+                    [attr.data-testid]="'tracking-year-filter-' + group.patient.dni">
+                    <option value="all">Todo</option>
+                    <option *ngFor="let y of group.availableYears" [value]="y">{{ y }}</option>
+                  </select>
+                  <select class="form-select form-select-sm month-filter"
+                    [ngModel]="getSelectedMonth(group.patient.dni)" (ngModelChange)="onMonthFilterChange(group.patient.dni, $event)"
+                    [attr.data-testid]="'tracking-month-filter-' + group.patient.dni">
+                    <option value="all">Todo</option>
+                    <option *ngFor="let m of getAvailableMonths(group.patient.dni)" [value]="m.value">{{ m.label }}</option>
+                  </select>
                 </div>
               </div>
+
+              <div *ngIf="group.totalTurnos === 0" class="text-muted small mb-2">
+                Sin turnos registrados
+              </div>
+              <app-appointment-list-overflow *ngIf="group.totalTurnos > 0"
+                [appointments]="getFilteredAppointments(group)" [dni]="group.patient.dni || ''"
+                (appointmentClick)="openTurnModal($event)">
+              </app-appointment-list-overflow>
             </div>
           </div>
         </div>
@@ -97,28 +106,8 @@
     </div>
   </div>
 
-  <!-- Modal wizard de paciente (crear/editar) -->
-  <div class="modal fade show d-block" *ngIf="isPatientWizardOpen" data-testid="tracking-patient-wizard-dialog">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" data-testid="tracking-form-title">
-            {{ selectedPatientForForm ? 'Editar paciente' : 'Nuevo paciente' }}
-          </h5>
-          <button type="button" class="btn-close" (click)="closePatientWizard()" data-testid="tracking-patient-wizard-close-btn"></button>
-        </div>
-        <div *ngIf="patientFormError" class="alert alert-danger py-2 mx-3 mt-3 mb-0">
-          {{ patientFormError }}
-        </div>
-        <app-patient-wizard
-          [form]="patientForm" [includeAppointmentStep]="false" [showSearch]="false"
-          [existingPatients]="patients" [selectedPatient]="selectedPatientForForm"
-          [isSubmitting]="isSavingPatient"
-          (finish)="savePatient()" (cancel)="closePatientWizard()" />
-      </div>
-    </div>
-  </div>
-  <div class="modal-backdrop fade show" *ngIf="isPatientWizardOpen" (click)="closePatientWizard()"></div>
+  <!-- Wizard de paciente (crear/editar) -->
+  <app-patient-wizard-panel [patients]="patients"></app-patient-wizard-panel>
 
   <!-- Modal Pago y observaciones del turno -->
   <div class="modal fade show d-block" tabindex="-1" role="dialog" *ngIf="showTurnModal && selectedAppointment" data-testid="tracking-turn-modal">

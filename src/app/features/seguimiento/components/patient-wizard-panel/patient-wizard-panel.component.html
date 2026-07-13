@@ -1,0 +1,21 @@
+<div class="modal fade show d-block" *ngIf="isOpen" data-testid="tracking-patient-wizard-dialog">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" data-testid="tracking-form-title">
+          {{ selectedPatientForForm ? 'Editar paciente' : 'Nuevo paciente' }}
+        </h5>
+        <button type="button" class="btn-close" (click)="close()" data-testid="tracking-patient-wizard-close-btn"></button>
+      </div>
+      <div *ngIf="patientFormError" class="alert alert-danger py-2 mx-3 mt-3 mb-0">
+        {{ patientFormError }}
+      </div>
+      <app-patient-wizard
+        [form]="patientForm" [includeAppointmentStep]="false" [showSearch]="false"
+        [existingPatients]="patients" [selectedPatient]="selectedPatientForForm"
+        [isSubmitting]="isSavingPatient"
+        (finish)="savePatient()" (cancel)="close()" />
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade show" *ngIf="isOpen" (click)="close()"></div>

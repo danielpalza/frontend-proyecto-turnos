@@ -14,6 +14,7 @@ export const API_CONFIG = {
     auth: '/auth',
     configuration: '/configuration',
     coberturas: '/coberturas',
-    intermediarios: '/intermediarios'
+    intermediarios: '/intermediarios',
+    invitations: '/invitations'
   }
 };

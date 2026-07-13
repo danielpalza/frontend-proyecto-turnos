@@ -225,63 +225,32 @@
   white-space: nowrap;
 }
 
-.appointments-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.appointment-badge {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-  min-width: 92px;
-  padding: 0.45rem 0.75rem;
-  border-radius: $radius-md;
-  font-size: 0.78rem;
+[data-testid^="tracking-year-filter-"],
+[data-testid^="tracking-month-filter-"] {
+  @include input-focus($radius-md);
+  width: auto;
+  font-size: 0.8rem;
   font-weight: 500;
-  transition: all 0.2s ease;
+  color: $text-primary;
   cursor: pointer;
 
   &:hover {
-    filter: brightness(0.95);
-    transform: translateY(-1px);
+    border-color: $primary-light;
   }
 
-  .appointment-date {
-    color: inherit;
-    font-weight: 600;
+  option {
+    background-color: $card-background;
+    color: $text-primary;
+    font-weight: 500;
   }
+}
 
-  .appointment-amount {
-    font-weight: 600;
-    color: inherit;
-  }
+[data-testid^="tracking-year-filter-"] {
+  max-width: 100px;
+}
 
-  // Colores según estado de WhatsApp
-  &.appointment-red {
-    background-color: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #fecaca;
-  }
-
-  &.appointment-orange {
-    background-color: #fed7aa;
-    color: #9a3412;
-    border: 1px solid #fdba74;
-  }
-
-  &.appointment-green {
-    background-color: #dcfce7;
-    color: #166534;
-    border: 1px solid #bbf7d0;
-  }
-
-  &.appointment-gray {
-    background-color: $hover-bg;
-    color: $text-secondary;
-    border: 1px solid $border-color;
-  }
+[data-testid^="tracking-month-filter-"] {
+  max-width: 150px;
 }
 
 // Animación de entrada

@@ -1,6 +1,6 @@
-import { Component, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectorRef, ViewChild, ViewChildren, QueryList } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { Appointment, Patient } from '../../../core/models';
 import { AppointmentsService } from '../../../core/services/appointments.service';
 import { PatientService } from '../../../core/services/patient.service';
@@ -8,32 +8,34 @@ import { NotificationService } from '../../../core/services/notification.service
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 import { ConfigurationService } from '../../../core/services/configuration.service';
 import { combineLatest, Subscription } from 'rxjs';
-import { finalize } from 'rxjs/operators';
-import { PatientWizardComponent, getPatientFormConfig } from '../../../shared';
 import { fullName } from '../../../core/utils/full-name.util';
+import { formatCurrency as formatCurrencyShared } from '../../../core/utils/currency.util';
+import {
+  formatDate as formatDateShared,
+  getStatusBadgeClass as getStatusBadgeClassShared,
+  getStatusLabel as getStatusLabelShared
+} from '../utils/seguimiento-display.util';
 import { ProfesionalesPanelComponent } from '../components/profesionales-panel/profesionales-panel.component';
+import { AppointmentListOverflowComponent } from '../components/appointment-list-overflow/appointment-list-overflow.component';
+import { PatientWizardPanelComponent } from '../components/patient-wizard-panel/patient-wizard-panel.component';
+import { PatientDataService, PatientGroup, MonthOption } from './patient-data.service';
 
 @Component({
   selector: 'app-seguimiento-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, PatientWizardComponent, ProfesionalesPanelComponent],
+  imports: [CommonModule, FormsModule, ProfesionalesPanelComponent, AppointmentListOverflowComponent, PatientWizardPanelComponent],
+  providers: [PatientDataService],
   templateUrl: './seguimiento-view.component.html',
   styleUrls: ['./seguimiento-view.component.scss']
 })
 export class SeguimientoViewComponent implements OnInit, OnDestroy {
-  appointments: Appointment[] = [];
-  patients: Patient[] = [];
-  patientsMap: Map<string, Patient> = new Map();
+  get patients(): Patient[] { return this.patientData.patients; }
+  get patientGroups(): PatientGroup[] { return this.patientData.patientGroups; }
+  get searchTerm(): string { return this.patientData.searchTerm; }
+  set searchTerm(value: string) { this.patientData.searchTerm = value; }
 
-  searchTerm = '';
-  patientGroups: Array<{ patient: Patient; appointments: Appointment[]; totalAdeudado: number }> = [];
-
-  // Formulario cliente (crear/editar) - modal wizard
-  patientForm!: FormGroup;
-  selectedPatientForForm: Patient | null = null;
-  isSavingPatient = false;
-  patientFormError = '';
-  isPatientWizardOpen = false;
+  @ViewChildren(AppointmentListOverflowComponent) appointmentLists!: QueryList<AppointmentListOverflowComponent>;
+  @ViewChild(PatientWizardPanelComponent) wizardPanel!: PatientWizardPanelComponent;
 
   // Modal pago y observaciones del turno
   showTurnModal = false;
@@ -56,49 +58,55 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
   private subscriptions = new Subscription();
 
   constructor(
-    private fb: FormBuilder,
     private appointmentsService: AppointmentsService,
     private patientService: PatientService,
     private notification: NotificationService,
     private errorHandler: ErrorHandlerService,
     private whatsappConfig: ConfigurationService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private patientData: PatientDataService
   ) {}
 
   ngOnInit(): void {
     document.documentElement.classList.add('seguimiento-view-active');
-    this.patientForm = this.fb.group(getPatientFormConfig(this.fb));
 
     this.subscriptions.add(
       combineLatest([
-        this.appointmentsService.getAppointments(),
+        this.appointmentsService.getSeguimientoResumen(),
         this.patientService.getPatients()
       ]).subscribe({
-        next: ([appointments, patients]) => {
-          this.appointments = appointments;
-          this.patients = patients;
+        next: ([resumen, patients]) => {
+          this.patientData.setPatients(patients);
+          this.patientData.setResumen(resumen);
 
-          this.patientsMap = new Map();
-          patients.forEach(patient => {
-            if (patient.dni) {
-              this.patientsMap.set(patient.dni, patient);
-            }
+          this.patientData.loadYear(this.patientData.currentYear()).subscribe({
+            next: () => {
+              this.patientData.updatePatientGroups();
+              this.cdr.markForCheck();
+            },
+            error: (err) => this.handleLoadError(err)
           });
-
-          this.updatePatientGroups();
-          this.cdr.markForCheck();
         },
-        error: (err) => {
-          console.error('Error loading data:', err);
-          if (err.status !== 404) {
-            const message = this.errorHandler.getErrorMessage(err, 'cargar los datos');
-            if (!this.errorHandler.isNetworkError(err)) {
-              this.notification.showError(message);
-            }
-          }
-        }
+        error: (err) => this.handleLoadError(err)
       })
     );
+  }
+
+  private handleLoadError(err: any): void {
+    console.error('Error loading data:', err);
+    if (err.status !== 404) {
+      const message = this.errorHandler.getErrorMessage(err, 'cargar los datos');
+      if (!this.errorHandler.isNetworkError(err)) {
+        this.notification.showError(message);
+      }
+    }
+  }
+
+  private refreshResumenAndGroups(): void {
+    this.patientData.refreshResumen().subscribe({
+      next: () => this.cdr.markForCheck(),
+      error: (err) => this.handleLoadError(err)
+    });
   }
 
   ngOnDestroy(): void {
@@ -106,31 +114,48 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  private updatePatientGroups(): void {
-    const term = this.searchTerm.toLowerCase().trim();
+  getSelectedYear(dni?: string | null): string {
+    return this.patientData.getSelectedYear(dni);
+  }
 
-    const filteredPatients = term
-      ? this.patients.filter(p =>
-          fullName(p.nombre, p.apellido).toLowerCase().includes(term) ||
-          (p.dni || '').includes(term) ||
-          (p.email || '').toLowerCase().includes(term)
-        )
-      : this.patients;
+  getSelectedMonth(dni?: string | null): string {
+    return this.patientData.getSelectedMonth(dni);
+  }
 
-    this.patientGroups = filteredPatients.map(patient => {
-      const patientApps = this.appointments.filter(
-        app => app.patientDni === patient.dni
-      );
-      const totalAdeudado = patientApps.reduce(
-        (sum, app) => sum + (app.totalPrecio && app.totalPrecio > 0 ? app.totalPrecio : 0), 0
-      );
-      return { patient, appointments: patientApps, totalAdeudado };
+  onYearFilterChange(dni: string | undefined | null, value: string): void {
+    if (!dni) return;
+    this.collapseAppointmentList(dni);
+    this.patientData.onYearFilterChange(dni, value).subscribe({
+      next: () => {
+        this.patientData.updatePatientGroups();
+        this.cdr.markForCheck();
+      },
+      error: (err) => this.handleLoadError(err)
     });
+  }
+
+  onMonthFilterChange(dni: string | undefined | null, value: string): void {
+    if (!dni) return;
+    this.collapseAppointmentList(dni);
+    this.patientData.onMonthFilterChange(dni, value);
+  }
+
+  /** Colapsa la lista de turnos expandida de un paciente (p.ej. al cambiar de año/mes). */
+  private collapseAppointmentList(dni: string): void {
+    this.appointmentLists?.find(list => list.dni === dni)?.collapse();
+  }
+
+  getAvailableMonths(dni?: string | null): MonthOption[] {
+    return this.patientData.getAvailableMonths(dni);
+  }
+
+  getFilteredAppointments(group: PatientGroup): Appointment[] {
+    return this.patientData.getFilteredAppointments(group);
   }
 
   onSearchChange(): void {
     // Solo actualizar cuando cambia el término de búsqueda
-    this.updatePatientGroups();
+    this.patientData.updatePatientGroups();
   }
 
   fullName(nombre?: string | null, apellido?: string | null): string {
@@ -138,183 +163,21 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
   }
 
   formatDate(dateStr: string) {
-    const date = new Date(dateStr + 'T00:00:00');
-    const day = date.getDate();
-    const month = date.toLocaleDateString('es-ES', { month: 'short' });
-    const year = date.getFullYear();
-    return `${day} ${month} ${year}`;
+    return formatDateShared(dateStr);
   }
 
   getPatientByDni(dni: string): Patient | undefined {
-    return this.patientsMap.get(dni);
-  }
-
-  /** Cargar paciente en el formulario de la columna derecha (editar) */
-  loadPatientIntoForm(patient: Patient): void {
-    this.selectedPatientForForm = patient;
-    let anamnesisData: Record<string, string> = {};
-    if (patient.anamnesis) {
-      try {
-        anamnesisData = typeof patient.anamnesis === 'string' ? JSON.parse(patient.anamnesis) : patient.anamnesis;
-      } catch {
-        anamnesisData = {};
-      }
-    }
-    this.patientForm.patchValue({
-      nombre: patient.nombre,
-      apellido: patient.apellido,
-      fechaNacimiento: patient.fechaNacimiento || '',
-      dni: patient.dni,
-      telefono: patient.telefono || '',
-      email: patient.email || '',
-      domicilio: patient.domicilio || '',
-      localidad: patient.localidad || '',
-      contactoEmergencia: patient.contactoEmergencia || '',
-      enfermedades: anamnesisData['enfermedades'] || '',
-      alergias: anamnesisData['alergias'] || '',
-      medicacion: anamnesisData['medicacion'] || '',
-      cirugias: anamnesisData['cirugias'] || '',
-      embarazo: anamnesisData['embarazo'] || '',
-      marcapasos: anamnesisData['marcapasos'] || '',
-      consumos: anamnesisData['consumos'] || '',
-      otrosAntecedentes: anamnesisData['otrosAntecedentes'] || '',
-      coberturaNombre: patient.coberturaNombre || '',
-      coberturaId: patient.coberturaId || '',
-      planCategoria: patient.planCategoria || '',
-      coberturaNumero: patient.coberturaNumero || '',
-      coberturaVencimiento: patient.coberturaVencimiento || '',
-      esTitular: (patient.coberturaNombre === 'Particular' || patient.esTitular) ? 'si' : 'no',
-      nombreTitular: patient.nombreTitular || '',
-      dniTitular: patient.dniTitular || '',
-      parentesco: patient.parentesco || ''
-    });
-  }
-
-  /** Selección desde el buscador del formulario compartido */
-  onPatientFormSelect(patient: Patient): void {
-    this.loadPatientIntoForm(patient);
-  }
-
-  /** Limpiar formulario y selección (nuevo paciente) */
-  onClearPatientForm(): void {
-    this.selectedPatientForForm = null;
-    this.patientFormError = '';
-    this.patientForm.reset({
-      esTitular: 'si',
-      enfermedades: '',
-      alergias: '',
-      medicacion: '',
-      cirugias: '',
-      embarazo: '',
-      marcapasos: '',
-      consumos: '',
-      otrosAntecedentes: ''
-    });
+    return this.patientData.patientsMap.get(dni);
   }
 
   /** Editar paciente desde la tarjeta de la lista */
-  editPatientFromGroup(group: { patient: Patient; appointments: Appointment[]; totalAdeudado: number }): void {
-    this.openEditPatientWizard(group.patient);
+  editPatientFromGroup(group: PatientGroup): void {
+    this.wizardPanel.openEdit(group.patient);
   }
 
   /** Abrir el wizard con el formulario limpio (paciente nuevo) */
   openNewPatientWizard(): void {
-    this.onClearPatientForm();
-    this.isPatientWizardOpen = true;
-  }
-
-  /** Abrir el wizard precargado con un paciente existente */
-  openEditPatientWizard(patient: Patient): void {
-    this.loadPatientIntoForm(patient);
-    this.isPatientWizardOpen = true;
-  }
-
-  /** Cerrar el wizard y limpiar la selección */
-  closePatientWizard(): void {
-    this.isPatientWizardOpen = false;
-    this.onClearPatientForm();
-  }
-
-  /** Guardar paciente (crear o actualizar) */
-  savePatient(): void {
-    this.trimPatientForm();
-    if (this.patientForm.invalid) {
-      this.patientForm.markAllAsTouched();
-      return;
-    }
-    if (this.isSavingPatient) return;
-
-    const raw = this.patientForm.getRawValue();
-    const anamnesisData: Record<string, string> = {};
-    if (raw.enfermedades) anamnesisData['enfermedades'] = raw.enfermedades;
-    if (raw.alergias) anamnesisData['alergias'] = raw.alergias;
-    if (raw.medicacion) anamnesisData['medicacion'] = raw.medicacion;
-    if (raw.cirugias) anamnesisData['cirugias'] = raw.cirugias;
-    if (raw.embarazo) anamnesisData['embarazo'] = raw.embarazo;
-    if (raw.marcapasos) anamnesisData['marcapasos'] = raw.marcapasos;
-    if (raw.consumos) anamnesisData['consumos'] = raw.consumos;
-    if (raw.otrosAntecedentes) anamnesisData['otrosAntecedentes'] = raw.otrosAntecedentes;
-    const anamnesis = Object.keys(anamnesisData).length > 0 ? JSON.stringify(anamnesisData) : undefined;
-
-    const patientData: Partial<Patient> = {
-      id: this.selectedPatientForForm?.id,
-      nombre: raw.nombre,
-      apellido: raw.apellido,
-      fechaNacimiento: raw.fechaNacimiento || undefined,
-      dni: raw.dni,
-      telefono: raw.telefono,
-      email: raw.email,
-      domicilio: raw.domicilio,
-      localidad: raw.localidad,
-      contactoEmergencia: raw.contactoEmergencia || undefined,
-      anamnesis,
-      coberturaNombre: raw.coberturaNombre,
-      coberturaId: raw.coberturaId || undefined,
-      planCategoria: raw.planCategoria || undefined,
-      coberturaNumero: raw.coberturaNumero || undefined,
-      coberturaVencimiento: raw.coberturaVencimiento || undefined,
-      esTitular: raw.esTitular === 'si',
-      nombreTitular: raw.nombreTitular || undefined,
-      dniTitular: raw.dniTitular || undefined,
-      parentesco: raw.parentesco || undefined
-    };
-
-    this.isSavingPatient = true;
-    this.patientFormError = '';
-
-    const operation = this.selectedPatientForForm?.id
-      ? this.patientService.update(this.selectedPatientForForm.id, patientData)
-      : this.patientService.create(patientData as Patient, true);
-
-    operation.pipe(finalize(() => { this.isSavingPatient = false; })).subscribe({
-      next: () => {
-        this.notification.showSuccess(
-          this.selectedPatientForForm?.id ? 'Paciente actualizado correctamente.' : 'Paciente creado correctamente.'
-        );
-        this.closePatientWizard();
-      },
-      error: (err) => {
-        const msg = this.errorHandler.getErrorMessage(
-          err,
-          this.selectedPatientForForm?.id ? 'actualizar el paciente' : 'crear el paciente'
-        );
-        this.patientFormError = msg;
-        if (!this.errorHandler.isNetworkError(err)) {
-          this.notification.showError(msg);
-        }
-      }
-    });
-  }
-
-  private trimPatientForm(): void {
-    const fields = ['nombre', 'apellido', 'dni', 'telefono', 'email', 'domicilio', 'localidad'];
-    fields.forEach(name => {
-      const c = this.patientForm.get(name);
-      if (c && typeof c.value === 'string') {
-        const t = c.value.trim();
-        if (t !== c.value) c.setValue(t);
-      }
-    });
+    this.wizardPanel.openNew();
   }
 
   getCoberturaInfo(dni: string): string {
@@ -335,65 +198,16 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
     return parts.length > 0 ? parts.join(' ') : '';
   }
 
-  getAppointmentColor(appointment: Appointment): string {
-    const hasDebt = appointment.totalPrecio && appointment.totalPrecio > 0;
-    const estado = appointment.estado || 'PENDIENTE';
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const appDate = new Date(appointment.fecha + 'T00:00:00');
-    const isPast = appDate < today;
-
-    // Rojo: turnos con deuda
-    if (hasDebt) {
-      return 'red';
-    }
-
-    // Verde: turnos completados/pagados sin deuda
-    if (estado === 'COMPLETADO' || estado === 'CONFIRMADO') {
-      return 'green';
-    }
-
-    // Naranja/Amarillo: turnos programados/confirmados sin deuda
-    if (estado === 'PENDIENTE' || estado === 'EN_CURSO') {
-      return 'orange';
-    }
-
-    // Gris: turnos cancelados, no asistió, o pasados sin deuda
-    if (estado === 'CANCELADO' || estado === 'NO_ASISTIO' || isPast) {
-      return 'gray';
-    }
-
-    return 'gray';
-  }
-
   formatCurrency(amount: number | undefined): string {
-    if (!amount || amount === 0) return '';
-    // Formato: $12.800 (punto como separador de miles)
-    return '$' + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return formatCurrencyShared(amount);
   }
 
   getStatusBadgeClass(status: string | undefined): string {
-    switch (status) {
-      case 'CONFIRMADO': return 'badge-confirmado';
-      case 'PENDIENTE': return 'badge-pendiente';
-      case 'EN_CURSO': return 'badge-en-curso';
-      case 'COMPLETADO': return 'badge-completado';
-      case 'CANCELADO': return 'badge-cancelado';
-      case 'NO_ASISTIO': return 'badge-no-asistio';
-      default: return 'badge-sin-estado';
-    }
+    return getStatusBadgeClassShared(status);
   }
 
   getStatusLabel(status: string | undefined): string {
-    switch (status) {
-      case 'CONFIRMADO': return 'Confirmado';
-      case 'PENDIENTE': return 'Pendiente';
-      case 'EN_CURSO': return 'En Curso';
-      case 'COMPLETADO': return 'Completado';
-      case 'CANCELADO': return 'Cancelado';
-      case 'NO_ASISTIO': return 'No Asistió';
-      default: return status || 'Sin estado';
-    }
+    return getStatusLabelShared(status);
   }
 
   // --- Modal Pago y observaciones del turno ---
@@ -402,7 +216,7 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
     if (!this.selectedAppointment) return false;
     const dni = this.selectedAppointment.patientDni;
     if (!dni) return false;
-    const patient = this.patientsMap.get(dni);
+    const patient = this.patientData.patientsMap.get(dni);
     return !!(patient?.telefono);
   }
 
@@ -410,17 +224,15 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
     if (!this.selectedAppointment) return null;
     const dni = this.selectedAppointment.patientDni;
     if (!dni) return null;
-    const patient = this.patientsMap.get(dni);
+    const patient = this.patientData.patientsMap.get(dni);
     if (!patient?.telefono) return null;
-    const phone = patient.telefono.replace(/[\s\-\(\)\+]/g, '');
     const horaStr = this.selectedAppointment.hora
       ? this.selectedAppointment.hora.substring(0, 5)
       : '';
     const fechaStr = this.formatDate(this.selectedAppointment.fecha);
     const profesional = fullName(this.selectedAppointment.profesionalNombre, this.selectedAppointment.profesionalApellido) || 'sin asignar';
     const paciente = fullName(patient.nombre, patient.apellido) || fullName(this.selectedAppointment.patientNombre, this.selectedAppointment.patientApellido);
-    const message = this.whatsappConfig.buildMessage(horaStr, fechaStr, profesional, paciente);
-    return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+    return this.whatsappConfig.buildWhatsAppLink(patient.telefono, { hora: horaStr, fecha: fechaStr, profesional, paciente });
   }
 
   openTurnModal(appointment: Appointment): void {
@@ -459,10 +271,9 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
   }
 
   private syncUpdatedAppointment(updated: Appointment): void {
-    this.appointments = this.appointments.map(a => a.id === updated.id ? updated : a);
+    this.patientData.updateCachedAppointment(updated);
     this.selectedAppointment = { ...updated };
-    this.updatePatientGroups();
-    this.cdr.markForCheck();
+    this.refreshResumenAndGroups();
   }
 
   onTurnModalAddPayment(): void {

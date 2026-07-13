@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Appointment, Profesional, Patient } from '../../../../core/models';
 import { SearchInputComponent, SearchResult } from '../../../../shared';
 import { fullName } from '../../../../core/utils/full-name.util';
+import { formatCurrency as formatCurrencyShared } from '../../../../core/utils/currency.util';
 
 interface CalendarDay {
   type: 'empty' | 'day';
@@ -143,7 +144,7 @@ export class MonthCalendarComponent implements OnInit, OnChanges {
   }
 
   formatCurrency(value: number): string {
-    return value.toLocaleString('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 0 });
+    return formatCurrencyShared(value);
   }
 
   formatDate(month: number, day: number, year?: number): string {

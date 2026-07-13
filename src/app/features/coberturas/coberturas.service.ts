@@ -31,6 +31,14 @@ export class CoberturasService {
     return this.http.put<Cobertura>(`${this.apiUrl}/${coberturaId}/notas`, { notasPropias });
   }
 
+  actualizarTelefono(coberturaId: string, telefonoPropio: string): Observable<Cobertura> {
+    return this.http.put<Cobertura>(`${this.apiUrl}/${coberturaId}/telefono`, { telefonoPropio });
+  }
+
+  actualizarWeb(coberturaId: string, webPropia: string): Observable<Cobertura> {
+    return this.http.put<Cobertura>(`${this.apiUrl}/${coberturaId}/web`, { webPropia });
+  }
+
   subirArchivo(coberturaId: string, file: File, tipoDocumento?: string): Observable<DocumentoAdjunto> {
     const formData = new FormData();
     formData.append('file', file);
@@ -48,10 +56,6 @@ export class CoberturasService {
     return this.http.get(`${this.apiUrl}/archivos/${archivoId}/descarga`, { responseType: 'blob' }).pipe(
       tap(blob => this.triggerBrowserDownload(blob, nombreArchivo))
     );
-  }
-
-  reportarLinkRoto(linkId: string, mensaje: string, infoContacto?: string): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/links/${linkId}/reportes`, { mensaje, infoContacto });
   }
 
   private triggerBrowserDownload(blob: Blob, nombreArchivo: string): void {
