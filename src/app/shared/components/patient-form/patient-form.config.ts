@@ -1,4 +1,5 @@
 import { FormBuilder, Validators } from '@angular/forms';
+import { documentNumberValidator, phoneValidator } from '../../validators/custom-validators';
 
 /**
  * Configuración de controles del formulario de paciente.
@@ -10,8 +11,8 @@ export function getPatientFormConfig(fb: FormBuilder) {
     apellido: ['', Validators.required],
     fechaNacimiento: [''],
     edad: [{ value: '', disabled: true }],
-    dni: ['', Validators.required],
-    telefono: ['', [Validators.required, Validators.pattern(/^[\d\s\-\(\)\+]{7,20}$/)]],
+    dni: ['', [Validators.required, documentNumberValidator()]],
+    telefono: ['', [Validators.required, phoneValidator()]],
     email: ['', [Validators.required, Validators.email]],
     domicilio: ['', Validators.required],
     localidad: ['', Validators.required],
@@ -32,7 +33,7 @@ export function getPatientFormConfig(fb: FormBuilder) {
     coberturaVencimiento: [''],
     esTitular: ['si'],
     nombreTitular: [''],
-    dniTitular: [''],
+    dniTitular: ['', documentNumberValidator()],
     parentesco: ['']
   };
 }

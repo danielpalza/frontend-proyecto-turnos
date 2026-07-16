@@ -71,7 +71,7 @@ export const PATIENT_WIZARD_REVIEW_GROUPS: ReviewGroup[] = [
       { name: 'apellido', label: 'Apellido' },
       { name: 'fechaNacimiento', label: 'Fecha de nacimiento' },
       { name: 'edad', label: 'Edad' },
-      { name: 'dni', label: 'DNI' },
+      { name: 'dni', label: 'Documento' },
       { name: 'telefono', label: 'Teléfono' },
       { name: 'email', label: 'Email' },
       { name: 'domicilio', label: 'Domicilio' },
@@ -105,7 +105,7 @@ export const PATIENT_WIZARD_REVIEW_GROUPS: ReviewGroup[] = [
       { name: 'coberturaVencimiento', label: 'Vencimiento' },
       { name: 'esTitular', label: '¿Es titular?', format: (v: string) => (v === 'no' ? 'No' : 'Sí') },
       { name: 'nombreTitular', label: 'Nombre del titular' },
-      { name: 'dniTitular', label: 'DNI del titular' },
+      { name: 'dniTitular', label: 'Documento del titular' },
       { name: 'parentesco', label: 'Parentesco' }
     ]
   },

@@ -66,10 +66,10 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
       profesionalId: [''],
       hora: ['09:00'],
       observacionesTurno: [''],
-      precioBono: [null],
-      precioTratamiento: [null],
-      extras: [null],
-      montoPago: [null],
+      precioBono: [null, Validators.min(0)],
+      precioTratamiento: [null, Validators.min(0)],
+      extras: [null, Validators.min(0)],
+      montoPago: [null, Validators.min(0)],
       observaciones: ['']
     });
   }

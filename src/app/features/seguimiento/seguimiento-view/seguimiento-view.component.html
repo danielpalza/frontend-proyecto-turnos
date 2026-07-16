@@ -19,7 +19,7 @@
         <!-- Buscador -->
         <div class="mb-4 position-relative search-container">
           <i class="bi bi-search position-absolute top-50 translate-middle-y ms-3 text-muted"></i>
-          <input type="text" class="form-control ps-5" placeholder="Buscar por nombre, DNI o email..."
+          <input type="text" class="form-control ps-5" placeholder="Buscar por nombre, documento o email..."
             [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" data-testid="tracking-search-input" />
         </div>
 
@@ -54,7 +54,7 @@
                     </button>
                   </div>
                   <small class="text-primary d-block mt-1" *ngIf="group.patient.dni" [attr.data-testid]="'tracking-patient-dni-display-' + group.patient.dni">
-                    DNI: {{ group.patient.dni }}
+                    Doc: {{ group.patient.dni }}
                   </small>
                   <small class="text-muted d-block mt-1" *ngIf="getCoberturaInfo(group.patient.dni || '')" [attr.data-testid]="'tracking-patient-insurance-display-' + group.patient.dni">
                     Cobertura: {{ getCoberturaInfo(group.patient.dni || '') }}

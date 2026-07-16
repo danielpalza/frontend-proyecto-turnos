@@ -25,7 +25,7 @@
 
               <div class="mb-3">
                 <label class="form-label">Precio de Bono</label>
-                <input type="number" class="form-control"
+                <input type="number" class="form-control" min="0"
                   [value]="formData().precioBono"
                   (input)="updateField('precioBono', $any($event.target).value)"
                   data-testid="odontogram-save-bono-input">
@@ -33,7 +33,7 @@
 
               <div class="mb-3">
                 <label class="form-label">Precio de Tratamiento</label>
-                <input type="number" class="form-control"
+                <input type="number" class="form-control" min="0"
                   [value]="formData().precioTratamiento"
                   (input)="updateField('precioTratamiento', $any($event.target).value)"
                   data-testid="odontogram-save-treatment-input">
@@ -41,7 +41,7 @@
 
               <div class="mb-3">
                 <label class="form-label">Extras</label>
-                <input type="number" class="form-control"
+                <input type="number" class="form-control" min="0"
                   [value]="formData().extras"
                   (input)="updateField('extras', $any($event.target).value)"
                   data-testid="odontogram-save-extras-input">
@@ -49,7 +49,7 @@
 
               <div class="mb-3">
                 <label class="form-label">Monto de Pago del Cliente</label>
-                <input type="number" class="form-control"
+                <input type="number" class="form-control" min="0"
                   [value]="formData().montoPago"
                   (input)="updateField('montoPago', $any($event.target).value)"
                   data-testid="odontogram-save-payment-input">

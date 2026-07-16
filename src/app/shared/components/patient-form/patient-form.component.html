@@ -58,10 +58,10 @@
       <input class="form-control bg-light" type="number" formControlName="edad" readonly data-testid="patient-age-input" />
     </div>
     <div class="col-12 col-md-4">
-      <label class="form-label">DNI *</label>
+      <label class="form-label">Documento de identidad *</label>
       <input class="form-control" type="text" formControlName="dni" [class.is-invalid]="form.get('dni')?.invalid && form.get('dni')?.touched" data-testid="patient-dni-input" />
       @if (form.get('dni')?.invalid && form.get('dni')?.touched) {
-        <div class="invalid-feedback d-block">El DNI es obligatorio</div>
+        <div class="invalid-feedback d-block">El documento es obligatorio y debe tener entre 5 y 20 caracteres alfanuméricos</div>
       }
     </div>
     <div class="col-12 col-md-4">
@@ -249,10 +249,10 @@
           }
         </div>
         <div class="col-12 col-md-6 col-lg-3">
-          <label class="form-label">DNI del Titular *</label>
+          <label class="form-label">Documento del Titular *</label>
           <input class="form-control" type="text" formControlName="dniTitular" [class.is-invalid]="form.get('dniTitular')?.invalid && form.get('dniTitular')?.touched" data-testid="patient-titular-dni-input" />
           @if (form.get('dniTitular')?.invalid && form.get('dniTitular')?.touched) {
-            <div class="invalid-feedback d-block">El DNI del titular es obligatorio</div>
+            <div class="invalid-feedback d-block">El documento del titular es obligatorio y debe tener entre 5 y 20 caracteres alfanuméricos</div>
           }
         </div>
         <div class="col-12 col-md-6 col-lg-3">
@@ -343,7 +343,12 @@
     <div class="row g-3" [formGroup]="form">
       <div class="col-12 col-sm-6 col-md-3">
         <label class="form-label">Precio de Bono</label>
-        <input class="form-control" type="number" formControlName="precioBono" step="0.01" data-testid="patient-bono-input" />
+        <input class="form-control" type="number" formControlName="precioBono" step="0.01" min="0"
+          [class.is-invalid]="form.get('precioBono')?.invalid && form.get('precioBono')?.touched"
+          data-testid="patient-bono-input" />
+        @if (form.get('precioBono')?.invalid && form.get('precioBono')?.touched) {
+          <div class="invalid-feedback d-block">El precio no puede ser negativo</div>
+        }
       </div>
       <div class="col-12 col-sm-6 col-md-3">
         <label class="form-label">Precio Tratamiento</label>
@@ -352,16 +357,31 @@
           type="number"
           formControlName="precioTratamiento"
           step="0.01"
+          min="0"
+          [class.is-invalid]="form.get('precioTratamiento')?.invalid && form.get('precioTratamiento')?.touched"
           data-testid="patient-treatment-input"
         />
+        @if (form.get('precioTratamiento')?.invalid && form.get('precioTratamiento')?.touched) {
+          <div class="invalid-feedback d-block">El precio no puede ser negativo</div>
+        }
       </div>
       <div class="col-12 col-sm-6 col-md-3">
         <label class="form-label">Extras</label>
-        <input class="form-control" type="number" formControlName="extras" step="0.01" data-testid="patient-extras-input" />
+        <input class="form-control" type="number" formControlName="extras" step="0.01" min="0"
+          [class.is-invalid]="form.get('extras')?.invalid && form.get('extras')?.touched"
+          data-testid="patient-extras-input" />
+        @if (form.get('extras')?.invalid && form.get('extras')?.touched) {
+          <div class="invalid-feedback d-block">El monto no puede ser negativo</div>
+        }
       </div>
       <div class="col-12 col-sm-6 col-md-3">
         <label class="form-label">Monto Pagado</label>
-        <input class="form-control" type="number" formControlName="montoPago" step="0.01" data-testid="patient-payment-input" />
+        <input class="form-control" type="number" formControlName="montoPago" step="0.01" min="0"
+          [class.is-invalid]="form.get('montoPago')?.invalid && form.get('montoPago')?.touched"
+          data-testid="patient-payment-input" />
+        @if (form.get('montoPago')?.invalid && form.get('montoPago')?.touched) {
+          <div class="invalid-feedback d-block">El monto no puede ser negativo</div>
+        }
       </div>
       <div class="col-12">
         <div class="p-3 bg-light rounded border">

@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Profesional, ProfesionalCreateDTO, MODULE_OPTIONS } from '../../../../core/models';
+import { documentNumberValidator, phoneValidator } from '../../../../shared/validators/custom-validators';
 
 interface PasswordStrength {
   width: string;
@@ -88,11 +89,11 @@ export class ProfesionalDialogComponent implements OnChanges {
     return this.fb.group({
       nombre: ['', Validators.required],
       apellido: ['', Validators.required],
-      dni: [''],
+      dni: ['', documentNumberValidator()],
       especialidad: [''],
       matricula: [''],
       email: ['', Validators.email],
-      telefono: [''],
+      telefono: ['', phoneValidator()],
       crearAcceso: [false],
       username: [''],
       password: ['']

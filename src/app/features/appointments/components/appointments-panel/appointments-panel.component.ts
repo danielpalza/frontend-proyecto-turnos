@@ -267,6 +267,7 @@ export class AppointmentsPanelComponent implements OnChanges {
   // Agrega el pago a un turno (usa lógica compartida del servicio)
   onAddPayment(cardId: string): void {
     const paymentValue = this.paymentInputs.get(cardId) || 0;
+    if (paymentValue <= 0) return;
     this.appointmentsService.addPaymentWithFeedback(cardId, paymentValue).subscribe({
       next: () => this.paymentInputs.set(cardId, 0),
       error: () => { /* notificación ya mostrada por el servicio */ }
@@ -304,7 +305,7 @@ export class AppointmentsPanelComponent implements OnChanges {
     const key = `${cardId}-${priceType}`;
     const newValue = this.priceInputs.get(key) || 0;
     const appointment = this.appointments.find(a => a.id === cardId);
-    if (!appointment) return;
+    if (!appointment || newValue < 0) return;
 
     const updateData: Record<string, number> = {};
     if (priceType === 'bono') updateData['precioBono'] = newValue;

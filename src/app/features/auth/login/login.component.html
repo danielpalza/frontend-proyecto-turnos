@@ -144,8 +144,8 @@
                   data-testid="register-org-pais-select"
                 >
                   <option value="">Seleccione un país...</option>
-                  @for (p of paisesLatam; track p.code) {
-                    <option [value]="p.code">{{ p.nombre }}</option>
+                  @for (p of paisesLatam; track p.codigo) {
+                    <option [value]="p.codigo">{{ p.nombre }}</option>
                   }
                 </select>
               </div>
@@ -223,7 +223,7 @@
           </div>
 
           <div class="form-group">
-            <label for="reg-dni" class="form-label">DNI</label>
+            <label for="reg-dni" class="form-label">Documento de identidad</label>
             <div class="input-wrapper">
               <i class="bi bi-card-text input-icon"></i>
               <input
@@ -231,11 +231,11 @@
                 type="text"
                 class="form-control form-input"
                 [class.is-invalid]="fieldErrors['dni']"
-                placeholder="Máximo 8 dígitos"
+                placeholder="Documento de identidad"
                 [(ngModel)]="registerData.dni"
                 (ngModelChange)="onFieldInput('dni')"
                 name="dni"
-                maxlength="8"
+                maxlength="20"
                 data-testid="register-dni-input"
               />
             </div>
@@ -253,7 +253,7 @@
                 type="tel"
                 class="form-control form-input"
                 [class.is-invalid]="fieldErrors['telefono']"
-                placeholder="Solo números"
+                placeholder="Ej: +54 11 1234-5678"
                 [(ngModel)]="registerData.telefono"
                 (ngModelChange)="onFieldInput('telefono')"
                 name="telefono"

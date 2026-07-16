@@ -127,6 +127,7 @@ export class TurnPaymentModalComponent {
   onTurnModalAddPayment(): void {
     if (!this.currentAppointment?.id) return;
     const monto = this.turnModalPaymentInput;
+    if (monto <= 0) return;
     this.isAddingPayment = true;
     this.appointmentsService.addPaymentWithFeedback(this.currentAppointment.id, monto).subscribe({
       next: (updated) => {
@@ -152,7 +153,7 @@ export class TurnPaymentModalComponent {
   }
 
   savePriceBono(): void {
-    if (!this.currentAppointment?.id) return;
+    if (!this.currentAppointment?.id || this.inputBono < 0) return;
     this.isSavingPrice = true;
     this.appointmentsService.updateWithFeedback(
       this.currentAppointment.id,
@@ -182,7 +183,7 @@ export class TurnPaymentModalComponent {
   }
 
   savePriceTratamiento(): void {
-    if (!this.currentAppointment?.id) return;
+    if (!this.currentAppointment?.id || this.inputTratamiento < 0) return;
     this.isSavingPrice = true;
     this.appointmentsService.updateWithFeedback(
       this.currentAppointment.id,
@@ -212,7 +213,7 @@ export class TurnPaymentModalComponent {
   }
 
   savePriceExtras(): void {
-    if (!this.currentAppointment?.id) return;
+    if (!this.currentAppointment?.id || this.inputExtras < 0) return;
     this.isSavingPrice = true;
     this.appointmentsService.updateWithFeedback(
       this.currentAppointment.id,

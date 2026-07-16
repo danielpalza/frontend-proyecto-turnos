@@ -28,4 +28,4 @@ export { PatientWizardComponent } from './components/patient-wizard/patient-wiza
 // export * from './directives/auto-focus.directive';
 
 // Exportar validators compartidos
-// export * from './validators/custom-validators';
+export * from './validators/custom-validators';

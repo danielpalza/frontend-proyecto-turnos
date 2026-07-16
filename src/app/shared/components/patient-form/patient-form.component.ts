@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { documentNumberValidator } from '../../validators/custom-validators';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Patient, Profesional } from '../../../core/models';
@@ -133,11 +134,11 @@ export class PatientFormComponent implements OnInit, OnChanges, OnDestroy {
       const parentesco = this.form.get('parentesco')!;
       if (esTitular === 'no' && cobertura !== 'Particular') {
         nombreTitular.setValidators([Validators.required]);
-        dniTitular.setValidators([Validators.required]);
+        dniTitular.setValidators([Validators.required, documentNumberValidator()]);
         parentesco.setValidators([Validators.required]);
       } else {
         nombreTitular.clearValidators();
-        dniTitular.clearValidators();
+        dniTitular.setValidators([documentNumberValidator()]);
         parentesco.clearValidators();
       }
       nombreTitular.updateValueAndValidity();

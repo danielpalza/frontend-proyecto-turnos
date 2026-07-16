@@ -112,6 +112,11 @@ export class SaveOdontogramaDialogComponent {
       observacionesTurno: d.observacionesProfesional || undefined
     };
 
+    if ([pago.precioBono, pago.precioTratamiento, pago.extras, pago.montoPago].some(v => v === undefined || isNaN(v) || v < 0)) {
+      this.saveError.set('Los montos no pueden ser negativos.');
+      return;
+    }
+
     this.saving = true;
     this.saveError.set(null);
     this.stateService.saveTurnoCompleto(pago).subscribe({

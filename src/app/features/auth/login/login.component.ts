@@ -6,35 +6,15 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { LoginRequest, RegisterRequest } from '../../../core/models/auth.model';
+import { DOCUMENT_NUMBER_PATTERN, PERSON_NAME_PATTERN, PHONE_PATTERN } from '../../../shared/validators/custom-validators';
+import { PAISES_LATAM } from '../../../shared/constants/paises-latam';
 
 type RegisterStep = 'org' | 'account';
 
 const PATTERNS = {
-  onlyLetters: /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ ]+$/,
-  onlyNumbers: /^[0-9]+$/,
+  onlyLetters: PERSON_NAME_PATTERN,
   email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
 };
-
-const PAISES_LATAM = [
-  { code: 'AR', nombre: 'Argentina' },
-  { code: 'MX', nombre: 'México' },
-  { code: 'CO', nombre: 'Colombia' },
-  { code: 'CL', nombre: 'Chile' },
-  { code: 'PE', nombre: 'Perú' },
-  { code: 'EC', nombre: 'Ecuador' },
-  { code: 'BO', nombre: 'Bolivia' },
-  { code: 'PY', nombre: 'Paraguay' },
-  { code: 'UY', nombre: 'Uruguay' },
-  { code: 'VE', nombre: 'Venezuela' },
-  { code: 'BR', nombre: 'Brasil' },
-  { code: 'CR', nombre: 'Costa Rica' },
-  { code: 'PA', nombre: 'Panamá' },
-  { code: 'GT', nombre: 'Guatemala' },
-  { code: 'HN', nombre: 'Honduras' },
-  { code: 'SV', nombre: 'El Salvador' },
-  { code: 'NI', nombre: 'Nicaragua' },
-  { code: 'DO', nombre: 'República Dominicana' }
-];
 
 @Component({
   selector: 'app-login',
@@ -197,18 +177,14 @@ export class LoginComponent {
     }
 
     if (this.registerData.dni && this.registerData.dni.trim()) {
-      if (!PATTERNS.onlyNumbers.test(this.registerData.dni.trim())) {
-        this.fieldErrors['dni'] = 'Solo números';
-      } else if (this.registerData.dni.trim().length > 8) {
-        this.fieldErrors['dni'] = 'Máximo 8 dígitos';
+      if (!DOCUMENT_NUMBER_PATTERN.test(this.registerData.dni.trim())) {
+        this.fieldErrors['dni'] = 'Debe tener entre 5 y 20 caracteres alfanuméricos';
       }
     }
 
     if (this.registerData.telefono && this.registerData.telefono.trim()) {
-      if (!PATTERNS.onlyNumbers.test(this.registerData.telefono.trim())) {
-        this.fieldErrors['telefono'] = 'Solo números';
-      } else if (this.registerData.telefono.trim().length > 20) {
-        this.fieldErrors['telefono'] = 'Máximo 20 dígitos';
+      if (!PHONE_PATTERN.test(this.registerData.telefono.trim())) {
+        this.fieldErrors['telefono'] = 'Formato de teléfono inválido';
       }
     }
 
