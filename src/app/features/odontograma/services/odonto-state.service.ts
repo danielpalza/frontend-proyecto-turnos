@@ -93,6 +93,8 @@ export class OdontoStateService {
   readonly historiaClinica$ = this.historiaClinicaSubject.asObservable();
 
   private baselineOdonto: OdontogramaEstadoActual = { caras: [], leyendas: [] };
+  private baselineComentario = '';
+  private baselinePlanTratamiento = '';
 
   /** Aplica la respuesta de carga inicial (merge estadoActual+cambiosTurno, re-baseline, proyección a Subjects). */
   loadOdonto(odonto: OdontogramaResponse): void {
@@ -101,6 +103,8 @@ export class OdontoStateService {
       normalizeOdontoEstado(odonto.cambiosTurno)
     );
     this.baselineOdonto = cloneOdontoEstado(merged);
+    this.baselineComentario = odonto.comentario ?? '';
+    this.baselinePlanTratamiento = odonto.planTratamiento ?? '';
     this.applyOdontoState(merged);
     this.comentarioSubject.next(odonto.comentario ?? '');
     this.planTratamientoSubject.next(odonto.planTratamiento ?? '');
@@ -111,6 +115,8 @@ export class OdontoStateService {
   applySaveResponse(response: OdontogramaResponse): void {
     const merged = mergeOdontoEstado(response.estadoActual, response.cambiosTurno);
     this.baselineOdonto = cloneOdontoEstado(merged);
+    this.baselineComentario = response.comentario ?? '';
+    this.baselinePlanTratamiento = response.planTratamiento ?? '';
     this.applyOdontoState(merged);
     this.comentarioSubject.next(response.comentario ?? '');
     this.planTratamientoSubject.next(response.planTratamiento ?? '');
@@ -244,10 +250,12 @@ export class OdontoStateService {
 
     const comentario = this.comentarioSubject.value;
     const plan = this.planTratamientoSubject.value;
-    if (comentario !== (this.baselineOdonto as unknown as { comentario?: string }).comentario) {
+    if (comentario !== this.baselineComentario) {
       delta.comentario = comentario;
     }
-    delta.planTratamiento = plan;
+    if (plan !== this.baselinePlanTratamiento) {
+      delta.planTratamiento = plan;
+    }
 
     delta.caras = current.caras.filter(c => {
       const baseline = this.baselineOdonto.caras.find(
@@ -278,12 +286,14 @@ export class OdontoStateService {
     this.facesSubject.value.forEach((faces, numeroDiente) => {
       (Object.keys(faces) as FaceKey[]).forEach(faceKey => {
         const estado = faces[faceKey];
-        if (estado !== 'normal') {
-          caras.push({
-            numeroDiente,
-            cara: FACE_KEY_TO_CARA[faceKey],
-            estado
-          });
+        const cara = FACE_KEY_TO_CARA[faceKey];
+        const baselineEstado = this.baselineOdonto.caras.find(
+          b => b.numeroDiente === numeroDiente && b.cara === cara
+        )?.estado ?? 'normal';
+        // Incluir también reversiones a 'normal' cuando el baseline no era 'normal',
+        // si no, buildOdontogramDelta nunca puede detectar/guardar esa corrección.
+        if (estado !== 'normal' || baselineEstado !== 'normal') {
+          caras.push({ numeroDiente, cara, estado });
         }
       });
     });

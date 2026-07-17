@@ -89,7 +89,7 @@ export class ProfesionalDialogComponent implements OnChanges {
     return this.fb.group({
       nombre: ['', Validators.required],
       apellido: ['', Validators.required],
-      dni: ['', documentNumberValidator()],
+      identificacion: ['', documentNumberValidator()],
       especialidad: [''],
       matricula: [''],
       email: ['', Validators.email],
@@ -119,7 +119,7 @@ export class ProfesionalDialogComponent implements OnChanges {
     this.form.reset({
       nombre: prof?.nombre || '',
       apellido: prof?.apellido || '',
-      dni: prof?.dni || '',
+      identificacion: prof?.identificacion || '',
       especialidad: prof?.especialidad || '',
       matricula: prof?.matricula || '',
       email: prof?.email || '',
@@ -187,10 +187,14 @@ export class ProfesionalDialogComponent implements OnChanges {
     }
     const value = this.form.value;
     const crearAcceso = this.canCreateAccess && !!value.crearAcceso;
+    if (crearAcceso && this.moduleCodes.length === 0) {
+      this.saveError = 'Seleccioná al menos un módulo para el usuario';
+      return;
+    }
     const dto: ProfesionalCreateDTO = {
       nombre: value.nombre,
       apellido: value.apellido,
-      dni: value.dni || undefined,
+      identificacion: value.identificacion || undefined,
       especialidad: value.especialidad || undefined,
       matricula: value.matricula || undefined,
       email: value.email || undefined,

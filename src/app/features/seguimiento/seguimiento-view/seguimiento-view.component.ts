@@ -37,6 +37,7 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
   selectedAppointment: Appointment | null = null;
 
   private subscriptions = new Subscription();
+  private yearFilterSeq = new Map<string, number>(); // descarta respuestas de filtro de año fuera de orden, por paciente
 
   constructor(
     private appointmentsService: AppointmentsService,
@@ -59,13 +60,15 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
           this.patientData.setPatients(patients);
           this.patientData.setResumen(resumen);
 
-          this.patientData.loadYear(this.patientData.currentYear()).subscribe({
-            next: () => {
-              this.patientData.updatePatientGroups();
-              this.cdr.markForCheck();
-            },
-            error: (err) => this.handleLoadError(err)
-          });
+          this.subscriptions.add(
+            this.patientData.loadYear(this.patientData.currentYear()).subscribe({
+              next: () => {
+                this.patientData.updatePatientGroups();
+                this.cdr.markForCheck();
+              },
+              error: (err) => this.handleLoadError(err)
+            })
+          );
         },
         error: (err) => this.handleLoadError(err)
       })
@@ -83,10 +86,12 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
   }
 
   private refreshResumenAndGroups(): void {
-    this.patientData.refreshResumen().subscribe({
-      next: () => this.cdr.markForCheck(),
-      error: (err) => this.handleLoadError(err)
-    });
+    this.subscriptions.add(
+      this.patientData.refreshResumen().subscribe({
+        next: () => this.cdr.markForCheck(),
+        error: (err) => this.handleLoadError(err)
+      })
+    );
   }
 
   ngOnDestroy(): void {
@@ -94,43 +99,52 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  getSelectedYear(dni?: string | null): string {
-    return this.patientData.getSelectedYear(dni);
+  getSelectedYear(identificacion?: string | null): string {
+    return this.patientData.getSelectedYear(identificacion);
   }
 
-  getSelectedMonth(dni?: string | null): string {
-    return this.patientData.getSelectedMonth(dni);
+  getSelectedMonth(identificacion?: string | null): string {
+    return this.patientData.getSelectedMonth(identificacion);
   }
 
-  onYearFilterChange(dni: string | undefined | null, value: string): void {
-    if (!dni) return;
-    this.collapseAppointmentList(dni);
-    this.patientData.onYearFilterChange(dni, value).subscribe({
-      next: () => {
-        this.patientData.updatePatientGroups();
-        this.cdr.markForCheck();
-      },
-      error: (err) => this.handleLoadError(err)
-    });
+  onYearFilterChange(identificacion: string | undefined | null, value: string): void {
+    if (!identificacion) return;
+    this.collapseAppointmentList(identificacion);
+    const seq = (this.yearFilterSeq.get(identificacion) ?? 0) + 1;
+    this.yearFilterSeq.set(identificacion, seq);
+    this.subscriptions.add(
+      this.patientData.onYearFilterChange(identificacion, value).subscribe({
+        next: () => {
+          if (this.yearFilterSeq.get(identificacion) !== seq) return; // respuesta obsoleta, se descarta
+          this.patientData.updatePatientGroups();
+          this.cdr.markForCheck();
+        },
+        error: (err) => this.handleLoadError(err)
+      })
+    );
   }
 
-  onMonthFilterChange(dni: string | undefined | null, value: string): void {
-    if (!dni) return;
-    this.collapseAppointmentList(dni);
-    this.patientData.onMonthFilterChange(dni, value);
+  onMonthFilterChange(identificacion: string | undefined | null, value: string): void {
+    if (!identificacion) return;
+    this.collapseAppointmentList(identificacion);
+    this.patientData.onMonthFilterChange(identificacion, value);
   }
 
   /** Colapsa la lista de turnos expandida de un paciente (p.ej. al cambiar de año/mes). */
-  private collapseAppointmentList(dni: string): void {
-    this.appointmentLists?.find(list => list.dni === dni)?.collapse();
+  private collapseAppointmentList(identificacion: string): void {
+    this.appointmentLists?.find(list => list.identificacion === identificacion)?.collapse();
   }
 
-  getAvailableMonths(dni?: string | null): MonthOption[] {
-    return this.patientData.getAvailableMonths(dni);
+  getAvailableMonths(identificacion?: string | null): MonthOption[] {
+    return this.patientData.getAvailableMonths(identificacion);
   }
 
   getFilteredAppointments(group: PatientGroup): Appointment[] {
     return this.patientData.getFilteredAppointments(group);
+  }
+
+  trackByPatientIdentificacion(_index: number, group: PatientGroup): string {
+    return group.patient.identificacion;
   }
 
   onSearchChange(): void {
@@ -142,8 +156,8 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
     return fullName(nombre, apellido);
   }
 
-  getPatientByDni(dni: string): Patient | undefined {
-    return this.patientData.patientsMap.get(dni);
+  getPatientByIdentificacion(identificacion: string): Patient | undefined {
+    return this.patientData.patientsMap.get(identificacion);
   }
 
   /** Editar paciente desde la tarjeta de la lista */
@@ -156,8 +170,8 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
     this.wizardPanel.openNew();
   }
 
-  getCoberturaInfo(dni: string): string {
-    const patient = this.getPatientByDni(dni);
+  getCoberturaInfo(identificacion: string): string {
+    const patient = this.getPatientByIdentificacion(identificacion);
     if (!patient) return '';
     
     const parts: string[] = [];
@@ -181,8 +195,8 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
   // --- Modal Pago y observaciones del turno ---
 
   get selectedAppointmentPatient(): Patient | undefined {
-    const dni = this.selectedAppointment?.patientDni;
-    return dni ? this.patientData.patientsMap.get(dni) : undefined;
+    const identificacion = this.selectedAppointment?.patientIdentificacion;
+    return identificacion ? this.patientData.patientsMap.get(identificacion) : undefined;
   }
 
   openTurnModal(appointment: Appointment): void {

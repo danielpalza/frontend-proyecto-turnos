@@ -53,7 +53,7 @@ export class TurnosPage {
   readonly patientNameInput: Locator;
   readonly patientBirthdateInput: Locator;
   readonly patientAgeInput: Locator;
-  readonly patientDniInput: Locator;
+  readonly patientIdentificacionInput: Locator;
   readonly patientPhoneInput: Locator;
   readonly patientEmailInput: Locator;
   readonly patientAddressInput: Locator;
@@ -148,7 +148,7 @@ export class TurnosPage {
     this.patientNameInput = page.getByTestId('patient-name-input');
     this.patientBirthdateInput = page.getByTestId('patient-birthdate-input');
     this.patientAgeInput = page.getByTestId('patient-age-input');
-    this.patientDniInput = page.getByTestId('patient-dni-input');
+    this.patientIdentificacionInput = page.getByTestId('patient-dni-input');
     this.patientPhoneInput = page.getByTestId('patient-phone-input');
     this.patientEmailInput = page.getByTestId('patient-email-input');
     this.patientAddressInput = page.getByTestId('patient-address-input');
@@ -274,7 +274,7 @@ export class TurnosPage {
     return this.page.getByTestId(`appointment-add-payment-btn-${id}`);
   }
 
-  appointmentPatientDni(id: number): Locator {
+  appointmentPatientIdentificacion(id: number): Locator {
     return this.page.getByTestId(`appointment-patient-dni-${id}`);
   }
 
@@ -320,7 +320,7 @@ export class TurnosPage {
 
   async expandAppointment(id: number) {
     await this.appointmentExpandBtn(id).click();
-    await this.appointmentPatientDni(id).waitFor({ state: 'visible' });
+    await this.appointmentPatientIdentificacion(id).waitFor({ state: 'visible' });
   }
 
   async startAppointment(id: number) {
@@ -344,7 +344,7 @@ export class TurnosPage {
 
   async fillNewAppointmentMinimal(data: {
     name: string;
-    dni: string;
+    identificacion: string;
     phone: string;
     email: string;
     address: string;
@@ -352,7 +352,7 @@ export class TurnosPage {
     time: string;
   }) {
     await this.patientNameInput.fill(data.name);
-    await this.patientDniInput.fill(data.dni);
+    await this.patientIdentificacionInput.fill(data.identificacion);
     await this.patientPhoneInput.fill(data.phone);
     await this.patientEmailInput.fill(data.email);
     await this.patientAddressInput.fill(data.address);

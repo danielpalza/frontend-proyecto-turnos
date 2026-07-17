@@ -1,9 +1,9 @@
-<div *ngIf="appointments.length === 0" class="text-muted small mb-2" [attr.data-testid]="'tracking-patient-appointments-empty-' + dni">
+<div *ngIf="appointments.length === 0" class="text-muted small mb-2" [attr.data-testid]="'tracking-patient-appointments-empty-' + identificacion">
   No hay turnos en el mes seleccionado
 </div>
 <div class="appointments-list-wrapper" [class.expanded]="isExpanded"
-  *ngIf="appointments.length > 0" [attr.data-testid]="'tracking-patient-appointments-' + dni">
-  <div class="appointments-list" #apptList [attr.data-dni]="dni">
+  *ngIf="appointments.length > 0" [attr.data-testid]="'tracking-patient-appointments-' + identificacion">
+  <div class="appointments-list" #apptList [attr.data-identificacion]="identificacion">
     <div *ngFor="let app of appointments" class="appointment-badge"
       [ngClass]="'appointment-' + getAppointmentColor(app)" (click)="appointmentClick.emit(app)" role="button"
       tabindex="0" (keydown.enter)="appointmentClick.emit(app)"
@@ -16,7 +16,7 @@
   </div>
 </div>
 <button type="button" class="btn-toggle-appointments" *ngIf="isOverflowing"
-  (click)="toggleExpanded()" [attr.data-testid]="'tracking-appointments-toggle-' + dni">
+  (click)="toggleExpanded()" [attr.data-testid]="'tracking-appointments-toggle-' + identificacion">
   {{ isExpanded ? 'Ver menos' : 'Ver más' }}
   <i class="bi" [ngClass]="isExpanded ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
 </button>

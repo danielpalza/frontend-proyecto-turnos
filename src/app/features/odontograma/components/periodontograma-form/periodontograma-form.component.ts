@@ -23,12 +23,6 @@ export class PeriodontogramaFormComponent implements OnInit, OnDestroy {
 
   activeArc: 'upper' | 'lower' = 'upper';
 
-  patientInfo = {
-    name: '',
-    operator: '',
-    date: new Date().toISOString().split('T')[0] ?? ''
-  };
-
   teethMap = new Map<number, PerioToothMvp>();
 
   private perioSub?: Subscription;

@@ -59,8 +59,8 @@
     </div>
     <div class="col-12 col-md-4">
       <label class="form-label">Documento de identidad *</label>
-      <input class="form-control" type="text" formControlName="dni" [class.is-invalid]="form.get('dni')?.invalid && form.get('dni')?.touched" data-testid="patient-dni-input" />
-      @if (form.get('dni')?.invalid && form.get('dni')?.touched) {
+      <input class="form-control" type="text" formControlName="identificacion" [class.is-invalid]="form.get('identificacion')?.invalid && form.get('identificacion')?.touched" data-testid="patient-dni-input" />
+      @if (form.get('identificacion')?.invalid && form.get('identificacion')?.touched) {
         <div class="invalid-feedback d-block">El documento es obligatorio y debe tener entre 5 y 20 caracteres alfanuméricos</div>
       }
     </div>
@@ -250,8 +250,8 @@
         </div>
         <div class="col-12 col-md-6 col-lg-3">
           <label class="form-label">Documento del Titular *</label>
-          <input class="form-control" type="text" formControlName="dniTitular" [class.is-invalid]="form.get('dniTitular')?.invalid && form.get('dniTitular')?.touched" data-testid="patient-titular-dni-input" />
-          @if (form.get('dniTitular')?.invalid && form.get('dniTitular')?.touched) {
+          <input class="form-control" type="text" formControlName="identificacionTitular" [class.is-invalid]="form.get('identificacionTitular')?.invalid && form.get('identificacionTitular')?.touched" data-testid="patient-titular-dni-input" />
+          @if (form.get('identificacionTitular')?.invalid && form.get('identificacionTitular')?.touched) {
             <div class="invalid-feedback d-block">El documento del titular es obligatorio y debe tener entre 5 y 20 caracteres alfanuméricos</div>
           }
         </div>

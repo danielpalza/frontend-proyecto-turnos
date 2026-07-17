@@ -13,7 +13,7 @@ import { formatDate as formatDateShared, getAppointmentColor as getAppointmentCo
 })
 export class AppointmentListOverflowComponent implements AfterViewInit, OnDestroy {
   @Input() appointments: Appointment[] = [];
-  @Input() dni!: string;
+  @Input() identificacion!: string;
   @Output() appointmentClick = new EventEmitter<Appointment>();
 
   @ViewChild('apptList') private readonly apptList!: ElementRef<HTMLDivElement>;

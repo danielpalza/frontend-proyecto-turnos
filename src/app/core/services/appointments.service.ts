@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpContext, HttpErrorResponse } from '@angular/common/http';
-import { Observable, BehaviorSubject, Subject, tap, map, catchError, of, combineLatest, EMPTY, throwError } from 'rxjs';
+import { Observable, BehaviorSubject, Subject, tap, map, catchError, of, combineLatest, EMPTY, throwError, switchMap } from 'rxjs';
 import { Appointment, AppointmentCreateDTO, AppointmentPartialUpdateDTO, AppointmentStatus, AppointmentCountByDate, PatientSeguimientoResumen } from '../models';
 import { API_CONFIG } from './api.config';
 import { skipGlobalErrorHandler } from '../interceptors/http-context';
@@ -19,6 +19,8 @@ export class AppointmentsService {
   private readonly loadErrorSubject = new Subject<any>();
   readonly loadError$ = this.loadErrorSubject.asObservable();
 
+  private loadMonthRequest$ = new Subject<{ year: number; month: number }>();
+
   private filterType$ = new BehaviorSubject<'patient' | 'profesional' | 'both' | 'none'>('none');
   private filterTerm$ = new BehaviorSubject<string>('');
   private filterPendingOnly$ = new BehaviorSubject<boolean>(false);
@@ -32,6 +34,19 @@ export class AppointmentsService {
     private auth: AuthService
   ) {
     this.auth.loggedOut$.subscribe(() => this.appointmentsCache$.next([]));
+
+    this.loadMonthRequest$.pipe(
+      switchMap(({ year, month }) => {
+        const start = formatDateToYYYYMMDD(new Date(year, month, 1));
+        const end = formatDateToYYYYMMDD(new Date(year, month + 1, 0));
+        return this.findByDateRange(start, end).pipe(
+          catchError(err => {
+            this.loadErrorSubject.next(err);
+            return EMPTY;
+          })
+        );
+      })
+    ).subscribe(appointments => this.appointmentsCache$.next(appointments));
   }
 
   private refreshFiltered(): void {
@@ -84,23 +99,23 @@ export class AppointmentsService {
           const t = term.toLowerCase();
           if (type === 'both') {
             const name = fullName(app.patientNombre, app.patientApellido).toLowerCase();
-            const dni = (app.patientDni || '').toLowerCase();
+            const identificacion = (app.patientIdentificacion || '').toLowerCase();
             const cobertura = (app.patientCoberturaNumero || '').toLowerCase();
             const profesionalName = fullName(app.profesionalNombre, app.profesionalApellido).toLowerCase();
             return (
               name.includes(t) ||
-              dni.includes(t) ||
+              identificacion.includes(t) ||
               cobertura.includes(t) ||
               profesionalName.includes(t)
             );
           }
           if (type === 'patient') {
             const name = fullName(app.patientNombre, app.patientApellido).toLowerCase();
-            const dni = (app.patientDni || '').toLowerCase();
+            const identificacion = (app.patientIdentificacion || '').toLowerCase();
             const cobertura = (app.patientCoberturaNumero || '').toLowerCase();
             return (
               name.includes(t) ||
-              dni.includes(t) ||
+              identificacion.includes(t) ||
               cobertura.includes(t)
             );
           }
@@ -269,15 +284,6 @@ export class AppointmentsService {
   }
 
   loadAppointmentsForMonth(year: number, month: number): void {
-    const start = formatDateToYYYYMMDD(new Date(year, month, 1));
-    const end = formatDateToYYYYMMDD(new Date(year, month + 1, 0));
-    this.findByDateRange(start, end).subscribe({
-      next: appointments => {
-        this.appointmentsCache$.next(appointments);
-      },
-      error: err => {
-        this.loadErrorSubject.next(err);
-      }
-    });
+    this.loadMonthRequest$.next({ year, month });
   }
 }

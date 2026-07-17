@@ -7,7 +7,7 @@ export interface Appointment {
   profesionalId?: string;
   patientNombre?: string;
   patientApellido?: string;
-  patientDni?: string;
+  patientIdentificacion?: string;
   patientCoberturaNumero?: string;
   profesionalNombre?: string;
   profesionalApellido?: string;
@@ -53,7 +53,7 @@ export type AppointmentCountByDate = Record<string, number>;
 
 export interface PatientSeguimientoResumen {
   patientId: string;
-  patientDni: string;
+  patientIdentificacion: string;
   totalAdeudado: number;
   totalTurnos: number;
   availableYears: number[];

@@ -28,7 +28,7 @@ export class PatientService {
         if (err?.status !== 404 && !this.errorHandler.isNetworkError(err)) {
           this.notification.showError(this.errorHandler.getErrorMessage(err, 'cargar los pacientes'));
         }
-        return of([]);
+        return of(this.patientsCache$.value);
       })
     ).subscribe({
       next: (patients) => this.patientsCache$.next(patients)
@@ -42,7 +42,7 @@ export class PatientService {
     this.http.get<Patient[]>(this.apiUrl, context ? { context } : undefined).pipe(
       catchError((err) => {
         console.error('Error loading patients:', err);
-        return of([]);
+        return of(this.patientsCache$.value);
       })
     ).subscribe({
       next: (patients) => this.patientsCache$.next(patients)
@@ -64,8 +64,8 @@ export class PatientService {
     return this.http.get<Patient>(`${this.apiUrl}/${id}`);
   }
 
-  findByDni(dni: string): Observable<Patient> {
-    return this.http.get<Patient>(`${this.apiUrl}/dni/${dni}`);
+  findByIdentificacion(identificacion: string): Observable<Patient> {
+    return this.http.get<Patient>(`${this.apiUrl}/identificacion/${identificacion}`);
   }
 
   search(query: string): Observable<Patient[]> {

@@ -119,6 +119,12 @@ export class TurnPaymentModalComponent {
     this.turnModalPaymentInput = value;
   }
 
+  /** Compara con tolerancia de centavos en vez de igualdad exacta de floats. */
+  isFullPaymentChecked(): boolean {
+    const total = this.currentAppointment?.totalPrecio ?? 0;
+    return total > 0 && Math.abs(this.turnModalPaymentInput - total) < 0.01;
+  }
+
   private syncUpdatedAppointment(updated: Appointment): void {
     this.currentAppointment = { ...updated };
     this.appointmentUpdated.emit(updated);

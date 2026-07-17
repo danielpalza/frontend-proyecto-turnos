@@ -60,8 +60,9 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
+  /** Mide el mensaje ya interpolado con datos de muestra, no la plantilla cruda con los tokens literales. */
   get whatsappCharCount(): number {
-    return this.whatsappTemplate?.length ?? 0;
+    return this.whatsappPreviewParts.reduce((total, part) => total + part.text.length, 0);
   }
 
   get whatsappCharPercent(): number {

@@ -1,8 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, OnChanges, OnDestroy, Output, SimpleChanges, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Subject } from 'rxjs';
-import { takeUntil, debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { Subject, of } from 'rxjs';
+import { takeUntil, debounceTime, distinctUntilChanged, switchMap, catchError } from 'rxjs/operators';
 import { Patient, Profesional, AppointmentCreateDTO } from '../../../../core/models';
 import { AppointmentsService } from '../../../../core/services/appointments.service';
 import { PatientWizardComponent, getPatientFormConfig } from '../../../../shared';
@@ -30,11 +30,11 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
   showPatientDropdown = false;
 
   private readonly PATIENT_FIELDS = [
-    'nombre', 'apellido', 'fechaNacimiento', 'edad', 'dni', 'telefono', 'email',
+    'nombre', 'apellido', 'fechaNacimiento', 'edad', 'identificacion', 'telefono', 'email',
     'domicilio', 'localidad', 'contactoEmergencia',
     'enfermedades', 'alergias', 'medicacion', 'cirugias', 'embarazo', 'marcapasos', 'consumos', 'otrosAntecedentes',
     'coberturaNombre', 'coberturaId', 'planCategoria', 'coberturaNumero', 'coberturaVencimiento',
-    'esTitular', 'nombreTitular', 'dniTitular', 'parentesco'
+    'esTitular', 'nombreTitular', 'identificacionTitular', 'parentesco'
   ];
   isCheckingAvailability = false;
   availabilityError: string | null = null;
@@ -106,7 +106,7 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
       nombre: patient.nombre,
       apellido: patient.apellido,
       fechaNacimiento: patient.fechaNacimiento || '',
-      dni: patient.dni,
+      identificacion: patient.identificacion,
       telefono: patient.telefono || '',
       email: patient.email || '',
       domicilio: patient.domicilio || '',
@@ -127,7 +127,7 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
       coberturaVencimiento: patient.coberturaVencimiento || '',
       esTitular: (patient.coberturaNombre === 'Particular' || patient.esTitular) ? 'si' : 'no',
       nombreTitular: patient.nombreTitular || '',
-      dniTitular: patient.dniTitular || '',
+      identificacionTitular: patient.identificacionTitular || '',
       parentesco: patient.parentesco || ''
     });
     this.setPatientFieldsEnabled(false);
@@ -159,6 +159,7 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
   }
 
   close(): void {
+    if (this.isLoading) return;
     this.open = false;
     this.openChange.emit(false);
     this.clearPatientSelection();
@@ -244,44 +245,40 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
     horaControl.valueChanges
       .pipe(
         debounceTime(300),
-        takeUntil(this.destroy$)
-      )
-      .subscribe((hora: string) => {
-        const profesionalId = this.form.get('profesionalId')?.value;
+        switchMap((hora: string) => {
+          const profesionalId = this.form.get('profesionalId')?.value;
 
-        // Si falta profesional, fecha o hora, limpiamos el error y no validamos
-        if (!profesionalId || !this.selectedDate || !hora) {
+          // Si falta profesional, fecha o hora, limpiamos el error y no validamos
+          if (!profesionalId || !this.selectedDate || !hora) {
+            this.availabilityError = null;
+            return of(null);
+          }
+
+          const normalizedHora = this.normalizeTime(hora);
+          if (!normalizedHora) {
+            this.availabilityError = 'Formato de hora inválido. Use HH:mm.';
+            return of(null);
+          }
+
+          this.isCheckingAvailability = true;
           this.availabilityError = null;
-          return;
-        }
 
-        const normalizedHora = this.normalizeTime(hora);
-        if (!normalizedHora) {
-          this.availabilityError = 'Formato de hora inválido. Use HH:mm.';
-          return;
-        }
-
-        this.isCheckingAvailability = true;
-        this.availabilityError = null;
-
-        this.appointmentsService.checkAvailability(profesionalId, this.selectedDate, normalizedHora)
-          .pipe(takeUntil(this.destroy$))
-          .subscribe({
-            next: (isAvailable) => {
-              this.isCheckingAvailability = false;
-              if (!isAvailable) {
-                this.availabilityError = 'Este horario ya está ocupado. Por favor, seleccione otro horario.';
-              } else {
-                this.availabilityError = null;
-              }
-            },
-            error: (err) => {
-              this.isCheckingAvailability = false;
+          return this.appointmentsService.checkAvailability(profesionalId, this.selectedDate, normalizedHora).pipe(
+            catchError((err) => {
               console.warn('Error verificando disponibilidad (cambio de hora):', err);
               // No bloqueamos al usuario por un error de red puntual
-              this.availabilityError = null;
-            }
-          });
+              return of(null);
+            })
+          );
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((isAvailable) => {
+        this.isCheckingAvailability = false;
+        if (isAvailable === null) {
+          return;
+        }
+        this.availabilityError = isAvailable ? null : 'Este horario ya está ocupado. Por favor, seleccione otro horario.';
       });
   }
 
@@ -351,7 +348,7 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
     const personalRequiredFields = [
       'nombre',
       'apellido',
-      'dni',
+      'identificacion',
       'telefono',
       'email',
       'domicilio',
@@ -397,7 +394,7 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
       nombre: raw.nombre,
       apellido: raw.apellido,
       fechaNacimiento: raw.fechaNacimiento || undefined,
-      dni: raw.dni,
+      identificacion: raw.identificacion,
       telefono: raw.telefono,
       email: raw.email,
       domicilio: raw.domicilio,
@@ -411,7 +408,7 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
       coberturaVencimiento: raw.coberturaVencimiento || undefined,
       esTitular: raw.esTitular === 'si',
       nombreTitular: raw.nombreTitular || undefined,
-      dniTitular: raw.dniTitular || undefined,
+      identificacionTitular: raw.identificacionTitular || undefined,
       parentesco: raw.parentesco || undefined
     };
 

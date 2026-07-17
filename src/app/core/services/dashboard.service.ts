@@ -17,6 +17,8 @@ export class DashboardService {
 
   private currentYear = 0;
   private currentMonth = 0;
+  private currentDateFrom: string | null = null;
+  private currentDateTo: string | null = null;
 
   readonly loading$ = this.isLoading$.asObservable();
   readonly error$ = this.hasError$.asObservable();
@@ -33,7 +35,7 @@ export class DashboardService {
     map(a => this.computeProfessionalStats(a))
   );
 
-  readonly dailyIncomeData$: Observable<DailyPoint[]> = this.allMonthAppointments$.pipe(
+  readonly dailyIncomeData$: Observable<DailyPoint[]> = this.filteredAppointments$.pipe(
     map(a => this.computeDailyIncome(a))
   );
 
@@ -51,7 +53,7 @@ export class DashboardService {
     this.appointmentsService.findByDateRange(start, end).subscribe({
       next: appointments => {
         this.allMonthAppointments$.next(appointments);
-        this.filteredAppointments$.next(appointments);
+        this.applyDateFilter(this.currentDateFrom, this.currentDateTo);
         this.isLoading$.next(false);
         this.loadPreviousMonth(year, month);
       },
@@ -63,6 +65,8 @@ export class DashboardService {
   }
 
   applyDateFilter(from: string | null, to: string | null): void {
+    this.currentDateFrom = from;
+    this.currentDateTo = to;
     const all = this.allMonthAppointments$.getValue();
     if (!from && !to) {
       this.filteredAppointments$.next(all);

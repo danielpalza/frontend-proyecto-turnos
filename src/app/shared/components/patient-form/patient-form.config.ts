@@ -11,7 +11,7 @@ export function getPatientFormConfig(fb: FormBuilder) {
     apellido: ['', Validators.required],
     fechaNacimiento: [''],
     edad: [{ value: '', disabled: true }],
-    dni: ['', [Validators.required, documentNumberValidator()]],
+    identificacion: ['', [Validators.required, documentNumberValidator()]],
     telefono: ['', [Validators.required, phoneValidator()]],
     email: ['', [Validators.required, Validators.email]],
     domicilio: ['', Validators.required],
@@ -33,7 +33,7 @@ export function getPatientFormConfig(fb: FormBuilder) {
     coberturaVencimiento: [''],
     esTitular: ['si'],
     nombreTitular: [''],
-    dniTitular: ['', documentNumberValidator()],
+    identificacionTitular: ['', documentNumberValidator()],
     parentesco: ['']
   };
 }

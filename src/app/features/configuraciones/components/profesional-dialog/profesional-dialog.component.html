@@ -42,10 +42,10 @@
             </div>
             <div class="col-md-6">
               <label class="form-label">Documento de identidad</label>
-              <input type="text" class="form-control" formControlName="dni" placeholder="Documento de identidad"
-                [class.is-invalid]="form.get('dni')?.invalid && form.get('dni')?.touched"
+              <input type="text" class="form-control" formControlName="identificacion" placeholder="Documento de identidad"
+                [class.is-invalid]="form.get('identificacion')?.invalid && form.get('identificacion')?.touched"
                 data-testid="settings-profesional-dni-input" />
-              <div class="invalid-feedback" [class.show]="form.get('dni')?.invalid && form.get('dni')?.touched">
+              <div class="invalid-feedback" [class.show]="form.get('identificacion')?.invalid && form.get('identificacion')?.touched">
                 Debe tener entre 5 y 20 caracteres alfanuméricos
               </div>
             </div>
@@ -145,7 +145,7 @@
             </div>
           </div>
 
-          <div *ngIf="saveError" class="alert alert-danger py-2 mt-3">{{ saveError }}</div>
+          <div *ngIf="saveError" class="alert alert-danger py-2 mt-3" data-testid="settings-profesional-save-error">{{ saveError }}</div>
         </div>
 
         <div class="modal-footer">

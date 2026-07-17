@@ -138,7 +138,7 @@
             </button>
             <label class="mb-0 d-flex align-items-center gap-1 payment-total-label" data-testid="tracking-turn-full-payment-label">
               <input type="checkbox"
-                [checked]="getTurnModalPaymentInput() === (appointment.totalPrecio ?? 0) && (appointment.totalPrecio ?? 0) > 0"
+                [checked]="isFullPaymentChecked()"
                 (change)="$any($event.target).checked ? updateTurnModalPaymentInput(appointment.totalPrecio ?? 0) : updateTurnModalPaymentInput(0)"
                 data-testid="tracking-turn-full-payment-checkbox" />
               Pago total

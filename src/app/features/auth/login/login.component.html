@@ -223,24 +223,24 @@
           </div>
 
           <div class="form-group">
-            <label for="reg-dni" class="form-label">Documento de identidad</label>
+            <label for="reg-identificacion" class="form-label">Documento de identidad</label>
             <div class="input-wrapper">
               <i class="bi bi-card-text input-icon"></i>
               <input
-                id="reg-dni"
+                id="reg-identificacion"
                 type="text"
                 class="form-control form-input"
-                [class.is-invalid]="fieldErrors['dni']"
+                [class.is-invalid]="fieldErrors['identificacion']"
                 placeholder="Documento de identidad"
-                [(ngModel)]="registerData.dni"
-                (ngModelChange)="onFieldInput('dni')"
-                name="dni"
+                [(ngModel)]="registerData.identificacion"
+                (ngModelChange)="onFieldInput('identificacion')"
+                name="identificacion"
                 maxlength="20"
                 data-testid="register-dni-input"
               />
             </div>
-            @if (fieldErrors['dni']) {
-              <span class="field-error">{{ fieldErrors['dni'] }}</span>
+            @if (fieldErrors['identificacion']) {
+              <span class="field-error">{{ fieldErrors['identificacion'] }}</span>
             }
           </div>
 

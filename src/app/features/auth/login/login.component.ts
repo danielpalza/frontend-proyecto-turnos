@@ -43,7 +43,7 @@ export class LoginComponent {
     password: '',
     nombre: '',
     apellido: '',
-    dni: '',
+    identificacion: '',
     telefono: ''
   };
   confirmPassword = '';
@@ -69,7 +69,7 @@ export class LoginComponent {
     this.selectedOrgMode = 'new';
     this.registerData = {
       username: '', email: '', password: '',
-      nombre: '', apellido: '', dni: '', telefono: ''
+      nombre: '', apellido: '', identificacion: '', telefono: ''
     };
     this.confirmPassword = '';
     this.organizacionNombre = '';
@@ -176,9 +176,9 @@ export class LoginComponent {
       this.fieldErrors['nombre'] = 'Solo puede contener letras y espacios';
     }
 
-    if (this.registerData.dni && this.registerData.dni.trim()) {
-      if (!DOCUMENT_NUMBER_PATTERN.test(this.registerData.dni.trim())) {
-        this.fieldErrors['dni'] = 'Debe tener entre 5 y 20 caracteres alfanuméricos';
+    if (this.registerData.identificacion && this.registerData.identificacion.trim()) {
+      if (!DOCUMENT_NUMBER_PATTERN.test(this.registerData.identificacion.trim())) {
+        this.fieldErrors['identificacion'] = 'Debe tener entre 5 y 20 caracteres alfanuméricos';
       }
     }
 

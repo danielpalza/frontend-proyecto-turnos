@@ -60,6 +60,13 @@ export class SaveOdontogramaDialogComponent {
   }
 
   private prefillFromAppointment(): void {
+    this.stateService.refreshAppointmentPaymentSnapshot().subscribe({
+      next: () => this.applySnapshotToForm(),
+      error: () => this.applySnapshotToForm()
+    });
+  }
+
+  private applySnapshotToForm(): void {
     const p = this.stateService.appointmentPaymentSnapshot;
     this.formData.set({
       precioBono: p.precioBono > 0 ? p.precioBono.toFixed(2) : '0',

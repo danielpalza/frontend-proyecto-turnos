@@ -26,14 +26,15 @@ export function getAppointmentColor(appointment: Appointment): string {
     return 'green';
   }
 
-  // Naranja/Amarillo: turnos programados/confirmados sin deuda
-  if (estado === 'PENDIENTE' || estado === 'EN_CURSO') {
-    return 'orange';
-  }
-
-  // Gris: turnos cancelados, no asistió, o pasados sin deuda
+  // Gris: turnos cancelados, no asistió, o pasados sin deuda (chequear antes que "orange"
+  // para que un PENDIENTE/EN_CURSO vencido se vea gris, no naranja)
   if (estado === 'CANCELADO' || estado === 'NO_ASISTIO' || isPast) {
     return 'gray';
+  }
+
+  // Naranja/Amarillo: turnos programados/confirmados sin deuda, todavía no vencidos
+  if (estado === 'PENDIENTE' || estado === 'EN_CURSO') {
+    return 'orange';
   }
 
   return 'gray';

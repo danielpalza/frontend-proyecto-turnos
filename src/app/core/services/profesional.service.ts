@@ -27,7 +27,7 @@ export class ProfesionalService {
         if (err?.status !== 404 && !this.errorHandler.isNetworkError(err)) {
           this.notification.showError(this.errorHandler.getErrorMessage(err, 'cargar los profesionales'));
         }
-        return of([]);
+        return of(this.profesionalesCache$.value);
       })
     ).subscribe({
       next: (data) => this.profesionalesCache$.next(data)
@@ -40,7 +40,7 @@ export class ProfesionalService {
     this.http.get<Profesional[]>(this.apiUrl).pipe(
       catchError((err) => {
         console.error('Error loading profesionales:', err);
-        return of([]);
+        return of(this.profesionalesCache$.value);
       })
     ).subscribe({
       next: (data) => this.profesionalesCache$.next(data)
