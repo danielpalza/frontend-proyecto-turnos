@@ -243,14 +243,14 @@
       @if (form.get('esTitular')?.value === 'no') {
         <div class="col-12 col-md-6 col-lg-3">
           <label class="form-label">Nombre del Titular *</label>
-          <input class="form-control" type="text" formControlName="nombreTitular" [class.is-invalid]="form.get('nombreTitular')?.invalid && form.get('nombreTitular')?.touched" data-testid="patient-titular-name-input" />
+          <input class="form-control" type="text" formControlName="nombreTitular" autocomplete="off" [class.is-invalid]="form.get('nombreTitular')?.invalid && form.get('nombreTitular')?.touched" data-testid="patient-titular-name-input" />
           @if (form.get('nombreTitular')?.invalid && form.get('nombreTitular')?.touched) {
             <div class="invalid-feedback d-block">El nombre del titular es obligatorio</div>
           }
         </div>
         <div class="col-12 col-md-6 col-lg-3">
           <label class="form-label">Documento del Titular *</label>
-          <input class="form-control" type="text" formControlName="identificacionTitular" [class.is-invalid]="form.get('identificacionTitular')?.invalid && form.get('identificacionTitular')?.touched" data-testid="patient-titular-dni-input" />
+          <input class="form-control" type="text" formControlName="identificacionTitular" autocomplete="off" [class.is-invalid]="form.get('identificacionTitular')?.invalid && form.get('identificacionTitular')?.touched" data-testid="patient-titular-dni-input" />
           @if (form.get('identificacionTitular')?.invalid && form.get('identificacionTitular')?.touched) {
             <div class="invalid-feedback d-block">El documento del titular es obligatorio y debe tener entre 5 y 20 caracteres alfanuméricos</div>
           }
