@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
-import { LoginRequest, RegisterRequest } from '../../../core/models/auth.model';
+import { LoginRequest, RegisterRequest, ForgotPasswordRequest } from '../../../core/models/auth.model';
 
 type RegisterStep = 'org' | 'account';
 
@@ -70,6 +70,20 @@ export class LoginComponent {
   organizacionNombre = '';
   pais = '';
 
+  registerSuccess = false;
+  registerSuccessMessage = '';
+
+  forgotPasswordMode = false;
+  forgotPasswordEmail = '';
+  forgotPasswordSuccess = false;
+  forgotPasswordMessage = '';
+
+  resendVerificationMode = false;
+  resendVerificationEmail = '';
+  resendVerificationSuccess = false;
+  resendVerificationMessage = '';
+  emailNotVerified = false;
+
   constructor(
     private authService: AuthService,
     private router: Router,
@@ -95,6 +109,17 @@ export class LoginComponent {
     this.organizacionNombre = '';
     this.pais = '';
     this.invitationCode = '';
+    this.registerSuccess = false;
+    this.registerSuccessMessage = '';
+    this.forgotPasswordMode = false;
+    this.forgotPasswordEmail = '';
+    this.forgotPasswordSuccess = false;
+    this.forgotPasswordMessage = '';
+    this.resendVerificationMode = false;
+    this.resendVerificationEmail = '';
+    this.resendVerificationSuccess = false;
+    this.resendVerificationMessage = '';
+    this.emailNotVerified = false;
   }
 
   selectOrgMode(mode: 'new' | 'join'): void {
@@ -158,7 +183,10 @@ export class LoginComponent {
       error: (err: HttpErrorResponse) => {
         this.loading = false;
         this.errorMessage = this.extractErrorMessage(err, 'Error al iniciar sesión');
-        this.notification.showError(this.errorMessage);
+        this.emailNotVerified = this.errorMessage.toLowerCase().includes('verificar');
+        if (!this.emailNotVerified) {
+          this.notification.showError(this.errorMessage);
+        }
         this.cdr.detectChanges();
       }
     });
@@ -232,13 +260,117 @@ export class LoginComponent {
     this.cdr.detectChanges();
 
     this.authService.register(this.registerData).subscribe({
-      next: () => {
-        this.router.navigate(['/turnos']);
+      next: (res) => {
+        this.loading = false;
+        this.registerSuccess = true;
+        this.registerSuccessMessage = res.message;
+        this.cdr.detectChanges();
       },
       error: (err: HttpErrorResponse) => {
         this.loading = false;
         this.errorMessage = this.extractErrorMessage(err, 'Error al registrarse');
         this.notification.showError(this.errorMessage);
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  showForgotPassword(): void {
+    this.forgotPasswordMode = true;
+    this.forgotPasswordEmail = '';
+    this.forgotPasswordSuccess = false;
+    this.forgotPasswordMessage = '';
+    this.errorMessage = '';
+  }
+
+  cancelForgotPassword(): void {
+    this.forgotPasswordMode = false;
+    this.forgotPasswordEmail = '';
+    this.forgotPasswordSuccess = false;
+    this.forgotPasswordMessage = '';
+    this.errorMessage = '';
+  }
+
+  onForgotPassword(): void {
+    if (this.loading) return;
+
+    if (!this.forgotPasswordEmail.trim() || !PATTERNS.email.test(this.forgotPasswordEmail)) {
+      this.errorMessage = 'Ingresá un email válido';
+      return;
+    }
+
+    this.loading = true;
+    this.errorMessage = '';
+    this.cdr.detectChanges();
+
+    this.authService.forgotPassword({ email: this.forgotPasswordEmail.trim() }).subscribe({
+      next: (res) => {
+        this.loading = false;
+        this.forgotPasswordSuccess = true;
+        this.forgotPasswordMessage = res.message;
+        this.cdr.detectChanges();
+      },
+      error: (err: HttpErrorResponse) => {
+        this.loading = false;
+        this.errorMessage = this.extractErrorMessage(err, 'Error al solicitar recuperación');
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  backToLogin(): void {
+    this.registerSuccess = false;
+    this.registerSuccessMessage = '';
+    this.isLoginMode = true;
+    this.forgotPasswordMode = false;
+    this.forgotPasswordSuccess = false;
+    this.forgotPasswordMessage = '';
+    this.resendVerificationMode = false;
+    this.resendVerificationSuccess = false;
+    this.resendVerificationMessage = '';
+    this.emailNotVerified = false;
+    this.errorMessage = '';
+  }
+
+  showResendVerification(): void {
+    this.resendVerificationMode = true;
+    this.resendVerificationEmail = this.loginData.username.includes('@') ? this.loginData.username : '';
+    this.resendVerificationSuccess = false;
+    this.resendVerificationMessage = '';
+    this.errorMessage = '';
+    this.emailNotVerified = false;
+  }
+
+  cancelResendVerification(): void {
+    this.resendVerificationMode = false;
+    this.resendVerificationEmail = '';
+    this.resendVerificationSuccess = false;
+    this.resendVerificationMessage = '';
+    this.errorMessage = '';
+  }
+
+  onResendVerification(): void {
+    if (this.loading) return;
+
+    if (!this.resendVerificationEmail.trim() || !PATTERNS.email.test(this.resendVerificationEmail)) {
+      this.errorMessage = 'Ingresá un email válido';
+      return;
+    }
+
+    this.loading = true;
+    this.errorMessage = '';
+    this.cdr.detectChanges();
+
+    this.authService.resendVerification({ email: this.resendVerificationEmail.trim() }).subscribe({
+      next: (res) => {
+        this.loading = false;
+        this.resendVerificationSuccess = true;
+        this.resendVerificationMessage = res.message;
+        this.cdr.detectChanges();
+      },
+      error: (err: HttpErrorResponse) => {
+        this.loading = false;
+        this.errorMessage = this.extractErrorMessage(err, 'Error al reenviar verificación');
         this.cdr.detectChanges();
       }
     });

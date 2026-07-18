@@ -24,9 +24,17 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      if ((error.status === 401 || error.status === 403) && !req.url.includes('/auth/')) {
+      // No redirigir a login para endpoints de autenticación (login, register, verify, forgot-password, reset-password)
+      const isAuthEndpoint = req.url.includes('/auth/');
+      
+      if ((error.status === 401 || error.status === 403) && !isAuthEndpoint) {
         authService.logout();
         router.navigate(['/login']);
+        return throwError(() => error);
+      }
+
+      // Para endpoints de auth, SIEMPRE propagar el error al componente
+      if (isAuthEndpoint) {
         return throwError(() => error);
       }
 
