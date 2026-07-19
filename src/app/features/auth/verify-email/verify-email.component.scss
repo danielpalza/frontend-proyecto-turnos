@@ -1,0 +1,102 @@
+@use 'sass:color' as color;
+@use 'variables' as *;
+
+.verify-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: $background-color;
+  padding: 20px;
+}
+
+.verify-card {
+  background: white;
+  border-radius: 16px;
+  padding: 40px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  text-align: center;
+}
+
+.verify-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: $primary-color;
+  margin-bottom: 32px;
+}
+
+.verify-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+
+  .spinner-border {
+    color: $primary-color;
+    width: 3rem;
+    height: 3rem;
+  }
+
+  p {
+    font-size: 15px;
+    color: $text-secondary;
+    margin: 0;
+  }
+}
+
+.verify-result {
+  h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 16px 0 8px;
+  }
+
+  p {
+    font-size: 14px;
+    color: $text-secondary;
+    margin: 0 0 24px;
+    line-height: 1.5;
+  }
+}
+
+.result-icon {
+  font-size: 48px;
+
+  &.success {
+    color: $success-light;
+  }
+
+  &.error {
+    color: $danger-light;
+  }
+}
+
+.btn-primary-action {
+  background-color: $primary-color;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  height: 46px;
+  padding: 0 32px;
+  font-size: 15px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: $primary-dark;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba($primary-color, 0.3);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}

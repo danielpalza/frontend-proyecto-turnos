@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, Subject, tap } from 'rxjs';
 import { API_CONFIG } from './api.config';
-import { AuthResponse, LoginRequest, RegisterRequest } from '../models/auth.model';
+import { AuthResponse, LoginRequest, RegisterRequest, MessageResponse, ForgotPasswordRequest, ResetPasswordRequest } from '../models/auth.model';
 import { skipGlobalErrorHandler } from '../interceptors/http-context';
 
 @Injectable({ providedIn: 'root' })
@@ -26,12 +26,35 @@ export class AuthService {
     );
   }
 
-  register(request: RegisterRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, request, {
+  register(request: RegisterRequest): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(`${this.apiUrl}/register`, request, {
       context: skipGlobalErrorHandler()
-    }).pipe(
-      tap(response => this.setSession(response))
-    );
+    });
+  }
+
+  verifyEmail(token: string): Observable<MessageResponse> {
+    return this.http.get<MessageResponse>(`${this.apiUrl}/verify`, {
+      params: { token },
+      context: skipGlobalErrorHandler()
+    });
+  }
+
+  resendVerification(request: ForgotPasswordRequest): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(`${this.apiUrl}/resend-verification`, request, {
+      context: skipGlobalErrorHandler()
+    });
+  }
+
+  forgotPassword(request: ForgotPasswordRequest): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(`${this.apiUrl}/forgot-password`, request, {
+      context: skipGlobalErrorHandler()
+    });
+  }
+
+  resetPassword(request: ResetPasswordRequest): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(`${this.apiUrl}/reset-password`, request, {
+      context: skipGlobalErrorHandler()
+    });
   }
 
   logout(): void {

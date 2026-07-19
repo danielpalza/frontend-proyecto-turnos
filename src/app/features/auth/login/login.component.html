@@ -3,7 +3,13 @@
     <div class="login-header" data-testid="login-header">
       <h1 class="login-title" data-testid="login-title">OdontoLite</h1>
       <p class="login-subtitle" data-testid="login-subtitle">
-        @if (isLoginMode) {
+        @if (registerSuccess) {
+          Registro exitoso
+        } @else if (forgotPasswordMode) {
+          Recuperar contraseña
+        } @else if (resendVerificationMode) {
+          Reenviar verificación
+        } @else if (isLoginMode) {
           Iniciar sesión
         } @else {
           @switch (registerStep) {
@@ -14,7 +20,7 @@
       </p>
     </div>
 
-    @if (!isLoginMode) {
+    @if (!isLoginMode && !registerSuccess && !forgotPasswordMode && !resendVerificationMode) {
       <div class="step-indicator">
         <div class="step" [class.active]="registerStep === 'org'" [class.completed]="registerStep === 'account'">
           <span class="step-number">1</span>
@@ -31,12 +37,126 @@
     @if (errorMessage) {
       <div class="alert alert-danger d-flex align-items-center" role="alert" data-testid="login-error">
         <i class="bi bi-exclamation-triangle-fill me-2"></i>
-        {{ errorMessage }}
+        <div>
+          {{ errorMessage }}
+          @if (emailNotVerified) {
+            <br/>
+            <a class="toggle-link" (click)="showResendVerification()">Reenviar email de verificación</a>
+          }
+        </div>
       </div>
     }
 
+    <!-- ====== REGISTRO EXITOSO ====== -->
+    @if (registerSuccess) {
+      <div class="success-view">
+        <div class="success-icon">
+          <i class="bi bi-envelope-check"></i>
+        </div>
+        <h2 class="success-title">Revisá tu email</h2>
+        <p class="success-text">{{ registerSuccessMessage }}</p>
+        <p class="success-hint">Te enviamos un link de verificación. Una vez que confirmes tu email, vas a poder iniciar sesión.</p>
+        <button class="btn btn-login mt-3" (click)="backToLogin()">
+          Ir a iniciar sesión
+        </button>
+      </div>
+    }
+
+    <!-- ====== FORGOT PASSWORD ====== -->
+    @else if (forgotPasswordMode) {
+      @if (forgotPasswordSuccess) {
+        <div class="success-view">
+          <div class="success-icon">
+            <i class="bi bi-envelope-check"></i>
+          </div>
+          <h2 class="success-title">Email enviado</h2>
+          <p class="success-text">{{ forgotPasswordMessage }}</p>
+          <p class="success-hint">Si el email está registrado, recibirás un link para crear una nueva contraseña.</p>
+          <button class="btn btn-login mt-3" (click)="cancelForgotPassword()">
+            Volver al login
+          </button>
+        </div>
+      } @else {
+        <form (ngSubmit)="onForgotPassword()" class="login-form">
+          <p class="forgot-description">
+            Ingresá el email con el que te registraste y te enviaremos un link para restablecer tu contraseña.
+          </p>
+          <div class="form-group">
+            <label for="forgot-email" class="form-label">Email</label>
+            <div class="input-wrapper">
+              <i class="bi bi-envelope input-icon"></i>
+              <input
+                id="forgot-email"
+                type="email"
+                class="form-control form-input"
+                placeholder="correo@ejemplo.com"
+                [(ngModel)]="forgotPasswordEmail"
+                name="forgotEmail"
+                [disabled]="loading"
+              />
+            </div>
+          </div>
+          <button type="submit" class="btn btn-login" [disabled]="loading">
+            @if (loading) {
+              <span class="spinner-border spinner-border-sm me-2"></span>
+            }
+            Enviar link de recuperación
+          </button>
+          <button type="button" class="btn btn-outline mt-2" (click)="cancelForgotPassword()" [disabled]="loading">
+            Volver al login
+          </button>
+        </form>
+      }
+    }
+
+    <!-- ====== REENVIAR VERIFICACION ====== -->
+    @else if (resendVerificationMode) {
+      @if (resendVerificationSuccess) {
+        <div class="success-view">
+          <div class="success-icon">
+            <i class="bi bi-envelope-check"></i>
+          </div>
+          <h2 class="success-title">Email enviado</h2>
+          <p class="success-text">{{ resendVerificationMessage }}</p>
+          <button class="btn btn-login mt-3" (click)="cancelResendVerification()">
+            Volver al login
+          </button>
+        </div>
+      } @else {
+        <form (ngSubmit)="onResendVerification()" class="login-form">
+          <p class="forgot-description">
+            Ingresá el email con el que te registraste y te enviaremos un nuevo link de verificación.
+          </p>
+          <div class="form-group">
+            <label for="resend-email" class="form-label">Email</label>
+            <div class="input-wrapper">
+              <i class="bi bi-envelope input-icon"></i>
+              <input
+                id="resend-email"
+                type="email"
+                class="form-control form-input"
+                placeholder="correo@ejemplo.com"
+                [(ngModel)]="resendVerificationEmail"
+                name="resendEmail"
+                [disabled]="loading"
+              />
+            </div>
+          </div>
+          <button type="submit" class="btn btn-login" [disabled]="loading">
+            @if (loading) {
+              <span class="spinner-border spinner-border-sm me-2"></span>
+            }
+            Reenviar verificación
+          </button>
+          <button type="button" class="btn btn-outline mt-2" (click)="cancelResendVerification()" [disabled]="loading">
+            Volver al login
+          </button>
+        </form>
+      }
+    }
+
     <!-- ====== LOGIN ====== -->
-    @if (isLoginMode) {
+    @else if (isLoginMode) {
       <form (ngSubmit)="onLogin()" class="login-form" data-testid="login-form">
         <div class="form-group">
           <label for="username" class="form-label" data-testid="login-username-label">Usuario o email</label>
@@ -70,6 +190,10 @@
               data-testid="login-password-input"
             />
           </div>
+        </div>
+
+        <div class="forgot-password-link">
+          <a class="toggle-link" (click)="showForgotPassword()">¿Olvidaste tu contraseña?</a>
         </div>
 
         <button type="submit" class="btn btn-login" [disabled]="loading" data-testid="login-submit-btn">
@@ -370,13 +494,15 @@
       }
     }
 
-    <div class="login-footer">
-      <p data-testid="login-register-text">
-        {{ isLoginMode ? '¿No tenés cuenta?' : '¿Ya tenés cuenta?' }}
-        <a class="toggle-link" (click)="toggleMode()" data-testid="login-toggle-mode-link">
-          {{ isLoginMode ? 'Crear una' : 'Iniciar sesión' }}
-        </a>
-      </p>
-    </div>
+    @if (!registerSuccess && !forgotPasswordMode && !resendVerificationMode) {
+      <div class="login-footer">
+        <p data-testid="login-register-text">
+          {{ isLoginMode ? '¿No tenés cuenta?' : '¿Ya tenés cuenta?' }}
+          <a class="toggle-link" (click)="toggleMode()" data-testid="login-toggle-mode-link">
+            {{ isLoginMode ? 'Crear una' : 'Iniciar sesión' }}
+          </a>
+        </p>
+      </div>
+    }
   </div>
 </div>

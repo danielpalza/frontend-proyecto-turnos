@@ -8,6 +8,16 @@ export const routes: Routes = [
       import('./features/auth/login/login.component').then(m => m.LoginComponent)
   },
   {
+    path: 'verify-email',
+    loadComponent: () =>
+      import('./features/auth/verify-email/verify-email.component').then(m => m.VerifyEmailComponent)
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () =>
+      import('./features/auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent)
+  },
+  {
     path: '',
     redirectTo: 'panel',
     pathMatch: 'full'

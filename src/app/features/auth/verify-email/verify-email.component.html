@@ -1,0 +1,45 @@
+<div class="verify-container">
+  <div class="verify-card fade-in">
+    <h1 class="verify-title">OdontoLite</h1>
+
+    @if (loading) {
+      <div class="verify-loading">
+        <span class="spinner-border spinner-border-lg"></span>
+        <p>Verificando tu email...</p>
+      </div>
+    } @else if (success) {
+      <div class="verify-result">
+        <div class="result-icon success">
+          <i class="bi bi-check-circle-fill"></i>
+        </div>
+        <h2>Email verificado</h2>
+        <p>{{ successMessage }}</p>
+        <button class="btn btn-primary-action" (click)="goToLogin()">
+          Ir a iniciar sesión
+        </button>
+      </div>
+    } @else if (alreadyVerified) {
+      <div class="verify-result">
+        <div class="result-icon success">
+          <i class="bi bi-check-circle-fill"></i>
+        </div>
+        <h2>Email ya verificado</h2>
+        <p>{{ successMessage }}</p>
+        <button class="btn btn-primary-action" (click)="goToLogin()">
+          Ir a iniciar sesión
+        </button>
+      </div>
+    } @else {
+      <div class="verify-result">
+        <div class="result-icon error">
+          <i class="bi bi-x-circle-fill"></i>
+        </div>
+        <h2>Error de verificación</h2>
+        <p>{{ errorMessage }}</p>
+        <button class="btn btn-primary-action" (click)="goToLogin()">
+          Volver al login
+        </button>
+      </div>
+    }
+  </div>
+</div>
