@@ -9,13 +9,13 @@
               role="button" tabindex="0" (click)="selectTooth(tooth)"
               (keydown.enter)="selectTooth(tooth)" (keydown.space)="selectTooth(tooth); $event.preventDefault()">
               <div class="tooth-icons-top">
-                <i *ngIf="getMovilidadIconForTooth(tooth) as m" [ngClass]="m.icono" [title]="m.label"></i>
-                <i *ngIf="getFurcaIconForTooth(tooth) as f" [ngClass]="f.icono" [title]="f.label"></i>
+                <app-odonto-icon *ngFor="let item of getToothIconsExcludingMovilidad(tooth)" [name]="item.icono" [title]="item.label"></app-odonto-icon>
               </div>
               <small class="tooth-number">{{ tooth }}</small>
               <app-tooth-faces [toothNumber]="tooth"></app-tooth-faces>
               <div class="tooth-icons">
-                <i *ngFor="let item of getToothIconsExcludingMovilidad(tooth)" [ngClass]="item.icono" [title]="item.label"></i>
+                <app-odonto-icon *ngIf="getMovilidadIconForTooth(tooth) as m" [name]="m.icono" [title]="m.label"></app-odonto-icon>
+                <app-odonto-icon *ngIf="getFurcaIconForTooth(tooth) as f" [name]="f.icono" [title]="f.label"></app-odonto-icon>
               </div>
             </div>
           </div>
@@ -27,13 +27,13 @@
               role="button" tabindex="0" (click)="selectTooth(tooth)"
               (keydown.enter)="selectTooth(tooth)" (keydown.space)="selectTooth(tooth); $event.preventDefault()">
               <div class="tooth-icons-top">
-                <i *ngIf="getMovilidadIconForTooth(tooth) as m" [ngClass]="m.icono" [title]="m.label"></i>
-                <i *ngIf="getFurcaIconForTooth(tooth) as f" [ngClass]="f.icono" [title]="f.label"></i>
+                <app-odonto-icon *ngFor="let item of getToothIconsExcludingMovilidad(tooth)" [name]="item.icono" [title]="item.label"></app-odonto-icon>
               </div>
               <small class="tooth-number">{{ tooth }}</small>
               <app-tooth-faces [toothNumber]="tooth"></app-tooth-faces>
               <div class="tooth-icons">
-                <i *ngFor="let item of getToothIconsExcludingMovilidad(tooth)" [ngClass]="item.icono" [title]="item.label"></i>
+                <app-odonto-icon *ngIf="getMovilidadIconForTooth(tooth) as m" [name]="m.icono" [title]="m.label"></app-odonto-icon>
+                <app-odonto-icon *ngIf="getFurcaIconForTooth(tooth) as f" [name]="f.icono" [title]="f.label"></app-odonto-icon>
               </div>
             </div>
           </div>
@@ -47,13 +47,13 @@
               role="button" tabindex="0" (click)="selectTooth(tooth)"
               (keydown.enter)="selectTooth(tooth)" (keydown.space)="selectTooth(tooth); $event.preventDefault()">
               <div class="tooth-icons-top">
-                <i *ngIf="getMovilidadIconForTooth(tooth) as m" [ngClass]="m.icono" [title]="m.label"></i>
-                <i *ngIf="getFurcaIconForTooth(tooth) as f" [ngClass]="f.icono" [title]="f.label"></i>
+                <app-odonto-icon *ngFor="let item of getToothIconsExcludingMovilidad(tooth)" [name]="item.icono" [title]="item.label"></app-odonto-icon>
               </div>
               <small class="tooth-number">{{ tooth }}</small>
               <app-tooth-faces [toothNumber]="tooth" size="sm"></app-tooth-faces>
               <div class="tooth-icons">
-                <i *ngFor="let item of getToothIconsExcludingMovilidad(tooth)" [ngClass]="item.icono" [title]="item.label"></i>
+                <app-odonto-icon *ngIf="getMovilidadIconForTooth(tooth) as m" [name]="m.icono" [title]="m.label"></app-odonto-icon>
+                <app-odonto-icon *ngIf="getFurcaIconForTooth(tooth) as f" [name]="f.icono" [title]="f.label"></app-odonto-icon>
               </div>
             </div>
           </div>
@@ -65,13 +65,13 @@
               role="button" tabindex="0" (click)="selectTooth(tooth)"
               (keydown.enter)="selectTooth(tooth)" (keydown.space)="selectTooth(tooth); $event.preventDefault()">
               <div class="tooth-icons-top">
-                <i *ngIf="getMovilidadIconForTooth(tooth) as m" [ngClass]="m.icono" [title]="m.label"></i>
-                <i *ngIf="getFurcaIconForTooth(tooth) as f" [ngClass]="f.icono" [title]="f.label"></i>
+                <app-odonto-icon *ngFor="let item of getToothIconsExcludingMovilidad(tooth)" [name]="item.icono" [title]="item.label"></app-odonto-icon>
               </div>
               <small class="tooth-number">{{ tooth }}</small>
               <app-tooth-faces [toothNumber]="tooth" size="sm"></app-tooth-faces>
               <div class="tooth-icons">
-                <i *ngFor="let item of getToothIconsExcludingMovilidad(tooth)" [ngClass]="item.icono" [title]="item.label"></i>
+                <app-odonto-icon *ngIf="getMovilidadIconForTooth(tooth) as m" [name]="m.icono" [title]="m.label"></app-odonto-icon>
+                <app-odonto-icon *ngIf="getFurcaIconForTooth(tooth) as f" [name]="f.icono" [title]="f.label"></app-odonto-icon>
               </div>
             </div>
           </div>
@@ -84,13 +84,13 @@
             <div *ngFor="let tooth of primaryTeeth.bottomRight" class="tooth-item" [attr.data-testid]="'odontogram-tooth-' + tooth" [class.selected]="isToothSelected(tooth)"
             (click)="selectTooth(tooth)">
             <div class="tooth-icons-top">
-              <i *ngIf="getMovilidadIconForTooth(tooth) as m" [ngClass]="m.icono" [title]="m.label"></i>
-              <i *ngIf="getFurcaIconForTooth(tooth) as f" [ngClass]="f.icono" [title]="f.label"></i>
+              <app-odonto-icon *ngFor="let item of getToothIconsExcludingMovilidad(tooth)" [name]="item.icono" [title]="item.label"></app-odonto-icon>
             </div>
             <app-tooth-faces [toothNumber]="tooth" size="sm"></app-tooth-faces>
             <small class="tooth-number">{{ tooth }}</small>
             <div class="tooth-icons">
-              <i *ngFor="let item of getToothIconsExcludingMovilidad(tooth)" [ngClass]="item.icono" [title]="item.label"></i>
+              <app-odonto-icon *ngIf="getMovilidadIconForTooth(tooth) as m" [name]="m.icono" [title]="m.label"></app-odonto-icon>
+              <app-odonto-icon *ngIf="getFurcaIconForTooth(tooth) as f" [name]="f.icono" [title]="f.label"></app-odonto-icon>
             </div>
             </div>
           </div>
@@ -102,13 +102,13 @@
               role="button" tabindex="0" (click)="selectTooth(tooth)"
               (keydown.enter)="selectTooth(tooth)" (keydown.space)="selectTooth(tooth); $event.preventDefault()">
               <div class="tooth-icons-top">
-                <i *ngIf="getMovilidadIconForTooth(tooth) as m" [ngClass]="m.icono" [title]="m.label"></i>
-                <i *ngIf="getFurcaIconForTooth(tooth) as f" [ngClass]="f.icono" [title]="f.label"></i>
+                <app-odonto-icon *ngFor="let item of getToothIconsExcludingMovilidad(tooth)" [name]="item.icono" [title]="item.label"></app-odonto-icon>
               </div>
               <app-tooth-faces [toothNumber]="tooth" size="sm"></app-tooth-faces>
               <small class="tooth-number">{{ tooth }}</small>
               <div class="tooth-icons">
-                <i *ngFor="let item of getToothIconsExcludingMovilidad(tooth)" [ngClass]="item.icono" [title]="item.label"></i>
+                <app-odonto-icon *ngIf="getMovilidadIconForTooth(tooth) as m" [name]="m.icono" [title]="m.label"></app-odonto-icon>
+                <app-odonto-icon *ngIf="getFurcaIconForTooth(tooth) as f" [name]="f.icono" [title]="f.label"></app-odonto-icon>
               </div>
             </div>
           </div>
@@ -122,13 +122,13 @@
               role="button" tabindex="0" (click)="selectTooth(tooth)"
               (keydown.enter)="selectTooth(tooth)" (keydown.space)="selectTooth(tooth); $event.preventDefault()">
               <div class="tooth-icons-top">
-                <i *ngIf="getMovilidadIconForTooth(tooth) as m" [ngClass]="m.icono" [title]="m.label"></i>
-                <i *ngIf="getFurcaIconForTooth(tooth) as f" [ngClass]="f.icono" [title]="f.label"></i>
+                <app-odonto-icon *ngFor="let item of getToothIconsExcludingMovilidad(tooth)" [name]="item.icono" [title]="item.label"></app-odonto-icon>
               </div>
               <app-tooth-faces [toothNumber]="tooth"></app-tooth-faces>
               <small class="tooth-number">{{ tooth }}</small>
               <div class="tooth-icons">
-                <i *ngFor="let item of getToothIconsExcludingMovilidad(tooth)" [ngClass]="item.icono" [title]="item.label"></i>
+                <app-odonto-icon *ngIf="getMovilidadIconForTooth(tooth) as m" [name]="m.icono" [title]="m.label"></app-odonto-icon>
+                <app-odonto-icon *ngIf="getFurcaIconForTooth(tooth) as f" [name]="f.icono" [title]="f.label"></app-odonto-icon>
               </div>
             </div>
           </div>
@@ -140,13 +140,13 @@
               role="button" tabindex="0" (click)="selectTooth(tooth)"
               (keydown.enter)="selectTooth(tooth)" (keydown.space)="selectTooth(tooth); $event.preventDefault()">
               <div class="tooth-icons-top">
-                <i *ngIf="getMovilidadIconForTooth(tooth) as m" [ngClass]="m.icono" [title]="m.label"></i>
-                <i *ngIf="getFurcaIconForTooth(tooth) as f" [ngClass]="f.icono" [title]="f.label"></i>
+                <app-odonto-icon *ngFor="let item of getToothIconsExcludingMovilidad(tooth)" [name]="item.icono" [title]="item.label"></app-odonto-icon>
               </div>
               <app-tooth-faces [toothNumber]="tooth"></app-tooth-faces>
               <small class="tooth-number">{{ tooth }}</small>
               <div class="tooth-icons">
-                <i *ngFor="let item of getToothIconsExcludingMovilidad(tooth)" [ngClass]="item.icono" [title]="item.label"></i>
+                <app-odonto-icon *ngIf="getMovilidadIconForTooth(tooth) as m" [name]="m.icono" [title]="m.label"></app-odonto-icon>
+                <app-odonto-icon *ngIf="getFurcaIconForTooth(tooth) as f" [name]="f.icono" [title]="f.label"></app-odonto-icon>
               </div>
             </div>
           </div>

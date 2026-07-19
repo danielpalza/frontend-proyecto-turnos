@@ -46,7 +46,7 @@ export class LoginPage {
   readonly registerAccountForm: Locator;
   readonly registerNameInput: Locator;
   readonly registerLastnameInput: Locator;
-  readonly registerDniInput: Locator;
+  readonly registerIdentificacionInput: Locator;
   readonly registerPhoneInput: Locator;
   readonly registerUsernameInput: Locator;
   readonly registerEmailInput: Locator;
@@ -101,7 +101,7 @@ export class LoginPage {
     this.registerAccountForm = page.getByTestId('register-account-form');
     this.registerNameInput = page.getByTestId('register-name-input');
     this.registerLastnameInput = page.getByTestId('register-lastname-input');
-    this.registerDniInput = page.getByTestId('register-dni-input');
+    this.registerIdentificacionInput = page.getByTestId('register-dni-input');
     this.registerPhoneInput = page.getByTestId('register-phone-input');
     this.registerUsernameInput = page.getByTestId('register-username-input');
     this.registerEmailInput = page.getByTestId('register-email-input');

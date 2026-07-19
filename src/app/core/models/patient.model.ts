@@ -6,7 +6,7 @@ export interface Patient {
   nombre: string;
   apellido: string;
   fechaNacimiento?: string; // formato: YYYY-MM-DD
-  dni: string;
+  identificacion: string;
   telefono?: string;
   email?: string;
   domicilio?: string;
@@ -22,7 +22,7 @@ export interface Patient {
   coberturaVencimiento?: string;
   esTitular?: boolean;
   nombreTitular?: string;
-  dniTitular?: string;
+  identificacionTitular?: string;
   parentesco?: string;
 }
 

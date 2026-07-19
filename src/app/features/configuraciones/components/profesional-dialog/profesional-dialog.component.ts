@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Profesional, ProfesionalCreateDTO, MODULE_OPTIONS } from '../../../../core/models';
+import { documentNumberValidator, phoneValidator } from '../../../../shared/validators/custom-validators';
 
 interface PasswordStrength {
   width: string;
@@ -88,11 +89,11 @@ export class ProfesionalDialogComponent implements OnChanges {
     return this.fb.group({
       nombre: ['', Validators.required],
       apellido: ['', Validators.required],
-      dni: [''],
+      identificacion: ['', documentNumberValidator()],
       especialidad: [''],
       matricula: [''],
       email: ['', Validators.email],
-      telefono: [''],
+      telefono: ['', phoneValidator()],
       crearAcceso: [false],
       username: [''],
       password: ['']
@@ -118,7 +119,7 @@ export class ProfesionalDialogComponent implements OnChanges {
     this.form.reset({
       nombre: prof?.nombre || '',
       apellido: prof?.apellido || '',
-      dni: prof?.dni || '',
+      identificacion: prof?.identificacion || '',
       especialidad: prof?.especialidad || '',
       matricula: prof?.matricula || '',
       email: prof?.email || '',
@@ -186,10 +187,14 @@ export class ProfesionalDialogComponent implements OnChanges {
     }
     const value = this.form.value;
     const crearAcceso = this.canCreateAccess && !!value.crearAcceso;
+    if (crearAcceso && this.moduleCodes.length === 0) {
+      this.saveError = 'Seleccioná al menos un módulo para el usuario';
+      return;
+    }
     const dto: ProfesionalCreateDTO = {
       nombre: value.nombre,
       apellido: value.apellido,
-      dni: value.dni || undefined,
+      identificacion: value.identificacion || undefined,
       especialidad: value.especialidad || undefined,
       matricula: value.matricula || undefined,
       email: value.email || undefined,

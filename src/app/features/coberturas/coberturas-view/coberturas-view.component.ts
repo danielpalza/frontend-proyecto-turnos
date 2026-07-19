@@ -50,6 +50,22 @@ export class CoberturasViewComponent implements OnInit {
   readonly notaEnEdicion = signal<Record<string, string>>({});
   readonly webEnEdicion = signal<Record<string, string>>({});
   readonly telefonoEnEdicion = signal<Record<string, string>>({});
+  /** Ids de cobertura con un guardado (nota/web/teléfono) en vuelo — evita doble-submit por doble clic. */
+  readonly guardandoIds = signal<Set<string>>(new Set());
+  /** Token de secuencia por cobertura para descartar respuestas de toggleFavorito fuera de orden. */
+  private favoritoSeq = new Map<string, number>();
+
+  isGuardando(id: string): boolean {
+    return this.guardandoIds().has(id);
+  }
+
+  private marcarGuardando(id: string, guardando: boolean): void {
+    this.guardandoIds.update(actual => {
+      const next = new Set(actual);
+      if (guardando) next.add(id); else next.delete(id);
+      return next;
+    });
+  }
 
   readonly modalAbierto = signal(false);
   readonly intermediarioEditandoId = signal<string | null>(null);
@@ -216,9 +232,13 @@ export class CoberturasViewComponent implements OnInit {
   toggleFavorito(os: Cobertura, event: Event): void {
     event.stopPropagation();
     const nuevoValor = !os.favorito;
+    const seq = (this.favoritoSeq.get(os.id) ?? 0) + 1;
+    this.favoritoSeq.set(os.id, seq);
     this.coberturas.update(lista => lista.map(o => (o.id === os.id ? { ...o, favorito: nuevoValor } : o)));
     this.coberturasService.actualizarFavorito(os.id, nuevoValor).subscribe({
       error: (err: HttpErrorResponse) => {
+        // Si el usuario ya volvió a togglear mientras esta request estaba en vuelo, no pisar la intención más reciente
+        if (this.favoritoSeq.get(os.id) !== seq) return;
         this.coberturas.update(lista => lista.map(o => (o.id === os.id ? { ...o, favorito: !nuevoValor } : o)));
         this.notification.showError(this.errorHandler.getErrorMessage(err, 'actualizar el favorito'));
       }
@@ -238,9 +258,12 @@ export class CoberturasViewComponent implements OnInit {
   }
 
   guardarNota(os: Cobertura): void {
+    if (this.isGuardando(os.id)) return;
+    this.marcarGuardando(os.id, true);
     const nota = this.notaValor(os);
     this.coberturasService.actualizarNota(os.id, nota).subscribe({
       next: actualizada => {
+        this.marcarGuardando(os.id, false);
         this.coberturas.update(lista => lista.map(o => (o.id === os.id ? actualizada : o)));
         this.notaEnEdicion.update(actual => {
           const { [os.id]: _quitada, ...resto } = actual;
@@ -249,6 +272,7 @@ export class CoberturasViewComponent implements OnInit {
         this.notification.showSuccess('Nota guardada.');
       },
       error: (err: HttpErrorResponse) => {
+        this.marcarGuardando(os.id, false);
         this.notification.showError(this.errorHandler.getErrorMessage(err, 'guardar la nota'));
       }
     });
@@ -267,9 +291,12 @@ export class CoberturasViewComponent implements OnInit {
   }
 
   guardarWeb(os: Cobertura): void {
+    if (this.isGuardando(os.id)) return;
+    this.marcarGuardando(os.id, true);
     const web = this.webValor(os);
     this.coberturasService.actualizarWeb(os.id, web).subscribe({
       next: actualizada => {
+        this.marcarGuardando(os.id, false);
         this.coberturas.update(lista => lista.map(o => (o.id === os.id ? actualizada : o)));
         this.webEnEdicion.update(actual => {
           const { [os.id]: _quitada, ...resto } = actual;
@@ -278,6 +305,7 @@ export class CoberturasViewComponent implements OnInit {
         this.notification.showSuccess('Web guardada.');
       },
       error: (err: HttpErrorResponse) => {
+        this.marcarGuardando(os.id, false);
         this.notification.showError(this.errorHandler.getErrorMessage(err, 'guardar la web'));
       }
     });
@@ -296,9 +324,12 @@ export class CoberturasViewComponent implements OnInit {
   }
 
   guardarTelefono(os: Cobertura): void {
+    if (this.isGuardando(os.id)) return;
+    this.marcarGuardando(os.id, true);
     const telefono = this.telefonoValor(os);
     this.coberturasService.actualizarTelefono(os.id, telefono).subscribe({
       next: actualizada => {
+        this.marcarGuardando(os.id, false);
         this.coberturas.update(lista => lista.map(o => (o.id === os.id ? actualizada : o)));
         this.telefonoEnEdicion.update(actual => {
           const { [os.id]: _quitada, ...resto } = actual;
@@ -307,6 +338,7 @@ export class CoberturasViewComponent implements OnInit {
         this.notification.showSuccess('Teléfono guardado.');
       },
       error: (err: HttpErrorResponse) => {
+        this.marcarGuardando(os.id, false);
         this.notification.showError(this.errorHandler.getErrorMessage(err, 'guardar el teléfono'));
       }
     });

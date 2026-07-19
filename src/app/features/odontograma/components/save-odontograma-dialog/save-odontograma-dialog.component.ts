@@ -60,6 +60,13 @@ export class SaveOdontogramaDialogComponent {
   }
 
   private prefillFromAppointment(): void {
+    this.stateService.refreshAppointmentPaymentSnapshot().subscribe({
+      next: () => this.applySnapshotToForm(),
+      error: () => this.applySnapshotToForm()
+    });
+  }
+
+  private applySnapshotToForm(): void {
     const p = this.stateService.appointmentPaymentSnapshot;
     this.formData.set({
       precioBono: p.precioBono > 0 ? p.precioBono.toFixed(2) : '0',
@@ -111,6 +118,11 @@ export class SaveOdontogramaDialogComponent {
       observaciones: d.observacionesPago || undefined,
       observacionesTurno: d.observacionesProfesional || undefined
     };
+
+    if ([pago.precioBono, pago.precioTratamiento, pago.extras, pago.montoPago].some(v => v === undefined || isNaN(v) || v < 0)) {
+      this.saveError.set('Los montos no pueden ser negativos.');
+      return;
+    }
 
     this.saving = true;
     this.saveError.set(null);

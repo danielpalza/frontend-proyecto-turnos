@@ -27,9 +27,9 @@ export class ErrorHandlerService {
     const backendMessage = this.extractBackendMessage(errorResponse);
 
     switch (status) {
-      // case 400:
-      //   return backendMessage || `Error al ${context}. Los datos recibidos no son válidos.`;
-      
+      case 400:
+        return backendMessage || `Error al ${context}. Los datos recibidos no son válidos.`;
+
       case 401:
         // Usar el mensaje del backend si está disponible, sino usar el mensaje por defecto
         return backendMessage || 'Su sesión ha expirado. Por favor, inicie sesión nuevamente.';
@@ -84,7 +84,7 @@ export class ErrorHandlerService {
     }
 
     if (context.includes('paciente') || context.includes('crear el paciente')) {
-      return 'Ya existe un paciente con este DNI. Por favor, verifique el número de documento.';
+      return 'Ya existe un paciente con este documento. Por favor, verifique el número de documento.';
     }
 
     if (context.includes('turno') || context.includes('crear el turno')) {
@@ -131,11 +131,11 @@ export class ErrorHandlerService {
       return errorResponse.error;
     }
 
-    // Si hay errores de validación, formatearlos
+    // Si hay errores de validación, unir todos (no solo el primero)
     if (errorResponse.errors && typeof errorResponse.errors === 'object') {
-      const validationErrors = Object.values(errorResponse.errors);
+      const validationErrors = Object.values(errorResponse.errors) as string[];
       if (validationErrors.length > 0) {
-        return validationErrors[0] as string;
+        return validationErrors.join(', ');
       }
     }
 

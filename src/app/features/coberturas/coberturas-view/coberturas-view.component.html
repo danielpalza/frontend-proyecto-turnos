@@ -213,7 +213,7 @@
               type="button"
               class="cob-nota-guardar-btn"
               [attr.data-testid]="'coberturas-web-guardar-' + os.id"
-              [disabled]="!webSinGuardar(os)"
+              [disabled]="!webSinGuardar(os) || isGuardando(os.id)"
               (click)="guardarWeb(os)"
             >
               Guardar
@@ -233,7 +233,7 @@
               type="button"
               class="cob-nota-guardar-btn"
               [attr.data-testid]="'coberturas-telefono-guardar-' + os.id"
-              [disabled]="!telefonoSinGuardar(os)"
+              [disabled]="!telefonoSinGuardar(os) || isGuardando(os.id)"
               (click)="guardarTelefono(os)"
             >
               Guardar
@@ -253,7 +253,7 @@
               type="button"
               class="cob-nota-guardar-btn"
               [attr.data-testid]="'coberturas-nota-guardar-' + os.id"
-              [disabled]="!notaSinGuardar(os)"
+              [disabled]="!notaSinGuardar(os) || isGuardando(os.id)"
               (click)="guardarNota(os)"
             >
               Guardar

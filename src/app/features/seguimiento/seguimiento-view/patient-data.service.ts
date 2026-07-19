@@ -30,15 +30,15 @@ export class PatientDataService {
   patients: Patient[] = [];
   patientsMap: Map<string, Patient> = new Map();
   private appointmentsByYear = new Map<string, Appointment[]>();
-  private resumenByDni = new Map<string, PatientSeguimientoResumen>();
+  private resumenByIdentificacion = new Map<string, PatientSeguimientoResumen>();
 
   searchTerm = '';
   patientGroups: PatientGroup[] = [];
 
-  selectedYearByDni: Record<string, string> = {};
-  selectedMonthByDni: Record<string, string> = {};
-  availableMonthsByDni: Record<string, MonthOption[]> = {};
-  private filteredAppointmentsByDni: Record<string, Appointment[]> = {};
+  selectedYearByIdentificacion: Record<string, string> = {};
+  selectedMonthByIdentificacion: Record<string, string> = {};
+  availableMonthsByIdentificacion: Record<string, MonthOption[]> = {};
+  private filteredAppointmentsByIdentificacion: Record<string, Appointment[]> = {};
 
   constructor(private appointmentsService: AppointmentsService) {}
 
@@ -46,14 +46,14 @@ export class PatientDataService {
     this.patients = patients;
     this.patientsMap = new Map();
     patients.forEach(patient => {
-      if (patient.dni) {
-        this.patientsMap.set(patient.dni, patient);
+      if (patient.identificacion) {
+        this.patientsMap.set(patient.identificacion, patient);
       }
     });
   }
 
   setResumen(resumen: PatientSeguimientoResumen[]): void {
-    this.resumenByDni = new Map(resumen.map(r => [r.patientDni, r]));
+    this.resumenByIdentificacion = new Map(resumen.map(r => [r.patientIdentificacion, r]));
   }
 
   refreshResumen(): Observable<void> {
@@ -87,8 +87,8 @@ export class PatientDataService {
     );
   }
 
-  ensureAllYearsLoaded(dni: string): Observable<unknown> {
-    const resumen = this.resumenByDni.get(dni);
+  ensureAllYearsLoaded(identificacion: string): Observable<unknown> {
+    const resumen = this.resumenByIdentificacion.get(identificacion);
     const years = resumen?.availableYears?.map(y => y.toString()) ?? [];
     const pending = years.filter(y => !this.appointmentsByYear.has(y));
     if (pending.length === 0) return of(null);
@@ -101,16 +101,16 @@ export class PatientDataService {
     const filteredPatients = term
       ? this.patients.filter(p =>
           fullName(p.nombre, p.apellido).toLowerCase().includes(term) ||
-          (p.dni || '').includes(term) ||
+          (p.identificacion || '').includes(term) ||
           (p.email || '').toLowerCase().includes(term)
         )
       : this.patients;
 
     this.patientGroups = filteredPatients.map(patient => {
-      const resumen = patient.dni ? this.resumenByDni.get(patient.dni) : undefined;
+      const resumen = patient.identificacion ? this.resumenByIdentificacion.get(patient.identificacion) : undefined;
       return {
         patient,
-        appointments: this.getLoadedAppointmentsForPatient(patient.dni),
+        appointments: this.getLoadedAppointmentsForPatient(patient.identificacion),
         totalAdeudado: resumen?.totalAdeudado ?? 0,
         totalTurnos: resumen?.totalTurnos ?? 0,
         availableYears: this.buildAvailableYearOptions(resumen)
@@ -120,19 +120,19 @@ export class PatientDataService {
   }
 
   /** Turnos del paciente ya cacheados: solo el año seleccionado, o todos los años cargados hasta ahora si es 'all'. */
-  private getLoadedAppointmentsForPatient(dni?: string | null): Appointment[] {
-    if (!dni) return [];
-    const year = this.getSelectedYear(dni);
+  private getLoadedAppointmentsForPatient(identificacion?: string | null): Appointment[] {
+    if (!identificacion) return [];
+    const year = this.getSelectedYear(identificacion);
     if (year === 'all') {
       const merged: Appointment[] = [];
       this.appointmentsByYear.forEach(apps => {
         apps.forEach(app => {
-          if (app.patientDni === dni) merged.push(app);
+          if (app.patientIdentificacion === identificacion) merged.push(app);
         });
       });
       return merged;
     }
-    return (this.appointmentsByYear.get(year) ?? []).filter(app => app.patientDni === dni);
+    return (this.appointmentsByYear.get(year) ?? []).filter(app => app.patientIdentificacion === identificacion);
   }
 
   /** Años del resumen del backend, asegurando que el año actual (default del selector) siempre esté presente. */
@@ -150,12 +150,12 @@ export class PatientDataService {
    * lo que dispara NG0103 (bucle infinito de refresco).
    */
   private refreshFiltersForGroup(group: PatientGroup): void {
-    const dni = group.patient.dni;
-    if (!dni) return;
-    const year = this.getSelectedYear(dni);
-    const month = this.getSelectedMonth(dni);
-    this.availableMonthsByDni[dni] = this.buildAvailableMonths(group.appointments, year);
-    this.filteredAppointmentsByDni[dni] = this.buildFilteredAppointments(group.appointments, year, month);
+    const identificacion = group.patient.identificacion;
+    if (!identificacion) return;
+    const year = this.getSelectedYear(identificacion);
+    const month = this.getSelectedMonth(identificacion);
+    this.availableMonthsByIdentificacion[identificacion] = this.buildAvailableMonths(group.appointments, year);
+    this.filteredAppointmentsByIdentificacion[identificacion] = this.buildFilteredAppointments(group.appointments, year, month);
   }
 
   private buildAvailableMonths(apps: Appointment[], year: string): MonthOption[] {
@@ -182,37 +182,37 @@ export class PatientDataService {
     });
   }
 
-  getSelectedYear(dni?: string | null): string {
-    if (!dni) return this.currentYear();
-    return this.selectedYearByDni[dni] || this.currentYear();
+  getSelectedYear(identificacion?: string | null): string {
+    if (!identificacion) return this.currentYear();
+    return this.selectedYearByIdentificacion[identificacion] || this.currentYear();
   }
 
-  getSelectedMonth(dni?: string | null): string {
-    if (!dni) return 'all';
-    return this.selectedMonthByDni[dni] || 'all';
+  getSelectedMonth(identificacion?: string | null): string {
+    if (!identificacion) return 'all';
+    return this.selectedMonthByIdentificacion[identificacion] || 'all';
   }
 
   /** Actualiza el filtro de año y devuelve el observable de carga a esperar (loadYear o ensureAllYearsLoaded). */
-  onYearFilterChange(dni: string, value: string): Observable<unknown> {
-    this.selectedYearByDni[dni] = value;
-    this.selectedMonthByDni[dni] = 'all';
-    return value === 'all' ? this.ensureAllYearsLoaded(dni) : this.loadYear(value);
+  onYearFilterChange(identificacion: string, value: string): Observable<unknown> {
+    this.selectedYearByIdentificacion[identificacion] = value;
+    this.selectedMonthByIdentificacion[identificacion] = 'all';
+    return value === 'all' ? this.ensureAllYearsLoaded(identificacion) : this.loadYear(value);
   }
 
-  onMonthFilterChange(dni: string, value: string): void {
-    this.selectedMonthByDni[dni] = value;
-    const group = this.patientGroups.find(g => g.patient.dni === dni);
+  onMonthFilterChange(identificacion: string, value: string): void {
+    this.selectedMonthByIdentificacion[identificacion] = value;
+    const group = this.patientGroups.find(g => g.patient.identificacion === identificacion);
     if (group) this.refreshFiltersForGroup(group);
   }
 
-  getAvailableMonths(dni?: string | null): MonthOption[] {
-    if (!dni) return EMPTY_MONTHS;
-    return this.availableMonthsByDni[dni] ?? EMPTY_MONTHS;
+  getAvailableMonths(identificacion?: string | null): MonthOption[] {
+    if (!identificacion) return EMPTY_MONTHS;
+    return this.availableMonthsByIdentificacion[identificacion] ?? EMPTY_MONTHS;
   }
 
   getFilteredAppointments(group: PatientGroup): Appointment[] {
-    const dni = group.patient.dni;
-    if (!dni) return group.appointments;
-    return this.filteredAppointmentsByDni[dni] ?? group.appointments;
+    const identificacion = group.patient.identificacion;
+    if (!identificacion) return group.appointments;
+    return this.filteredAppointmentsByIdentificacion[identificacion] ?? group.appointments;
   }
 }

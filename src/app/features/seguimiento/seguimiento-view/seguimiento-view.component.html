@@ -19,7 +19,7 @@
         <!-- Buscador -->
         <div class="mb-4 position-relative search-container">
           <i class="bi bi-search position-absolute top-50 translate-middle-y ms-3 text-muted"></i>
-          <input type="text" class="form-control ps-5" placeholder="Buscar por nombre, DNI o email..."
+          <input type="text" class="form-control ps-5" placeholder="Buscar por nombre, documento o email..."
             [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" data-testid="tracking-search-input" />
         </div>
 
@@ -35,7 +35,7 @@
 
         <!-- Lista de pacientes -->
         <div class="patients-list" *ngIf="patientGroups.length > 0" data-testid="tracking-patients-list">
-          <div *ngFor="let group of patientGroups" class="card shadow-sm patient-card mb-4" [attr.data-testid]="'tracking-patient-card-' + group.patient.dni">
+          <div *ngFor="let group of patientGroups; trackBy: trackByPatientIdentificacion" class="card shadow-sm patient-card mb-4" [attr.data-testid]="'tracking-patient-card-' + group.patient.identificacion">
             <div class="card-header bg-white">
               <div class="d-flex align-items-center gap-3">
                 <div class="avatar">
@@ -44,20 +44,20 @@
 
                 <div class="flex-grow-1">
                   <div class="d-flex align-items-center gap-2 flex-wrap">
-                    <h5 class="m-0 fw-semibold" [attr.data-testid]="'tracking-patient-name-' + group.patient.dni">{{ fullName(group.patient.nombre, group.patient.apellido) }}</h5>
-                    <span class="total-deuda" *ngIf="group.totalAdeudado > 0" [attr.data-testid]="'tracking-patient-debt-' + group.patient.dni">
+                    <h5 class="m-0 fw-semibold" [attr.data-testid]="'tracking-patient-name-' + group.patient.identificacion">{{ fullName(group.patient.nombre, group.patient.apellido) }}</h5>
+                    <span class="total-deuda" *ngIf="group.totalAdeudado > 0" [attr.data-testid]="'tracking-patient-debt-' + group.patient.identificacion">
                       {{ formatCurrency(group.totalAdeudado) }}
                     </span>
                     <button type="button" class="btn btn-sm btn-outline-primary ms-auto"
-                      title="Editar datos del paciente" (click)="editPatientFromGroup(group)" [attr.data-testid]="'tracking-patient-edit-btn-' + group.patient.dni">
+                      title="Editar datos del paciente" (click)="editPatientFromGroup(group)" [attr.data-testid]="'tracking-patient-edit-btn-' + group.patient.identificacion">
                       <i class="bi bi-pencil"></i> Editar
                     </button>
                   </div>
-                  <small class="text-primary d-block mt-1" *ngIf="group.patient.dni" [attr.data-testid]="'tracking-patient-dni-display-' + group.patient.dni">
-                    DNI: {{ group.patient.dni }}
+                  <small class="text-primary d-block mt-1" *ngIf="group.patient.identificacion" [attr.data-testid]="'tracking-patient-dni-display-' + group.patient.identificacion">
+                    Doc: {{ group.patient.identificacion }}
                   </small>
-                  <small class="text-muted d-block mt-1" *ngIf="getCoberturaInfo(group.patient.dni || '')" [attr.data-testid]="'tracking-patient-insurance-display-' + group.patient.dni">
-                    Cobertura: {{ getCoberturaInfo(group.patient.dni || '') }}
+                  <small class="text-muted d-block mt-1" *ngIf="getCoberturaInfo(group.patient.identificacion || '')" [attr.data-testid]="'tracking-patient-insurance-display-' + group.patient.identificacion">
+                    Cobertura: {{ getCoberturaInfo(group.patient.identificacion || '') }}
                   </small>
                 </div>
               </div>
@@ -66,23 +66,23 @@
             <div class="card-body">
               <!-- Historial de turnos -->
               <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
-                <p class="fw-semibold text-secondary mb-0" [attr.data-testid]="'tracking-patient-history-label-' + group.patient.dni">
+                <p class="fw-semibold text-secondary mb-0" [attr.data-testid]="'tracking-patient-history-label-' + group.patient.identificacion">
                   <i class="bi bi-calendar-check me-2"></i>Historial de turnos ({{
                   group.totalTurnos
                   }})
                 </p>
                 <div class="d-flex gap-2" *ngIf="group.totalTurnos > 0">
                   <select class="form-select form-select-sm year-filter"
-                    [ngModel]="getSelectedYear(group.patient.dni)" (ngModelChange)="onYearFilterChange(group.patient.dni, $event)"
-                    [attr.data-testid]="'tracking-year-filter-' + group.patient.dni">
+                    [ngModel]="getSelectedYear(group.patient.identificacion)" (ngModelChange)="onYearFilterChange(group.patient.identificacion, $event)"
+                    [attr.data-testid]="'tracking-year-filter-' + group.patient.identificacion">
                     <option value="all">Todo</option>
                     <option *ngFor="let y of group.availableYears" [value]="y">{{ y }}</option>
                   </select>
                   <select class="form-select form-select-sm month-filter"
-                    [ngModel]="getSelectedMonth(group.patient.dni)" (ngModelChange)="onMonthFilterChange(group.patient.dni, $event)"
-                    [attr.data-testid]="'tracking-month-filter-' + group.patient.dni">
+                    [ngModel]="getSelectedMonth(group.patient.identificacion)" (ngModelChange)="onMonthFilterChange(group.patient.identificacion, $event)"
+                    [attr.data-testid]="'tracking-month-filter-' + group.patient.identificacion">
                     <option value="all">Todo</option>
-                    <option *ngFor="let m of getAvailableMonths(group.patient.dni)" [value]="m.value">{{ m.label }}</option>
+                    <option *ngFor="let m of getAvailableMonths(group.patient.identificacion)" [value]="m.value">{{ m.label }}</option>
                   </select>
                 </div>
               </div>
@@ -91,7 +91,7 @@
                 Sin turnos registrados
               </div>
               <app-appointment-list-overflow *ngIf="group.totalTurnos > 0"
-                [appointments]="getFilteredAppointments(group)" [dni]="group.patient.dni || ''"
+                [appointments]="getFilteredAppointments(group)" [identificacion]="group.patient.identificacion || ''"
                 (appointmentClick)="openTurnModal($event)">
               </app-appointment-list-overflow>
             </div>

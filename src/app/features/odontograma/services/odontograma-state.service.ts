@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, forkJoin, map, tap, catchError, of } from 'rxjs';
+import { BehaviorSubject, Observable, forkJoin, map, tap, catchError, of, throwError } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 import { OdontogramaService } from '../../../core/services/odontograma.service';
 import { PeriodontogramaService } from '../../../core/services/periodontograma.service';
 import { AppointmentsService } from '../../../core/services/appointments.service';
@@ -49,6 +50,29 @@ export class OdontogramaStateService {
     return this.appointmentPaymentSubject.value;
   }
 
+  /** Refresca el snapshot de pago desde el backend (evita sobreescribir un pago agregado desde otra pestaña mientras tanto). */
+  refreshAppointmentPaymentSnapshot(): Observable<void> {
+    const id = this.appointmentIdValue;
+    if (!id) {
+      return of(undefined);
+    }
+    return this.appointmentsService.findById(id).pipe(
+      tap(appointment => {
+        if (appointment) {
+          this.appointmentPaymentSubject.next({
+            precioBono: appointment.precioBono ?? 0,
+            precioTratamiento: appointment.precioTratamiento ?? 0,
+            extras: appointment.extras ?? 0,
+            montoPago: appointment.montoPago ?? 0,
+            observaciones: appointment.observaciones ?? '',
+            observacionesTurno: appointment.observacionesTurno ?? ''
+          });
+        }
+      }),
+      map(() => undefined)
+    );
+  }
+
   constructor(
     private readonly odontogramaService: OdontogramaService,
     private readonly periodontogramaService: PeriodontogramaService,
@@ -74,13 +98,19 @@ export class OdontogramaStateService {
   loadForAppointment(appointmentId: string): Observable<void> {
     return forkJoin({
       odonto: this.odontogramaService.getByAppointment(appointmentId).pipe(
-        catchError(() => of(emptyOdontoResponse(appointmentId)))
+        catchError((err: HttpErrorResponse) => err.status === 404
+          ? of(emptyOdontoResponse(appointmentId))
+          : throwError(() => err))
       ),
       perio: this.periodontogramaService.getByAppointment(appointmentId).pipe(
-        catchError(() => of(emptyPerioResponse(appointmentId)))
+        catchError((err: HttpErrorResponse) => err.status === 404
+          ? of(emptyPerioResponse(appointmentId))
+          : throwError(() => err))
       ),
       appointment: this.appointmentsService.findById(appointmentId).pipe(
-        catchError(() => of(null as unknown as Appointment))
+        catchError((err: HttpErrorResponse) => err.status === 404
+          ? of(null as unknown as Appointment)
+          : throwError(() => err))
       )
     }).pipe(
       tap(({ odonto, perio, appointment }) => {
@@ -101,7 +131,9 @@ export class OdontogramaStateService {
 
           // Marcar el turno como EN_CURSO si esta pendiente o confirmado
           if (appointment.estado === 'PENDIENTE' || appointment.estado === 'CONFIRMADO') {
-            this.appointmentsService.updateStatus(appointmentId, 'EN_CURSO').subscribe();
+            this.appointmentsService.updateStatus(appointmentId, 'EN_CURSO').subscribe({
+              error: err => console.error('No se pudo marcar el turno como EN_CURSO:', err)
+            });
           }
         }
 

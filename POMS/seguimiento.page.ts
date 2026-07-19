@@ -35,7 +35,7 @@ export class SeguimientoPage {
   readonly patientNameInput: Locator;
   readonly patientBirthdateInput: Locator;
   readonly patientAgeInput: Locator;
-  readonly patientDniInput: Locator;
+  readonly patientIdentificacionInput: Locator;
   readonly patientPhoneInput: Locator;
   readonly patientEmailInput: Locator;
   readonly patientAddressInput: Locator;
@@ -127,7 +127,7 @@ export class SeguimientoPage {
     this.patientNameInput = formPanel.getByTestId('patient-name-input');
     this.patientBirthdateInput = formPanel.getByTestId('patient-birthdate-input');
     this.patientAgeInput = formPanel.getByTestId('patient-age-input');
-    this.patientDniInput = formPanel.getByTestId('patient-dni-input');
+    this.patientIdentificacionInput = formPanel.getByTestId('patient-dni-input');
     this.patientPhoneInput = formPanel.getByTestId('patient-phone-input');
     this.patientEmailInput = formPanel.getByTestId('patient-email-input');
     this.patientAddressInput = formPanel.getByTestId('patient-address-input');
@@ -196,41 +196,41 @@ export class SeguimientoPage {
     await this.searchInput.clear();
   }
 
-  // ── Cards de paciente ({id} = DNI) ───────────────────────────────
-  patientCard(dni: string): Locator {
-    return this.page.getByTestId(`tracking-patient-card-${dni}`);
+  // ── Cards de paciente ({id} = documento de identidad) ────────────
+  patientCard(identificacion: string): Locator {
+    return this.page.getByTestId(`tracking-patient-card-${identificacion}`);
   }
 
-  patientName(dni: string): Locator {
-    return this.page.getByTestId(`tracking-patient-name-${dni}`);
+  patientName(identificacion: string): Locator {
+    return this.page.getByTestId(`tracking-patient-name-${identificacion}`);
   }
 
-  patientDebt(dni: string): Locator {
-    return this.page.getByTestId(`tracking-patient-debt-${dni}`);
+  patientDebt(identificacion: string): Locator {
+    return this.page.getByTestId(`tracking-patient-debt-${identificacion}`);
   }
 
-  patientDniDisplay(dni: string): Locator {
-    return this.page.getByTestId(`tracking-patient-dni-display-${dni}`);
+  patientIdentificacionDisplay(identificacion: string): Locator {
+    return this.page.getByTestId(`tracking-patient-dni-display-${identificacion}`);
   }
 
-  patientInsuranceDisplay(dni: string): Locator {
-    return this.page.getByTestId(`tracking-patient-insurance-display-${dni}`);
+  patientInsuranceDisplay(identificacion: string): Locator {
+    return this.page.getByTestId(`tracking-patient-insurance-display-${identificacion}`);
   }
 
-  patientHistoryLabel(dni: string): Locator {
-    return this.page.getByTestId(`tracking-patient-history-label-${dni}`);
+  patientHistoryLabel(identificacion: string): Locator {
+    return this.page.getByTestId(`tracking-patient-history-label-${identificacion}`);
   }
 
-  patientAppointmentsList(dni: string): Locator {
-    return this.page.getByTestId(`tracking-patient-appointments-${dni}`);
+  patientAppointmentsList(identificacion: string): Locator {
+    return this.page.getByTestId(`tracking-patient-appointments-${identificacion}`);
   }
 
-  patientEditBtn(dni: string): Locator {
-    return this.page.getByTestId(`tracking-patient-edit-btn-${dni}`);
+  patientEditBtn(identificacion: string): Locator {
+    return this.page.getByTestId(`tracking-patient-edit-btn-${identificacion}`);
   }
 
-  async editPatient(dni: string) {
-    await this.patientEditBtn(dni).click();
+  async editPatient(identificacion: string) {
+    await this.patientEditBtn(identificacion).click();
   }
 
   // ── Badges de turno ({id} = appointment id) ───────────────────────
@@ -267,14 +267,14 @@ export class SeguimientoPage {
 
   async fillPatientMinimal(data: {
     name: string;
-    dni: string;
+    identificacion: string;
     phone: string;
     email: string;
     address: string;
     city: string;
   }) {
     await this.patientNameInput.fill(data.name);
-    await this.patientDniInput.fill(data.dni);
+    await this.patientIdentificacionInput.fill(data.identificacion);
     await this.patientPhoneInput.fill(data.phone);
     await this.patientEmailInput.fill(data.email);
     await this.patientAddressInput.fill(data.address);

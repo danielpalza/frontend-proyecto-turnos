@@ -68,35 +68,10 @@ export interface IntermediarioRequest {
   coberturaIds: string[];
 }
 
-export interface Pais {
-  codigo: string;
-  nombre: string;
-}
-
-// Nombres de país (referencia estática, no depende de qué haya cargado en el catálogo).
-// Mismos códigos/nombres que PAISES_LATAM en login.component.ts — mantenerlos alineados.
 // Qué países mostrar como chip SÍ es dinámico: viene de GET /coberturas/paises
 // (ver CoberturasService.listarPaisesConDatos), no de esta lista.
-export const NOMBRES_PAIS: Pais[] = [
-  { codigo: 'AR', nombre: 'Argentina' },
-  { codigo: 'MX', nombre: 'México' },
-  { codigo: 'CO', nombre: 'Colombia' },
-  { codigo: 'CL', nombre: 'Chile' },
-  { codigo: 'PE', nombre: 'Perú' },
-  { codigo: 'EC', nombre: 'Ecuador' },
-  { codigo: 'BO', nombre: 'Bolivia' },
-  { codigo: 'PY', nombre: 'Paraguay' },
-  { codigo: 'UY', nombre: 'Uruguay' },
-  { codigo: 'VE', nombre: 'Venezuela' },
-  { codigo: 'BR', nombre: 'Brasil' },
-  { codigo: 'CR', nombre: 'Costa Rica' },
-  { codigo: 'PA', nombre: 'Panamá' },
-  { codigo: 'GT', nombre: 'Guatemala' },
-  { codigo: 'HN', nombre: 'Honduras' },
-  { codigo: 'SV', nombre: 'El Salvador' },
-  { codigo: 'NI', nombre: 'Nicaragua' },
-  { codigo: 'DO', nombre: 'República Dominicana' }
-];
+export type { PaisLatam as Pais } from '../../shared/constants/paises-latam';
+export { PAISES_LATAM as NOMBRES_PAIS } from '../../shared/constants/paises-latam';
 
 export const TIPOS_DOCUMENTO: { codigo: string; nombre: string }[] = [
   { codigo: 'convenio', nombre: 'Convenio' },

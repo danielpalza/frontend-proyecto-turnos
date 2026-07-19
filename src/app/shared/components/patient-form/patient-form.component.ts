@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { documentNumberValidator } from '../../validators/custom-validators';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Patient, Profesional } from '../../../core/models';
@@ -73,7 +74,7 @@ export class PatientFormComponent implements OnInit, OnChanges, OnDestroy {
 
   private loadCoberturaOptions(): void {
     const pais = this.authService.getCurrentUser()?.organizationPais || 'AR';
-    this.coberturasService.listar([pais]).subscribe({
+    this.coberturasService.listar([pais]).pipe(takeUntil(this.destroy$)).subscribe({
       next: coberturas => {
         this.coberturaOptions = coberturas
           .map(c => {
@@ -129,19 +130,19 @@ export class PatientFormComponent implements OnInit, OnChanges, OnDestroy {
       const esTitular = this.form.get('esTitular')?.value;
       const cobertura = this.form.get('coberturaNombre')?.value;
       const nombreTitular = this.form.get('nombreTitular')!;
-      const dniTitular = this.form.get('dniTitular')!;
+      const identificacionTitular = this.form.get('identificacionTitular')!;
       const parentesco = this.form.get('parentesco')!;
       if (esTitular === 'no' && cobertura !== 'Particular') {
         nombreTitular.setValidators([Validators.required]);
-        dniTitular.setValidators([Validators.required]);
+        identificacionTitular.setValidators([Validators.required, documentNumberValidator()]);
         parentesco.setValidators([Validators.required]);
       } else {
         nombreTitular.clearValidators();
-        dniTitular.clearValidators();
+        identificacionTitular.setValidators([documentNumberValidator()]);
         parentesco.clearValidators();
       }
       nombreTitular.updateValueAndValidity();
-      dniTitular.updateValueAndValidity();
+      identificacionTitular.updateValueAndValidity();
       parentesco.updateValueAndValidity();
     };
 
@@ -160,7 +161,7 @@ export class PatientFormComponent implements OnInit, OnChanges, OnDestroy {
             coberturaVencimiento: '',
             esTitular: 'si',
             nombreTitular: '',
-            dniTitular: '',
+            identificacionTitular: '',
             parentesco: ''
           }, { emitEvent: false });
         }

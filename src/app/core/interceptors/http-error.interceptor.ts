@@ -77,9 +77,10 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
  * Algunos errores son manejados específicamente por componentes o por el backend
  */
 function shouldHandleErrorGlobally(url: string, error: HttpErrorResponse): boolean {
-  // 401 y 403 ya se manejan arriba (redirect a login), no necesitan manejo global
+  // 401 ya se maneja arriba (redirect a login), no necesita manejo global
+  // 403 SÍ se maneja acá abajo (mensaje de "sin permiso", sin cerrar la sesión)
   // 404 se maneja desde el backend con mensajes personalizados
-  if (error.status === 401 || error.status === 403 || error.status === 404) {
+  if (error.status === 401 || error.status === 404) {
     return false;
   }
 
@@ -113,8 +114,8 @@ function extractContextFromUrl(url: string): string {
     if (url.includes('/search')) {
       return 'buscar pacientes';
     }
-    if (url.includes('/dni')) {
-      return 'buscar paciente por DNI';
+    if (url.includes('/identificacion')) {
+      return 'buscar paciente por documento';
     }
     return 'gestionar el paciente';
   }

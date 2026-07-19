@@ -29,7 +29,7 @@ export class AppointmentsPanelComponent implements OnChanges {
   @Output() addClick = new EventEmitter<void>();
 
   private patientsById = new Map<string, Patient>();
-  private patientsByDni = new Map<string, Patient>();
+  private patientsByIdentificacion = new Map<string, Patient>();
 
   constructor(
     private appointmentsService: AppointmentsService,
@@ -51,13 +51,13 @@ export class AppointmentsPanelComponent implements OnChanges {
 
   private rebuildPatientsMaps(): void {
     this.patientsById.clear();
-    this.patientsByDni.clear();
+    this.patientsByIdentificacion.clear();
     (this.patients || []).forEach(patient => {
       if (patient.id != null) {
         this.patientsById.set(patient.id, patient);
       }
-      if (patient.dni) {
-        this.patientsByDni.set(patient.dni, patient);
+      if (patient.identificacion) {
+        this.patientsByIdentificacion.set(patient.identificacion, patient);
       }
     });
   }
@@ -67,6 +67,7 @@ export class AppointmentsPanelComponent implements OnChanges {
   editingPrices = new Map<string, boolean>(); // Rastrea qué precios están siendo editados (key: "cardId-priceType")
   priceInputs = new Map<string, number>(); // Rastrea los valores temporales de los inputs de precio (key: "cardId-priceType")
   originalPrices = new Map<string, number>(); // Guarda los valores originales antes de editar
+  private addingPayment = new Set<string>(); // Tarjetas con un "Agregar pago" en vuelo (evita doble-submit)
   editingObservaciones = new Map<string, boolean>(); // Rastrea qué observaciones están siendo editadas
   observacionesInputs = new Map<string, string>(); // Rastrea los valores temporales de las observaciones
   originalObservaciones = new Map<string, string>(); // Guarda los valores originales antes de editar
@@ -134,8 +135,8 @@ export class AppointmentsPanelComponent implements OnChanges {
     });
   }
 
-  /** Precio total del turno (bono + tratamiento + extras), independiente de lo pagado. */
-  totalPrecio(a: Appointment): number {
+  /** Precio total bruto del turno (bono + tratamiento + extras), independiente de lo pagado. No confundir con a.totalPrecio (saldo pendiente, calculado en el backend). */
+  precioTotalBruto(a: Appointment): number {
     return (a.precioBono ?? 0) + (a.precioTratamiento ?? 0) + (a.extras ?? 0);
   }
 
@@ -150,7 +151,7 @@ export class AppointmentsPanelComponent implements OnChanges {
 
   /** Clase de color pastel para el avatar, determinística por paciente (mismo paciente = mismo color). */
   getAvatarColorClass(a: Appointment): string {
-    const key = a.patientId || a.patientDni || '';
+    const key = a.patientId || a.patientIdentificacion || '';
     let hash = 0;
     for (let i = 0; i < key.length; i++) {
       hash = (hash + key.charCodeAt(i)) % AppointmentsPanelComponent.AVATAR_PALETTE.length;
@@ -264,12 +265,25 @@ export class AppointmentsPanelComponent implements OnChanges {
     this.paymentInputs.set(cardId, value);
   }
 
+  // Verifica si hay un "Agregar pago" en vuelo para esta tarjeta (deshabilita el botón)
+  isAddingPayment(cardId: string): boolean {
+    return this.addingPayment.has(cardId);
+  }
+
   // Agrega el pago a un turno (usa lógica compartida del servicio)
   onAddPayment(cardId: string): void {
     const paymentValue = this.paymentInputs.get(cardId) || 0;
+    if (paymentValue <= 0 || this.addingPayment.has(cardId)) return;
+    this.addingPayment.add(cardId);
     this.appointmentsService.addPaymentWithFeedback(cardId, paymentValue).subscribe({
-      next: () => this.paymentInputs.set(cardId, 0),
-      error: () => { /* notificación ya mostrada por el servicio */ }
+      next: () => {
+        this.addingPayment.delete(cardId);
+        this.paymentInputs.set(cardId, 0);
+      },
+      error: () => {
+        this.addingPayment.delete(cardId);
+        /* notificación ya mostrada por el servicio */
+      }
     });
   }
 
@@ -304,7 +318,7 @@ export class AppointmentsPanelComponent implements OnChanges {
     const key = `${cardId}-${priceType}`;
     const newValue = this.priceInputs.get(key) || 0;
     const appointment = this.appointments.find(a => a.id === cardId);
-    if (!appointment) return;
+    if (!appointment || newValue < 0) return;
 
     const updateData: Record<string, number> = {};
     if (priceType === 'bono') updateData['precioBono'] = newValue;
@@ -632,8 +646,8 @@ export class AppointmentsPanelComponent implements OnChanges {
       const byId = this.patientsById.get(appointment.patientId);
       if (byId) return byId;
     }
-    if (appointment.patientDni) {
-      return this.patientsByDni.get(appointment.patientDni);
+    if (appointment.patientIdentificacion) {
+      return this.patientsByIdentificacion.get(appointment.patientIdentificacion);
     }
     return undefined;
   }

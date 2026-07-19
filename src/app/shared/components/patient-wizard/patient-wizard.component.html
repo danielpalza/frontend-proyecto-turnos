@@ -138,10 +138,10 @@
         type="button"
         class="btn btn-primary"
         data-testid="wizard-finish-btn"
-        [disabled]="isSubmitting"
+        [disabled]="isSubmitting || isCheckingAvailability"
         (click)="finish.emit()"
       >
-        {{ isSubmitting ? 'Guardando...' : 'Finalizar registro' }}
+        {{ isSubmitting ? 'Guardando...' : (isCheckingAvailability ? 'Verificando disponibilidad...' : 'Finalizar registro') }}
       </button>
     }
   </div>

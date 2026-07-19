@@ -5,7 +5,7 @@ export interface Profesional {
   id?: string;
   nombre: string;
   apellido: string;
-  dni?: string;
+  identificacion?: string;
   especialidad?: string;
   matricula?: string;
   email?: string;

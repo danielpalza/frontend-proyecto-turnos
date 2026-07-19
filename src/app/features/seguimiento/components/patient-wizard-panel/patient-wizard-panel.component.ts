@@ -73,7 +73,7 @@ export class PatientWizardPanelComponent implements OnInit {
       nombre: patient.nombre,
       apellido: patient.apellido,
       fechaNacimiento: patient.fechaNacimiento || '',
-      dni: patient.dni,
+      identificacion: patient.identificacion,
       telefono: patient.telefono || '',
       email: patient.email || '',
       domicilio: patient.domicilio || '',
@@ -94,7 +94,7 @@ export class PatientWizardPanelComponent implements OnInit {
       coberturaVencimiento: patient.coberturaVencimiento || '',
       esTitular: (patient.coberturaNombre === 'Particular' || patient.esTitular) ? 'si' : 'no',
       nombreTitular: patient.nombreTitular || '',
-      dniTitular: patient.dniTitular || '',
+      identificacionTitular: patient.identificacionTitular || '',
       parentesco: patient.parentesco || ''
     });
   }
@@ -142,7 +142,7 @@ export class PatientWizardPanelComponent implements OnInit {
       nombre: raw.nombre,
       apellido: raw.apellido,
       fechaNacimiento: raw.fechaNacimiento || undefined,
-      dni: raw.dni,
+      identificacion: raw.identificacion,
       telefono: raw.telefono,
       email: raw.email,
       domicilio: raw.domicilio,
@@ -156,7 +156,7 @@ export class PatientWizardPanelComponent implements OnInit {
       coberturaVencimiento: raw.coberturaVencimiento || undefined,
       esTitular: raw.esTitular === 'si',
       nombreTitular: raw.nombreTitular || undefined,
-      dniTitular: raw.dniTitular || undefined,
+      identificacionTitular: raw.identificacionTitular || undefined,
       parentesco: raw.parentesco || undefined
     };
 
@@ -188,7 +188,7 @@ export class PatientWizardPanelComponent implements OnInit {
   }
 
   private trimPatientForm(): void {
-    const fields = ['nombre', 'apellido', 'dni', 'telefono', 'email', 'domicilio', 'localidad'];
+    const fields = ['nombre', 'apellido', 'identificacion', 'telefono', 'email', 'domicilio', 'localidad'];
     fields.forEach(name => {
       const c = this.patientForm.get(name);
       if (c && typeof c.value === 'string') {

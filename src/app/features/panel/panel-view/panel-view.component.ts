@@ -285,7 +285,7 @@ export class PanelViewComponent implements OnInit, OnDestroy {
         case 'profesional':
           return this.getProfesionalFullName(a).localeCompare(this.getProfesionalFullName(b), 'es') * dir;
         case 'turnos':
-          return (a.completados - b.completados) * dir;
+          return ((a.completados + a.pendientes + a.cancelados) - (b.completados + b.pendientes + b.cancelados)) * dir;
         case 'facturacion':
           return (a.facturacion - b.facturacion) * dir;
         case 'completitud':

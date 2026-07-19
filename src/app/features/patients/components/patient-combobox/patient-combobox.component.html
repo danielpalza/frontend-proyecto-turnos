@@ -28,11 +28,11 @@
       type="button"
       class="dropdown-item d-flex justify-content-between align-items-center"
       (click)="choosePatient(patient)"
-      [attr.data-testid]="'patient-combobox-item-' + patient.dni"
+      [attr.data-testid]="'patient-combobox-item-' + patient.identificacion"
     >
       <div class="d-flex flex-column">
         <strong>{{ fullName(patient.nombre, patient.apellido) }}</strong>
-        <small class="text-muted">DNI: {{ patient.dni }}</small>
+        <small class="text-muted">Doc: {{ patient.identificacion }}</small>
       </div>
 
       <!-- Check -->

@@ -6,11 +6,12 @@ import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { LeyendaItem, OdontogramaStateService } from '../../services/odontograma-state.service';
+import { OdontoIconComponent } from '../odonto-icon/odonto-icon.component';
 
 @Component({
   selector: 'app-odontograma-leyend',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, OdontoIconComponent],
   templateUrl: './odontograma-leyend.component.html',
   styleUrls: ['./odontograma-leyend.component.scss']
 })
@@ -30,36 +31,35 @@ export class OdontogramaLeyendComponent implements OnDestroy {
   }
 
   readonly estados = [
-   { label: 'Ausencia', icono: 'bi bi-0-circle' },
-    { label: 'Implante', icono: 'bi bi-1-circle' },
-    { label: 'Corona', icono: 'bi bi-2-circle' },
-    { label: 'Puente', icono: 'bi bi-3-circle' },
-    { label: 'Eripcion', icono: 'bi bi-4-circle' },
-    { label: 'Retención', icono: 'bi bi-5-circle' },
-    { label: 'Erupcion', icono: 'bi bi-6-circle' },
-    { label: 'Impactado', icono: 'bi bi-7-circle' },
-    { label: 'Extraer', icono: 'bi bi-8-circle' },
+    { label: 'Ausencia', icono: 'ausencia' },
+    { label: 'Implante', icono: 'implante' },
+    { label: 'Corona', icono: 'corona' },
+    { label: 'Puente', icono: 'puente' },
+    { label: 'Retención', icono: 'retencion' },
+    { label: 'Erupcion', icono: 'erupcion' },
+    { label: 'Impactado', icono: 'impactado' },
+    { label: 'Extraer', icono: 'extraer' },
   ];
 
   readonly condiciones = [
-    { label: 'Endodoncia', icono: 'bi bi-0-square' },
-    { label: 'Fractura', icono: 'bi bi-1-square' },
-    { label: 'Lesion', icono: 'bi bi-2-square' },
-    { label: 'Dolor/Sensibilidad', icono: 'bi bi-3-square' },
+    { label: 'Endodoncia', icono: 'endodoncia' },
+    { label: 'Fractura', icono: 'fractura' },
+    { label: 'Lesion', icono: 'lesion' },
+    { label: 'Dolor/Sensibilidad', icono: 'dolor-sensibilidad' },
   ];
 
   readonly movilidadOpciones = [
     { label: 'M0', icono: 'bi bi-0-circle-fill' },
-    { label: 'M1', icono: 'bi bi-1-circle-fill' },
-    { label: 'M2', icono: 'bi bi-2-circle-fill' },
-    { label: 'M3', icono: 'bi bi-3-circle-fill' },
+    { label: 'M1', icono: 'm1' },
+    { label: 'M2', icono: 'm2' },
+    { label: 'M3', icono: 'm3' },
   ];
 
   readonly furcaOpciones = [
     { label: 'F0', icono: 'bi bi-0-square-fill' },
-    { label: 'F1', icono: 'bi bi-1-square-fill' },
-    { label: 'F2', icono: 'bi bi-2-square-fill' },
-    { label: 'F3', icono: 'bi bi-3-square-fill' },
+    { label: 'F1', icono: 'f1' },
+    { label: 'F2', icono: 'f2' },
+    { label: 'F3', icono: 'f3' },
   ];
 
   onToggleEstado(estado: LeyendaItem, event: Event): void {

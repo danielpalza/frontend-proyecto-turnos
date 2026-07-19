@@ -108,7 +108,7 @@
                 <strong class="fw-bold text-dark" [attr.data-testid]="'appointment-patient-name-' + a.id">
                   {{ fullName(a.patientNombre, a.patientApellido) }}
                 </strong>
-                <small class="text-muted" [attr.data-testid]="'appointment-patient-dni-' + a.id">DNI {{ a.patientDni }}</small>
+                <small class="text-muted" [attr.data-testid]="'appointment-patient-dni-' + a.id">Doc: {{ a.patientIdentificacion }}</small>
               </div>
             </div>
 
@@ -159,7 +159,7 @@
               <span class="amount-debe" [ngClass]="getPaymentColorClass(a.totalPrecio)" [attr.data-testid]="'appointment-payment-pending-' + a.id">
                 Debe ${{ a.totalPrecio || 0 }}
               </span>
-              <span class="amount-total">Total ${{ totalPrecio(a) }}</span>
+              <span class="amount-total">Total ${{ precioTotalBruto(a) }}</span>
             </div>
 
             <!-- Acciones -->
@@ -274,7 +274,7 @@
               <input type="number" class="payment-input" [attr.data-testid]="'appointment-payment-input-' + a.id" [value]="getPaymentInput(a.id!)"
                 (input)="updatePaymentInput(a.id!, +$any($event.target).value)" placeholder="0" min="0.01"
                 step="0.01" />
-              <button type="button" class="btn-add-payment" (click)="onAddPayment(a.id!); $event.stopPropagation()" [attr.data-testid]="'appointment-add-payment-btn-' + a.id">
+              <button type="button" class="btn-add-payment" [disabled]="isAddingPayment(a.id!)" (click)="onAddPayment(a.id!); $event.stopPropagation()" [attr.data-testid]="'appointment-add-payment-btn-' + a.id">
                 Agregar
               </button>
               <label class="payment-total-checkbox ms-2" (click)="$event.stopPropagation()" [attr.data-testid]="'appointment-full-payment-label-' + a.id">

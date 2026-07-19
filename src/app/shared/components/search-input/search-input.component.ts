@@ -140,9 +140,9 @@ export class SearchInputComponent implements OnInit, OnChanges, OnDestroy {
     const term = this.searchTerm.toLowerCase();
     return this.patients.filter(p => {
       const nombre = fullName(p.nombre, p.apellido).toLowerCase();
-      const dni = (p.dni || '').toLowerCase();
+      const identificacion = (p.identificacion || '').toLowerCase();
       const email = (p.email || '').toLowerCase();
-      return nombre.includes(term) || dni.includes(term) || email.includes(term);
+      return nombre.includes(term) || identificacion.includes(term) || email.includes(term);
     });
   }
 

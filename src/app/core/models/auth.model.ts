@@ -15,7 +15,7 @@ export interface RegisterRequest {
   password: string;
   nombre: string;
   apellido?: string;
-  dni?: string;
+  identificacion?: string;
   telefono?: string;
   organizacionNombre?: string;
   pais?: string;

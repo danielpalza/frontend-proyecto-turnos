@@ -41,9 +41,13 @@
               </div>
             </div>
             <div class="col-md-6">
-              <label class="form-label">DNI</label>
-              <input type="text" class="form-control" formControlName="dni" placeholder="12345678"
+              <label class="form-label">Documento de identidad</label>
+              <input type="text" class="form-control" formControlName="identificacion" placeholder="Documento de identidad"
+                [class.is-invalid]="form.get('identificacion')?.invalid && form.get('identificacion')?.touched"
                 data-testid="settings-profesional-dni-input" />
+              <div class="invalid-feedback" [class.show]="form.get('identificacion')?.invalid && form.get('identificacion')?.touched">
+                Debe tener entre 5 y 20 caracteres alfanuméricos
+              </div>
             </div>
             <div class="col-md-6">
               <label class="form-label">Especialidad</label>
@@ -67,7 +71,11 @@
             <div class="col-md-6">
               <label class="form-label">Teléfono</label>
               <input type="text" class="form-control" formControlName="telefono" placeholder="1123456789"
+                [class.is-invalid]="form.get('telefono')?.invalid && form.get('telefono')?.touched"
                 data-testid="settings-profesional-phone-input" />
+              <div class="invalid-feedback" [class.show]="form.get('telefono')?.invalid && form.get('telefono')?.touched">
+                Formato de teléfono inválido
+              </div>
             </div>
           </div>
 
@@ -137,7 +145,7 @@
             </div>
           </div>
 
-          <div *ngIf="saveError" class="alert alert-danger py-2 mt-3">{{ saveError }}</div>
+          <div *ngIf="saveError" class="alert alert-danger py-2 mt-3" data-testid="settings-profesional-save-error">{{ saveError }}</div>
         </div>
 
         <div class="modal-footer">

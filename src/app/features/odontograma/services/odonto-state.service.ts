@@ -41,27 +41,26 @@ const ALL_ODONTO_TOOTH_IDS = [
 ];
 
 const LEYENDA_ICONS: Record<string, string> = {
-  Ausencia: 'bi bi-0-circle',
-  Implante: 'bi bi-1-circle',
-  Corona: 'bi bi-2-circle',
-  Puente: 'bi bi-3-circle',
-  Eripcion: 'bi bi-4-circle',
-  'Retención': 'bi bi-5-circle',
-  Erupcion: 'bi bi-6-circle',
-  Impactado: 'bi bi-7-circle',
-  Extraer: 'bi bi-8-circle',
-  Endodoncia: 'bi bi-0-square',
-  Fractura: 'bi bi-1-square',
-  Lesion: 'bi bi-2-square',
-  'Dolor/Sensibilidad': 'bi bi-3-square',
+  Ausencia: 'ausencia',
+  Implante: 'implante',
+  Corona: 'corona',
+  Puente: 'puente',
+  'Retención': 'retencion',
+  Erupcion: 'erupcion',
+  Impactado: 'impactado',
+  Extraer: 'extraer',
+  Endodoncia: 'endodoncia',
+  Fractura: 'fractura',
+  Lesion: 'lesion',
+  'Dolor/Sensibilidad': 'dolor-sensibilidad',
   M0: 'bi bi-0-circle-fill',
-  M1: 'bi bi-1-circle-fill',
-  M2: 'bi bi-2-circle-fill',
-  M3: 'bi bi-3-circle-fill',
+  M1: 'm1',
+  M2: 'm2',
+  M3: 'm3',
   F0: 'bi bi-0-square-fill',
-  F1: 'bi bi-1-square-fill',
-  F2: 'bi bi-2-square-fill',
-  F3: 'bi bi-3-square-fill'
+  F1: 'f1',
+  F2: 'f2',
+  F3: 'f3'
 };
 
 const MOBILITY_LABELS = ['M0', 'M1', 'M2', 'M3'];
@@ -93,6 +92,8 @@ export class OdontoStateService {
   readonly historiaClinica$ = this.historiaClinicaSubject.asObservable();
 
   private baselineOdonto: OdontogramaEstadoActual = { caras: [], leyendas: [] };
+  private baselineComentario = '';
+  private baselinePlanTratamiento = '';
 
   /** Aplica la respuesta de carga inicial (merge estadoActual+cambiosTurno, re-baseline, proyección a Subjects). */
   loadOdonto(odonto: OdontogramaResponse): void {
@@ -101,6 +102,8 @@ export class OdontoStateService {
       normalizeOdontoEstado(odonto.cambiosTurno)
     );
     this.baselineOdonto = cloneOdontoEstado(merged);
+    this.baselineComentario = odonto.comentario ?? '';
+    this.baselinePlanTratamiento = odonto.planTratamiento ?? '';
     this.applyOdontoState(merged);
     this.comentarioSubject.next(odonto.comentario ?? '');
     this.planTratamientoSubject.next(odonto.planTratamiento ?? '');
@@ -111,6 +114,8 @@ export class OdontoStateService {
   applySaveResponse(response: OdontogramaResponse): void {
     const merged = mergeOdontoEstado(response.estadoActual, response.cambiosTurno);
     this.baselineOdonto = cloneOdontoEstado(merged);
+    this.baselineComentario = response.comentario ?? '';
+    this.baselinePlanTratamiento = response.planTratamiento ?? '';
     this.applyOdontoState(merged);
     this.comentarioSubject.next(response.comentario ?? '');
     this.planTratamientoSubject.next(response.planTratamiento ?? '');
@@ -244,10 +249,12 @@ export class OdontoStateService {
 
     const comentario = this.comentarioSubject.value;
     const plan = this.planTratamientoSubject.value;
-    if (comentario !== (this.baselineOdonto as unknown as { comentario?: string }).comentario) {
+    if (comentario !== this.baselineComentario) {
       delta.comentario = comentario;
     }
-    delta.planTratamiento = plan;
+    if (plan !== this.baselinePlanTratamiento) {
+      delta.planTratamiento = plan;
+    }
 
     delta.caras = current.caras.filter(c => {
       const baseline = this.baselineOdonto.caras.find(
@@ -278,12 +285,14 @@ export class OdontoStateService {
     this.facesSubject.value.forEach((faces, numeroDiente) => {
       (Object.keys(faces) as FaceKey[]).forEach(faceKey => {
         const estado = faces[faceKey];
-        if (estado !== 'normal') {
-          caras.push({
-            numeroDiente,
-            cara: FACE_KEY_TO_CARA[faceKey],
-            estado
-          });
+        const cara = FACE_KEY_TO_CARA[faceKey];
+        const baselineEstado = this.baselineOdonto.caras.find(
+          b => b.numeroDiente === numeroDiente && b.cara === cara
+        )?.estado ?? 'normal';
+        // Incluir también reversiones a 'normal' cuando el baseline no era 'normal',
+        // si no, buildOdontogramDelta nunca puede detectar/guardar esa corrección.
+        if (estado !== 'normal' || baselineEstado !== 'normal') {
+          caras.push({ numeroDiente, cara, estado });
         }
       });
     });

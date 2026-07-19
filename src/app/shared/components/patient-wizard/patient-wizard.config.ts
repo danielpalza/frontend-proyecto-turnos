@@ -15,7 +15,7 @@ export const PATIENT_WIZARD_STEPS: WizardStepDef[] = [
     title: 'Datos personales',
     subtitle: 'Información básica del paciente',
     icon: 'bi-person',
-    requiredControls: ['nombre', 'apellido', 'dni', 'telefono', 'email', 'domicilio', 'localidad']
+    requiredControls: ['nombre', 'apellido', 'identificacion', 'telefono', 'email', 'domicilio', 'localidad']
   },
   {
     id: 2,
@@ -29,7 +29,7 @@ export const PATIENT_WIZARD_STEPS: WizardStepDef[] = [
     title: 'Cobertura',
     subtitle: 'Cobertura y datos del titular',
     icon: 'bi-shield-check',
-    requiredControls: ['coberturaNombre', 'nombreTitular', 'dniTitular', 'parentesco']
+    requiredControls: ['coberturaNombre', 'nombreTitular', 'identificacionTitular', 'parentesco']
   },
   {
     id: 4,
@@ -71,7 +71,7 @@ export const PATIENT_WIZARD_REVIEW_GROUPS: ReviewGroup[] = [
       { name: 'apellido', label: 'Apellido' },
       { name: 'fechaNacimiento', label: 'Fecha de nacimiento' },
       { name: 'edad', label: 'Edad' },
-      { name: 'dni', label: 'DNI' },
+      { name: 'identificacion', label: 'Documento' },
       { name: 'telefono', label: 'Teléfono' },
       { name: 'email', label: 'Email' },
       { name: 'domicilio', label: 'Domicilio' },
@@ -105,7 +105,7 @@ export const PATIENT_WIZARD_REVIEW_GROUPS: ReviewGroup[] = [
       { name: 'coberturaVencimiento', label: 'Vencimiento' },
       { name: 'esTitular', label: '¿Es titular?', format: (v: string) => (v === 'no' ? 'No' : 'Sí') },
       { name: 'nombreTitular', label: 'Nombre del titular' },
-      { name: 'dniTitular', label: 'DNI del titular' },
+      { name: 'identificacionTitular', label: 'Documento del titular' },
       { name: 'parentesco', label: 'Parentesco' }
     ]
   },
