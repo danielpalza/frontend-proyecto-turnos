@@ -89,7 +89,6 @@ export const LEYENDA_LABEL_TO_VALOR: Record<string, { categoria: CategoriaLeyend
   'Implante': { categoria: 'estado', valor: 'implante' },
   'Corona': { categoria: 'estado', valor: 'corona' },
   'Puente': { categoria: 'estado', valor: 'puente' },
-  'Eripcion': { categoria: 'estado', valor: 'erupcion' },
   'Retencion': { categoria: 'estado', valor: 'retencion' },
   'Erupcion': { categoria: 'estado', valor: 'erupcion' },
   'Impactado': { categoria: 'estado', valor: 'impactado' },

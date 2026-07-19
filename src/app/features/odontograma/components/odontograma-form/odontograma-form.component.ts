@@ -6,6 +6,7 @@ import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { ToothFacesComponent } from '../tooth-faces/tooth-faces.component';
+import { OdontoIconComponent } from '../odonto-icon/odonto-icon.component';
 import { LeyendaItem, OdontogramaStateService } from '../../services/odontograma-state.service';
 
 interface TeethLayout {
@@ -18,7 +19,7 @@ interface TeethLayout {
 @Component({
   selector: 'app-odontograma-form',
   standalone: true,
-  imports: [CommonModule, ToothFacesComponent],
+  imports: [CommonModule, ToothFacesComponent, OdontoIconComponent],
   templateUrl: './odontograma-form.component.html',
   styleUrls: ['./odontograma-form.component.scss']
 })

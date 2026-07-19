@@ -15,6 +15,9 @@ import { PatientWizardComponent, getPatientFormConfig } from '../../../../shared
   styleUrls: ['./appointment-dialog.component.scss']
 })
 export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy {
+  /** Máximo admitido por la columna numeric(10,2) en la base de datos */
+  private static readonly MAX_MONTO = 99999999.99;
+
   @Input() open = false;
   @Input() selectedDate: string | null = null;
   @Input() existingPatients: Patient[] = [];
@@ -66,10 +69,10 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
       profesionalId: [''],
       hora: ['09:00'],
       observacionesTurno: [''],
-      precioBono: [null, Validators.min(0)],
-      precioTratamiento: [null, Validators.min(0)],
-      extras: [null, Validators.min(0)],
-      montoPago: [null, Validators.min(0)],
+      precioBono: [null, [Validators.min(0), Validators.max(AppointmentDialogComponent.MAX_MONTO)]],
+      precioTratamiento: [null, [Validators.min(0), Validators.max(AppointmentDialogComponent.MAX_MONTO)]],
+      extras: [null, [Validators.min(0), Validators.max(AppointmentDialogComponent.MAX_MONTO)]],
+      montoPago: [null, [Validators.min(0), Validators.max(AppointmentDialogComponent.MAX_MONTO)]],
       observaciones: ['']
     });
   }
@@ -199,9 +202,14 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
     const pago = this.parseAmount(this.form.get('montoPago')?.value);
     
     const resultado = (bono + tratamiento + extras) - pago;
-    
+
     // Validar que el resultado sea un número finito
-    return Number.isFinite(resultado) ? resultado : 0;
+    if (!Number.isFinite(resultado)) {
+      return 0;
+    }
+
+    // Si el resto a pagar es negativo (se pagó de más), se muestra como 0
+    return Math.max(0, resultado);
   }
 
   /**
@@ -291,50 +299,9 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
       return;
     }
 
-    // Validar disponibilidad solo al enviar el formulario
+    // La disponibilidad (profesional y paciente) la valida el backend al crear el turno,
+    // que es la única fuente de verdad y siempre muestra el toast correspondiente ante un conflicto.
     const raw = this.form.getRawValue();
-    const profesionalId = raw.profesionalId;
-    const hora = raw.hora;
-
-    // Solo verificar si hay profesional, fecha y hora
-    if (profesionalId && this.selectedDate && hora) {
-      const normalizedHora = this.normalizeTime(hora);
-      if (!normalizedHora) {
-        // Si no se puede normalizar la hora, proceder (el backend validará)
-        this.submitFormData(raw);
-        return;
-      }
-
-      // Verificar disponibilidad antes de enviar
-      this.isCheckingAvailability = true;
-      this.availabilityError = null;
-
-      this.appointmentsService.checkAvailability(profesionalId, this.selectedDate, normalizedHora)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (isAvailable) => {
-            this.isCheckingAvailability = false;
-            if (!isAvailable) {
-              this.availabilityError = 'Este horario ya está ocupado. Por favor, seleccione otro horario.';
-              this.form.markAllAsTouched();
-              return;
-            }
-            // Si está disponible, proceder con el envío
-            this.availabilityError = null;
-            this.submitFormData(raw);
-          },
-          error: (err) => {
-            this.isCheckingAvailability = false;
-            // En caso de error, permitir el envío (el backend validará)
-            console.warn('Error verificando disponibilidad:', err);
-            this.availabilityError = null;
-            this.submitFormData(raw);
-          }
-        });
-      return; // No continuar hasta que se complete la verificación
-    }
-
-    // Si no hay profesional o no se puede verificar, proceder normalmente
     this.submitFormData(raw);
   }
 

@@ -177,8 +177,9 @@ export class AppointmentsService {
     );
   }
 
-  update(id: string, appointment: AppointmentPartialUpdateDTO): Observable<Appointment> {
-    return this.http.patch<Appointment>(`${this.apiUrl}/${id}`, appointment).pipe(
+  update(id: string, appointment: AppointmentPartialUpdateDTO, skipGlobal: boolean = false): Observable<Appointment> {
+    const context = skipGlobal ? skipGlobalErrorHandler() : undefined;
+    return this.http.patch<Appointment>(`${this.apiUrl}/${id}`, appointment, context ? { context } : undefined).pipe(
       tap((updated) => {
         const current = this.appointmentsCache$.getValue();
         this.appointmentsCache$.next(current.map(a => a.id === updated.id ? updated : a));
@@ -211,10 +212,11 @@ export class AppointmentsService {
     );
   }
 
-  addPayment(id: string, montoPago: number): Observable<Appointment> {
+  addPayment(id: string, montoPago: number, skipGlobal: boolean = false): Observable<Appointment> {
+    const context = skipGlobal ? skipGlobalErrorHandler() : undefined;
     return this.http.patch<Appointment>(`${this.apiUrl}/${id}/addPayment`, {
       montoPago
-    }).pipe(
+    }, context ? { context } : undefined).pipe(
       tap((updated) => {
         const current = this.appointmentsCache$.getValue();
         this.appointmentsCache$.next(current.map(a => a.id === updated.id ? updated : a));
@@ -227,7 +229,7 @@ export class AppointmentsService {
       this.notification.showError('El monto del pago debe ser mayor a cero.');
       return EMPTY;
     }
-    return this.addPayment(id, montoPago).pipe(
+    return this.addPayment(id, montoPago, true).pipe(
       tap(() => this.notification.showSuccess('Pago agregado correctamente.')),
       catchError((err: HttpErrorResponse) => {
         if (err.status !== 404) {
@@ -247,7 +249,7 @@ export class AppointmentsService {
     successMessage: string,
     errorContext: string
   ): Observable<Appointment> {
-    return this.update(id, appointment).pipe(
+    return this.update(id, appointment, true).pipe(
       tap(() => this.notification.showSuccess(successMessage)),
       catchError((err: HttpErrorResponse) => {
         if (err.status !== 404) {

@@ -343,11 +343,17 @@
     <div class="row g-3" [formGroup]="form">
       <div class="col-12 col-sm-6 col-md-3">
         <label class="form-label">Precio de Bono</label>
-        <input class="form-control" type="number" formControlName="precioBono" step="0.01" min="0"
+        <input class="form-control" type="number" formControlName="precioBono" step="0.01" min="0" max="99999999.99"
           [class.is-invalid]="form.get('precioBono')?.invalid && form.get('precioBono')?.touched"
           data-testid="patient-bono-input" />
         @if (form.get('precioBono')?.invalid && form.get('precioBono')?.touched) {
-          <div class="invalid-feedback d-block">El precio no puede ser negativo</div>
+          <div class="invalid-feedback d-block">
+            @if (form.get('precioBono')?.errors?.['max']) {
+              El precio no puede superar $ 99.999.999,99
+            } @else {
+              El precio no puede ser negativo
+            }
+          </div>
         }
       </div>
       <div class="col-12 col-sm-6 col-md-3">
@@ -358,29 +364,48 @@
           formControlName="precioTratamiento"
           step="0.01"
           min="0"
+          max="99999999.99"
           [class.is-invalid]="form.get('precioTratamiento')?.invalid && form.get('precioTratamiento')?.touched"
           data-testid="patient-treatment-input"
         />
         @if (form.get('precioTratamiento')?.invalid && form.get('precioTratamiento')?.touched) {
-          <div class="invalid-feedback d-block">El precio no puede ser negativo</div>
+          <div class="invalid-feedback d-block">
+            @if (form.get('precioTratamiento')?.errors?.['max']) {
+              El precio no puede superar $ 99.999.999,99
+            } @else {
+              El precio no puede ser negativo
+            }
+          </div>
         }
       </div>
       <div class="col-12 col-sm-6 col-md-3">
         <label class="form-label">Extras</label>
-        <input class="form-control" type="number" formControlName="extras" step="0.01" min="0"
+        <input class="form-control" type="number" formControlName="extras" step="0.01" min="0" max="99999999.99"
           [class.is-invalid]="form.get('extras')?.invalid && form.get('extras')?.touched"
           data-testid="patient-extras-input" />
         @if (form.get('extras')?.invalid && form.get('extras')?.touched) {
-          <div class="invalid-feedback d-block">El monto no puede ser negativo</div>
+          <div class="invalid-feedback d-block">
+            @if (form.get('extras')?.errors?.['max']) {
+              El monto no puede superar $ 99.999.999,99
+            } @else {
+              El monto no puede ser negativo
+            }
+          </div>
         }
       </div>
       <div class="col-12 col-sm-6 col-md-3">
         <label class="form-label">Monto Pagado</label>
-        <input class="form-control" type="number" formControlName="montoPago" step="0.01" min="0"
+        <input class="form-control" type="number" formControlName="montoPago" step="0.01" min="0" max="99999999.99"
           [class.is-invalid]="form.get('montoPago')?.invalid && form.get('montoPago')?.touched"
           data-testid="patient-payment-input" />
         @if (form.get('montoPago')?.invalid && form.get('montoPago')?.touched) {
-          <div class="invalid-feedback d-block">El monto no puede ser negativo</div>
+          <div class="invalid-feedback d-block">
+            @if (form.get('montoPago')?.errors?.['max']) {
+              El monto no puede superar $ 99.999.999,99
+            } @else {
+              El monto no puede ser negativo
+            }
+          </div>
         }
       </div>
       <div class="col-12">

@@ -24,6 +24,8 @@
           class="form-control"
           [style.padding-right]="searchTerm && !showIcon ? '2.5rem' : ''"
           [placeholder]="placeholder"
+          autocomplete="off"
+          name="search-{{ searchType }}"
           (input)="onInput($event)"
           (focus)="onFocus($event)"
           (blur)="onBlur()"

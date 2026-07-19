@@ -41,27 +41,26 @@ const ALL_ODONTO_TOOTH_IDS = [
 ];
 
 const LEYENDA_ICONS: Record<string, string> = {
-  Ausencia: 'bi bi-0-circle',
-  Implante: 'bi bi-1-circle',
-  Corona: 'bi bi-2-circle',
-  Puente: 'bi bi-3-circle',
-  Eripcion: 'bi bi-4-circle',
-  'Retención': 'bi bi-5-circle',
-  Erupcion: 'bi bi-6-circle',
-  Impactado: 'bi bi-7-circle',
-  Extraer: 'bi bi-8-circle',
-  Endodoncia: 'bi bi-0-square',
-  Fractura: 'bi bi-1-square',
-  Lesion: 'bi bi-2-square',
-  'Dolor/Sensibilidad': 'bi bi-3-square',
+  Ausencia: 'ausencia',
+  Implante: 'implante',
+  Corona: 'corona',
+  Puente: 'puente',
+  'Retención': 'retencion',
+  Erupcion: 'erupcion',
+  Impactado: 'impactado',
+  Extraer: 'extraer',
+  Endodoncia: 'endodoncia',
+  Fractura: 'fractura',
+  Lesion: 'lesion',
+  'Dolor/Sensibilidad': 'dolor-sensibilidad',
   M0: 'bi bi-0-circle-fill',
-  M1: 'bi bi-1-circle-fill',
-  M2: 'bi bi-2-circle-fill',
-  M3: 'bi bi-3-circle-fill',
+  M1: 'm1',
+  M2: 'm2',
+  M3: 'm3',
   F0: 'bi bi-0-square-fill',
-  F1: 'bi bi-1-square-fill',
-  F2: 'bi bi-2-square-fill',
-  F3: 'bi bi-3-square-fill'
+  F1: 'f1',
+  F2: 'f2',
+  F3: 'f3'
 };
 
 const MOBILITY_LABELS = ['M0', 'M1', 'M2', 'M3'];

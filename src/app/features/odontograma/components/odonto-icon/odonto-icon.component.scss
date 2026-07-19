@@ -1,0 +1,25 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+.odonto-icon {
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+  color: inherit;
+}
+
+.icon-implante {
+  color: #9aa0a6; // color metal
+}
+
+.icon-corona {
+  color: #d4af37; // color dorado
+}
+
+.icon-impactado {
+  transform: rotate(-45deg);
+}

@@ -30,7 +30,7 @@
           [attr.data-testid]="'odontogram-estado-checkbox-' + idx"
         />
         <span>{{ estado.label || ' ' }}</span>
-        <i [ngClass]="estado.icono"></i>
+        <app-odonto-icon [name]="estado.icono"></app-odonto-icon>
       </label>
     </div>
 
@@ -46,7 +46,7 @@
           [attr.data-testid]="'odontogram-condicion-checkbox-' + idx"
         />
         <span>{{ condicion.label }}</span>
-        <i [ngClass]="condicion.icono"></i>
+        <app-odonto-icon [name]="condicion.icono"></app-odonto-icon>
       </label>
     </div>
 
