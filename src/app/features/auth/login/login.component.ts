@@ -5,10 +5,9 @@ import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
-import { LoginRequest, RegisterRequest } from '../../../core/models/auth.model';
+import { LoginRequest, RegisterRequest, ForgotPasswordRequest } from '../../../core/models/auth.model';
 import { DOCUMENT_NUMBER_PATTERN, PERSON_NAME_PATTERN, PHONE_PATTERN } from '../../../shared/validators/custom-validators';
 import { PAISES_LATAM } from '../../../shared/constants/paises-latam';
-import { LoginRequest, RegisterRequest, ForgotPasswordRequest } from '../../../core/models/auth.model';
 
 type RegisterStep = 'org' | 'account';
 
