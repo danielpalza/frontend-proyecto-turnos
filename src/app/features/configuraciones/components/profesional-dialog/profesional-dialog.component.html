@@ -133,12 +133,34 @@
               </div>
 
               <div class="col-12">
+                <span class="modules-label">Perfil</span>
+                <p class="modules-hint">Elegí un perfil y ajustá los módulos si hace falta.</p>
+                <div class="presets-row" data-testid="settings-profesional-presets">
+                  <button type="button" class="preset-chip" *ngFor="let preset of presets"
+                    [class.active]="isPresetActive(preset)" (click)="applyPreset(preset)"
+                    [attr.data-testid]="'settings-profesional-preset-' + preset.id">
+                    {{ preset.label }}
+                  </button>
+                </div>
+              </div>
+
+              <div class="col-12">
                 <span class="modules-label">Módulos habilitados</span>
                 <div class="modules-grid" data-testid="settings-profesional-modules-grid">
-                  <div class="module-card" *ngFor="let opt of moduleOptions" [class.selected]="isModuleSelected(opt.code)"
-                    (click)="toggleModule(opt.code)" [attr.data-testid]="'settings-profesional-module-' + opt.code">
+                  <div class="module-card" *ngFor="let opt of moduleOptions"
+                    [class.selected]="isModuleSelected(opt.code)"
+                    [class.derived]="!isModuleSelected(opt.code) && isDerived(opt.code)"
+                    [class.not-grantable]="!canGrant(opt.code)"
+                    [attr.title]="!canGrant(opt.code)
+                      ? 'No podés conceder un módulo que no tenés'
+                      : (isDerived(opt.code) && !isModuleSelected(opt.code) ? 'Incluido por otro módulo' : null)"
+                    (click)="canGrant(opt.code) && toggleModule(opt.code)"
+                    [attr.data-testid]="'settings-profesional-module-' + opt.code">
                     <i class="bi" [ngClass]="moduleIcon(opt.code)"></i>
                     <span>{{ opt.label }}</span>
+                    <small class="module-derived-tag" *ngIf="!isModuleSelected(opt.code) && isDerived(opt.code)">
+                      incluido
+                    </small>
                   </div>
                 </div>
               </div>

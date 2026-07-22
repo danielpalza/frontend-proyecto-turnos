@@ -227,6 +227,35 @@
   margin: -0.2rem 0 $spacing-md;
 }
 
+.presets-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.preset-chip {
+  border: 1px solid $border-color;
+  border-radius: 999px;
+  background: $card-background;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: $text-secondary;
+  transition: all $transition-base;
+
+  &:hover {
+    border-color: $primary-color;
+    color: $primary-color;
+  }
+
+  &.active {
+    background: rgba(75, 133, 245, 0.12);
+    border-color: $primary-color;
+    color: $primary-color;
+  }
+}
+
 .modules-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -268,6 +297,33 @@
       color: $primary-color;
     }
   }
+
+  // Módulo que las reglas arrastran solo: se muestra incluido pero no se tildó a mano.
+  &.derived {
+    border-style: dashed;
+    border-color: rgba($primary-color, 0.55);
+    background: rgba($primary-color, 0.03);
+
+    i,
+    span {
+      color: rgba($primary-color, 0.85);
+    }
+  }
+
+  // No se puede conceder un módulo que uno mismo no tiene (docs/PERMISOS.md § 6.4).
+  &.not-grantable {
+    opacity: 0.45;
+    cursor: not-allowed;
+    filter: grayscale(100%);
+  }
+}
+
+.module-derived-tag {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: rgba($primary-color, 0.85);
+  font-weight: 600;
 }
 
 .alert-danger {
