@@ -5,11 +5,12 @@ import { ConfigurationService } from '../../../core/services/configuration.servi
 import { NotificationService } from '../../../core/services/notification.service';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 import { Subscription } from 'rxjs';
+import { ProfesionalesPanelComponent } from '../components/profesionales-panel/profesionales-panel.component';
 
 @Component({
   selector: 'app-configuraciones-view',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ProfesionalesPanelComponent],
   templateUrl: './configuraciones-view.component.html',
   styleUrls: ['./configuraciones-view.component.scss']
 })

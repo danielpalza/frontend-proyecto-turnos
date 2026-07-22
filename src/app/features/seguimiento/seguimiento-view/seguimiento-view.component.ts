@@ -9,7 +9,6 @@ import { ErrorHandlerService } from '../../../core/services/error-handler.servic
 import { combineLatest, Subscription } from 'rxjs';
 import { fullName } from '../../../core/utils/full-name.util';
 import { formatCurrency as formatCurrencyShared } from '../../../core/utils/currency.util';
-import { ProfesionalesPanelComponent } from '../components/profesionales-panel/profesionales-panel.component';
 import { AppointmentListOverflowComponent } from '../components/appointment-list-overflow/appointment-list-overflow.component';
 import { PatientWizardPanelComponent } from '../components/patient-wizard-panel/patient-wizard-panel.component';
 import { TurnPaymentModalComponent } from '../components/turn-payment-modal/turn-payment-modal.component';
@@ -18,7 +17,7 @@ import { PatientDataService, PatientGroup, MonthOption } from './patient-data.se
 @Component({
   selector: 'app-seguimiento-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProfesionalesPanelComponent, AppointmentListOverflowComponent, PatientWizardPanelComponent, TurnPaymentModalComponent],
+  imports: [CommonModule, FormsModule, AppointmentListOverflowComponent, PatientWizardPanelComponent, TurnPaymentModalComponent],
   providers: [PatientDataService],
   templateUrl: './seguimiento-view.component.html',
   styleUrls: ['./seguimiento-view.component.scss']
