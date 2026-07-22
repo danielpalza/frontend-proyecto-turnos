@@ -2,6 +2,25 @@
 @use 'variables' as *;
 @use 'mixins' as *;
 
+// Aviso de bloque de pago en solo lectura (usuario sin TURNOS:COBRAR).
+.pago-readonly-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.75rem 0.875rem;
+  margin-bottom: 1rem;
+  border-radius: 0.5rem;
+  background-color: rgba(253, 205, 15, 0.14);
+  border: 1px solid rgba(253, 205, 15, 0.4);
+  color: #8a6100;
+  font-size: 0.875rem;
+
+  i {
+    flex-shrink: 0;
+    line-height: 1.4;
+  }
+}
+
 // Modal personalizado
 .modal {
   &.show.d-block {

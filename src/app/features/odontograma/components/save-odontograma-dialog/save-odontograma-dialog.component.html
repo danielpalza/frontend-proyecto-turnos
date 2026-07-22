@@ -23,11 +23,19 @@
                 <i class="bi bi-cash-coin me-2 text-primary"></i>Detalles de Pago
               </h6>
 
+              <div class="pago-readonly-notice" *ngIf="!puedeCobrar" data-testid="odontogram-save-pago-readonly-notice">
+                <i class="bi bi-lock"></i>
+                <p class="mb-0">
+                  Solo lectura: tu usuario no registra cobros. Podés guardar la ficha clínica igual.
+                </p>
+              </div>
+
               <div class="mb-3">
                 <label class="form-label">Precio de Bono</label>
                 <input type="number" class="form-control" min="0"
                   [value]="formData().precioBono"
                   (input)="updateField('precioBono', $any($event.target).value)"
+                  [appCan]="Capability.TURNOS_COBRAR"
                   data-testid="odontogram-save-bono-input">
               </div>
 
@@ -36,6 +44,7 @@
                 <input type="number" class="form-control" min="0"
                   [value]="formData().precioTratamiento"
                   (input)="updateField('precioTratamiento', $any($event.target).value)"
+                  [appCan]="Capability.TURNOS_COBRAR"
                   data-testid="odontogram-save-treatment-input">
               </div>
 
@@ -44,6 +53,7 @@
                 <input type="number" class="form-control" min="0"
                   [value]="formData().extras"
                   (input)="updateField('extras', $any($event.target).value)"
+                  [appCan]="Capability.TURNOS_COBRAR"
                   data-testid="odontogram-save-extras-input">
               </div>
 
@@ -52,6 +62,7 @@
                 <input type="number" class="form-control" min="0"
                   [value]="formData().montoPago"
                   (input)="updateField('montoPago', $any($event.target).value)"
+                  [appCan]="Capability.TURNOS_COBRAR"
                   data-testid="odontogram-save-payment-input">
               </div>
 
@@ -73,10 +84,13 @@
                 <textarea rows="3" class="form-control"
                   [value]="formData().observacionesPago"
                   (input)="updateField('observacionesPago', $any($event.target).value)"
+                  [appCan]="Capability.TURNOS_COBRAR"
                   data-testid="odontogram-save-observations-input">
                 </textarea>
               </div>
 
+              <!-- Bloque clínico: siempre editable con ODONTOGRAMA:EDIT, pese a viajar dentro del
+                   delta de pago. Ver docs/PERMISOS.md § 6.1. -->
               <div class="mb-3">
                 <label class="form-label">Observaciones Profesional</label>
                 <textarea rows="4" class="form-control"

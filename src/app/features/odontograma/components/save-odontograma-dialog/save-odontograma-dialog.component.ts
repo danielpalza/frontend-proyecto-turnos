@@ -4,12 +4,15 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { OdontogramaStateService } from '../../services/odontograma-state.service';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { AuthService } from '../../../../core/services/auth.service';
 import { OdontogramaPagoDelta } from '../../../../core/models/odontograma.model';
+import { Capability } from '../../../../core/auth/capabilities';
+import { CanDirective } from '../../../../shared/directives/can.directive';
 
 @Component({
   selector: 'app-save-odontograma-dialog',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CanDirective],
   templateUrl: './save-odontograma-dialog.component.html',
   styleUrls: ['./save-odontograma-dialog.component.scss']
 })
@@ -48,9 +51,21 @@ export class SaveOdontogramaDialogComponent {
   readonly comentarioAnterior: Signal<string>;
   readonly historiaClinica: Signal<string>;
 
+  readonly Capability = Capability;
+
+  /**
+   * El bloque de pago se muestra siempre, pero solo lo edita quien puede cobrar. Este diálogo es la
+   * única vía de persistir la ficha clínica, así que no se puede bloquear entero: sin esta capacidad
+   * el profesional igual guarda su parte. Ver `docs/PERMISOS.md § 6.1`.
+   */
+  get puedeCobrar(): boolean {
+    return this.auth.hasCapability(Capability.TURNOS_COBRAR);
+  }
+
   constructor(
     private readonly stateService: OdontogramaStateService,
     private readonly notification: NotificationService,
+    private readonly auth: AuthService,
     private readonly router: Router
   ) {
     this.comentarioTurno = toSignal(this.stateService.comentario$, { initialValue: '' });
@@ -110,16 +125,23 @@ export class SaveOdontogramaDialogComponent {
     }
 
     const d = this.formData();
-    const pago: OdontogramaPagoDelta = {
-      precioBono: parseFloat(d.precioBono || '0'),
-      precioTratamiento: parseFloat(d.precioTratamiento || '0'),
-      extras: parseFloat(d.extras || '0'),
-      montoPago: parseFloat(d.montoPago || '0'),
-      observaciones: d.observacionesPago || undefined,
-      observacionesTurno: d.observacionesProfesional || undefined
-    };
 
-    if ([pago.precioBono, pago.precioTratamiento, pago.extras, pago.montoPago].some(v => v === undefined || isNaN(v) || v < 0)) {
+    // Sin TURNOS:COBRAR solo viaja lo clínico. El backend rechaza igual los montos si llegaran,
+    // así que esto es UX, no la barrera. Ver `docs/PERMISOS.md § 6.1`.
+    const pago: OdontogramaPagoDelta = this.puedeCobrar
+      ? {
+          precioBono: parseFloat(d.precioBono || '0'),
+          precioTratamiento: parseFloat(d.precioTratamiento || '0'),
+          extras: parseFloat(d.extras || '0'),
+          montoPago: parseFloat(d.montoPago || '0'),
+          observaciones: d.observacionesPago || undefined,
+          observacionesTurno: d.observacionesProfesional || undefined
+        }
+      : { observacionesTurno: d.observacionesProfesional || undefined };
+
+    if (this.puedeCobrar
+      && [pago.precioBono, pago.precioTratamiento, pago.extras, pago.montoPago]
+        .some(v => v === undefined || isNaN(v) || v < 0)) {
       this.saveError.set('Los montos no pueden ser negativos.');
       return;
     }
