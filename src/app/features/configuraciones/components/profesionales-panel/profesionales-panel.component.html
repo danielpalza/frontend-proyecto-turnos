@@ -1,17 +1,28 @@
 <div class="profesionales-panel" data-testid="settings-profesionales-panel">
+  <div class="profesionales-header mb-4">
+    <div class="profesionales-header-icon">
+      <i class="bi bi-person-badge"></i>
+    </div>
+    <div>
+      <h2 class="fw-bold mb-0">Profesionales</h2>
+      <p class="text-muted mb-0">Altas, accesos al sistema y módulos habilitados.</p>
+    </div>
+  </div>
+
   <div class="profesionales-toolbar">
     <span class="profesionales-count">
       {{ profesionales.length }}
       {{ profesionales.length === 1 ? 'profesional' : 'profesionales' }}
     </span>
     <div class="d-inline-flex align-items-center gap-2">
-      <button type="button" class="btn btn-outline-primary d-inline-flex align-items-center gap-2" *ngIf="isOwner"
+      <button type="button" class="btn btn-outline-primary d-inline-flex align-items-center gap-2" *ngIf="canInvite"
         (click)="openInviteUser()" data-testid="settings-invite-user-btn">
         <i class="bi bi-envelope-plus"></i>
         Invitar usuario
       </button>
       <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-2"
-        (click)="openAddProfesional()" data-testid="settings-add-profesional-btn">
+        (click)="openAddProfesional()" [appCan]="Capability.PROFESIONALES_MANAGE"
+        data-testid="settings-add-profesional-btn">
         <i class="bi bi-person-plus"></i>
         Agregar profesional
       </button>
@@ -46,16 +57,19 @@
       <div class="profesional-actions">
         <button type="button" class="btn btn-action btn-action-edit"
           (click)="openEditProfesional(prof)" title="Editar"
+          [appCan]="Capability.PROFESIONALES_MANAGE"
           [attr.data-testid]="'settings-profesional-edit-btn-' + prof.id">
           <i class="bi bi-pencil"></i>
         </button>
         <button type="button" class="btn btn-action btn-action-flag"
           (click)="toggleProfesionalActive(prof)" title="Activar / desactivar"
+          [appCan]="Capability.PROFESIONALES_MANAGE"
           [attr.data-testid]="'settings-profesional-status-btn-' + prof.id">
           <i class="bi" [ngClass]="prof.activo === false ? 'bi-toggle-off' : 'bi-toggle-on'"></i>
         </button>
         <button type="button" class="btn btn-action btn-action-delete"
           (click)="onDeleteProfesional(prof)" title="Eliminar"
+          [appCan]="Capability.PROFESIONALES_DELETE"
           [attr.data-testid]="'settings-profesional-delete-btn-' + prof.id">
           <i class="bi bi-trash"></i>
         </button>
@@ -80,7 +94,6 @@
   [open]="showProfesionalForm"
   (openChange)="closeAddProfesional()"
   [editingProfesional]="editingProfesional"
-  [isOwner]="isOwner"
   [moduleOptions]="moduleOptions"
   [isSaving]="isSavingProfesional"
   [saveError]="saveProfesionalError"

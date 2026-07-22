@@ -5,14 +5,41 @@
   display: contents;
 }
 
+// Panel a todo el ancho dentro de Configuraciones: sin sticky ni tope de viewport,
+// que eran para cuando vivía en la columna lateral de Seguimiento.
 .profesionales-panel {
-  @include sticky-container;
-  top: $spacing-3xl;
   background-color: $card-background;
   border: 1px solid $border-color;
   border-radius: $radius-xl;
   box-shadow: $shadow-sm;
   padding: $spacing-xl;
+}
+
+.profesionales-header {
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
+
+  h2 {
+    font-size: 1.25rem;
+  }
+
+  p {
+    font-size: 0.9375rem;
+  }
+}
+
+.profesionales-header-icon {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $radius-lg;
+  background-color: rgba(75, 133, 245, 0.12);
+  color: $primary-color;
+  font-size: 1.35rem;
 }
 
 .profesionales-toolbar {

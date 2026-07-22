@@ -1,5 +1,7 @@
 import { Component, OnDestroy, OnInit, ChangeDetectorRef, ViewChild, ViewChildren, QueryList } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Capability } from '../../../core/auth/capabilities';
+import { CanDirective } from '../../../shared/directives/can.directive';
 import { FormsModule } from '@angular/forms';
 import { Appointment, Patient } from '../../../core/models';
 import { AppointmentsService } from '../../../core/services/appointments.service';
@@ -9,7 +11,6 @@ import { ErrorHandlerService } from '../../../core/services/error-handler.servic
 import { combineLatest, Subscription } from 'rxjs';
 import { fullName } from '../../../core/utils/full-name.util';
 import { formatCurrency as formatCurrencyShared } from '../../../core/utils/currency.util';
-import { ProfesionalesPanelComponent } from '../components/profesionales-panel/profesionales-panel.component';
 import { AppointmentListOverflowComponent } from '../components/appointment-list-overflow/appointment-list-overflow.component';
 import { PatientWizardPanelComponent } from '../components/patient-wizard-panel/patient-wizard-panel.component';
 import { TurnPaymentModalComponent } from '../components/turn-payment-modal/turn-payment-modal.component';
@@ -18,12 +19,13 @@ import { PatientDataService, PatientGroup, MonthOption } from './patient-data.se
 @Component({
   selector: 'app-seguimiento-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProfesionalesPanelComponent, AppointmentListOverflowComponent, PatientWizardPanelComponent, TurnPaymentModalComponent],
+  imports: [CommonModule, FormsModule, AppointmentListOverflowComponent, PatientWizardPanelComponent, TurnPaymentModalComponent, CanDirective],
   providers: [PatientDataService],
   templateUrl: './seguimiento-view.component.html',
   styleUrls: ['./seguimiento-view.component.scss']
 })
 export class SeguimientoViewComponent implements OnInit, OnDestroy {
+  readonly Capability = Capability;
   get patients(): Patient[] { return this.patientData.patients; }
   get patientGroups(): PatientGroup[] { return this.patientData.patientGroups; }
   get searchTerm(): string { return this.patientData.searchTerm; }

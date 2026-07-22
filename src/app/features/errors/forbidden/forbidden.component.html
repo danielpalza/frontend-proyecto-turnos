@@ -1,0 +1,25 @@
+<div class="forbidden-page" data-testid="forbidden-page">
+  <div class="forbidden-card">
+    <div class="forbidden-icon">
+      <i class="bi bi-shield-lock"></i>
+    </div>
+
+    <h1 class="forbidden-title" data-testid="forbidden-title">No tenés permisos para esta sección</h1>
+
+    <p class="forbidden-message" data-testid="forbidden-message">
+      Tu usuario no tiene habilitado el acceso a esta pantalla. Si necesitás entrar, pedile al dueño
+      de la organización que te habilite el módulo correspondiente.
+    </p>
+
+    <div class="forbidden-actions">
+      <button type="button" class="btn btn-primary" *ngIf="hasSomewhereToGo" (click)="goHome()"
+        data-testid="forbidden-home-btn">
+        <i class="bi bi-house me-2"></i>Ir al inicio
+      </button>
+      <button type="button" class="btn btn-outline-secondary" (click)="logout()"
+        data-testid="forbidden-logout-btn">
+        <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión
+      </button>
+    </div>
+  </div>
+</div>

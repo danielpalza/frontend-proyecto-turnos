@@ -444,6 +444,20 @@ html.seguimiento-view-active body::-webkit-scrollbar {
   @include sticky-container;
 }
 
+// Control bloqueado por falta de capacidad (directiva [appCan]).
+// El nodo sigue en el DOM a propósito: ver docs/PERMISOS.md § 6.5.
+.capability-locked {
+  opacity: 0.45;
+  cursor: not-allowed !important;
+  pointer-events: auto; // se mantiene para que el tooltip del title siga apareciendo
+  filter: grayscale(100%);
+
+  &:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+}
+
 // Estilos para el contenedor de notificaciones (toasts)
 #toast-container {
   z-index: 9999 !important;

@@ -49,14 +49,14 @@
 
     <!-- ====== REGISTRO EXITOSO ====== -->
     @if (registerSuccess) {
-      <div class="success-view">
+      <div class="success-view" data-testid="register-success-view">
         <div class="success-icon">
           <i class="bi bi-envelope-check"></i>
         </div>
         <h2 class="success-title">Revisá tu email</h2>
-        <p class="success-text">{{ registerSuccessMessage }}</p>
+        <p class="success-text" data-testid="register-success-message">{{ registerSuccessMessage }}</p>
         <p class="success-hint">Te enviamos un link de verificación. Una vez que confirmes tu email, vas a poder iniciar sesión.</p>
-        <button class="btn btn-login mt-3" (click)="backToLogin()">
+        <button class="btn btn-login mt-3" (click)="backToLogin()" data-testid="register-success-login-btn">
           Ir a iniciar sesión
         </button>
       </div>

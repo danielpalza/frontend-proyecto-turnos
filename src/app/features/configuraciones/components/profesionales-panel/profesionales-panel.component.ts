@@ -6,15 +6,17 @@ import { ProfesionalCreateDTO, Profesional, MODULE_OPTIONS } from '../../../../c
 import { fullName } from '../../../../core/utils/full-name.util';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { ErrorHandlerService } from '../../../../core/services/error-handler.service';
-import { ProfesionalDialogComponent } from '../../../configuraciones/components/profesional-dialog/profesional-dialog.component';
-import { InvitationDialogComponent } from '../../../configuraciones/components/invitation-dialog/invitation-dialog.component';
+import { ProfesionalDialogComponent } from '../profesional-dialog/profesional-dialog.component';
+import { InvitationDialogComponent } from '../invitation-dialog/invitation-dialog.component';
+import { Capability } from '../../../../core/auth/capabilities';
+import { CanDirective } from '../../../../shared/directives/can.directive';
 import { Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-profesionales-panel',
   standalone: true,
-  imports: [CommonModule, ProfesionalDialogComponent, InvitationDialogComponent],
+  imports: [CommonModule, ProfesionalDialogComponent, InvitationDialogComponent, CanDirective],
   templateUrl: './profesionales-panel.component.html',
   styleUrls: ['./profesionales-panel.component.scss']
 })
@@ -35,6 +37,7 @@ export class ProfesionalesPanelComponent implements OnInit, OnDestroy {
   isTogglingActive = false;
 
   readonly moduleOptions = MODULE_OPTIONS;
+  readonly Capability = Capability;
 
   private subscriptions = new Subscription();
 
@@ -46,8 +49,18 @@ export class ProfesionalesPanelComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef
   ) {}
 
-  get isOwner(): boolean {
-    return this.authService.hasRole('OWNER');
+  /** Invitar usuarios pasó de ser OWNER-only a exigir `INVITACIONES:MANAGE` (§ 6.3). */
+  get canInvite(): boolean {
+    return this.authService.hasCapability(Capability.INVITACIONES_MANAGE);
+  }
+
+  get canManage(): boolean {
+    return this.authService.hasCapability(Capability.PROFESIONALES_MANAGE);
+  }
+
+  /** Eliminar sigue siendo solo del OWNER: deja turnos huérfanos (§ 6.3). */
+  get canDelete(): boolean {
+    return this.authService.hasCapability(Capability.PROFESIONALES_DELETE);
   }
 
   ngOnInit(): void {

@@ -22,7 +22,7 @@
             {{ getFormattedDay(date).dayName }} {{ getFormattedDay(date).dayNumber }} de {{ getFormattedDay(date).month }} de {{ getFormattedDay(date).year }}
           </h2>
         </div>
-        <button class="btn-add-turn" *ngIf="appointmentsCount > 0" (click)="addClick.emit()" data-testid="appointment-add-btn">
+        <button class="btn-add-turn" *ngIf="appointmentsCount > 0" [appCan]="Capability.TURNOS_MANAGE" (click)="addClick.emit()" data-testid="appointment-add-btn">
           <i class="bi bi-plus-lg"></i>
           <span>Agregar turno</span>
         </button>
@@ -76,7 +76,7 @@
                   (keyup.escape)="cancelHoraEdit(a.id!); $event.stopPropagation()"
                   (click)="$event.stopPropagation()" />
                 <span class="hora-edit-actions" (click)="$event.stopPropagation()">
-                  <button type="button" class="btn-save-price" [attr.data-testid]="'appointment-save-time-' + a.id" (click)="saveHora(a.id!); $event.stopPropagation()"
+                  <button type="button" class="btn-save-price" [appCan]="Capability.TURNOS_MANAGE" [attr.data-testid]="'appointment-save-time-' + a.id" (click)="saveHora(a.id!); $event.stopPropagation()"
                     title="Guardar">
                     <i class="bi bi-check-lg"></i>
                   </button>
@@ -133,7 +133,7 @@
                     {{ p.nombre }}{{ isCurrentAssignedProfesional(p, a) ? ' (asignado)' : '' }}
                   </option>
                 </select>
-                <button type="button" class="btn-save-price" [attr.data-testid]="'appointment-save-professional-' + a.id"
+                <button type="button" class="btn-save-price" [appCan]="Capability.TURNOS_MANAGE" [attr.data-testid]="'appointment-save-professional-' + a.id"
                   (click)="saveProfesional(a.id!); $event.stopPropagation()" title="Guardar">
                   <i class="bi bi-check-lg"></i>
                 </button>
@@ -166,7 +166,7 @@
             <div class="col-actions" (click)="$event.stopPropagation()">
               <a *ngIf="hasPatientPhone(a)" [href]="getWhatsAppLink(a)!" target="_blank" rel="noopener noreferrer"
                 class="btn-whatsapp" title="Enviar recordatorio por WhatsApp"
-                [attr.data-testid]="'appointment-whatsapp-btn-' + a.id">
+                [appCan]="Capability.TURNOS_NOTIFY" [attr.data-testid]="'appointment-whatsapp-btn-' + a.id">
                 <i class="bi bi-whatsapp"></i>
               </a>
               <span *ngIf="!hasPatientPhone(a)" class="btn-whatsapp-disabled"
@@ -174,11 +174,11 @@
                 [attr.data-testid]="'appointment-whatsapp-disabled-btn-' + a.id">
                 <i class="bi bi-whatsapp"></i>
               </span>
-              <button type="button" class="btn-start" title="Historia clínica"
-                (click)="openOdontogram(a.id!)" [attr.data-testid]="'appointment-start-btn-' + a.id">
+              <button type="button" class="btn-start" title="Iniciar turno"
+                [appCan]="Capability.ODONTOGRAMA_VIEW" (click)="openOdontogram(a.id!)" [attr.data-testid]="'appointment-start-btn-' + a.id">
                 <i class="bi bi-heart-pulse"></i>
               </button>
-              <button type="button" class="btn-delete" title="Cancelar turno" (click)="delete.emit(a.id)" [attr.data-testid]="'appointment-delete-btn-' + a.id">
+              <button type="button" class="btn-delete" title="Cancelar turno" [appCan]="Capability.TURNOS_MANAGE" (click)="delete.emit(a.id)" [attr.data-testid]="'appointment-delete-btn-' + a.id">
                 <i class="bi bi-x-lg"></i>
               </button>
               <i class="bi expand-icon" [ngClass]="isCardExpanded(a.id!) ? 'bi-chevron-up' : 'bi-chevron-down'"
@@ -209,7 +209,7 @@
                         (input)="updatePriceInput(a.id!, 'bono', +$any($event.target).value)"
                         (keyup.escape)="cancelPriceEdit(a.id!, 'bono'); $event.stopPropagation()" placeholder="0"
                         min="0" step="0.01" (click)="$event.stopPropagation()" />
-                      <button type="button" class="btn-save-price" [attr.data-testid]="'appointment-save-bono-' + a.id"
+                      <button type="button" class="btn-save-price" [appCan]="Capability.TURNOS_COBRAR" [attr.data-testid]="'appointment-save-bono-' + a.id"
                         (click)="savePrice(a.id!, 'bono'); $event.stopPropagation()" title="Guardar">
                         <i class="bi bi-check-lg"></i>
                       </button>
@@ -230,7 +230,7 @@
                         (input)="updatePriceInput(a.id!, 'tratamiento', +$any($event.target).value)"
                         (keyup.escape)="cancelPriceEdit(a.id!, 'tratamiento'); $event.stopPropagation()" placeholder="0"
                         min="0" step="0.01" (click)="$event.stopPropagation()" />
-                      <button type="button" class="btn-save-price" [attr.data-testid]="'appointment-save-treatment-' + a.id"
+                      <button type="button" class="btn-save-price" [appCan]="Capability.TURNOS_COBRAR" [attr.data-testid]="'appointment-save-treatment-' + a.id"
                         (click)="savePrice(a.id!, 'tratamiento'); $event.stopPropagation()" title="Guardar">
                         <i class="bi bi-check-lg"></i>
                       </button>
@@ -251,7 +251,7 @@
                         (input)="updatePriceInput(a.id!, 'extras', +$any($event.target).value)"
                         (keyup.escape)="cancelPriceEdit(a.id!, 'extras'); $event.stopPropagation()" placeholder="0"
                         min="0" step="0.01" (click)="$event.stopPropagation()" />
-                      <button type="button" class="btn-save-price" [attr.data-testid]="'appointment-save-extras-' + a.id"
+                      <button type="button" class="btn-save-price" [appCan]="Capability.TURNOS_COBRAR" [attr.data-testid]="'appointment-save-extras-' + a.id"
                         (click)="savePrice(a.id!, 'extras'); $event.stopPropagation()" title="Guardar">
                         <i class="bi bi-check-lg"></i>
                       </button>
@@ -271,17 +271,17 @@
             <!-- Editar Pago -->
             <div class="add-payment-section">
               <label class="payment-label">Pago:</label>
-              <input type="number" class="payment-input" [attr.data-testid]="'appointment-payment-input-' + a.id" [value]="getPaymentInput(a.id!)"
+              <input type="number" class="payment-input" [appCan]="Capability.TURNOS_COBRAR" [attr.data-testid]="'appointment-payment-input-' + a.id" [value]="getPaymentInput(a.id!)"
                 (input)="updatePaymentInput(a.id!, +$any($event.target).value)" placeholder="0" min="0.01"
                 step="0.01" />
-              <button type="button" class="btn-add-payment" [disabled]="isAddingPayment(a.id!)" (click)="onAddPayment(a.id!); $event.stopPropagation()" [attr.data-testid]="'appointment-add-payment-btn-' + a.id">
+              <button type="button" class="btn-add-payment" [disabled]="isAddingPayment(a.id!)" (click)="onAddPayment(a.id!); $event.stopPropagation()" [appCan]="Capability.TURNOS_COBRAR" [attr.data-testid]="'appointment-add-payment-btn-' + a.id">
                 Agregar
               </button>
               <label class="payment-total-checkbox ms-2" (click)="$event.stopPropagation()" [attr.data-testid]="'appointment-full-payment-label-' + a.id">
                 <input type="checkbox"
                   [checked]="getPaymentInput(a.id!) === (a.totalPrecio ?? 0) && (a.totalPrecio ?? 0) > 0"
                   (change)="$any($event.target).checked ? updatePaymentInput(a.id!, a.totalPrecio ?? 0) : updatePaymentInput(a.id!, 0); $event.stopPropagation()"
-                  [attr.data-testid]="'appointment-full-payment-checkbox-' + a.id" />
+                  [appCan]="Capability.TURNOS_COBRAR" [attr.data-testid]="'appointment-full-payment-checkbox-' + a.id" />
                 Pago total
               </label>
             </div>
@@ -304,7 +304,7 @@
                   (keyup.escape)="cancelObservacionesEdit(a.id!); $event.stopPropagation()"
                   placeholder="Ingrese las observaciones..." rows="3" (click)="$event.stopPropagation()"></textarea>
                 <div class="d-flex gap-2 justify-content-end">
-                  <button type="button" class="btn-save-price" [attr.data-testid]="'appointment-save-payment-obs-' + a.id"
+                  <button type="button" class="btn-save-price" [appCan]="Capability.TURNOS_COBRAR" [attr.data-testid]="'appointment-save-payment-obs-' + a.id"
                     (click)="saveObservaciones(a.id!); $event.stopPropagation()" title="Guardar">
                     <i class="bi bi-check-lg"></i>
                     <span class="ms-1">Guardar</span>
@@ -337,7 +337,7 @@
                   placeholder="Ingrese las observaciones del turno..." rows="3"
                   (click)="$event.stopPropagation()"></textarea>
                 <div class="d-flex gap-2 justify-content-end">
-                  <button type="button" class="btn-save-price" [attr.data-testid]="'appointment-save-turn-obs-' + a.id"
+                  <button type="button" class="btn-save-price" [appCan]="Capability.TURNOS_MANAGE" [attr.data-testid]="'appointment-save-turn-obs-' + a.id"
                     (click)="saveObservacionesTurno(a.id!); $event.stopPropagation()" title="Guardar">
                     <i class="bi bi-check-lg"></i>
                     <span class="ms-1">Guardar</span>
@@ -356,7 +356,7 @@
       </div>
     </div>
 
-    <button class="btn-add-turn" *ngIf="appointmentsCount === 0" (click)="addClick.emit()" data-testid="appointment-add-btn">
+    <button class="btn-add-turn" *ngIf="appointmentsCount === 0" [appCan]="Capability.TURNOS_MANAGE" (click)="addClick.emit()" data-testid="appointment-add-btn">
       <i class="bi bi-plus-lg"></i>
       <span>Agregar turno</span>
     </button>

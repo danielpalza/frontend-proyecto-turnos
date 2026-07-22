@@ -34,6 +34,11 @@ export interface AuthResponse {
   organizationNombre: string;
   organizationPais: string;
   modules: string[];
+  /**
+   * Capacidades efectivas (`MODULO:ACCION`) ya resueltas por el backend.
+   * Opcional: las sesiones cacheadas antes de que existiera este campo no la tienen.
+   */
+  capabilities?: string[];
 }
 
 export interface MessageResponse {

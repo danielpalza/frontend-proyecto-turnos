@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Profesional, ProfesionalCreateDTO, MODULE_OPTIONS } from '../../../../core/models';
 import { documentNumberValidator, phoneValidator } from '../../../../shared/validators/custom-validators';
+import { AuthService } from '../../../../core/services/auth.service';
+import { Capability, MODULE_PRESETS, derivedModules } from '../../../../core/auth/capabilities';
 
 interface PasswordStrength {
   width: string;
@@ -38,7 +40,6 @@ const PASSWORD_STRENGTH_LEVELS: PasswordStrength[] = [
 export class ProfesionalDialogComponent implements OnChanges {
   @Input() open = false;
   @Input() editingProfesional: Profesional | null = null;
-  @Input() isOwner = false;
   @Input() moduleOptions = MODULE_OPTIONS;
   @Input() isSaving = false;
   @Input() saveError = '';
@@ -50,7 +51,9 @@ export class ProfesionalDialogComponent implements OnChanges {
   moduleCodes: string[] = [];
   showPassword = false;
 
-  constructor(private readonly fb: FormBuilder) {
+  readonly presets = MODULE_PRESETS;
+
+  constructor(private readonly fb: FormBuilder, private readonly auth: AuthService) {
     this.form = this.buildForm();
     this.form.get('crearAcceso')!.valueChanges
       .pipe(takeUntilDestroyed())
@@ -61,18 +64,44 @@ export class ProfesionalDialogComponent implements OnChanges {
     return !!this.editingProfesional;
   }
 
-  /** Solo un OWNER puede otorgar acceso al sistema, y solo al crear (no al editar). */
+  /** Otorgar acceso al sistema exige `ACCESOS:MANAGE`, y solo al crear (no al editar). */
   get canCreateAccess(): boolean {
-    return this.isOwner && !this.isEditing;
+    return this.auth.hasCapability(Capability.ACCESOS_MANAGE) && !this.isEditing;
   }
 
   get hasLinkedUser(): boolean {
     return !!this.editingProfesional?.userId;
   }
 
-  /** Un OWNER puede editar los módulos habilitados de un profesional que ya tiene usuario. */
+  /** Con `ACCESOS:MANAGE` se pueden editar los módulos de un profesional que ya tiene usuario. */
   get canEditModules(): boolean {
-    return this.isOwner && this.isEditing && this.hasLinkedUser;
+    return this.auth.hasCapability(Capability.ACCESOS_MANAGE) && this.isEditing && this.hasLinkedUser;
+  }
+
+  /**
+   * Baranda de § 6.4: no se pueden conceder módulos que uno mismo no tiene. El `OWNER` queda exento.
+   * Esto es solo UX — el enforcement real es B6, todavía pendiente en el backend.
+   */
+  canGrant(code: string): boolean {
+    return this.auth.hasRole('OWNER') || this.auth.grantedModules().includes(code);
+  }
+
+  /** Módulos que las reglas arrastran solos, para mostrarlos como incluidos sin tilde manual. */
+  get derived(): Set<string> {
+    return derivedModules(this.moduleCodes) as Set<string>;
+  }
+
+  isDerived(code: string): boolean {
+    return this.derived.has(code);
+  }
+
+  isPresetActive(preset: { modules: readonly string[] }): boolean {
+    return preset.modules.length === this.moduleCodes.length
+      && preset.modules.every(code => this.moduleCodes.includes(code));
+  }
+
+  applyPreset(preset: { modules: readonly string[] }): void {
+    this.moduleCodes = preset.modules.filter(code => this.canGrant(code));
   }
 
   get showModulesSection(): boolean {

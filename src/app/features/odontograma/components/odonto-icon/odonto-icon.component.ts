@@ -31,7 +31,10 @@ export type OdontoIconName =
   standalone: true,
   imports: [CommonModule],
   templateUrl: './odonto-icon.component.html',
-  styleUrls: ['./odonto-icon.component.scss']
+  styleUrls: ['./odonto-icon.component.scss'],
+  // Los iconos pasaron de <i class="bi ..."> a SVG propios, y los tests los alcanzaban por esa
+  // clase. Se expone el nombre como testid para que dejen de depender del markup interno.
+  host: { '[attr.data-testid]': "'odonto-icon-' + name" }
 })
 export class OdontoIconComponent {
   @Input() name: OdontoIconName | string = '';

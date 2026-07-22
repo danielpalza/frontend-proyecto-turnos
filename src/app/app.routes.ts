@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './core/guards/auth.guard';
+import { authGuard, homeRedirect } from './core/guards/auth.guard';
+import { Capability } from './core/auth/capabilities';
 
 export const routes: Routes = [
   {
@@ -18,21 +19,26 @@ export const routes: Routes = [
       import('./features/auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent)
   },
   {
+    path: '403',
+    loadComponent: () =>
+      import('./features/errors/forbidden/forbidden.component').then(m => m.ForbiddenComponent)
+  },
+  {
     path: '',
-    redirectTo: 'panel',
+    redirectTo: homeRedirect,
     pathMatch: 'full'
   },
   {
     path: 'panel',
     canActivate: [authGuard],
-    data: { module: 'PANEL' },
+    data: { capability: Capability.PANEL_VIEW },
     loadComponent: () =>
       import('./features/panel/panel-view/panel-view.component').then(m => m.PanelViewComponent)
   },
   {
     path: 'turnos',
     canActivate: [authGuard],
-    data: { module: 'TURNOS' },
+    data: { capability: Capability.TURNOS_VIEW },
     loadComponent: () =>
       import('./features/appointments/pages/turnos-view/turnos-view.component').then(
         m => m.TurnosViewComponent
@@ -41,7 +47,7 @@ export const routes: Routes = [
   {
     path: 'odontograma/:appointmentId',
     canActivate: [authGuard],
-    data: { module: 'ODONTOGRAMA' },
+    data: { capability: Capability.ODONTOGRAMA_VIEW },
     loadComponent: () =>
       import('./features/odontograma/components/odontograma-view/odontograma-view.component').then(
         m => m.OdontogramaViewComponent
@@ -55,7 +61,7 @@ export const routes: Routes = [
   {
     path: 'seguimiento',
     canActivate: [authGuard],
-    data: { module: 'SEGUIMIENTO' },
+    data: { capability: Capability.SEGUIMIENTO_VIEW },
     loadComponent: () =>
       import('./features/seguimiento/seguimiento-view/seguimiento-view.component').then(
         m => m.SeguimientoViewComponent
@@ -64,7 +70,7 @@ export const routes: Routes = [
   {
     path: 'configuraciones',
     canActivate: [authGuard],
-    data: { module: 'CONFIGURACIONES' },
+    data: { capability: Capability.CONFIGURACIONES_VIEW },
     loadComponent: () =>
       import('./features/configuraciones/configuraciones-view/configuraciones-view.component').then(
         m => m.ConfiguracionesViewComponent
@@ -73,7 +79,7 @@ export const routes: Routes = [
   {
     path: 'coberturas',
     canActivate: [authGuard],
-    data: { module: 'COBERTURA' },
+    data: { capability: Capability.COBERTURA_VIEW },
     loadComponent: () =>
       import('./features/coberturas/coberturas-view/coberturas-view.component').then(
         m => m.CoberturasViewComponent
@@ -81,6 +87,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: 'panel'
+    redirectTo: homeRedirect
   }
 ];

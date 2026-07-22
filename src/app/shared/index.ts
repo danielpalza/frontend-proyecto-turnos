@@ -25,7 +25,7 @@ export { PatientWizardComponent } from './components/patient-wizard/patient-wiza
 // export * from './pipes/format-date.pipe';
 
 // Exportar directivas compartidas
-// export * from './directives/auto-focus.directive';
+export * from './directives/can.directive';
 
 // Exportar validators compartidos
 export * from './validators/custom-validators';
