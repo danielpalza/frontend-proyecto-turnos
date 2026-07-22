@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable, Subject, tap } from 'rxjs';
 import { API_CONFIG } from './api.config';
 import { AuthResponse, LoginRequest, RegisterRequest, MessageResponse, ForgotPasswordRequest, ResetPasswordRequest } from '../models/auth.model';
 import { skipGlobalErrorHandler } from '../interceptors/http-context';
+import { resolveCapabilities } from '../auth/capabilities';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -94,8 +95,41 @@ export class AuthService {
     return this.currentUserSubject.value?.role === role;
   }
 
+  /**
+   * @deprecated Usar {@link hasCapability}. Un módulo ya no describe lo que el usuario puede hacer:
+   * ver `bakend-proyecto-turnos/docs/PERMISOS.md`.
+   */
   hasModule(code: string): boolean {
     return this.currentUserSubject.value?.modules?.includes(code) ?? false;
+  }
+
+  hasCapability(capability: string): boolean {
+    return this.capabilities().has(capability);
+  }
+
+  /**
+   * Módulos concedidos a la sesión actual — la unidad que se otorga, no la que se consulta.
+   * Solo para decidir qué puede conceder este usuario a otro (`docs/PERMISOS.md § 6.4`);
+   * para saber si puede hacer algo, usar {@link hasCapability}.
+   */
+  grantedModules(): readonly string[] {
+    return this.currentUserSubject.value?.modules ?? [];
+  }
+
+  /**
+   * Capacidades de la sesión actual. Usa las que resolvió el backend; si la sesión quedó cacheada
+   * en `localStorage` antes de que ese campo existiera, las deriva de `modules` con la tabla espejo
+   * para no forzar un re-login.
+   */
+  private capabilities(): ReadonlySet<string> {
+    const user = this.currentUserSubject.value;
+    if (!user) {
+      return new Set<string>();
+    }
+    if (user.capabilities?.length) {
+      return new Set(user.capabilities);
+    }
+    return resolveCapabilities(user.modules ?? []);
   }
 
   private setSession(response: AuthResponse): void {
