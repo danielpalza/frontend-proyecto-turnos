@@ -267,7 +267,11 @@
                     </div>
                   </td>
                   <td>
-                    <button type="button" class="btn btn-outline-secondary btn-sm" (click)="goToSeguimiento()">Ver detalle</button>
+                    <!-- Pide SEGUIMIENTO:VIEW, no PANEL: la capacidad la define el efecto del
+                         control (navegar a Seguimiento), no la pestaña donde vive. -->
+                    <button type="button" class="btn btn-outline-secondary btn-sm"
+                      [appCan]="Capability.SEGUIMIENTO_VIEW" (click)="goToSeguimiento()"
+                      data-testid="dashboard-profesional-detalle-btn">Ver detalle</button>
                   </td>
                 </tr>
               }

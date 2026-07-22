@@ -1,6 +1,8 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
+import { Capability } from '../../../core/auth/capabilities';
+import { CanDirective } from '../../../shared/directives/can.directive';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 
@@ -25,11 +27,12 @@ const TAMANO_MAXIMO_BYTES = 20 * 1024 * 1024;
 @Component({
   selector: 'app-coberturas-view',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, CanDirective],
   templateUrl: './coberturas-view.component.html',
   styleUrl: './coberturas-view.component.scss'
 })
 export class CoberturasViewComponent implements OnInit {
+  readonly Capability = Capability;
   readonly tiposDocumento = TIPOS_DOCUMENTO;
   readonly tipoLinkLabels = TIPO_LINK_LABELS;
 

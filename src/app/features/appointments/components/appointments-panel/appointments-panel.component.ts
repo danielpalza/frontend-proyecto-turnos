@@ -1,5 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Capability } from '../../../../core/auth/capabilities';
+import { CanDirective } from '../../../../shared/directives/can.directive';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Appointment, AppointmentPartialUpdateDTO, Profesional, Patient } from '../../../../core/models';
@@ -15,11 +17,12 @@ import { fullName } from '../../../../core/utils/full-name.util';
 @Component({
   selector: 'app-appointments-panel',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, CanDirective],
   templateUrl: './appointments-panel.component.html',
   styleUrls: ['./appointments-panel.component.scss']
 })
 export class AppointmentsPanelComponent implements OnChanges {
+  readonly Capability = Capability;
   @Input() date: string | null = null;
   @Input() appointments: Appointment[] = [];
   @Input() profesionales: Profesional[] = [];

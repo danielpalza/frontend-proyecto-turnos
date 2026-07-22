@@ -8,7 +8,7 @@
     <button
       class="btn-primary"
       type="button"
-      data-testid="coberturas-add-intermediario-btn"
+      [appCan]="Capability.COBERTURA_MANAGE" data-testid="coberturas-add-intermediario-btn"
       (click)="abrirModal()"
     >
       <i class="bi bi-plus-lg"></i>
@@ -83,7 +83,7 @@
               <button
                 type="button"
                 class="cob-icon-btn"
-                [attr.data-testid]="'coberturas-intermediario-editar-' + i.id"
+                [appCan]="Capability.COBERTURA_MANAGE" [attr.data-testid]="'coberturas-intermediario-editar-' + i.id"
                 (click)="abrirModalEdicion(i, $event)"
                 title="Editar"
               >
@@ -92,7 +92,7 @@
               <button
                 type="button"
                 class="cob-icon-btn cob-icon-btn--danger"
-                [attr.data-testid]="'coberturas-intermediario-borrar-' + i.id"
+                [appCan]="Capability.COBERTURA_MANAGE" [attr.data-testid]="'coberturas-intermediario-borrar-' + i.id"
                 (click)="eliminarIntermediario(i, $event)"
                 title="Eliminar"
               >
@@ -161,7 +161,7 @@
             [class.bi-star-fill]="os.favorito"
             [class.bi-star]="!os.favorito"
             [class.cob-star--on]="os.favorito"
-            [attr.data-testid]="'coberturas-star-toggle-' + os.id"
+            [appCan]="Capability.COBERTURA_MANAGE" [attr.data-testid]="'coberturas-star-toggle-' + os.id"
             (click)="toggleFavorito(os, $event)"
           ></i>
           <span class="cob-sigla">{{ os.sigla || os.nombre }}</span>
@@ -212,7 +212,7 @@
             <button
               type="button"
               class="cob-nota-guardar-btn"
-              [attr.data-testid]="'coberturas-web-guardar-' + os.id"
+              [appCan]="Capability.COBERTURA_MANAGE" [attr.data-testid]="'coberturas-web-guardar-' + os.id"
               [disabled]="!webSinGuardar(os) || isGuardando(os.id)"
               (click)="guardarWeb(os)"
             >
@@ -232,7 +232,7 @@
             <button
               type="button"
               class="cob-nota-guardar-btn"
-              [attr.data-testid]="'coberturas-telefono-guardar-' + os.id"
+              [appCan]="Capability.COBERTURA_MANAGE" [attr.data-testid]="'coberturas-telefono-guardar-' + os.id"
               [disabled]="!telefonoSinGuardar(os) || isGuardando(os.id)"
               (click)="guardarTelefono(os)"
             >
@@ -252,7 +252,7 @@
             <button
               type="button"
               class="cob-nota-guardar-btn"
-              [attr.data-testid]="'coberturas-nota-guardar-' + os.id"
+              [appCan]="Capability.COBERTURA_MANAGE" [attr.data-testid]="'coberturas-nota-guardar-' + os.id"
               [disabled]="!notaSinGuardar(os) || isGuardando(os.id)"
               (click)="guardarNota(os)"
             >
@@ -270,7 +270,7 @@
                 <option [value]="tipo.codigo">{{ tipo.nombre }}</option>
               }
             </select>
-            <label class="cob-upload-label" [attr.data-testid]="'coberturas-upload-btn-' + os.id">
+            <label class="cob-upload-label" [appCan]="Capability.COBERTURA_MANAGE" [attr.data-testid]="'coberturas-upload-btn-' + os.id">
               Subir archivo
               <input
                 type="file"
@@ -292,7 +292,7 @@
               <button
                 type="button"
                 class="cob-icon-btn cob-icon-btn--danger"
-                [attr.data-testid]="'coberturas-doc-borrar-' + doc.id"
+                [appCan]="Capability.COBERTURA_MANAGE" [attr.data-testid]="'coberturas-doc-borrar-' + doc.id"
                 (click)="onEliminarDocumento(os, doc.id)"
                 title="Eliminar"
               >

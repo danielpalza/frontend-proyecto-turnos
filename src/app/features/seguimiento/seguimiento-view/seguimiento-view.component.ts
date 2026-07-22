@@ -1,5 +1,7 @@
 import { Component, OnDestroy, OnInit, ChangeDetectorRef, ViewChild, ViewChildren, QueryList } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Capability } from '../../../core/auth/capabilities';
+import { CanDirective } from '../../../shared/directives/can.directive';
 import { FormsModule } from '@angular/forms';
 import { Appointment, Patient } from '../../../core/models';
 import { AppointmentsService } from '../../../core/services/appointments.service';
@@ -17,12 +19,13 @@ import { PatientDataService, PatientGroup, MonthOption } from './patient-data.se
 @Component({
   selector: 'app-seguimiento-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, AppointmentListOverflowComponent, PatientWizardPanelComponent, TurnPaymentModalComponent],
+  imports: [CommonModule, FormsModule, AppointmentListOverflowComponent, PatientWizardPanelComponent, TurnPaymentModalComponent, CanDirective],
   providers: [PatientDataService],
   templateUrl: './seguimiento-view.component.html',
   styleUrls: ['./seguimiento-view.component.scss']
 })
 export class SeguimientoViewComponent implements OnInit, OnDestroy {
+  readonly Capability = Capability;
   get patients(): Patient[] { return this.patientData.patients; }
   get patientGroups(): PatientGroup[] { return this.patientData.patientGroups; }
   get searchTerm(): string { return this.patientData.searchTerm; }

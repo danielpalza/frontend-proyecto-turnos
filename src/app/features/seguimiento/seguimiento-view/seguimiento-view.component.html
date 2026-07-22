@@ -11,7 +11,7 @@
             </h1>
             <p class="text-muted mb-0" data-testid="tracking-page-subtitle">Historial y seguimiento de todos los pacientes</p>
           </div>
-          <button type="button" class="btn btn-primary" (click)="openNewPatientWizard()" data-testid="tracking-new-patient-btn">
+          <button type="button" class="btn btn-primary" [appCan]="Capability.SEGUIMIENTO_PACIENTES" (click)="openNewPatientWizard()" data-testid="tracking-new-patient-btn">
             <i class="bi bi-person-plus me-1"></i>Nuevo paciente
           </button>
         </div>
@@ -49,7 +49,7 @@
                       {{ formatCurrency(group.totalAdeudado) }}
                     </span>
                     <button type="button" class="btn btn-sm btn-outline-primary ms-auto"
-                      title="Editar datos del paciente" (click)="editPatientFromGroup(group)" [attr.data-testid]="'tracking-patient-edit-btn-' + group.patient.identificacion">
+                      title="Editar datos del paciente" (click)="editPatientFromGroup(group)" [appCan]="Capability.SEGUIMIENTO_PACIENTES" [attr.data-testid]="'tracking-patient-edit-btn-' + group.patient.identificacion">
                       <i class="bi bi-pencil"></i> Editar
                     </button>
                   </div>

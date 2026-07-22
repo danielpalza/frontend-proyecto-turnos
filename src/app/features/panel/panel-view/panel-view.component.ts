@@ -10,6 +10,8 @@ import { DashboardService } from '../../../core/services/dashboard.service';
 import { DashboardSummary, ProfessionalStats } from '../../../core/models/dashboard.model';
 import { fullName } from '../../../core/utils/full-name.util';
 import { formatCurrency as formatCurrencyShared } from '../../../core/utils/currency.util';
+import { Capability } from '../../../core/auth/capabilities';
+import { CanDirective } from '../../../shared/directives/can.directive';
 
 interface DonutLegendItem {
   label: string;
@@ -31,13 +33,14 @@ type SortDirection = 'asc' | 'desc';
 @Component({
   selector: 'app-panel-view',
   standalone: true,
-  imports: [CommonModule, MiniCalendarPickerComponent, BaseChartDirective],
+  imports: [CommonModule, MiniCalendarPickerComponent, BaseChartDirective, CanDirective],
   providers: [provideCharts(withDefaultRegisterables())],
   templateUrl: './panel-view.component.html',
   styleUrls: ['./panel-view.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PanelViewComponent implements OnInit, OnDestroy {
+  readonly Capability = Capability;
   currentDate = new Date();
   dateFrom = '';
   dateTo = '';

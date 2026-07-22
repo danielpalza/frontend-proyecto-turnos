@@ -57,7 +57,7 @@
                   </button>
                 </span>
                 <button type="button" class="icon-btn icon-btn-primary" *ngIf="!editingPriceBono"
-                  (click)="startEditingPriceBono()" title="Editar bono" data-testid="tracking-turn-edit-bono-btn">
+                  (click)="startEditingPriceBono()" title="Editar bono" [appCan]="Capability.SEGUIMIENTO_COBRAR" data-testid="tracking-turn-edit-bono-btn">
                   <i class="bi bi-pencil"></i>
                 </button>
               </div>
@@ -81,7 +81,7 @@
                   </button>
                 </span>
                 <button type="button" class="icon-btn icon-btn-primary" *ngIf="!editingPriceTratamiento"
-                  (click)="startEditingPriceTratamiento()" title="Editar tratamiento" data-testid="tracking-turn-edit-treatment-btn">
+                  (click)="startEditingPriceTratamiento()" title="Editar tratamiento" [appCan]="Capability.SEGUIMIENTO_COBRAR" data-testid="tracking-turn-edit-treatment-btn">
                   <i class="bi bi-pencil"></i>
                 </button>
               </div>
@@ -104,7 +104,7 @@
                   </button>
                 </span>
                 <button type="button" class="icon-btn icon-btn-primary" *ngIf="!editingPriceExtras"
-                  (click)="startEditingPriceExtras()" title="Editar extras" data-testid="tracking-turn-edit-extras-btn">
+                  (click)="startEditingPriceExtras()" title="Editar extras" [appCan]="Capability.SEGUIMIENTO_COBRAR" data-testid="tracking-turn-edit-extras-btn">
                   <i class="bi bi-pencil"></i>
                 </button>
               </div>
@@ -131,16 +131,16 @@
             <label class="mb-0">Monto:</label>
             <input type="number" class="form-control payment-input-inline" placeholder="0" min="0.01" step="0.01"
               [value]="getTurnModalPaymentInput()"
-              (input)="updateTurnModalPaymentInput(+$any($event.target).value)" data-testid="tracking-turn-payment-input" />
+              (input)="updateTurnModalPaymentInput(+$any($event.target).value)" [appCan]="Capability.SEGUIMIENTO_COBRAR" data-testid="tracking-turn-payment-input" />
             <button type="button" class="btn btn-primary btn-sm" (click)="onTurnModalAddPayment()"
-              [disabled]="isAddingPayment" data-testid="tracking-turn-add-payment-btn">
+              [disabled]="isAddingPayment" [appCan]="Capability.SEGUIMIENTO_COBRAR" data-testid="tracking-turn-add-payment-btn">
               {{ isAddingPayment ? 'Agregando...' : 'Agregar' }}
             </button>
             <label class="mb-0 d-flex align-items-center gap-1 payment-total-label" data-testid="tracking-turn-full-payment-label">
               <input type="checkbox"
                 [checked]="isFullPaymentChecked()"
                 (change)="$any($event.target).checked ? updateTurnModalPaymentInput(appointment.totalPrecio ?? 0) : updateTurnModalPaymentInput(0)"
-                data-testid="tracking-turn-full-payment-checkbox" />
+                [appCan]="Capability.SEGUIMIENTO_COBRAR" data-testid="tracking-turn-full-payment-checkbox" />
               Pago total
             </label>
           </div>
@@ -154,7 +154,7 @@
           <h6 class="section-label d-flex justify-content-between align-items-center">
             <span><i class="bi bi-chat-text me-2"></i>Observaciones de pago</span>
             <button type="button" class="btn btn-sm btn-outline-primary" *ngIf="!editingObservacionesPago"
-              (click)="startEditingObservacionesPago()" data-testid="tracking-turn-edit-payment-obs-btn">
+              (click)="startEditingObservacionesPago()" [appCan]="Capability.SEGUIMIENTO_COBRAR" data-testid="tracking-turn-edit-payment-obs-btn">
               <i class="bi bi-pencil"></i>
             </button>
           </h6>
