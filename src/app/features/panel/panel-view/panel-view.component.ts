@@ -259,6 +259,10 @@ export class PanelViewComponent implements OnInit, OnDestroy {
     this.router.navigate(['/turnos']);
   }
 
+  goToSeguimiento(): void {
+    this.router.navigate(['/seguimiento']);
+  }
+
   formatCurrency(value: number): string {
     return formatCurrencyShared(value);
   }
