@@ -27,7 +27,12 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
       // No redirigir a login para endpoints de autenticación (login, register, verify, forgot-password, reset-password)
       const isAuthEndpoint = req.url.includes('/auth/');
       
-      if ((error.status === 401 || error.status === 403) && !isAuthEndpoint) {
+      if (error.status === 403 && !isAuthEndpoint) {
+        handleCapabilityForbidden(error, authService, notification, router);
+        return throwError(() => error);
+      }
+
+      if (error.status === 401 && !isAuthEndpoint) {
         authService.logout();
         router.navigate(['/login']);
         return throwError(() => error);
@@ -125,5 +130,40 @@ function extractContextFromUrl(url: string): string {
   }
 
   return 'realizar la operación';
+}
+
+/**
+ * Un 403 tiene dos causas distintas que desde afuera se ven igual, y merecen respuestas opuestas.
+ *
+ * Si el frontend **cree** que tiene la capacidad que el backend rechazó, la sesión quedó
+ * desactualizada: las capacidades viajan en el login y se cachean en `localStorage` con un JWT de
+ * 24 h sin refresh, así que un cambio de módulos no se refleja hasta volver a entrar. Ahí sí hay que
+ * forzar el re-login, avisando por qué.
+ *
+ * Si el frontend ya sabía que no la tiene, el usuario llegó por una URL directa o un botón que
+ * todavía no declara su capacidad: alcanza con avisarle. Echarlo a login sería desproporcionado, y
+ * es lo que hacía antes con cualquier 403 — sin mensaje, así que se leía como sesión vencida.
+ */
+function handleCapabilityForbidden(
+  error: HttpErrorResponse,
+  authService: AuthService,
+  notification: NotificationService,
+  router: Router
+): void {
+  const requiredCapability: string | undefined = error.error?.requiredCapability;
+  const message: string = error.error?.message || 'No tenés permiso para realizar esta acción';
+
+  // Sin el campo no se puede distinguir: se conserva el comportamiento anterior (cerrar sesión).
+  const sesionDesactualizada =
+    !requiredCapability || authService.hasCapability(requiredCapability);
+
+  if (sesionDesactualizada) {
+    notification.showError('Tus permisos cambiaron. Iniciá sesión de nuevo para continuar.');
+    authService.logout();
+    router.navigate(['/login']);
+    return;
+  }
+
+  notification.showError(message);
 }
 
