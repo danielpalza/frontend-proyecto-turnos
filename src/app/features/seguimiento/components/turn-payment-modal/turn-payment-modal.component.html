@@ -47,11 +47,11 @@
                 <span *ngIf="editingPriceBono" class="d-inline-flex align-items-center gap-1">
                   <input type="number" class="form-control form-control-sm price-edit-input" placeholder="0" min="0"
                     step="0.01" [(ngModel)]="inputBono" (keyup.escape)="cancelEditingPriceBono()" />
-                  <button type="button" class="icon-btn icon-btn-success" (click)="savePriceBono()"
+                  <button type="button" class="icon-btn icon-btn-success" (click)="savePriceBono()" data-testid="tracking-turn-save-bono-btn"
                     [disabled]="isSavingPrice" title="Guardar">
                     <i class="bi bi-check-lg"></i>
                   </button>
-                  <button type="button" class="icon-btn icon-btn-muted" (click)="cancelEditingPriceBono()"
+                  <button type="button" class="icon-btn icon-btn-muted" (click)="cancelEditingPriceBono()" data-testid="tracking-turn-cancel-bono-btn"
                     title="Cancelar">
                     <i class="bi bi-x-lg"></i>
                   </button>
@@ -71,7 +71,7 @@
                 <span *ngIf="editingPriceTratamiento" class="d-inline-flex align-items-center gap-1">
                   <input type="number" class="form-control form-control-sm price-edit-input" placeholder="0" min="0"
                     step="0.01" [(ngModel)]="inputTratamiento" (keyup.escape)="cancelEditingPriceTratamiento()" />
-                  <button type="button" class="icon-btn icon-btn-success" (click)="savePriceTratamiento()"
+                  <button type="button" class="icon-btn icon-btn-success" (click)="savePriceTratamiento()" data-testid="tracking-turn-save-treatment-btn"
                     [disabled]="isSavingPrice" title="Guardar">
                     <i class="bi bi-check-lg"></i>
                   </button>
@@ -94,11 +94,11 @@
                 <span *ngIf="editingPriceExtras" class="d-inline-flex align-items-center gap-1">
                   <input type="number" class="form-control form-control-sm price-edit-input" placeholder="0" min="0"
                     step="0.01" [(ngModel)]="inputExtras" (keyup.escape)="cancelEditingPriceExtras()" />
-                  <button type="button" class="icon-btn icon-btn-success" (click)="savePriceExtras()"
+                  <button type="button" class="icon-btn icon-btn-success" (click)="savePriceExtras()" data-testid="tracking-turn-save-extras-btn"
                     [disabled]="isSavingPrice" title="Guardar">
                     <i class="bi bi-check-lg"></i>
                   </button>
-                  <button type="button" class="icon-btn icon-btn-muted" (click)="cancelEditingPriceExtras()"
+                  <button type="button" class="icon-btn icon-btn-muted" (click)="cancelEditingPriceExtras()" data-testid="tracking-turn-cancel-extras-btn"
                     title="Cancelar">
                     <i class="bi bi-x-lg"></i>
                   </button>
@@ -171,7 +171,7 @@
                 (click)="cancelEditingObservacionesPago()">
                 Cancelar
               </button>
-              <button type="button" class="btn btn-sm btn-primary" (click)="saveObservacionesPago()">
+              <button type="button" class="btn btn-sm btn-primary" (click)="saveObservacionesPago()" data-testid="tracking-turn-save-payment-obs-btn">
                 Guardar
               </button>
             </div>
@@ -201,7 +201,7 @@
                 (click)="cancelEditingObservacionesTurno()">
                 Cancelar
               </button>
-              <button type="button" class="btn btn-sm btn-primary" (click)="saveObservacionesTurno()">
+              <button type="button" class="btn btn-sm btn-primary" (click)="saveObservacionesTurno()" data-testid="tracking-turn-save-turn-obs-btn">
                 Guardar
               </button>
             </div>
