@@ -48,3 +48,15 @@ import { SearchInputComponent } from '../../shared/components/search-input/searc
 
 - **Shared**: Componentes que se usan en 2+ features diferentes
 - **Features**: Componentes específicos de una funcionalidad
+
+## Directivas disponibles
+
+Todas standalone, exportadas por el barrel `index.ts`:
+
+| Directiva | Selector | Qué hace |
+|---|---|---|
+| `CanDirective` | `[appCan]` | Muestra/oculta contenido según las capacidades del usuario (permisos). |
+| `ScrollLockDirective` | `[appScrollLock]` | Bloquea el scroll del `body` mientras el host esté en el DOM. Usa `ScrollLockService` con conteo de referencias (modales apilados) y compensa el ancho de la scrollbar. |
+| `BodyPortalDirective` | `[appBodyPortal]` | Mueve el host a `document.body` mientras vive. Necesario para overlays `fixed` cuyo ancestro tiene `transform`/`zoom` y recortaría el backdrop. |
+
+`ScrollLockDirective` y `BodyPortalDirective` son las que estabilizan los modales de la app — el detalle del patrón está en [docs/UI_RULES.md](../../../docs/UI_RULES.md#overlays-y-modales-scroll-lock--portal-al-body).

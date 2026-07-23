@@ -50,6 +50,15 @@ Es decir: nunca se notifica un 404 (lo maneja el backend con su propio mensaje c
 
 Si se agrega una nueva acción destructiva, lo consistente con la mayoría de la UI (modales con diseño propio, iconografía Bootstrap Icons) sería reutilizar `ConfirmDialogComponent`; hoy conviven los tres enfoques.
 
+## Overlays y modales (scroll-lock + portal al body)
+
+Todos los overlays (`.modal` con su `.modal-backdrop`) que se muestran/ocultan con `*ngIf`/`@if` se estabilizan con dos directivas de [`shared/directives`](../src/app/shared) — ver también [shared/README.md](../src/app/shared/README.md):
+
+- **`appScrollLock`** ([`scroll-lock.directive.ts`](../src/app/shared/directives/scroll-lock.directive.ts)): mientras el host está en el DOM, bloquea el scroll de la página. Delega en `ScrollLockService` ([`core/services/scroll-lock.service.ts`](../src/app/core/services/scroll-lock.service.ts)), que **cuenta referencias** (soporta modales apilados: el scroll se libera recién cuando se cierra el último) y **compensa el ancho de la scrollbar** con `padding-right` en el `body` para que el contenido no salte al ocultarse. Se aplica en la raíz del overlay.
+- **`appBodyPortal`** ([`body-portal.directive.ts`](../src/app/shared/directives/body-portal.directive.ts)): teletransporta el nodo host a `document.body` mientras vive y lo devuelve al destruirse. Es necesario cuando un ancestro aplica `zoom`/`transform` — p. ej. `.settings-panels-scale` en Configuraciones — porque ese ancestro pasa a ser el **bloque contenedor** de sus descendientes `position: fixed`, y el backdrop deja de cubrir el viewport (queda escalado y anclado al panel). Al moverse al body el overlay escapa de ese contexto. Se aplica **tanto al `.modal` como a su `.modal-backdrop`** (que suelen ser hermanos con su propio `*ngIf`).
+
+Regla práctica: un overlay nuevo lleva `appScrollLock`; si vive dentro de un contenedor con `transform`/`zoom` (o por las dudas, en Configuraciones), lleva además `appBodyPortal` en modal y backdrop. Ambas directivas son standalone y se importan desde `@shared` o por ruta directa. Aplicadas hoy en: turnos, confirmación, coberturas, invitación, profesional, profesionales-panel, odontograma, wizard de paciente y modal de pago.
+
 ## Actualizaciones optimistas
 
 - **Favoritos de cobertura** (`CoberturasViewComponent.toggleFavorito`): actualiza el signal local antes de que responda el backend, y si falla, revierte — con protección de "carrera" vía un contador de secuencia por id (`favoritoSeq`) para no pisar un segundo click hecho mientras la primera request seguía en vuelo.
