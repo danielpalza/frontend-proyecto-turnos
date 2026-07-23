@@ -101,7 +101,7 @@
 </app-profesional-dialog>
 
 <!-- Modal confirmación eliminación profesional -->
-<div class="modal fade show d-block" tabindex="-1" role="dialog" *ngIf="isDeleteConfirmOpen" data-testid="settings-delete-user-dialog">
+<div class="modal fade show d-block" tabindex="-1" role="dialog" *ngIf="isDeleteConfirmOpen" appBodyPortal appScrollLock data-testid="settings-delete-user-dialog">
   <div class="modal-dialog modal-dialog-delete" role="document">
     <div class="modal-content">
       <div class="delete-modal-header">
@@ -154,4 +154,4 @@
     </div>
   </div>
 </div>
-<div class="modal-backdrop fade show" *ngIf="isDeleteConfirmOpen"></div>
+<div class="modal-backdrop fade show" *ngIf="isDeleteConfirmOpen" appBodyPortal></div>

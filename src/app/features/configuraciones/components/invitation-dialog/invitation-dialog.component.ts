@@ -6,6 +6,8 @@ import { NotificationService } from '../../../../core/services/notification.serv
 import { ErrorHandlerService } from '../../../../core/services/error-handler.service';
 import { OrganizationInvitation, MODULE_OPTIONS } from '../../../../core/models';
 import { finalize } from 'rxjs/operators';
+import { BodyPortalDirective } from '../../../../shared/directives/body-portal.directive';
+import { ScrollLockDirective } from '../../../../shared/directives/scroll-lock.directive';
 
 /** Coincide con los íconos de cada pestaña en app-navbar (mismo mapeo que profesional-dialog). */
 const MODULE_ICONS: Record<string, string> = {
@@ -20,7 +22,7 @@ const MODULE_ICONS: Record<string, string> = {
 @Component({
   selector: 'app-invitation-dialog',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, BodyPortalDirective, ScrollLockDirective],
   templateUrl: './invitation-dialog.component.html',
   styleUrls: ['./invitation-dialog.component.scss']
 })

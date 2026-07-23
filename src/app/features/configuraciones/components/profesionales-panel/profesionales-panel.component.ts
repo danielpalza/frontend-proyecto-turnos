@@ -10,13 +10,15 @@ import { ProfesionalDialogComponent } from '../profesional-dialog/profesional-di
 import { InvitationDialogComponent } from '../invitation-dialog/invitation-dialog.component';
 import { Capability } from '../../../../core/auth/capabilities';
 import { CanDirective } from '../../../../shared/directives/can.directive';
+import { BodyPortalDirective } from '../../../../shared/directives/body-portal.directive';
+import { ScrollLockDirective } from '../../../../shared/directives/scroll-lock.directive';
 import { Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-profesionales-panel',
   standalone: true,
-  imports: [CommonModule, ProfesionalDialogComponent, InvitationDialogComponent, CanDirective],
+  imports: [CommonModule, ProfesionalDialogComponent, InvitationDialogComponent, CanDirective, BodyPortalDirective, ScrollLockDirective],
   templateUrl: './profesionales-panel.component.html',
   styleUrls: ['./profesionales-panel.component.scss']
 })

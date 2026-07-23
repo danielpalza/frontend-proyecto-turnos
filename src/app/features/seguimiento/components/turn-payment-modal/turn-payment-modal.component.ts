@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Capability } from '../../../../core/auth/capabilities';
 import { CanDirective } from '../../../../shared/directives/can.directive';
+import { ScrollLockDirective } from '../../../../shared/directives/scroll-lock.directive';
 import { FormsModule } from '@angular/forms';
 import { Appointment, Patient } from '../../../../core/models';
 import { AppointmentsService } from '../../../../core/services/appointments.service';
@@ -17,7 +18,7 @@ import {
 @Component({
   selector: 'app-turn-payment-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, CanDirective],
+  imports: [CommonModule, FormsModule, CanDirective, ScrollLockDirective],
   templateUrl: './turn-payment-modal.component.html',
   styleUrls: ['./turn-payment-modal.component.scss']
 })

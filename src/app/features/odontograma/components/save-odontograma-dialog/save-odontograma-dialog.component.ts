@@ -8,11 +8,12 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { OdontogramaPagoDelta } from '../../../../core/models/odontograma.model';
 import { Capability } from '../../../../core/auth/capabilities';
 import { CanDirective } from '../../../../shared/directives/can.directive';
+import { ScrollLockDirective } from '../../../../shared/directives/scroll-lock.directive';
 
 @Component({
   selector: 'app-save-odontograma-dialog',
   standalone: true,
-  imports: [CommonModule, CanDirective],
+  imports: [CommonModule, CanDirective, ScrollLockDirective],
   templateUrl: './save-odontograma-dialog.component.html',
   styleUrls: ['./save-odontograma-dialog.component.scss']
 })

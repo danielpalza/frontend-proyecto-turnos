@@ -308,7 +308,7 @@
   <!-- Modal: agregar/editar institución -->
   @if (modalAbierto()) {
     <div class="modal-backdrop" (click)="cerrarModal()"></div>
-    <div class="modal" data-testid="coberturas-modal-backdrop">
+    <div class="modal" appScrollLock data-testid="coberturas-modal-backdrop">
       <div class="modal-dialog-cob modal-dialog-cob--wide" [formGroup]="form" data-testid="coberturas-modal">
         <div class="modal-content">
           <div class="modal-header">

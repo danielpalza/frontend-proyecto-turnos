@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Patient } from '../../../../core/models';
 import { PatientService } from '../../../../core/services/patient.service';
+import { ScrollLockDirective } from '../../../../shared/directives/scroll-lock.directive';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { ErrorHandlerService } from '../../../../core/services/error-handler.service';
 import { PatientWizardComponent, getPatientFormConfig } from '../../../../shared';
@@ -11,7 +12,7 @@ import { finalize } from 'rxjs/operators';
 @Component({
   selector: 'app-patient-wizard-panel',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, PatientWizardComponent],
+  imports: [CommonModule, ReactiveFormsModule, PatientWizardComponent, ScrollLockDirective],
   templateUrl: './patient-wizard-panel.component.html',
   styleUrls: ['./patient-wizard-panel.component.scss']
 })

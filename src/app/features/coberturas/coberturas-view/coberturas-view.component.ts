@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { Capability } from '../../../core/auth/capabilities';
 import { CanDirective } from '../../../shared/directives/can.directive';
+import { ScrollLockDirective } from '../../../shared/directives/scroll-lock.directive';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 
@@ -27,7 +28,7 @@ const TAMANO_MAXIMO_BYTES = 20 * 1024 * 1024;
 @Component({
   selector: 'app-coberturas-view',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CanDirective],
+  imports: [CommonModule, ReactiveFormsModule, CanDirective, ScrollLockDirective],
   templateUrl: './coberturas-view.component.html',
   styleUrl: './coberturas-view.component.scss'
 })

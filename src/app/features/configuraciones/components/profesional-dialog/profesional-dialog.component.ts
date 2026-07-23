@@ -6,6 +6,8 @@ import { Profesional, ProfesionalCreateDTO, MODULE_OPTIONS } from '../../../../c
 import { documentNumberValidator, phoneValidator } from '../../../../shared/validators/custom-validators';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Capability, MODULE_PRESETS, derivedModules } from '../../../../core/auth/capabilities';
+import { BodyPortalDirective } from '../../../../shared/directives/body-portal.directive';
+import { ScrollLockDirective } from '../../../../shared/directives/scroll-lock.directive';
 
 interface PasswordStrength {
   width: string;
@@ -33,7 +35,7 @@ const PASSWORD_STRENGTH_LEVELS: PasswordStrength[] = [
 @Component({
   selector: 'app-profesional-dialog',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, BodyPortalDirective, ScrollLockDirective],
   templateUrl: './profesional-dialog.component.html',
   styleUrls: ['./profesional-dialog.component.scss']
 })

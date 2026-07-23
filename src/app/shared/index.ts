@@ -26,6 +26,8 @@ export { PatientWizardComponent } from './components/patient-wizard/patient-wiza
 
 // Exportar directivas compartidas
 export * from './directives/can.directive';
+export * from './directives/scroll-lock.directive';
+export * from './directives/body-portal.directive';
 
 // Exportar validators compartidos
 export * from './validators/custom-validators';
