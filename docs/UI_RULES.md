@@ -46,7 +46,8 @@ Es decir: nunca se notifica un 404 (lo maneja el backend con su propio mensaje c
 |---|---|
 | Cancelar turno (Turnos) | `ConfirmDialogComponent` (componente reutilizable propio, con `[open]`/`(openChange)`) — ver [COMPONENTS.md](./COMPONENTS.md#confirmdialogcomponent-app-confirm-dialog) |
 | Eliminar profesional (Seguimiento) | Modal **propio** con markup inline en `profesionales-panel.component.html` (no reutiliza `ConfirmDialogComponent`, aunque visualmente es casi idéntico) |
-| Eliminar documento adjunto / eliminar intermediario (Coberturas) | `confirm()` **nativo del navegador** (`window.confirm`), sin ningún componente Angular — ej. `if (!confirm('¿Eliminar este archivo?')) return;` |
+| Eliminar institución/intermediario (Coberturas) | `ConfirmDialogComponent` (mismo componente reutilizable que Turnos) |
+| Eliminar documento adjunto (Coberturas) | `confirm()` **nativo del navegador** (`window.confirm`), sin ningún componente Angular — `if (!confirm('¿Eliminar este archivo?')) return;` |
 
 Si se agrega una nueva acción destructiva, lo consistente con la mayoría de la UI (modales con diseño propio, iconografía Bootstrap Icons) sería reutilizar `ConfirmDialogComponent`; hoy conviven los tres enfoques.
 

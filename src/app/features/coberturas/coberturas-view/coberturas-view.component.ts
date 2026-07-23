@@ -7,6 +7,7 @@ import { ScrollLockDirective } from '../../../shared/directives/scroll-lock.dire
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 
+import { ConfirmDialogComponent } from '../../appointments/components/confirm-dialog/confirm-dialog.component';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
@@ -28,7 +29,7 @@ const TAMANO_MAXIMO_BYTES = 20 * 1024 * 1024;
 @Component({
   selector: 'app-coberturas-view',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CanDirective, ScrollLockDirective],
+  imports: [CommonModule, ReactiveFormsModule, CanDirective, ScrollLockDirective, ConfirmDialogComponent],
   templateUrl: './coberturas-view.component.html',
   styleUrl: './coberturas-view.component.scss'
 })
@@ -73,6 +74,9 @@ export class CoberturasViewComponent implements OnInit {
 
   readonly modalAbierto = signal(false);
   readonly intermediarioEditandoId = signal<string | null>(null);
+  /** Institución pendiente de confirmación de borrado — `null` mantiene el diálogo cerrado. */
+  readonly intermediarioAEliminar = signal<Intermediario | null>(null);
+  readonly eliminandoIntermediario = signal(false);
   readonly modalPaisSeleccionado = signal(this.paisOrganizacion);
   readonly busquedaModal = signal('');
 
@@ -119,6 +123,9 @@ export class CoberturasViewComponent implements OnInit {
 
   /** Países disponibles para el selector del modal de intermediario (solo los que tienen catálogo). */
   readonly paisesModal = computed(() => this.paisesConDatos().map(codigo => this.paisComoObjeto(codigo)));
+
+  readonly confirmEliminarAbierto = computed(() => this.intermediarioAEliminar() !== null);
+  readonly resumenEliminar = computed(() => this.intermediarioAEliminar()?.nombre ?? null);
 
   readonly form: FormGroup;
 
@@ -475,13 +482,33 @@ export class CoberturasViewComponent implements OnInit {
 
   eliminarIntermediario(intermediario: Intermediario, event: Event): void {
     event.stopPropagation();
-    if (!confirm(`¿Eliminar "${intermediario.nombre}"?`)) return;
+    this.intermediarioAEliminar.set(intermediario);
+  }
 
+  cerrarConfirmEliminar(): void {
+    if (this.eliminandoIntermediario()) return;
+    this.intermediarioAEliminar.set(null);
+  }
+
+  onConfirmEliminarOpenChange(abierto: boolean): void {
+    if (!abierto) this.cerrarConfirmEliminar();
+  }
+
+  confirmarEliminarIntermediario(): void {
+    const intermediario = this.intermediarioAEliminar();
+    if (!intermediario || this.eliminandoIntermediario()) return;
+
+    this.eliminandoIntermediario.set(true);
     this.intermediariosService.eliminar(intermediario.id).subscribe({
       next: () => {
+        this.eliminandoIntermediario.set(false);
         this.intermediarios.update(lista => lista.filter(i => i.id !== intermediario.id));
+        this.intermediarioAEliminar.set(null);
+        this.notification.showSuccess('Institución eliminada.');
       },
       error: (err: HttpErrorResponse) => {
+        this.eliminandoIntermediario.set(false);
+        this.intermediarioAEliminar.set(null);
         this.notification.showError(this.errorHandler.getErrorMessage(err, 'eliminar la agrupación'));
       }
     });

@@ -127,7 +127,7 @@ Una entrada por cada componente enrutado en [`app.routes.ts`](../src/app/app.rou
 - **Componente**: `CoberturasViewComponent` — [`src/app/features/coberturas/coberturas-view/coberturas-view.component.ts`](../src/app/features/coberturas/coberturas-view/coberturas-view.component.ts)
 - **Permisos**: `authGuard`, requiere módulo `COBERTURA`.
 - **Propósito**: catálogo (multi-país LatAm) de coberturas/obras sociales/prepagas: favoritos, notas propias, teléfono/web propios, documentos adjuntos (convenios, nomencladores, etc.), y gestión de "intermediarios"/agrupaciones de coberturas.
-- **Componentes que renderiza**: ninguno de `shared/`; usa `ReactiveFormsModule` directo para el formulario de intermediario (modal propio, sin componente separado).
+- **Componentes que renderiza**: ninguno de `shared/`; usa `ReactiveFormsModule` directo para el formulario de intermediario (modal propio, sin componente separado) y `ConfirmDialogComponent` para confirmar el borrado de una institución.
 - **Datos que carga / endpoints** (`CoberturasService` + `IntermediariosService`):
   - `GET /api/coberturas/paises` (qué países tienen catálogo real cargado)
   - `GET /api/coberturas?pais=...` (listado, filtrable por país activo — los "países activos" se persisten en `localStorage`, ver [STATE.md](./STATE.md))

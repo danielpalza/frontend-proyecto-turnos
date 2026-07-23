@@ -401,4 +401,20 @@
     </div>
   }
 
+  <!-- Modal confirmación: eliminar institución -->
+  <app-confirm-dialog
+    [open]="confirmEliminarAbierto()"
+    title="Eliminar institución"
+    message="¿Está seguro de que desea eliminar esta institución? Esta acción no se puede deshacer."
+    [summary]="resumenEliminar()"
+    [isLoading]="eliminandoIntermediario()"
+    confirmText="Eliminar"
+    cancelText="Cancelar"
+    confirmButtonClass="btn-danger"
+    dialogId="confirmEliminarIntermediario"
+    (confirm)="confirmarEliminarIntermediario()"
+    (cancel)="cerrarConfirmEliminar()"
+    (openChange)="onConfirmEliminarOpenChange($event)"
+  />
+
 </div>

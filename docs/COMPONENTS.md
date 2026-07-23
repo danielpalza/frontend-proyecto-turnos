@@ -76,7 +76,7 @@ Todos los componentes son **standalone** (`standalone: true`, sin `NgModule`). S
 - **Propósito**: diálogo de confirmación genérico y reutilizable (título/mensaje/resumen configurables, variante visual danger/primary/neutral según `confirmButtonClass`).
 - **Inputs**: `open`, `title`, `message`, `summary`, `isLoading`, `confirmText`, `cancelText`, `confirmButtonClass`, `dialogId`.
 - **Outputs**: `confirm`, `cancel`, `openChange`.
-- **Dónde aparece**: solo en `TurnosViewComponent` (confirmar cancelación de turno). **No** se reutiliza en `ProfesionalesPanelComponent`, que implementa su propio modal de confirmación de borrado con markup propio — ver [UI_RULES.md](./UI_RULES.md) para la inconsistencia.
+- **Dónde aparece**: `TurnosViewComponent` (confirmar cancelación de turno) y `CoberturasViewComponent` (confirmar borrado de una institución/intermediario). **No** se reutiliza en `ProfesionalesPanelComponent`, que implementa su propio modal de confirmación de borrado con markup propio — ver [UI_RULES.md](./UI_RULES.md) para la inconsistencia.
 
 ## Patients (`features/patients`)
 
