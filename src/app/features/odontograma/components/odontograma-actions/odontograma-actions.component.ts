@@ -1,9 +1,11 @@
 /**
  * Barra de acciones: imprimir y guardar odontograma o periodontograma.
  */
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, Input, Output, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { SaveOdontogramaDialogComponent } from '../save-odontograma-dialog/save-odontograma-dialog.component';
+import { OdontogramaStateService } from '../../services/odontograma-state.service';
 
 type DentalFormMode = 'odontograma' | 'periodontograma';
 
@@ -19,8 +21,16 @@ export class OdontogramaActionsComponent {
   @Output() print = new EventEmitter<void>();
 
   showSaveDialog = false;
+  /** Turno cerrado por tener un registro clínico posterior: no hay nada para guardar. */
+  editable = true;
 
-  constructor() {}
+  private readonly destroyRef = inject(DestroyRef);
+
+  constructor(private readonly stateService: OdontogramaStateService) {
+    this.stateService.editable$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(editable => (this.editable = editable));
+  }
 
   get saveLabel(): string {
     return 'Guardar';
@@ -35,6 +45,7 @@ export class OdontogramaActionsComponent {
   }
 
   openSaveDialog(): void {
+    if (!this.editable) return;
     this.showSaveDialog = true;
   }
 

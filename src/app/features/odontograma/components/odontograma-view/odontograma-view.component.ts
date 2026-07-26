@@ -34,6 +34,8 @@ export class OdontogramaViewComponent implements OnInit {
   activeForm: DentalFormMode = 'odontograma';
   readonly loading = signal(true);
   readonly loadError = signal<string | null>(null);
+  /** Turno cerrado por tener un registro clínico posterior: la ficha se muestra en solo lectura. */
+  readonly editable = signal(true);
 
   private readonly destroyRef = inject(DestroyRef);
 
@@ -44,6 +46,10 @@ export class OdontogramaViewComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.stateService.editable$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(editable => this.editable.set(editable));
+
     this.route.paramMap.pipe(
       map(params => params.get('appointmentId')),
       distinctUntilChanged(),

@@ -173,6 +173,17 @@
   }
 }
 
+// Turno cerrado por la regla legal. El bloqueo real está en el backend y en los mutadores de estado;
+// esto solo deja claro que la ficha es de consulta y evita el amague de clickear un diente.
+.odontograma-grid--readonly {
+  app-odontograma-form,
+  app-periodontograma-form,
+  app-odontograma-leyend {
+    pointer-events: none;
+    opacity: 0.75;
+  }
+}
+
 // Print styles
 @media print {
   .sidebar-right {

@@ -95,8 +95,21 @@ export class OdontoStateService {
   private baselineComentario = '';
   private baselinePlanTratamiento = '';
 
+  /**
+   * Turno cerrado por la regla legal: el paciente ya tiene un registro clínico posterior. Los
+   * mutadores se vuelven no-op para que ninguna interacción del odontograma escriba sobre historia
+   * vieja. El backend rechaza igual cualquier escritura (`RegistroClinicoService`); esto es para que
+   * la UI no muestre cambios que después no se van a poder guardar.
+   */
+  private editable = true;
+
+  get isEditable(): boolean {
+    return this.editable;
+  }
+
   /** Aplica la respuesta de carga inicial (merge estadoActual+cambiosTurno, re-baseline, proyección a Subjects). */
   loadOdonto(odonto: OdontogramaResponse): void {
+    this.editable = odonto.editable !== false;
     const merged = mergeOdontoEstado(
       normalizeOdontoEstado(odonto.estadoActual),
       normalizeOdontoEstado(odonto.cambiosTurno)
@@ -130,6 +143,7 @@ export class OdontoStateService {
   }
 
   cycleFace(toothNumber: number, face: FaceKey): void {
+    if (!this.editable) return;
     const map = new Map(this.facesSubject.value);
     const current = { ...(map.get(toothNumber) ?? emptyFaces()) };
     current[face] = nextFaceState(current[face]);
@@ -138,6 +152,7 @@ export class OdontoStateService {
   }
 
   toggleItemForSelectedTooth(item: LeyendaItem, checked: boolean): void {
+    if (!this.editable) return;
     const selectedTooth = this.selectedToothSubject.value;
     if (!selectedTooth) {
       return;
@@ -172,6 +187,7 @@ export class OdontoStateService {
   }
 
   removeItemsByLabelsForSelectedTooth(labels: string[]): void {
+    if (!this.editable) return;
     const selectedTooth = this.selectedToothSubject.value;
     if (!selectedTooth) {
       return;
@@ -184,10 +200,12 @@ export class OdontoStateService {
   }
 
   setComentario(value: string): void {
+    if (!this.editable) return;
     this.comentarioSubject.next(value);
   }
 
   setPlanTratamiento(value: string): void {
+    if (!this.editable) return;
     this.planTratamientoSubject.next(value);
   }
 
