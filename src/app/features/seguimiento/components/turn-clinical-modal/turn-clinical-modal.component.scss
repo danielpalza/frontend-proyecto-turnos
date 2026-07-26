@@ -1,0 +1,112 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+:host {
+  display: contents;
+}
+
+.turn-modal-content {
+  .title-block {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+  }
+
+  .icon-circle {
+    @include icon-wrapper-circle-sm;
+  }
+
+  .turn-modal-context {
+    font-size: 0.9rem;
+  }
+
+  .turn-modal-section {
+    margin-bottom: 1.25rem;
+
+    &:last-of-type {
+      margin-bottom: 0;
+    }
+  }
+
+  .section-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: $text-primary;
+    margin-bottom: 0.5rem;
+  }
+
+  .clinical-state {
+    display: flex;
+    align-items: center;
+    padding: 1.25rem 0;
+    font-size: 0.875rem;
+  }
+
+  .clinical-box {
+    background: $background-color;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .field-label {
+    font-weight: 600;
+    color: $text-secondary;
+  }
+
+  .tooth-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding: 0.4rem 0;
+
+    & + .tooth-row {
+      border-top: 1px solid $border-color;
+    }
+  }
+
+  .tooth-number {
+    flex-shrink: 0;
+    min-width: 2rem;
+    font-weight: 600;
+    color: $primary-color;
+  }
+
+  .tooth-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .perio-count {
+    color: $text-secondary;
+  }
+
+  .clinical-tag {
+    padding: 0.1rem 0.5rem;
+    border: 1px solid $border-color;
+    border-radius: $radius-full;
+    background-color: $card-background;
+    color: $text-secondary;
+    font-size: 0.75rem;
+
+    // Mismos colores que las caras del odontograma (tooth-faces.component.ts).
+    &.estado-caries {
+      border-color: rgba(#ef4444, 0.4);
+      background-color: rgba(#ef4444, 0.08);
+      color: #b91c1c;
+    }
+
+    &.estado-obturacion {
+      border-color: rgba(#3b82f6, 0.4);
+      background-color: rgba(#3b82f6, 0.08);
+      color: #1d4ed8;
+    }
+
+    &.estado-ausente {
+      border-color: rgba(#94a3b8, 0.5);
+      background-color: rgba(#94a3b8, 0.12);
+      color: $text-secondary;
+    }
+  }
+}

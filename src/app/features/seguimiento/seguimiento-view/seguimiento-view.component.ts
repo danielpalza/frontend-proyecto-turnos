@@ -14,12 +14,13 @@ import { formatCurrency as formatCurrencyShared } from '../../../core/utils/curr
 import { AppointmentListOverflowComponent } from '../components/appointment-list-overflow/appointment-list-overflow.component';
 import { PatientWizardPanelComponent } from '../components/patient-wizard-panel/patient-wizard-panel.component';
 import { TurnPaymentModalComponent } from '../components/turn-payment-modal/turn-payment-modal.component';
+import { TurnClinicalModalComponent } from '../components/turn-clinical-modal/turn-clinical-modal.component';
 import { PatientDataService, PatientGroup, MonthOption } from './patient-data.service';
 
 @Component({
   selector: 'app-seguimiento-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, AppointmentListOverflowComponent, PatientWizardPanelComponent, TurnPaymentModalComponent, CanDirective],
+  imports: [CommonModule, FormsModule, AppointmentListOverflowComponent, PatientWizardPanelComponent, TurnPaymentModalComponent, TurnClinicalModalComponent, CanDirective],
   providers: [PatientDataService],
   templateUrl: './seguimiento-view.component.html',
   styleUrls: ['./seguimiento-view.component.scss']
@@ -36,6 +37,9 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
 
   // Modal pago y observaciones del turno
   showTurnModal = false;
+  // Modal resumen clínico del turno
+  showClinicalModal = false;
+  // Compartido por ambos modales: solo uno puede estar abierto a la vez.
   selectedAppointment: Appointment | null = null;
 
   private subscriptions = new Subscription();
@@ -208,6 +212,18 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
 
   closeTurnModal(): void {
     this.showTurnModal = false;
+    this.selectedAppointment = null;
+  }
+
+  // --- Modal Resumen clínico del turno ---
+
+  openClinicalModal(appointment: Appointment): void {
+    this.selectedAppointment = appointment;
+    this.showClinicalModal = true;
+  }
+
+  closeClinicalModal(): void {
+    this.showClinicalModal = false;
     this.selectedAppointment = null;
   }
 

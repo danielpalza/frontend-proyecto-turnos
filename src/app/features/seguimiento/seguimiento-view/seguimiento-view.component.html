@@ -92,7 +92,7 @@
               </div>
               <app-appointment-list-overflow *ngIf="group.totalTurnos > 0"
                 [appointments]="getFilteredAppointments(group)" [identificacion]="group.patient.identificacion || ''"
-                (appointmentClick)="openTurnModal($event)">
+                (appointmentClick)="openTurnModal($event)" (clinicalClick)="openClinicalModal($event)">
               </app-appointment-list-overflow>
             </div>
           </div>
@@ -109,4 +109,10 @@
     [open]="showTurnModal" [appointment]="selectedAppointment" [patient]="selectedAppointmentPatient"
     (closed)="closeTurnModal()" (appointmentUpdated)="onAppointmentUpdated($event)">
   </app-turn-payment-modal>
+
+  <!-- Modal Resumen clínico del turno (odontograma + periodontograma, solo lectura) -->
+  <app-turn-clinical-modal
+    [open]="showClinicalModal" [appointment]="selectedAppointment"
+    (closed)="closeClinicalModal()">
+  </app-turn-clinical-modal>
 </div>

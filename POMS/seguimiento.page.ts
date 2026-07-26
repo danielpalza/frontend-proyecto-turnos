@@ -58,6 +58,7 @@ export class SeguimientoPage {
 
   // ── MODAL TURNO ────────────────────────────────────────────────
   readonly turnModal: Locator;
+  readonly turnClinicalModal: Locator;
   readonly turnModalTitle: Locator;
   readonly turnModalPatientName: Locator;
   readonly turnModalDate: Locator;
@@ -148,6 +149,7 @@ export class SeguimientoPage {
 
     // Modal turno
     this.turnModal = page.getByTestId('tracking-turn-modal');
+    this.turnClinicalModal = page.getByTestId('tracking-turn-clinical-modal');
     this.turnModalTitle = page.getByTestId('tracking-turn-modal-title');
     this.turnModalPatientName = page.getByTestId('tracking-turn-modal-patient-name');
     this.turnModalDate = page.getByTestId('tracking-turn-modal-date');
@@ -246,9 +248,34 @@ export class SeguimientoPage {
     return this.page.getByTestId(`tracking-appointment-amount-${id}`);
   }
 
-  async openTurnModal(id: number) {
+  appointmentActions(id: number): Locator {
+    return this.page.getByTestId(`tracking-appointment-actions-${id}`);
+  }
+
+  appointmentPaymentsBtn(id: number): Locator {
+    return this.page.getByTestId(`tracking-appointment-payments-btn-${id}`);
+  }
+
+  appointmentClinicalBtn(id: number): Locator {
+    return this.page.getByTestId(`tracking-appointment-clinical-btn-${id}`);
+  }
+
+  /** Despliega el dropdown de acciones del badge de un turno. */
+  async openAppointmentActions(id: number) {
     await this.appointmentItem(id).click();
+    await this.appointmentActions(id).waitFor({ state: 'visible' });
+  }
+
+  async openTurnModal(id: number) {
+    await this.openAppointmentActions(id);
+    await this.appointmentPaymentsBtn(id).click();
     await this.turnModal.waitFor({ state: 'visible' });
+  }
+
+  async openClinicalModal(id: number) {
+    await this.openAppointmentActions(id);
+    await this.appointmentClinicalBtn(id).click();
+    await this.turnClinicalModal.waitFor({ state: 'visible' });
   }
 
   async closeTurnModal() {

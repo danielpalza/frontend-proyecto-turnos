@@ -93,3 +93,40 @@
     border: 1px solid $border-color;
   }
 }
+
+// Vive en <body> (ver `actionsMenu` en el componente), con coordenadas de viewport calculadas
+// desde el rect del badge. Los estilos siguen aplicando porque la encapsulación de Angular va por
+// atributo en el elemento, no por su posición en el árbol.
+.appointment-actions {
+  position: fixed;
+  z-index: 1050;
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.4rem;
+  border: 1px solid $border-color;
+  border-radius: $radius-lg;
+  background-color: $card-background;
+  box-shadow: 0 0.5rem 1.25rem rgba(15, 23, 42, 0.12);
+}
+
+.action-square {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 1px solid $border-color;
+  border-radius: $radius-md;
+  background: transparent;
+  color: $text-secondary;
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover:not(:disabled) {
+    border-color: $primary-color;
+    background-color: rgba($primary-color, 0.08);
+    color: $primary-color;
+  }
+}
