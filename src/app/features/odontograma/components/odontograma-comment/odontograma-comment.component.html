@@ -1,11 +1,36 @@
-<div class="odontograma-comment" [attr.data-testid]="title === 'Comentarios del turno' ? 'odontogram-comment-turn-panel' : title === 'Plan de tratamiento' ? 'odontogram-treatment-plan-panel' : title === 'Comentarios del turno anterior' ? 'odontogram-comment-previous-panel' : 'odontogram-clinical-history-panel'">
+<div class="odontograma-comment" [attr.data-testid]="title === 'Comentarios del turno' ? 'odontogram-comment-turn-panel' : title === 'Plan de tratamiento' ? 'odontogram-treatment-plan-panel' : title === 'Comentarios del turno anterior' ? 'odontogram-comment-previous-panel' : isClinicalHistory ? 'odontogram-clinical-history-panel' : null">
   <p class="odontograma-comment__title">{{ title }}</p>
-  <textarea
-    class="odontograma-comment__textarea"
-    [rows]="rows"
-    [readonly]="!isEditable"
-    [(ngModel)]="value"
-    (ngModelChange)="onValueChange($event)"
-    [attr.data-testid]="title === 'Comentarios del turno' ? 'odontogram-comment-turn-input' : title === 'Plan de tratamiento' ? 'odontogram-treatment-plan-input' : title === 'Comentarios del turno anterior' ? 'odontogram-comment-previous-input' : 'odontogram-clinical-history-input'"
-  ></textarea>
+
+  @if (isClinicalHistory) {
+    @if (hasHistoriaClinica) {
+      @if (historiaClinica.items.length) {
+        <ul class="odontograma-comment__list" data-testid="odontogram-clinical-history-list">
+          @for (item of historiaClinica.items; track item.label) {
+            <li class="odontograma-comment__item" data-testid="odontogram-clinical-history-item">
+              <strong>{{ item.label }}:</strong> {{ item.value }}
+            </li>
+          }
+        </ul>
+      }
+      @if (historiaClinica.otros) {
+        <div class="odontograma-comment__otros" data-testid="odontogram-clinical-history-otros">
+          <p class="odontograma-comment__otros-title">Otros antecedentes</p>
+          <p class="odontograma-comment__otros-text">{{ historiaClinica.otros }}</p>
+        </div>
+      }
+    } @else {
+      <p class="odontograma-comment__empty" data-testid="odontogram-clinical-history-empty">
+        Sin antecedentes registrados
+      </p>
+    }
+  } @else {
+    <textarea
+      class="odontograma-comment__textarea"
+      [rows]="rows"
+      [readonly]="!isEditable || !recordEditable"
+      [(ngModel)]="value"
+      (ngModelChange)="onValueChange($event)"
+      [attr.data-testid]="title === 'Comentarios del turno' ? 'odontogram-comment-turn-input' : title === 'Plan de tratamiento' ? 'odontogram-treatment-plan-input' : 'odontogram-comment-previous-input'"
+    ></textarea>
+  }
 </div>

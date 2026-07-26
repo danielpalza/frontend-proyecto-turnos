@@ -6,6 +6,7 @@ import { OdontogramaStateService } from '../../services/odontograma-state.servic
 import { NotificationService } from '../../../../core/services/notification.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { OdontogramaPagoDelta } from '../../../../core/models/odontograma.model';
+import { Anamnesis, EMPTY_ANAMNESIS, hasAnamnesis } from '../../../../core/utils/anamnesis.util';
 import { Capability } from '../../../../core/auth/capabilities';
 import { CanDirective } from '../../../../shared/directives/can.directive';
 import { ScrollLockDirective } from '../../../../shared/directives/scroll-lock.directive';
@@ -43,16 +44,21 @@ export class SaveOdontogramaDialogComponent {
     extras: '0',
     montoPago: '0',
     observacionesPago: '',
-    observacionesProfesional: ''
+    observacionesTurno: ''
   });
 
   // Textos de los paneles de comentarios, para el resumen de la columna derecha.
   readonly comentarioTurno: Signal<string>;
   readonly planTratamiento: Signal<string>;
   readonly comentarioAnterior: Signal<string>;
-  readonly historiaClinica: Signal<string>;
+  /** Antecedentes médicos del paciente: no es un comentario del turno, se muestra como lista. */
+  readonly historiaClinica: Signal<Anamnesis>;
 
   readonly Capability = Capability;
+
+  get tieneHistoriaClinica(): boolean {
+    return hasAnamnesis(this.historiaClinica());
+  }
 
   /**
    * El bloque de pago se muestra siempre, pero solo lo edita quien puede cobrar. Este diálogo es la
@@ -72,7 +78,7 @@ export class SaveOdontogramaDialogComponent {
     this.comentarioTurno = toSignal(this.stateService.comentario$, { initialValue: '' });
     this.planTratamiento = toSignal(this.stateService.planTratamiento$, { initialValue: '' });
     this.comentarioAnterior = toSignal(this.stateService.comentarioAnterior$, { initialValue: '' });
-    this.historiaClinica = toSignal(this.stateService.historiaClinica$, { initialValue: '' });
+    this.historiaClinica = toSignal(this.stateService.historiaClinica$, { initialValue: EMPTY_ANAMNESIS });
   }
 
   private prefillFromAppointment(): void {
@@ -90,7 +96,7 @@ export class SaveOdontogramaDialogComponent {
       extras: p.extras > 0 ? p.extras.toFixed(2) : '0',
       montoPago: p.montoPago > 0 ? p.montoPago.toFixed(2) : '0',
       observacionesPago: p.observaciones,
-      observacionesProfesional: p.observacionesTurno
+      observacionesTurno: p.observacionesTurno
     });
   }
 
@@ -136,9 +142,9 @@ export class SaveOdontogramaDialogComponent {
           extras: parseFloat(d.extras || '0'),
           montoPago: parseFloat(d.montoPago || '0'),
           observaciones: d.observacionesPago || undefined,
-          observacionesTurno: d.observacionesProfesional || undefined
+          observacionesTurno: d.observacionesTurno || undefined
         }
-      : { observacionesTurno: d.observacionesProfesional || undefined };
+      : { observacionesTurno: d.observacionesTurno || undefined };
 
     if (this.puedeCobrar
       && [pago.precioBono, pago.precioTratamiento, pago.extras, pago.montoPago]

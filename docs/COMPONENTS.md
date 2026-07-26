@@ -164,7 +164,8 @@ Todos comparten estado vía `OdontogramaStateService` (ver [STATE.md](./STATE.md
 
 ### `OdontogramaCommentComponent` (`app-odontograma-comment-component`)
 - **Archivo**: [`features/odontograma/components/odontograma-comment/odontograma-comment.component.ts`](../src/app/features/odontograma/components/odontograma-comment/odontograma-comment.component.ts)
-- **Propósito**: bloque reutilizable de título + textarea. Su comportamiento (editable o solo lectura, y a qué stream se conecta) se decide **por el valor exacto del `title`** que recibe (`"Comentarios del turno"`, `"Plan de tratamiento"`, `"Comentarios del turno anterior"`, `"Historia clinica del paciente"`) — es decir, es un componente "genérico" pero acoplado por string-matching, no por un `@Input` de modo explícito.
+- **Propósito**: bloque reutilizable de título + contenido. Su comportamiento (qué renderiza, si es editable, y a qué stream se conecta) se decide **por el valor exacto del `title`** que recibe (`"Comentarios del turno"`, `"Plan de tratamiento"`, `"Comentarios del turno anterior"`, `"Historia clinica del paciente"`) — es decir, es un componente "genérico" pero acoplado por string-matching, no por un `@Input` de modo explícito.
+- Las tres primeras variantes muestran un **textarea** (las dos primeras editables). La de **historia clínica** es distinta: no es un texto libre sino los antecedentes médicos del paciente (`Patient.anamnesis`, cargado en el paso 2 del wizard), y se renderiza como **lista punteada** de `Etiqueta: valor` — omitiendo los campos vacíos — más el texto de "Otros antecedentes" debajo. Sin datos muestra "Sin antecedentes registrados".
 - **Inputs**: `title`, `rows`.
 - **Dónde aparece**: `OdontogramaViewComponent` (4 instancias).
 

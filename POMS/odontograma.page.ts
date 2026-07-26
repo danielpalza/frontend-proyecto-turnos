@@ -46,8 +46,12 @@ export class OdontogramaPage {
   readonly treatmentPlanInput: Locator;
   readonly commentPreviousPanel: Locator;
   readonly commentPreviousInput: Locator;
+  /** Historia clínica: es solo lectura, muestra los antecedentes médicos cargados en el wizard. */
   readonly clinicalHistoryPanel: Locator;
-  readonly clinicalHistoryInput: Locator;
+  readonly clinicalHistoryList: Locator;
+  readonly clinicalHistoryItems: Locator;
+  readonly clinicalHistoryOtros: Locator;
+  readonly clinicalHistoryEmpty: Locator;
 
   // ── PERIODONTOGRAMA ────────────────────────────────────────────
   readonly periodontogramPanel: Locator;
@@ -127,7 +131,10 @@ export class OdontogramaPage {
     this.commentPreviousPanel = page.getByTestId('odontogram-comment-previous-panel');
     this.commentPreviousInput = page.getByTestId('odontogram-comment-previous-input');
     this.clinicalHistoryPanel = page.getByTestId('odontogram-clinical-history-panel');
-    this.clinicalHistoryInput = page.getByTestId('odontogram-clinical-history-input');
+    this.clinicalHistoryList = page.getByTestId('odontogram-clinical-history-list');
+    this.clinicalHistoryItems = page.getByTestId('odontogram-clinical-history-item');
+    this.clinicalHistoryOtros = page.getByTestId('odontogram-clinical-history-otros');
+    this.clinicalHistoryEmpty = page.getByTestId('odontogram-clinical-history-empty');
 
     // Periodontograma
     this.periodontogramPanel = page.getByTestId('periodontogram-panel');
@@ -317,8 +324,9 @@ export class OdontogramaPage {
     await this.commentPreviousInput.fill(text);
   }
 
-  async fillClinicalHistory(text: string) {
-    await this.clinicalHistoryInput.fill(text);
+  /** Etiquetas y valores de los antecedentes listados, en orden de formulario. */
+  async getClinicalHistoryItems(): Promise<string[]> {
+    return this.clinicalHistoryItems.allInnerTexts();
   }
 
   // ── Guardar odontograma ─────────────────────────────────────────
