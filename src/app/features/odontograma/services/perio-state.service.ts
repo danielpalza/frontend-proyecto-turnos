@@ -30,12 +30,20 @@ export class PerioStateService {
 
   private baselinePerio: PeriodontogramaEstadoActual = { dientes: [] };
 
+  /** Ver `editable` en {@link OdontoStateService}: el turno quedó cerrado por la regla legal. */
+  private editable = true;
+
+  get isEditable(): boolean {
+    return this.editable;
+  }
+
   constructor() {
     this.initEmptyPerioMap();
   }
 
   /** Aplica la respuesta de carga inicial (merge estadoActual+cambiosTurno, re-baseline, proyección al Subject). */
   loadPerio(perio: PeriodontogramaResponse): void {
+    this.editable = perio.editable !== false;
     const merged = mergePerioEstado(
       normalizePerioEstado(perio.estadoActual),
       normalizePerioEstado(perio.cambiosTurno)
@@ -60,6 +68,7 @@ export class PerioStateService {
   }
 
   updatePerioTooth(toothId: number, updater: (tooth: PerioToothMvp) => void): void {
+    if (!this.editable) return;
     const map = new Map(this.perioTeethSubject.value);
     const tooth = map.get(toothId);
     if (!tooth) {

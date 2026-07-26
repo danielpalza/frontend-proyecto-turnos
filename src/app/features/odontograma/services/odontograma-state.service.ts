@@ -1,10 +1,13 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, forkJoin, map, tap, catchError, of, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, forkJoin, map, tap, catchError, of, switchMap, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { OdontogramaService } from '../../../core/services/odontograma.service';
 import { PeriodontogramaService } from '../../../core/services/periodontograma.service';
 import { AppointmentsService } from '../../../core/services/appointments.service';
+import { PatientService } from '../../../core/services/patient.service';
 import { Appointment } from '../../../core/models/appointment.model';
+import { Patient } from '../../../core/models/patient.model';
+import { parseAnamnesis } from '../../../core/utils/anamnesis.util';
 import {
   FaceKey,
   OdontogramaPagoDelta,
@@ -46,6 +49,18 @@ export class OdontogramaStateService {
     observacionesTurno: ''
   });
 
+  /**
+   * `false` cuando el turno quedó cerrado por la regla legal (el paciente ya tiene un registro
+   * clínico posterior). La vista lo usa para pasar a solo lectura; quien realmente impide escribir
+   * son los mutadores de Odonto/PerioStateService y, sobre todo, el backend.
+   */
+  private readonly editableSubject = new BehaviorSubject<boolean>(true);
+  readonly editable$ = this.editableSubject.asObservable();
+
+  get isEditable(): boolean {
+    return this.editableSubject.value;
+  }
+
   get appointmentPaymentSnapshot() {
     return this.appointmentPaymentSubject.value;
   }
@@ -77,6 +92,7 @@ export class OdontogramaStateService {
     private readonly odontogramaService: OdontogramaService,
     private readonly periodontogramaService: PeriodontogramaService,
     private readonly appointmentsService: AppointmentsService,
+    private readonly patientService: PatientService,
     private readonly odontoState: OdontoStateService,
     private readonly perioState: PerioStateService
   ) {}
@@ -119,6 +135,10 @@ export class OdontogramaStateService {
           sessionStorage.setItem(LAST_APPOINTMENT_KEY, String(appointmentId));
         }
 
+        // Ausente = editable: si el backend no opina, manda él al guardar.
+        const editable = odonto.editable !== false && perio.editable !== false;
+        this.editableSubject.next(editable);
+
         if (appointment) {
           this.appointmentPaymentSubject.next({
             precioBono: appointment.precioBono ?? 0,
@@ -129,8 +149,9 @@ export class OdontogramaStateService {
             observacionesTurno: appointment.observacionesTurno ?? ''
           });
 
-          // Marcar el turno como EN_CURSO si esta pendiente o confirmado
-          if (appointment.estado === 'PENDIENTE' || appointment.estado === 'CONFIRMADO') {
+          // Marcar el turno como EN_CURSO si esta pendiente o confirmado. Un turno cerrado se abre
+          // solo para consultarlo: no se le cambia el estado por mirarlo.
+          if (editable && (appointment.estado === 'PENDIENTE' || appointment.estado === 'CONFIRMADO')) {
             this.appointmentsService.updateStatus(appointmentId, 'EN_CURSO').subscribe({
               error: err => console.error('No se pudo marcar el turno como EN_CURSO:', err)
             });
@@ -140,6 +161,14 @@ export class OdontogramaStateService {
         this.odontoState.loadOdonto(odonto);
         this.perioState.loadPerio(perio);
       }),
+      // Los antecedentes médicos viven en el paciente, no en el turno: el id recién se conoce cuando
+      // responde el forkJoin. Si el fetch falla, el odontograma igual se abre (panel vacío).
+      switchMap(({ appointment }) => appointment?.patientId
+        ? this.patientService.findById(appointment.patientId).pipe(
+            catchError(() => of(null as Patient | null))
+          )
+        : of(null as Patient | null)),
+      tap(patient => this.odontoState.setHistoriaClinica(parseAnamnesis(patient?.anamnesis))),
       map(() => undefined)
     );
   }

@@ -13,6 +13,7 @@ import {
   OdontogramaResponse,
   VALOR_TO_LEYENDA_LABEL
 } from '../../../core/models/odontograma.model';
+import { Anamnesis, EMPTY_ANAMNESIS } from '../../../core/utils/anamnesis.util';
 import {
   normalizeOdontoEstado,
   mergeOdontoEstado,
@@ -83,20 +84,34 @@ export class OdontoStateService {
   private readonly planTratamientoSubject = new BehaviorSubject<string>('');
   readonly planTratamiento$ = this.planTratamientoSubject.asObservable();
 
-  // Hoy el backend no envía estos campos: quedan vacíos hasta que exista la fuente,
+  // Hoy el backend no envía este campo: queda vacío hasta que exista la fuente,
   // pero page y diálogo de guardado ya leen del mismo lugar.
   private readonly comentarioAnteriorSubject = new BehaviorSubject<string>('');
   readonly comentarioAnterior$ = this.comentarioAnteriorSubject.asObservable();
 
-  private readonly historiaClinicaSubject = new BehaviorSubject<string>('');
+  /** Antecedentes médicos del paciente (`Patient.anamnesis`), solo lectura: no viajan en el delta. */
+  private readonly historiaClinicaSubject = new BehaviorSubject<Anamnesis>(EMPTY_ANAMNESIS);
   readonly historiaClinica$ = this.historiaClinicaSubject.asObservable();
 
   private baselineOdonto: OdontogramaEstadoActual = { caras: [], leyendas: [] };
   private baselineComentario = '';
   private baselinePlanTratamiento = '';
 
+  /**
+   * Turno cerrado por la regla legal: el paciente ya tiene un registro clínico posterior. Los
+   * mutadores se vuelven no-op para que ninguna interacción del odontograma escriba sobre historia
+   * vieja. El backend rechaza igual cualquier escritura (`RegistroClinicoService`); esto es para que
+   * la UI no muestre cambios que después no se van a poder guardar.
+   */
+  private editable = true;
+
+  get isEditable(): boolean {
+    return this.editable;
+  }
+
   /** Aplica la respuesta de carga inicial (merge estadoActual+cambiosTurno, re-baseline, proyección a Subjects). */
   loadOdonto(odonto: OdontogramaResponse): void {
+    this.editable = odonto.editable !== false;
     const merged = mergeOdontoEstado(
       normalizeOdontoEstado(odonto.estadoActual),
       normalizeOdontoEstado(odonto.cambiosTurno)
@@ -108,6 +123,9 @@ export class OdontoStateService {
     this.comentarioSubject.next(odonto.comentario ?? '');
     this.planTratamientoSubject.next(odonto.planTratamiento ?? '');
     this.comentarioAnteriorSubject.next(odonto.comentarioAnterior ?? '');
+    // El servicio es singleton y sobrevive a la navegación: sin este reset, al abrir el odontograma
+    // de otro turno se verían los antecedentes del paciente anterior hasta que responda su fetch.
+    this.historiaClinicaSubject.next(EMPTY_ANAMNESIS);
   }
 
   /** Aplica la respuesta de guardado (re-baseline tras un save exitoso). */
@@ -130,6 +148,7 @@ export class OdontoStateService {
   }
 
   cycleFace(toothNumber: number, face: FaceKey): void {
+    if (!this.editable) return;
     const map = new Map(this.facesSubject.value);
     const current = { ...(map.get(toothNumber) ?? emptyFaces()) };
     current[face] = nextFaceState(current[face]);
@@ -138,6 +157,7 @@ export class OdontoStateService {
   }
 
   toggleItemForSelectedTooth(item: LeyendaItem, checked: boolean): void {
+    if (!this.editable) return;
     const selectedTooth = this.selectedToothSubject.value;
     if (!selectedTooth) {
       return;
@@ -172,6 +192,7 @@ export class OdontoStateService {
   }
 
   removeItemsByLabelsForSelectedTooth(labels: string[]): void {
+    if (!this.editable) return;
     const selectedTooth = this.selectedToothSubject.value;
     if (!selectedTooth) {
       return;
@@ -184,11 +205,18 @@ export class OdontoStateService {
   }
 
   setComentario(value: string): void {
+    if (!this.editable) return;
     this.comentarioSubject.next(value);
   }
 
   setPlanTratamiento(value: string): void {
+    if (!this.editable) return;
     this.planTratamientoSubject.next(value);
+  }
+
+  /** No respeta `editable`: es la ficha del paciente, se muestra igual en un turno cerrado. */
+  setHistoriaClinica(anamnesis: Anamnesis): void {
+    this.historiaClinicaSubject.next(anamnesis);
   }
 
   private applyOdontoState(state: OdontogramaEstadoActual): void {

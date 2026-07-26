@@ -1,31 +1,66 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, NgZone, OnDestroy, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, Input, NgZone, OnDestroy, Output, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Appointment } from '../../../../core/models';
+import { Capability } from '../../../../core/auth/capabilities';
+import { CanDirective } from '../../../../shared/directives/can.directive';
 import { formatCurrency } from '../../../../core/utils/currency.util';
 import { formatDate as formatDateShared, getAppointmentColor as getAppointmentColorShared } from '../../utils/seguimiento-display.util';
+
+/** Separación vertical entre el badge y el dropdown de acciones, en px. */
+const DROPDOWN_OFFSET = 6;
+/** Margen mínimo contra los bordes del área visible, en px. */
+const VIEWPORT_MARGIN = 8;
+/** Medidas del dropdown: dos botones de 2.5rem con gap y padding de 0.4rem, más los bordes. */
+const DROPDOWN_WIDTH = 102;
+const DROPDOWN_HEIGHT = 55;
 
 @Component({
   selector: 'app-appointment-list-overflow',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CanDirective],
   templateUrl: './appointment-list-overflow.component.html',
   styleUrls: ['./appointment-list-overflow.component.scss']
 })
 export class AppointmentListOverflowComponent implements AfterViewInit, OnDestroy {
+  readonly Capability = Capability;
   @Input() appointments: Appointment[] = [];
   @Input() identificacion!: string;
+  /** Acción "pagos y observaciones" del dropdown (abre el modal de cobros). */
   @Output() appointmentClick = new EventEmitter<Appointment>();
+  /** Acción "resumen clínico" del dropdown. */
+  @Output() clinicalClick = new EventEmitter<Appointment>();
 
   @ViewChild('apptList') private readonly apptList!: ElementRef<HTMLDivElement>;
+
+  /**
+   * El dropdown se saca de la card y se cuelga de `<body>` apenas se renderiza. Dentro de la card no
+   * hay forma de que quede bien: `.appointments-list-wrapper` y `.patients-list` lo recortan con sus
+   * `overflow`, y `.patient-card:hover` aplica un `transform` que convierte a la card en el bloque
+   * contenedor del `position: fixed` justo cuando el mouse está encima.
+   *
+   * Angular lo sigue destruyendo bien al cerrar: su `removeChild` llama a `node.remove()`, que no
+   * depende de quién sea el padre.
+   */
+  @ViewChild('actionsMenu') set actionsMenu(ref: ElementRef<HTMLElement> | undefined) {
+    this.menuElement = ref?.nativeElement;
+    if (this.menuElement) document.body.appendChild(this.menuElement);
+  }
 
   isOverflowing = false;
   isExpanded = false;
 
+  /** Turno cuyo dropdown de acciones está abierto, o `null` si no hay ninguno. */
+  openActionsAppointment: Appointment | null = null;
+  dropdownPos = { top: 0, left: 0 };
+
   private resizeObserver?: ResizeObserver;
+  private dismissTeardown?: () => void;
+  private menuElement?: HTMLElement;
 
   constructor(
     private readonly ngZone: NgZone,
-    private readonly cdr: ChangeDetectorRef
+    private readonly cdr: ChangeDetectorRef,
+    private readonly elRef: ElementRef<HTMLElement>
   ) {}
 
   ngAfterViewInit(): void {
@@ -35,6 +70,7 @@ export class AppointmentListOverflowComponent implements AfterViewInit, OnDestro
 
   ngOnDestroy(): void {
     this.resizeObserver?.disconnect();
+    this.detachDismissListeners();
   }
 
   formatDate(dateStr: string): string {
@@ -51,11 +87,105 @@ export class AppointmentListOverflowComponent implements AfterViewInit, OnDestro
 
   toggleExpanded(): void {
     this.isExpanded = !this.isExpanded;
+    this.closeActions();
   }
 
   /** Usado por el padre para colapsar la lista al cambiar el filtro de año/mes. */
   collapse(): void {
     this.isExpanded = false;
+    this.closeActions();
+  }
+
+  /**
+   * Abre (o cierra, si ya estaba abierto para ese turno) el dropdown de acciones del badge.
+   *
+   * Se posiciona a partir del rectángulo del badge, en coordenadas de viewport (el dropdown cuelga
+   * de `<body>`, ver `actionsMenu`).
+   */
+  toggleActions(appointment: Appointment, event: Event): void {
+    if (this.openActionsAppointment?.id === appointment.id) {
+      this.closeActions();
+      return;
+    }
+    const badge = event.currentTarget as HTMLElement | null;
+    if (!badge) return;
+    this.openActionsAppointment = appointment;
+    this.dropdownPos = this.computePosition(badge.getBoundingClientRect());
+    this.attachDismissListeners();
+  }
+
+  closeActions(): void {
+    this.openActionsAppointment = null;
+    this.detachDismissListeners();
+  }
+
+  emitPayments(appointment: Appointment): void {
+    this.closeActions();
+    this.appointmentClick.emit(appointment);
+  }
+
+  emitClinical(appointment: Appointment): void {
+    this.closeActions();
+    this.clinicalClick.emit(appointment);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.openActionsAppointment) return;
+    const target = event.target as HTMLElement | null;
+    if (!target) return;
+    // Ni el badge ni el dropdown cierran por acá: el toggle del badge y los botones del dropdown ya
+    // manejan su propio cierre. El dropdown se chequea aparte porque cuelga de <body>.
+    const isInside = this.elRef.nativeElement.contains(target) || !!this.menuElement?.contains(target);
+    if (!isInside) this.closeActions();
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.closeActions();
+  }
+
+  /**
+   * El dropdown está fijo al viewport mientras el badge se mueve con la página, así que cualquier
+   * scroll o resize lo dejaría desalineado: se cierra en vez de reposicionarse.
+   *
+   * El scroll se escucha en fase de captura sobre `document` porque el evento no burbujea y en
+   * Seguimiento quien scrollea no es la ventana sino `.patients-list` (`overflow-y: auto`).
+   *
+   * Son listeners nativos, fuera de Angular: en una app zoneless hay que pedir el refresco a mano.
+   */
+  private attachDismissListeners(): void {
+    if (this.dismissTeardown) return;
+    const onDismiss = () => this.ngZone.run(() => {
+      this.closeActions();
+      this.cdr.markForCheck();
+    });
+    this.ngZone.runOutsideAngular(() => {
+      document.addEventListener('scroll', onDismiss, true);
+      window.addEventListener('resize', onDismiss);
+    });
+    this.dismissTeardown = () => {
+      document.removeEventListener('scroll', onDismiss, true);
+      window.removeEventListener('resize', onDismiss);
+    };
+  }
+
+  private detachDismissListeners(): void {
+    this.dismissTeardown?.();
+    this.dismissTeardown = undefined;
+  }
+
+  /** Ancla el dropdown debajo del badge, o arriba si no entra en el viewport. */
+  private computePosition(rect: DOMRect): { top: number; left: number } {
+    const left = Math.max(
+      VIEWPORT_MARGIN,
+      Math.min(rect.left, window.innerWidth - DROPDOWN_WIDTH - VIEWPORT_MARGIN)
+    );
+    const below = rect.bottom + DROPDOWN_OFFSET;
+    const top = below + DROPDOWN_HEIGHT > window.innerHeight - VIEWPORT_MARGIN
+      ? Math.max(VIEWPORT_MARGIN, rect.top - DROPDOWN_HEIGHT - DROPDOWN_OFFSET)
+      : below;
+    return { top, left };
   }
 
   /**

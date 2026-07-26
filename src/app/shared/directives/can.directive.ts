@@ -25,7 +25,7 @@ const DISABLEABLE = new Set(['BUTTON', 'INPUT', 'SELECT', 'TEXTAREA', 'FIELDSET'
  * habilitado. Para navegación usar `*appCanShow`. Ver `docs/PERMISOS.md § 6.5`.
  *
  * ```html
- * <button [appCan]="'SEGUIMIENTO:VIEW'" (click)="goToSeguimiento()">Ver detalle</button>
+ * <button [appCan]="'CONFIGURACIONES:VIEW'" (click)="goToConfiguraciones()">Ver detalle</button>
  * ```
  */
 @Directive({

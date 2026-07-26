@@ -6,6 +6,7 @@ import { API_CONFIG } from './api.config';
 import { AuthService } from './auth.service';
 import { NotificationService } from './notification.service';
 import { ErrorHandlerService } from './error-handler.service';
+import { Capability } from '../auth/capabilities';
 
 @Injectable({ providedIn: 'root' })
 export class ProfesionalService {
@@ -21,7 +22,7 @@ export class ProfesionalService {
   ) {
     this.auth.currentUser$.pipe(
       filter(user => user !== null),
-      switchMap(() => this.http.get<Profesional[]>(this.apiUrl)),
+      switchMap(() => this.fetchProfesionales()),
       catchError((err) => {
         console.error('Error loading profesionales:', err);
         if (err?.status !== 404 && !this.errorHandler.isNetworkError(err)) {
@@ -36,8 +37,21 @@ export class ProfesionalService {
     this.auth.loggedOut$.subscribe(() => this.profesionalesCache$.next([]));
   }
 
+  /**
+   * `GET /profesionales` exige `PROFESIONALES:VIEW`, que solo concede el módulo CONFIGURACIONES.
+   * Pero este cache alimenta los combos de profesional del alta de turnos, que necesita cualquiera
+   * con la turnera: para esos el backend expone `/active` sin capacidad. Sin esta bifurcación,
+   * entrar con permisos de profesional dispara un 403 en el arranque de la app.
+   */
+  private fetchProfesionales(): Observable<Profesional[]> {
+    const url = this.auth.hasCapability(Capability.PROFESIONALES_VIEW)
+      ? this.apiUrl
+      : `${this.apiUrl}/active`;
+    return this.http.get<Profesional[]>(url);
+  }
+
   loadProfesionales(): void {
-    this.http.get<Profesional[]>(this.apiUrl).pipe(
+    this.fetchProfesionales().pipe(
       catchError((err) => {
         console.error('Error loading profesionales:', err);
         return of(this.profesionalesCache$.value);

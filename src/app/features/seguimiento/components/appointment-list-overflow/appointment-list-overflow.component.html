@@ -5,9 +5,11 @@
   *ngIf="appointments.length > 0" [attr.data-testid]="'tracking-patient-appointments-' + identificacion">
   <div class="appointments-list" #apptList [attr.data-identificacion]="identificacion">
     <div *ngFor="let app of appointments" class="appointment-badge"
-      [ngClass]="'appointment-' + getAppointmentColor(app)" (click)="appointmentClick.emit(app)" role="button"
-      tabindex="0" (keydown.enter)="appointmentClick.emit(app)"
-      (keydown.space)="appointmentClick.emit(app); $event.preventDefault()" [attr.data-testid]="'tracking-appointment-item-' + app.id">
+      [ngClass]="'appointment-' + getAppointmentColor(app)" (click)="toggleActions(app, $event)" role="button"
+      tabindex="0" (keydown.enter)="toggleActions(app, $event)"
+      (keydown.space)="toggleActions(app, $event); $event.preventDefault()"
+      aria-haspopup="true" [attr.aria-expanded]="openActionsAppointment?.id === app.id"
+      [attr.data-testid]="'tracking-appointment-item-' + app.id">
       <span class="appointment-date" [attr.data-testid]="'tracking-appointment-date-' + app.id">{{ formatDate(app.fecha) }}</span>
       <span class="appointment-amount" *ngIf="app.totalPrecio && app.totalPrecio > 0" [attr.data-testid]="'tracking-appointment-amount-' + app.id">
         {{ formatCurrency(app.totalPrecio) }}
@@ -20,3 +22,19 @@
   {{ isExpanded ? 'Ver menos' : 'Ver más' }}
   <i class="bi" [ngClass]="isExpanded ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
 </button>
+
+<!-- Se reubica en <body> al renderizarse: ver `actionsMenu` en el componente. -->
+<div class="appointment-actions" *ngIf="openActionsAppointment as app" #actionsMenu role="menu"
+  [style.top.px]="dropdownPos.top" [style.left.px]="dropdownPos.left"
+  [attr.data-testid]="'tracking-appointment-actions-' + app.id">
+  <button type="button" class="action-square" role="menuitem" title="Pagos y observaciones"
+    [appCan]="Capability.SEGUIMIENTO_COBRAR" (click)="emitPayments(app)"
+    [attr.data-testid]="'tracking-appointment-payments-btn-' + app.id">
+    <i class="bi bi-cash-coin"></i>
+  </button>
+  <button type="button" class="action-square" role="menuitem" title="Resumen clínico"
+    [appCan]="Capability.ODONTOGRAMA_VIEW" (click)="emitClinical(app)"
+    [attr.data-testid]="'tracking-appointment-clinical-btn-' + app.id">
+    <i class="bi bi-heart-pulse"></i>
+  </button>
+</div>

@@ -1,0 +1,101 @@
+<div class="modal fade show d-block" tabindex="-1" role="dialog" *ngIf="open && appointment" data-testid="tracking-turn-clinical-modal">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content turn-modal-content">
+      <div class="modal-header">
+        <div class="title-block">
+          <div class="icon-circle"><i class="bi bi-heart-pulse"></i></div>
+          <h5 class="modal-title" data-testid="tracking-turn-clinical-title">Resumen clínico</h5>
+        </div>
+        <button type="button" class="btn-close ms-auto" aria-label="Cerrar" (click)="close()"
+          data-testid="tracking-turn-clinical-close-btn"></button>
+      </div>
+      <div class="modal-body">
+        <div class="turn-modal-context mb-3">
+          <span class="fw-semibold" data-testid="tracking-turn-clinical-patient-name">{{ fullName(appointment.patientNombre, appointment.patientApellido) }}</span>
+          <span class="text-muted" data-testid="tracking-turn-clinical-date"> · {{ formatDate(appointment.fecha) }}</span>
+          <span class="text-muted" *ngIf="appointment.profesionalNombre">
+            · {{ fullName(appointment.profesionalNombre, appointment.profesionalApellido) }}
+          </span>
+        </div>
+
+        <div *ngIf="isLoading" class="clinical-state text-muted" data-testid="tracking-turn-clinical-loading">
+          <span class="spinner-border spinner-border-sm me-2"></span>Cargando registros clínicos...
+        </div>
+
+        <div *ngIf="loadError && !isLoading" class="clinical-state text-danger" data-testid="tracking-turn-clinical-error">
+          <i class="bi bi-exclamation-triangle me-2"></i>No se pudieron cargar los registros clínicos de este turno.
+        </div>
+
+        <div *ngIf="isEmpty" class="clinical-state text-muted" data-testid="tracking-turn-clinical-empty">
+          <i class="bi bi-clipboard2-x me-2"></i>Este turno no tiene registros clínicos.
+        </div>
+
+        <ng-container *ngIf="!isLoading && !loadError">
+          <!-- Notas del turno -->
+          <div class="turn-modal-section" *ngIf="hasNotes" data-testid="tracking-turn-clinical-notes">
+            <h6 class="section-label"><i class="bi bi-journal-text me-2"></i>Comentarios del turno</h6>
+            <div class="clinical-box">
+              <p class="mb-2" *ngIf="odontograma?.comentario" data-testid="tracking-turn-clinical-comment">{{ odontograma?.comentario }}</p>
+              <div class="mb-2" *ngIf="odontograma?.planTratamiento" data-testid="tracking-turn-clinical-plan">
+                <span class="field-label">Plan de tratamiento:</span> {{ odontograma?.planTratamiento }}
+              </div>
+              <div class="text-muted small mb-0" *ngIf="odontograma?.comentarioAnterior" data-testid="tracking-turn-clinical-previous-comment">
+                <span class="field-label">Comentarios del turno anterior:</span> {{ odontograma?.comentarioAnterior }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Cambios en el odontograma -->
+          <div class="turn-modal-section" *ngIf="toothChanges.length > 0" data-testid="tracking-turn-clinical-odontogram">
+            <h6 class="section-label"><i class="bi bi-clipboard2-pulse me-2"></i>Cambios en el odontograma</h6>
+            <div class="clinical-box">
+              <div class="tooth-row" *ngFor="let tooth of toothChanges"
+                [attr.data-testid]="'tracking-turn-clinical-tooth-' + tooth.numeroDiente">
+                <span class="tooth-number">{{ tooth.numeroDiente }}</span>
+                <div class="tooth-tags">
+                  <span class="clinical-tag" *ngFor="let cara of tooth.caras" [ngClass]="'estado-' + cara.estadoKey">
+                    {{ cara.cara }}: {{ cara.estado }}
+                  </span>
+                  <span class="clinical-tag" *ngFor="let leyenda of tooth.leyendas">{{ leyenda }}</span>
+                  <span class="clinical-tag" *ngIf="tooth.movilidad !== null">Movilidad {{ tooth.movilidad }}</span>
+                  <span class="clinical-tag" *ngIf="tooth.furca !== null">Furca {{ tooth.furca }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Periodontograma -->
+          <div class="turn-modal-section" *ngIf="perioSummary || periodontograma?.notas" data-testid="tracking-turn-clinical-perio">
+            <h6 class="section-label"><i class="bi bi-activity me-2"></i>Periodontograma</h6>
+            <div class="clinical-box">
+              <p class="mb-2" *ngIf="periodontograma?.notas" data-testid="tracking-turn-clinical-perio-notes">{{ periodontograma?.notas }}</p>
+              <ng-container *ngIf="perioSummary as perio">
+                <div class="perio-count" data-testid="tracking-turn-clinical-perio-teeth">
+                  {{ perio.dientes }} {{ perio.dientes === 1 ? 'diente registrado' : 'dientes registrados' }} en este turno
+                </div>
+                <div class="tooth-tags mt-2">
+                  <span class="clinical-tag" *ngIf="perio.sangrado">Sangrado: {{ perio.sangrado }}</span>
+                  <span class="clinical-tag" *ngIf="perio.placa">Placa: {{ perio.placa }}</span>
+                  <span class="clinical-tag" *ngIf="perio.supuracion">Supuración: {{ perio.supuracion }}</span>
+                  <span class="clinical-tag" *ngIf="perio.calculo">Cálculo: {{ perio.calculo }}</span>
+                  <span class="clinical-tag" *ngIf="perio.movilidad">Movilidad: {{ perio.movilidad }}</span>
+                  <span class="clinical-tag" *ngIf="perio.furca">Furca: {{ perio.furca }}</span>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="close()"
+          data-testid="tracking-turn-clinical-dismiss-btn">Cerrar</button>
+        <button type="button" class="btn btn-primary" [appCan]="Capability.ODONTOGRAMA_VIEW" (click)="openOdontogram()"
+          data-testid="tracking-turn-clinical-open-odontogram-btn">
+          <i class="bi bi-heart-pulse me-2"></i>Abrir odontograma completo
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop fade show" *ngIf="open" appScrollLock></div>

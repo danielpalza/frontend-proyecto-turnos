@@ -9,7 +9,8 @@ Dos capas, coordinadas por `HttpContext` (ver [`http-context.ts`](../src/app/cor
 1. **Interceptor global** (`httpErrorInterceptor`, [`core/interceptors/http-error.interceptor.ts`](../src/app/core/interceptors/http-error.interceptor.ts)):
    - **401** fuera de `/auth/*` → `AuthService.logout()` + redirect a `/login`, sin toast (la sesión ya se cerró).
    - **404** → nunca se notifica globalmente; el mensaje del backend (si lo trae) se usa **solo si el componente lo pide explícitamente** vía `ErrorHandlerService`.
-   - **Todo lo demás** (400, 403, 409, 422, 500, 502, 503, 504, errores de red) → se notifica con un toast (`NotificationService.showError`), **excepto** los errores de red (`status === 0`), que **no** muestran toast global (el criterio explícito en el código es que un corte de conexión se debe mostrar solo como alerta inline en el componente afectado, no como toast — para no "gritar" un problema de red con un popup).
+   - **403** fuera de `/auth/*` → rama propia (`handleCapabilityForbidden`), porque un 403 tiene dos causas que se ven iguales. Si la sesión **cree** tener la capacidad que el backend rechazó (`AuthService.hasCapability(error.error.requiredCapability)`), quedó desactualizada —las capacidades viajan en el login con un JWT de 24 h sin refresh— y se fuerza re-login avisando por qué. Si ya sabía que no la tiene, el usuario llegó por URL directa o por un botón que no declara su capacidad: alcanza con el toast. **Esta rama ignora `skipGlobalErrorHandler()`** — ver `DEUDA_TECNICA.md § 3.1`.
+   - **Todo lo demás** (400, 409, 422, 500, 502, 503, 504, errores de red) → se notifica con un toast (`NotificationService.showError`), **excepto** los errores de red (`status === 0`), que **no** muestran toast global (el criterio explícito en el código es que un corte de conexión se debe mostrar solo como alerta inline en el componente afectado, no como toast — para no "gritar" un problema de red con un popup).
    - Un request puede optar por manejar su propio error pasando `context: skipGlobalErrorHandler()` — el interceptor solo loguea por consola y re-lanza, sin notificar. Se usa en login/register (`AuthService`) y en creaciones donde el componente ya arma su propio flujo de error (`PatientService.create(..., skipGlobal=true)`, `AppointmentsService.create/delete(..., skipGlobal=true)`).
 
 2. **`ErrorHandlerService`** ([`core/services/error-handler.service.ts`](../src/app/core/services/error-handler.service.ts)): traduce un `HttpErrorResponse` a un mensaje en español legible, con reglas por código de estado (400/401/403/404/408/409/422/500/502/503/504) y prioriza siempre el `message`/`error`/`errors` que venga en el body del backend por sobre el mensaje genérico. Tiene manejo especial para 409 (conflictos de horario/documento duplicado) y para errores de red (mensajes distintos según el contexto: "crear el paciente", "crear el turno", "eliminar...").
@@ -26,6 +27,12 @@ error: (err) => {
 }
 ```
 Es decir: nunca se notifica un 404 (lo maneja el backend con su propio mensaje contextual, o simplemente no aplica), y los errores de red se dejan para que la propia vista los muestre inline (ej. banner `alert-danger` en `TurnosViewComponent`/`PanelViewComponent`) en vez de vía toast.
+
+> ⚠️ **Este patrón duplica el toast si la petición no marca `skipGlobalErrorHandler()`.** Sus dos guards
+> calcan las exclusiones del interceptor, así que solo dejan pasar los errores que el interceptor **sí**
+> notificó: el usuario ve dos toasts idénticos. Es correcto únicamente cuando la petición marcó
+> `skipGlobal` (o apunta a `/auth/*`), o cuando el error es de validación de cliente y no hubo HTTP.
+> Hay 23 call sites que hoy lo incumplen, inventariados en `DEUDA_TECNICA.md § 3.2`.
 
 ## Notificaciones (toasts)
 

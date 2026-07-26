@@ -54,6 +54,8 @@ export interface PeriodontogramaResponse {
   patientId: string;
   notas?: string;
   creadoEn?: string;
+  /** Ver `editable` en `OdontogramaResponse`: es la misma regla, resuelta por turno. */
+  editable?: boolean;
   estadoActual: PeriodontogramaEstadoActual;
   cambiosTurno: PeriodontogramaEstadoActual;
 }

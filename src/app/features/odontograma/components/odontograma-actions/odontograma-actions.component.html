@@ -11,6 +11,8 @@
   <button
     class="btn btn-action btn-save-odontograma"
     (click)="openSaveDialog()"
+    [disabled]="!editable"
+    [title]="editable ? '' : 'Registro cerrado: el paciente tiene un turno posterior con registro clínico'"
     [attr.data-testid]="activeForm === 'periodontograma' ? 'periodontogram-save-btn' : 'odontogram-save-btn'"
   >
     <i class="bi bi-floppy me-2"></i>

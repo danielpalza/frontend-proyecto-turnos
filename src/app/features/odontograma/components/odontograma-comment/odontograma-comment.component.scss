@@ -16,6 +16,45 @@
   color: $text-primary;
 }
 
+.odontograma-comment__list {
+  margin: 0;
+  padding-left: $spacing-lg;
+}
+
+.odontograma-comment__item {
+  color: $text-primary;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.odontograma-comment__otros {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.odontograma-comment__otros-title {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.odontograma-comment__otros-text {
+  margin: 0;
+  color: $text-primary;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+}
+
+.odontograma-comment__empty {
+  margin: 0;
+  color: $text-secondary;
+  font-size: 0.95rem;
+  font-style: italic;
+}
+
 .odontograma-comment__textarea {
   @include input-focus($radius-sm, 2px);
   width: 100%;

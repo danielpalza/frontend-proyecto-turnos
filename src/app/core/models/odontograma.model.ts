@@ -64,6 +64,11 @@ export interface OdontogramaResponse {
   planTratamiento?: string;
   comentarioAnterior?: string;
   creadoEn?: string;
+  /**
+   * `false` cuando el paciente ya tiene un registro clínico posterior y este turno quedó cerrado por
+   * la regla legal. Ausente se interpreta como editable; el backend lo valida igual al guardar.
+   */
+  editable?: boolean;
   estadoActual: OdontogramaEstadoActual;
   cambiosTurno: OdontogramaEstadoActual;
 }

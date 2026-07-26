@@ -92,10 +92,11 @@
               <!-- Bloque clínico: siempre editable con ODONTOGRAMA:EDIT, pese a viajar dentro del
                    delta de pago. Ver docs/PERMISOS.md § 6.1. -->
               <div class="mb-3">
-                <label class="form-label">Observaciones Profesional</label>
+                <label class="form-label">Observaciones del turno</label>
                 <textarea rows="4" class="form-control"
-                  [value]="formData().observacionesProfesional"
-                  (input)="updateField('observacionesProfesional', $any($event.target).value)">
+                  [value]="formData().observacionesTurno"
+                  (input)="updateField('observacionesTurno', $any($event.target).value)"
+                  data-testid="odontogram-save-turn-obs-input">
                 </textarea>
               </div>
 
@@ -137,8 +138,18 @@
 
               <div class="bg-white rounded p-3 shadow-sm" data-testid="odontogram-save-summary-clinical-history">
                 <p class="fw-semibold mb-2">Historia clínica del paciente</p>
-                @if (historiaClinica()) {
-                  <p class="small mb-0 summary-text">{{ historiaClinica() }}</p>
+                @if (tieneHistoriaClinica) {
+                  @if (historiaClinica().items.length) {
+                    <ul class="small mb-0 ps-3 summary-text">
+                      @for (item of historiaClinica().items; track item.label) {
+                        <li><strong>{{ item.label }}:</strong> {{ item.value }}</li>
+                      }
+                    </ul>
+                  }
+                  @if (historiaClinica().otros) {
+                    <p class="small fw-semibold mb-1" [class.mt-2]="historiaClinica().items.length">Otros antecedentes</p>
+                    <p class="small mb-0 summary-text">{{ historiaClinica().otros }}</p>
+                  }
                 } @else {
                   <p class="small text-muted fst-italic mb-0">Sin contenido</p>
                 }

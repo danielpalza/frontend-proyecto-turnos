@@ -1,6 +1,5 @@
 <div class="panel-container" data-testid="dashboard-page">
   <div class="container-fluid">
-
     <!-- Header -->
     <div class="panel-header" data-testid="dashboard-header">
       <!-- Header Left por si se quiere agregar algo-->
@@ -16,13 +15,23 @@
         <button type="button" class="btn-today" (click)="goToToday()">Hoy</button>
 
         <div class="month-navigation" data-testid="dashboard-month-nav">
-          <button type="button" class="nav-arrow" (click)="previousMonth()" data-testid="dashboard-prev-month-btn">
+          <button
+            type="button"
+            class="nav-arrow"
+            (click)="previousMonth()"
+            data-testid="dashboard-prev-month-btn"
+          >
             <i class="bi bi-chevron-left"></i>
           </button>
           <button type="button" class="month-selector" data-testid="dashboard-month-label">
             {{ getMonthName() }} {{ currentDate.getFullYear() }}
           </button>
-          <button type="button" class="nav-arrow" (click)="nextMonth()" data-testid="dashboard-next-month-btn">
+          <button
+            type="button"
+            class="nav-arrow"
+            (click)="nextMonth()"
+            data-testid="dashboard-next-month-btn"
+          >
             <i class="bi bi-chevron-right"></i>
           </button>
         </div>
@@ -50,7 +59,13 @@
           </div>
         </div>
 
-        <button type="button" class="btn btn-outline-primary btn-sm" [disabled]="isLoading" (click)="refresh()" data-testid="dashboard-refresh-btn">
+        <button
+          type="button"
+          class="btn btn-outline-primary btn-sm"
+          [disabled]="isLoading"
+          (click)="refresh()"
+          data-testid="dashboard-refresh-btn"
+        >
           <i class="bi bi-arrow-clockwise me-1" [class.spin]="isLoading"></i>Actualizar
         </button>
       </div>
@@ -71,11 +86,17 @@
             <i class="bi bi-cash-coin text-success"></i>
           </div>
           <div class="metric-body">
-            <span class="metric-label" data-testid="dashboard-total-income-label">Ingresos realizados</span>
+            <span class="metric-label" data-testid="dashboard-total-income-label"
+              >Ingresos realizados</span
+            >
             @if (isLoading) {
-              <span class="metric-value skeleton" data-testid="dashboard-total-income-value">&nbsp;</span>
+              <span class="metric-value skeleton" data-testid="dashboard-total-income-value"
+                >&nbsp;</span
+              >
             } @else {
-              <span class="metric-value" data-testid="dashboard-total-income-value">{{ formatCurrency(summary.ingresosTotales) }}</span>
+              <span class="metric-value" data-testid="dashboard-total-income-value">{{
+                formatCurrency(summary.ingresosTotales)
+              }}</span>
             }
             <div [class]="comparisonClass(comparison.ingresos)">
               <i [class]="comparisonIcon(comparison.ingresos)"></i>
@@ -92,11 +113,17 @@
             <i class="bi bi-clock text-warning"></i>
           </div>
           <div class="metric-body">
-            <span class="metric-label" data-testid="dashboard-pending-income-label">Ingresos pendientes</span>
+            <span class="metric-label" data-testid="dashboard-pending-income-label"
+              >Ingresos pendientes</span
+            >
             @if (isLoading) {
-              <span class="metric-value skeleton" data-testid="dashboard-pending-income-value">&nbsp;</span>
+              <span class="metric-value skeleton" data-testid="dashboard-pending-income-value"
+                >&nbsp;</span
+              >
             } @else {
-              <span class="metric-value" data-testid="dashboard-pending-income-value">{{ formatCurrency(summary.ingresosPendientes) }}</span>
+              <span class="metric-value" data-testid="dashboard-pending-income-value">{{
+                formatCurrency(summary.ingresosPendientes)
+              }}</span>
             }
             <div [class]="comparisonClass(comparison.pendientes)">
               <i [class]="comparisonIcon(comparison.pendientes)"></i>
@@ -113,11 +140,17 @@
             <i class="bi bi-calendar-check text-primary"></i>
           </div>
           <div class="metric-body">
-            <span class="metric-label" data-testid="dashboard-appointments-done-label">Turnos realizados</span>
+            <span class="metric-label" data-testid="dashboard-appointments-done-label"
+              >Turnos realizados</span
+            >
             @if (isLoading) {
-              <span class="metric-value skeleton" data-testid="dashboard-appointments-done-value">&nbsp;</span>
+              <span class="metric-value skeleton" data-testid="dashboard-appointments-done-value"
+                >&nbsp;</span
+              >
             } @else {
-              <span class="metric-value" data-testid="dashboard-appointments-done-value">{{ summary.turnosCompletados }}</span>
+              <span class="metric-value" data-testid="dashboard-appointments-done-value">{{
+                summary.turnosCompletados
+              }}</span>
             }
             <div [class]="comparisonClass(comparison.completados)">
               <i [class]="comparisonIcon(comparison.completados)"></i>
@@ -134,11 +167,19 @@
             <i class="bi bi-people text-secondary"></i>
           </div>
           <div class="metric-body">
-            <span class="metric-label" data-testid="dashboard-appointments-cancelled-label">Pendientes</span>
+            <span class="metric-label" data-testid="dashboard-appointments-cancelled-label"
+              >Pendientes</span
+            >
             @if (isLoading) {
-              <span class="metric-value skeleton" data-testid="dashboard-appointments-cancelled-value">&nbsp;</span>
+              <span
+                class="metric-value skeleton"
+                data-testid="dashboard-appointments-cancelled-value"
+                >&nbsp;</span
+              >
             } @else {
-              <span class="metric-value" data-testid="dashboard-appointments-cancelled-value">{{ summary.turnosPendientes }}</span>
+              <span class="metric-value" data-testid="dashboard-appointments-cancelled-value">{{
+                summary.turnosPendientes
+              }}</span>
             }
           </div>
         </div>
@@ -147,22 +188,32 @@
 
     <!-- Charts row -->
     <div class="row g-4 mb-3">
-
       <!-- Line chart -->
       <div class="col-lg-8">
         <div class="panel-section h-100">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h2 class="section-title mb-0">Evolución de ingresos</h2>
             <div class="line-legend">
-              <span class="line-legend-item"><span class="line-dot" style="background:#198754"></span>Ingresos realizados</span>
-              <span class="line-legend-item"><span class="line-dot" style="background:#fd7e14"></span>Ingresos pendientes</span>
+              <span class="line-legend-item"
+                ><span class="line-dot" style="background: #198754"></span>Ingresos realizados</span
+              >
+              <span class="line-legend-item"
+                ><span class="line-dot" style="background: #fd7e14"></span>Ingresos pendientes</span
+              >
             </div>
           </div>
           <div class="line-chart-wrapper">
             @if (isLoading) {
-              <div class="chart-placeholder"><span class="spinner-border spinner-border-sm"></span></div>
+              <div class="chart-placeholder">
+                <span class="spinner-border spinner-border-sm"></span>
+              </div>
             } @else {
-              <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" type="line"></canvas>
+              <canvas
+                baseChart
+                [data]="lineChartData"
+                [options]="lineChartOptions"
+                type="line"
+              ></canvas>
             }
           </div>
         </div>
@@ -170,17 +221,34 @@
 
       <!-- Donut chart -->
       <div class="col-lg-4">
-        <div class="panel-section h-100 d-flex flex-column" data-testid="dashboard-appointments-chart-panel">
-          <h2 class="section-title" data-testid="dashboard-appointments-chart-title">Estado de turnos</h2>
+        <div
+          class="panel-section h-100 d-flex flex-column"
+          data-testid="dashboard-appointments-chart-panel"
+        >
+          <h2 class="section-title" data-testid="dashboard-appointments-chart-title">
+            Estado de turnos
+          </h2>
           <div class="donut-section" data-testid="dashboard-appointments-chart-placeholder">
             @if (isLoading) {
-              <div class="chart-placeholder flex-grow-1"><span class="spinner-border spinner-border-sm"></span></div>
-            } @else if (summary.turnosCompletados + summary.turnosPendientes + summary.turnosCancelados === 0) {
-              <div class="chart-placeholder flex-grow-1"><p class="text-muted mb-0">Sin datos para mostrar</p></div>
+              <div class="chart-placeholder flex-grow-1">
+                <span class="spinner-border spinner-border-sm"></span>
+              </div>
+            } @else if (
+              summary.turnosCompletados + summary.turnosPendientes + summary.turnosCancelados === 0
+            ) {
+              <div class="chart-placeholder flex-grow-1">
+                <p class="text-muted mb-0">Sin datos para mostrar</p>
+              </div>
             } @else {
               <div class="donut-layout">
                 <div class="donut-canvas-wrap">
-                  <canvas baseChart [data]="appointmentsChartData" [options]="appointmentsChartOptions" [plugins]="donutPlugins" type="doughnut"></canvas>
+                  <canvas
+                    baseChart
+                    [data]="appointmentsChartData"
+                    [options]="appointmentsChartOptions"
+                    [plugins]="donutPlugins"
+                    type="doughnut"
+                  ></canvas>
                 </div>
                 <div class="donut-legend">
                   @for (item of donutLegendItems; track item.label) {
@@ -188,7 +256,12 @@
                       <span class="donut-dot" [style.background]="item.color"></span>
                       <span class="donut-label-text">{{ item.label }}</span>
                       <span class="donut-count">{{ item.count }}</span>
-                      <span class="donut-pct-badge" [style.background]="item.pctColor" [style.color]="item.color">{{ item.pct }}%</span>
+                      <span
+                        class="donut-pct-badge"
+                        [style.background]="item.pctColor"
+                        [style.color]="item.color"
+                        >{{ item.pct }}%</span
+                      >
                     </div>
                   }
                 </div>
@@ -196,7 +269,11 @@
             }
           </div>
           <div class="mt-auto pt-3 border-top">
-            <button type="button" class="btn btn-link btn-sm text-primary w-100 d-flex align-items-center justify-content-center gap-1" (click)="goToTurnos()">
+            <button
+              type="button"
+              class="btn btn-link btn-sm text-primary w-100 d-flex align-items-center justify-content-center gap-1"
+              (click)="goToTurnos()"
+            >
               Ver detalle de turnos <i class="bi bi-chevron-right"></i>
             </button>
           </div>
@@ -206,9 +283,14 @@
 
     <!-- Professionals table -->
     <div class="panel-section" data-testid="dashboard-profesionales-panel">
-      <h2 class="section-title" data-testid="dashboard-profesionales-title">Rendimiento de profesionales</h2>
+      <h2 class="section-title" data-testid="dashboard-profesionales-title">
+        Rendimiento de profesionales
+      </h2>
       <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0" data-testid="dashboard-profesionales-table">
+        <table
+          class="table table-hover align-middle mb-0"
+          data-testid="dashboard-profesionales-table"
+        >
           <thead data-testid="dashboard-profesionales-thead">
             <tr>
               <th style="width: 3rem"></th>
@@ -221,7 +303,11 @@
               <th class="text-end sortable" (click)="sortBy('facturacion', 'desc')">
                 Facturación <i [class]="sortIcon('facturacion')"></i>
               </th>
-              <th class="text-center sortable" style="min-width: 160px" (click)="sortBy('completitud', 'desc')">
+              <th
+                class="text-center sortable"
+                style="min-width: 160px"
+                (click)="sortBy('completitud', 'desc')"
+              >
                 Tasa de completitud <i [class]="sortIcon('completitud')"></i>
               </th>
               <th></th>
@@ -258,7 +344,7 @@
                   <td>
                     <div class="tasa-cell">
                       <span class="tasa-pct">{{ getCompletionRate(prof) }}%</span>
-                      <div class="progress" style="height:5px; flex:1">
+                      <div class="progress" style="height: 5px; flex: 1">
                         <div
                           class="progress-bar bg-success"
                           [style.width]="getCompletionRate(prof) + '%'"
@@ -267,11 +353,17 @@
                     </div>
                   </td>
                   <td>
-                    <!-- Pide SEGUIMIENTO:VIEW, no PANEL: la capacidad la define el efecto del
-                         control (navegar a Seguimiento), no la pestaña donde vive. -->
-                    <button type="button" class="btn btn-outline-secondary btn-sm"
-                      [appCan]="Capability.SEGUIMIENTO_VIEW" (click)="goToSeguimiento()"
-                      data-testid="dashboard-profesional-detalle-btn">Ver detalle</button>
+                    <!-- Pide CONFIGURACIONES:VIEW, no PANEL: la capacidad la define el efecto del
+                         control (navegar a Configuraciones), no la pestaña donde vive. -->
+                    <button
+                      type="button"
+                      class="btn btn-outline-secondary btn-sm"
+                      [appCan]="Capability.CONFIGURACIONES_VIEW"
+                      (click)="goToConfiguraciones()"
+                      data-testid="dashboard-profesional-detalle-btn"
+                    >
+                      Ver detalle
+                    </button>
                   </td>
                 </tr>
               }
@@ -280,6 +372,5 @@
         </table>
       </div>
     </div>
-
   </div>
 </div>

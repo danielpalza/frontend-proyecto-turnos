@@ -4,11 +4,27 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gestia</title>
+
+    <title>Gestia — Software de gestión para clínicas y centros por turno</title>
+    <meta
+      name="description"
+      content="Gestia unifica agenda, fichas de pacientes, historia clínica, cobros y comunicación en un solo sistema web. Ordená tu clínica y dedicá más tiempo a atender. Pedí una demo."
+    />
+    <meta name="theme-color" content="#6366f1" />
+
+    <!-- Open Graph / redes sociales -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Gestia — Toda tu clínica en un solo lugar" />
+    <meta
+      property="og:description"
+      content="Agenda, fichas, historia clínica, cobros y comunicación con pacientes en un sistema web simple y seguro."
+    />
+    <meta property="og:image" content="images/logo/logo.svg" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" type="image/svg+xml" href="images/logo/logo.svg" />
 
     <link rel="stylesheet" href="styles.css" />
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
     <link
       rel="stylesheet"
@@ -19,30 +35,48 @@
     <!-- NAVBAR -->
     <nav class="navbar" data-testid="landing-navbar">
       <div class="container nav-content">
-        <a href="#" style="text-decoration: none; color: inherit">
+        <a href="#landing" class="logo-link">
           <div class="logo">
-            <img
-              src="images/contacto/demo-personalizada.svg"
-              alt="Logo Gestia"
-              class="footer-logo"
-            />
+            <img src="images/logo/logo.svg" alt="Logo Gestia" class="logo-img" />
             <span>Gestia</span>
           </div>
         </a>
 
         <div class="nav-links" data-testid="landing-nav-links">
-          <a href="#features" data-testid="landing-nav-features-link">Features</a>
-          <a href="#workflow" data-testid="landing-nav-workflow-link">Workflow</a>
-          <!-- <a href="#clientes">Clientes</a> -->
-          <!-- DESCOMENTAR CUANDO TENGAMOS TESTIMONIOS -->
-          <a href="#contacto" data-testid="landing-nav-contact-link">Contacto</a>
+          <a href="#beneficios" data-testid="landing-nav-benefits-link">Beneficios</a>
+          <a href="#features" data-testid="landing-nav-features-link">Funciones</a>
+          <a href="#workflow" data-testid="landing-nav-workflow-link">Cómo funciona</a>
+          <a href="#precios" data-testid="landing-nav-pricing-link">Precios</a>
+          <a href="#faq" data-testid="landing-nav-faq-link">Preguntas</a>
         </div>
 
         <div class="nav-actions" data-testid="landing-nav-actions">
           <button class="btn btn-secondary" data-testid="landing-login-btn">Iniciar sesión</button>
 
-          <button class="btn btn-primary" data-testid="landing-demo-btn">Solicitar demo</button>
+          <a href="#contacto" class="btn btn-primary" data-testid="landing-demo-btn">
+            Solicitar demo
+          </a>
         </div>
+
+        <button
+          class="nav-toggle"
+          aria-label="Abrir menú"
+          aria-expanded="false"
+          data-testid="landing-nav-toggle"
+        >
+          <i class="fa-solid fa-bars" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <!-- Menú mobile -->
+      <div class="mobile-menu" data-testid="landing-mobile-menu">
+        <a href="#beneficios">Beneficios</a>
+        <a href="#features">Funciones</a>
+        <a href="#workflow">Cómo funciona</a>
+        <a href="#precios">Precios</a>
+        <a href="#faq">Preguntas</a>
+        <button class="btn btn-secondary full-width">Iniciar sesión</button>
+        <a href="#contacto" class="btn btn-primary full-width">Solicitar demo</a>
       </div>
     </nav>
 
@@ -51,54 +85,132 @@
       <div class="hero-bg"></div>
 
       <div class="container hero-content">
-        <div class="hero-left">
-          <span class="badge"> Todo tu consultorio en un solo lugar </span>
+        <div class="hero-left" data-reveal>
+          <span class="badge">
+            <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
+            Todo tu consultorio en un solo lugar
+          </span>
 
           <h1>
-            Gestioná tu clínica de forma simple,
-            <span class="hero-accent">inteligente y segura</span>
+            Dejá el cuaderno, la planilla y el WhatsApp.
+            <span class="hero-accent">Gestioná toda tu clínica desde un solo sistema.</span>
           </h1>
 
           <p>
-            Turnos, historias clínicas, tratamientos, pagos y comunicación con pacientes. Automatizá
-            tu clínica y enfocate en lo más importante: tus pacientes/clientes.
+            Agenda, fichas de pacientes, historia clínica, cobros y recordatorios, integrados y
+            siempre a mano. Ordená tu día a día en minutos y dedicá tu tiempo a lo que importa:
+            atender.
           </p>
 
           <div class="hero-buttons" data-testid="landing-hero-buttons">
-            <a href="#contacto">
-              <button class="btn btn-primary" data-testid="landing-hero-demo-btn">
-                Solicitar demo
-                <i class="fa-solid fa-arrow-right"></i>
-              </button>
+            <a href="#contacto" class="btn btn-primary btn-lg" data-testid="landing-hero-demo-btn">
+              Solicitar demo gratis
+              <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
             </a>
 
-            <button class="btn btn-outline btn-whatsapp" data-testid="landing-hero-whatsapp-btn">
-              <i class="fa-brands fa-whatsapp"></i>
+            <button class="btn btn-outline btn-lg btn-whatsapp" data-testid="landing-hero-whatsapp-btn">
+              <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
               Hablar por WhatsApp
             </button>
           </div>
 
-          <div class="hero-stats">
-            <div class="stat">
-              <i class="fa-solid fa-shield"></i>
-              Datos protegidos
-            </div>
+          <p class="hero-microcopy">
+            <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+            Demo sin costo y sin compromiso · Te acompañamos en la configuración
+          </p>
+        </div>
 
-            <div class="stat">
-              <i class="fa-solid fa-bolt"></i>
-              Implementación rápida
+        <div class="hero-right" data-reveal>
+          <div class="hero-mockup" data-testid="landing-hero-mockup">
+            <div class="hero-mockup-bar">
+              <span></span><span></span><span></span>
             </div>
-
-            <div class="stat">
-              <i class="fa-solid fa-headset"></i>
-              Soporte continuo
+            <div class="hero-mockup-body">
+              <!-- Reemplazar por screenshot real de la agenda cuando esté disponible -->
+              <img
+                src="images/workflow/01-recepcionista.webp"
+                alt="Vista de la agenda de Gestia con turnos del día"
+                width="560"
+                height="315"
+                loading="eager"
+                decoding="async"
+                class="hero-mockup-img"
+              />
             </div>
           </div>
         </div>
+      </div>
+    </section>
 
-        <div class="hero-right">
-          <div class="dashboard-card">
-            <div class="chart-placeholder"><p>ACA VA SCREENSHOT DE LA AGENDA</p></div>
+    <!-- TRUST BAR -->
+    <section class="trust-bar" data-testid="landing-trust-bar">
+      <div class="container trust-bar-content">
+        <div class="trust-item">
+          <i class="fa-solid fa-cloud" aria-hidden="true"></i>
+          <span>100% web, sin instalar nada</span>
+        </div>
+        <div class="trust-item">
+          <i class="fa-solid fa-lock" aria-hidden="true"></i>
+          <span>Acceso privado por usuario y contraseña</span>
+        </div>
+        <div class="trust-item">
+          <i class="fa-solid fa-bolt" aria-hidden="true"></i>
+          <span>Operativo desde el primer día</span>
+        </div>
+        <div class="trust-item">
+          <i class="fa-solid fa-headset" aria-hidden="true"></i>
+          <span>Onboarding y soporte reales</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROBLEMA / BENEFICIOS -->
+    <section class="benefits section" id="beneficios" data-testid="landing-benefits-section">
+      <div class="container">
+        <div class="section-header" data-reveal>
+          <span class="section-badge">El problema</span>
+          <h2>Gestionar con herramientas sueltas te hace perder tiempo y plata</h2>
+          <p>
+            Turnos en un cuaderno, pagos en una planilla, mensajes en otro lado. La información se
+            duplica, se pierde y nadie tiene la foto completa. Gestia lo unifica todo.
+          </p>
+        </div>
+
+        <div class="benefits-grid">
+          <div class="benefit-card" data-reveal>
+            <div class="benefit-icon"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i></div>
+            <h3>Menos huecos en la agenda</h3>
+            <p>
+              Turnos claros por profesional, con aviso de solapamientos y recordatorios para reducir
+              las ausencias.
+            </p>
+          </div>
+
+          <div class="benefit-card" data-reveal>
+            <div class="benefit-icon"><i class="fa-solid fa-folder-open" aria-hidden="true"></i></div>
+            <h3>Toda la información junta</h3>
+            <p>
+              Cada turno queda vinculado a la ficha del paciente, su historia y su estado de pago.
+              Nada de copiar datos entre herramientas.
+            </p>
+          </div>
+
+          <div class="benefit-card" data-reveal>
+            <div class="benefit-icon"><i class="fa-solid fa-hand-holding-dollar" aria-hidden="true"></i></div>
+            <h3>Cobros bajo control</h3>
+            <p>
+              Registrá pagos totales o parciales y mirá la deuda pendiente por persona sin revisar
+              turno por turno.
+            </p>
+          </div>
+
+          <div class="benefit-card" data-reveal>
+            <div class="benefit-icon"><i class="fa-solid fa-users-gear" aria-hidden="true"></i></div>
+            <h3>Tu equipo alineado</h3>
+            <p>
+              Recepción, profesionales y administración trabajan sobre la misma información, con los
+              permisos que corresponden a cada uno.
+            </p>
           </div>
         </div>
       </div>
@@ -107,21 +219,21 @@
     <!-- FEATURES -->
     <section class="features section" id="features" data-testid="landing-features-section">
       <div class="container">
-        <div class="section-header">
-          <span class="section-badge">Features</span>
+        <div class="section-header" data-reveal>
+          <span class="section-badge">Funciones</span>
 
-          <h2>Todo lo que tu clínica necesita</h2>
+          <h2>Todo lo que tu clínica necesita, en un solo lugar</h2>
 
-          <p>Diseñado para profesionales modernos</p>
+          <p>Módulos pensados para el trabajo real de un centro que atiende por turno.</p>
         </div>
 
         <div class="features-layout">
-          <div class="features-menu" data-testid="landing-features-menu">
+          <div class="features-menu" data-testid="landing-features-menu" data-reveal>
             <button class="feature-btn active" data-feature="agenda" data-testid="landing-feature-agenda-btn">
               <span class="feature-icon feature-icon--agenda" aria-hidden="true"></span>
               <div class="feature-btn-content">
                 <span class="feature-btn-title">Agenda inteligente</span>
-                <p>Gestiona turnos, recursos y pacientes.</p>
+                <p>Organizá turnos, profesionales y pacientes sin solapamientos.</p>
               </div>
             </button>
 
@@ -129,7 +241,7 @@
               <span class="feature-icon feature-icon--historial" aria-hidden="true"></span>
               <div class="feature-btn-content">
                 <span class="feature-btn-title">Historias clínicas</span>
-                <p>Centralizá toda la información.</p>
+                <p>Toda la información del paciente centralizada y accesible.</p>
               </div>
             </button>
 
@@ -137,15 +249,15 @@
               <span class="feature-icon feature-icon--odontograma" aria-hidden="true"></span>
               <div class="feature-btn-content">
                 <span class="feature-btn-title">Odontograma</span>
-                <p>Registrá tratamientos facilmente.</p>
+                <p>Registrá tratamientos y evolución de forma visual.</p>
               </div>
             </button>
 
             <button class="feature-btn" data-feature="finanzas" data-testid="landing-feature-finanzas-btn">
               <span class="feature-icon feature-icon--finanzas" aria-hidden="true"></span>
               <div class="feature-btn-content">
-                <span class="feature-btn-title">Finanzas</span>
-                <p>Controlá ingresos, gastos y cobros pendientes.</p>
+                <span class="feature-btn-title">Cobros y finanzas</span>
+                <p>Controlá ingresos, pagos parciales y deuda pendiente.</p>
               </div>
             </button>
 
@@ -158,25 +270,95 @@
             </button>
           </div>
 
-          <div class="feature-preview">
+          <div class="feature-preview" data-reveal>
             <div class="feature-content active" id="agenda">
-              <div class="preview-header">Agenda imagen</div>
+              <div class="preview-header">Agenda inteligente</div>
+              <p class="preview-desc">
+                Calendario mensual y vista del día. Asigná cada turno a un profesional, evitá
+                solapamientos y tené el panorama completo de la jornada de un vistazo.
+              </p>
+              <div class="preview-media">
+                <img
+                  src="images/workflow/01-recepcionista.webp"
+                  alt="Agenda inteligente de Gestia con el calendario y los turnos del día"
+                  width="560"
+                  height="315"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
             </div>
 
             <div class="feature-content" id="historial">
-              <div class="preview-header">Historial clínico imagen</div>
+              <div class="preview-header">Historias clínicas</div>
+              <p class="preview-desc">
+                Una única ficha por persona con sus datos, antecedentes y evolución por sesión. El
+                profesional llega a la consulta con todo el contexto.
+              </p>
+              <div class="preview-media">
+                <img
+                  src="images/workflow/02-profesional.webp"
+                  alt="Profesional revisando la historia clínica del paciente en Gestia"
+                  width="560"
+                  height="315"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
             </div>
 
             <div class="feature-content" id="odontograma">
-              <div class="preview-header">Odontograma/periodontograma imagen</div>
+              <div class="preview-header">Odontograma y periodontograma</div>
+              <p class="preview-desc">
+                Registro clínico visual para el ámbito odontológico: marcá tratamientos y seguí la
+                evolución pieza por pieza.
+              </p>
+              <div class="preview-media">
+                <img
+                  src="images/workflow/03-sesion.webp"
+                  alt="Registro de tratamientos y evolución durante la sesión en Gestia"
+                  width="560"
+                  height="315"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
             </div>
 
             <div class="feature-content" id="finanzas">
-              <div class="preview-header">Finanzas/caja imagen</div>
+              <div class="preview-header">Cobros y finanzas</div>
+              <p class="preview-desc">
+                Registrá el cobro de cada turno (bono, servicio, extras), pagos parciales o totales
+                y observaciones. La vista de seguimiento agrupa la deuda por persona.
+              </p>
+              <div class="preview-media">
+                <img
+                  src="images/workflow/04-cobros.webp"
+                  alt="Registro de cobros y control financiero en Gestia"
+                  width="560"
+                  height="315"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
             </div>
 
             <div class="feature-content" id="whatsapp">
-              <div class="preview-header">WhatsApp imagen</div>
+              <div class="preview-header">Comunicación con pacientes</div>
+              <p class="preview-desc">
+                Contactá a tus pacientes por WhatsApp en un click, para confirmar turnos, avisar
+                cambios o hacer seguimiento post-atención.
+              </p>
+              <div class="preview-media">
+                <img
+                  src="images/workflow/05-seguimiento.webp"
+                  alt="Seguimiento y comunicación con pacientes por WhatsApp en Gestia"
+                  width="560"
+                  height="315"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -186,240 +368,296 @@
     <!-- WORKFLOW -->
     <section class="workflow section" id="workflow" data-testid="landing-workflow-section">
       <div class="container">
-        <div class="section-header">
-          <span class="section-badge"> Workflow </span>
+        <div class="section-header" data-reveal>
+          <span class="section-badge">Cómo funciona</span>
 
-          <h2>Así funciona <span class="hero-accent">Gestia</span> en tu día a día</h2>
-          <p>Un flujo simple, pensado para que todo funcione en perfecta armonía.</p>
-        </div>
-
-        <div class="workflow-grid">
-          <div class="workflow-card">
-            <div class="workflow-card-media">
-              <img
-                src="images/workflow/01-recepcionista.webp"
-                alt="Recepcionista agenda un turno en la agenda inteligente"
-                width="560"
-                height="315"
-                loading="lazy"
-                decoding="async"
-              />
-              <span>1</span>
-            </div>
-            <h3>Recepcionista agenda el turno</h3>
-            <p>
-              Desde la agenda inteligente, la recepcionista crea el turno y se registra al paciente.
-            </p>
-          </div>
-
-          <div class="workflow-card">
-            <div class="workflow-card-media">
-              <img
-                src="images/workflow/02-profesional.webp"
-                alt="Profesional revisa el historial clínico del paciente"
-                width="560"
-                height="315"
-                loading="lazy"
-                decoding="async"
-              />
-              <span>2</span>
-            </div>
-            <h3>Profesional revisa el historial</h3>
-            <p>El profesional accede al historial completo del paciente antes de la consulta.</p>
-          </div>
-
-          <div class="workflow-card">
-            <div class="workflow-card-media">
-              <img
-                src="images/workflow/03-sesion.webp"
-                alt="Sesión clínica y registro de tratamientos"
-                width="560"
-                height="315"
-                loading="lazy"
-                decoding="async"
-              />
-              <span>3</span>
-            </div>
-            <h3>Sesión y tratamiento</h3>
-            <p>
-              Se realiza la atención y se registran tratamientos, notas y evolución del paciente.
-            </p>
-          </div>
-
-          <div class="workflow-card">
-            <div class="workflow-card-media">
-              <img
-                src="images/workflow/04-cobros.webp"
-                alt="Registro de cobros y control financiero"
-                width="560"
-                height="315"
-                loading="lazy"
-                decoding="async"
-              />
-              <span>4</span>
-            </div>
-            <h3>Cobros y finanzas</h3>
-            <p>Registrá pagos y llevá el control financiero de forma sencilla.</p>
-          </div>
-
-          <div class="workflow-card">
-            <div class="workflow-card-media">
-              <img
-                src="images/workflow/05-seguimiento.webp"
-                alt="Seguimiento y comunicación con pacientes"
-                width="560"
-                height="315"
-                loading="lazy"
-                decoding="async"
-              />
-              <span>5</span>
-            </div>
-            <h3>Seguimiento y fidelización</h3>
-            <p>Mantené el contacto con tus pacientes a tan solo un click.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- TESTIMONIOS
-    <section class="testimonials section" id="clientes">
-      <div class="container">
-        <div class="section-header">
-          <span class="section-badge"> Clientes </span>
-
-          <h2>Profesionales que confían en <span class="hero-accent">Gestia</span></h2>
-        </div>
-
-        <div class="swiper testimonial-swiper">
-          <div class="swiper-wrapper">
-            <div class="swiper-slide">
-              <div class="testimonial-card">
-                <p>“La agenda inteligente nos ahorra horas de trabajo cada semana.”</p>
-
-                <div class="testimonial-user">
-                  <div class="avatar"></div>
-
-                  <div>
-                    <strong>Dra. Paula Fernández</strong>
-                    <span>Dental Plus</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="swiper-slide">
-              <div class="testimonial-card">
-                <p>“El historial clínico y el odontograma son increíbles.”</p>
-
-                <div class="testimonial-user">
-                  <div class="avatar"></div>
-
-                  <div>
-                    <strong>Dr. Martín López</strong>
-                    <span>Smile Center</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section> -->
-
-    <!-- CONTACTO -->
-    <section class="contact section" id="contacto" data-testid="landing-contact-section">
-      <div class="container contact-layout">
-        <div class="contact-info">
-          <span class="section-badge"> Contacto </span>
-
-          <h2>¿Querés llevar tu clínica al siguiente nivel?</h2>
-
-          <p>Dejanos tus datos y te contactaremos para una demo personalizada.</p>
-
-          <div class="contact-highlights">
-            <div class="contact-highlight">
-              <span
-                class="contact-highlight-icon contact-highlight-icon--demo"
-                aria-hidden="true"
-              ></span>
-              <div class="contact-highlight-content">
-                <span class="contact-highlight-title">Demo personalizada</span>
-                <p>Te mostramos el sistema adaptado a tus necesidades.</p>
-              </div>
-            </div>
-
-            <div class="contact-highlight">
-              <span
-                class="contact-highlight-icon contact-highlight-icon--implementacion"
-                aria-hidden="true"
-              ></span>
-              <div class="contact-highlight-content">
-                <span class="contact-highlight-title">Implementación rápida</span>
-                <p>En pocos minutos ya podras usar el sistema.</p>
-              </div>
-            </div>
-
-            <div class="contact-highlight">
-              <span
-                class="contact-highlight-icon contact-highlight-icon--acompanamiento"
-                aria-hidden="true"
-              ></span>
-              <div class="contact-highlight-content">
-                <span class="contact-highlight-title">Acompañamiento constante</span>
-                <p>Estamos para ayudarte siempre que lo necesites.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <form class="contact-form" data-testid="landing-contact-form">
-          <div class="input-group">
-            <input type="text" placeholder="Nombre completo" data-testid="landing-contact-name-input" />
-          </div>
-
-          <div class="input-group">
-            <input type="text" placeholder="Nombre de tu clínica" data-testid="landing-contact-clinic-input" />
-          </div>
-
-          <div class="input-group">
-            <input type="text" placeholder="Tu número de telefono (te contactamos por whatsapp)" data-testid="landing-contact-phone-input" />
-          </div>
-
-          <div class="input-group">
-            <input type="email" placeholder="Email" data-testid="landing-contact-email-input" />
-          </div>
-
-          <div class="input-group">
-            <textarea placeholder="¿En qué podemos ayudarte?" data-testid="landing-contact-message-input"></textarea>
-          </div>
-
-          <button class="btn btn-primary full-width" data-testid="landing-contact-submit-btn">
-            Solicitar demo
-            <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
-          </button>
-        </form>
-      </div>
-    </section>
-
-    <!-- CTA BANNER -->
-    <section class="cta-banner">
-      <div class="container cta-banner-content">
-        <div class="cta-banner-icon" aria-hidden="true">
-          <img src="images/banner/banner-cohete.svg" alt="" class="cta-banner-icon-img" />
-        </div>
-        <div class="cta-banner-text">
-          <p class="cta-banner-title">Empieza hoy y facilita tu día a día</p>
-          <p class="cta-banner-subtitle">
-            Unite a cientos de profesionales que ya simplificaron su gestión con Gestia
+          <h2>Así trabaja tu clínica con <span class="hero-accent">Gestia</span></h2>
+          <p>
+            Desde que el paciente agenda su turno hasta el seguimiento, todo sucede en una única
+            plataforma.
           </p>
         </div>
+
+        <div class="workflow-steps" data-reveal>
+          <article class="wf-step">
+            <div class="wf-num">1</div>
+            <div class="wf-card">
+              <div class="wf-card-media">
+                <img
+                  src="images/workflow/01-recepcionista.webp"
+                  alt="Recepcionista agenda un turno en la agenda inteligente"
+                  width="560"
+                  height="315"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+              <span class="wf-card-icon"><i class="fa-regular fa-calendar" aria-hidden="true"></i></span>
+              <h3>Agendá un turno</h3>
+              <p>Registrá al paciente y asigná la cita en segundos desde una agenda inteligente.</p>
+              <span class="wf-chip"><i class="fa-regular fa-clock" aria-hidden="true"></i> 30 segundos</span>
+            </div>
+          </article>
+
+          <article class="wf-step">
+            <div class="wf-num">2</div>
+            <div class="wf-card">
+              <div class="wf-card-media">
+                <img
+                  src="images/workflow/02-profesional.webp"
+                  alt="Profesional revisa el historial clínico del paciente"
+                  width="560"
+                  height="315"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+              <span class="wf-card-icon"><i class="fa-solid fa-folder-open" aria-hidden="true"></i></span>
+              <h3>Consultá el historial</h3>
+              <p>Accedé a antecedentes, tratamientos y observaciones antes de comenzar la atención.</p>
+              <span class="wf-chip"><i class="fa-solid fa-users" aria-hidden="true"></i> Información completa</span>
+            </div>
+          </article>
+
+          <article class="wf-step">
+            <div class="wf-num">3</div>
+            <div class="wf-card">
+              <div class="wf-card-media">
+                <img
+                  src="images/workflow/03-sesion.webp"
+                  alt="Sesión clínica y registro de tratamientos"
+                  width="560"
+                  height="315"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+              <span class="wf-card-icon"><i class="fa-solid fa-tooth" aria-hidden="true"></i></span>
+              <h3>Registrá la atención</h3>
+              <p>Documentá diagnósticos, tratamientos, imágenes y evolución clínica en tiempo real.</p>
+              <span class="wf-chip"><i class="fa-solid fa-pen" aria-hidden="true"></i> Datos siempre actualizados</span>
+            </div>
+          </article>
+
+          <article class="wf-step">
+            <div class="wf-num">4</div>
+            <div class="wf-card">
+              <div class="wf-card-media">
+                <img
+                  src="images/workflow/04-cobros.webp"
+                  alt="Registro de cobros y control financiero"
+                  width="560"
+                  height="315"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+              <span class="wf-card-icon"><i class="fa-solid fa-dollar-sign" aria-hidden="true"></i></span>
+              <h3>Gestioná los pagos</h3>
+              <p>Registrá cobros, controlá deudas y mantené las finanzas siempre actualizadas.</p>
+              <span class="wf-chip"><i class="fa-solid fa-lock" aria-hidden="true"></i> Cobros seguros</span>
+            </div>
+          </article>
+
+          <article class="wf-step">
+            <div class="wf-num">5</div>
+            <div class="wf-card">
+              <div class="wf-card-media">
+                <img
+                  src="images/workflow/05-seguimiento.webp"
+                  alt="Seguimiento y comunicación con pacientes"
+                  width="560"
+                  height="315"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+              <span class="wf-card-icon"><i class="fa-solid fa-bell" aria-hidden="true"></i></span>
+              <h3>Fidelizá pacientes</h3>
+              <p>Programá controles, enviá recordatorios y mantené el seguimiento de cada paciente.</p>
+              <span class="wf-chip"><i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i> Más adherencia</span>
+            </div>
+          </article>
+        </div>
+
+        <div class="workflow-banner" data-reveal>
+          <div class="wf-banner-visual" aria-hidden="true">
+            <div class="wf-laptop">
+              <div class="wf-laptop-screen">
+                <div class="wf-laptop-bar">
+                  <span class="wf-laptop-brand">Gestia</span>
+                  <span class="wf-laptop-dots"><i></i><i></i><i></i></span>
+                </div>
+                <div class="wf-laptop-body">
+                  <span class="wf-sk wf-sk--lg"></span>
+                  <span class="wf-sk"></span>
+                  <span class="wf-sk wf-sk--sm"></span>
+                  <span class="wf-sk"></span>
+                </div>
+              </div>
+              <div class="wf-laptop-base"></div>
+            </div>
+          </div>
+
+          <div class="wf-banner-content">
+            <div class="wf-banner-head">
+              <h3>Todo el recorrido del paciente, centralizado en <span class="hero-accent">Gestia</span></h3>
+              <p>Menos tareas repetitivas, más tiempo para lo que realmente importa.</p>
+            </div>
+
+            <div class="wf-banner-features">
+              <div class="wf-bf">
+                <span class="wf-bf-icon"><i class="fa-regular fa-calendar" aria-hidden="true"></i></span>
+                <div class="wf-bf-text"><strong>Agenda</strong><span>Inteligente</span></div>
+              </div>
+              <div class="wf-bf">
+                <span class="wf-bf-icon"><i class="fa-solid fa-users" aria-hidden="true"></i></span>
+                <div class="wf-bf-text"><strong>Pacientes</strong><span>Centralizados</span></div>
+              </div>
+              <div class="wf-bf">
+                <span class="wf-bf-icon"><i class="fa-solid fa-tooth" aria-hidden="true"></i></span>
+                <div class="wf-bf-text"><strong>Historia clínica</strong><span>Completa</span></div>
+              </div>
+              <div class="wf-bf">
+                <span class="wf-bf-icon"><i class="fa-solid fa-dollar-sign" aria-hidden="true"></i></span>
+                <div class="wf-bf-text"><strong>Facturación</strong><span>Integrada</span></div>
+              </div>
+              <div class="wf-bf">
+                <span class="wf-bf-icon"><i class="fa-solid fa-chart-column" aria-hidden="true"></i></span>
+                <div class="wf-bf-text"><strong>Seguimiento</strong><span>Efectivo</span></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- PREGUNTAS FRECUENTES -->
+    <!-- PRECIOS -->
+    <section class="pricing section" id="precios" data-testid="landing-pricing-section">
+      <div class="container">
+        <div class="section-header" data-reveal>
+          <span class="section-badge">Precios</span>
+          <h2>Un plan para cada etapa de tu clínica</h2>
+          <p>Elegí el plan que necesitás hoy. Podés cambiarlo cuando tu clínica crezca.</p>
+        </div>
+
+        <!-- PLACEHOLDER DE PRECIOS: reemplazar $XX.XXX y el período por los valores reales -->
+        <div class="pricing-grid">
+          <div class="pricing-card" data-reveal data-testid="landing-pricing-basico">
+            <div class="pricing-card-head">
+              <h3>Básico</h3>
+              <p>Para ordenar la operación de cualquier negocio por turno.</p>
+            </div>
+
+            <div class="pricing-price">
+              <span class="pricing-amount">$XX.XXX</span>
+              <span class="pricing-period">/ mes</span>
+            </div>
+
+            <a href="#contacto" class="btn btn-outline full-width">Solicitar demo</a>
+
+            <ul class="pricing-features">
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Agenda y citas (mensual + vista del día)</li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Fichas de pacientes / clientes</li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Cobros con pagos parciales y deuda</li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Gestión de profesionales y ausencias</li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Panel operativo y financiero</li>
+            </ul>
+          </div>
+
+          <div class="pricing-card pricing-card--featured" data-reveal data-testid="landing-pricing-profesional">
+            <span class="pricing-tag">Recomendado</span>
+
+            <div class="pricing-card-head">
+              <h3>Profesional</h3>
+              <p>Todo lo del plan Básico más el registro clínico por sesión.</p>
+            </div>
+
+            <div class="pricing-price">
+              <span class="pricing-amount">$XX.XXX</span>
+              <span class="pricing-period">/ mes</span>
+            </div>
+
+            <a href="#contacto" class="btn btn-primary full-width">Solicitar demo</a>
+
+            <ul class="pricing-features">
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> <strong>Todo lo del plan Básico</strong></li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Módulo de historia clínica por sesión</li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Seguimiento clínico detallado por paciente</li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Odontograma y periodontograma</li>
+              <li><i class="fa-solid fa-check" aria-hidden="true"></i> Ideal para consultorios odontológicos</li>
+            </ul>
+          </div>
+        </div>
+
+        <p class="pricing-note" data-reveal>
+          ¿No sabés cuál te conviene? Pedí una demo y te ayudamos a elegir según tu clínica.
+        </p>
+      </div>
+    </section>
+
+    <!-- CONFIANZA / POR QUÉ GESTIA -->
+    <section class="assurance section" id="confianza" data-testid="landing-assurance-section">
+      <div class="container">
+        <div class="section-header" data-reveal>
+          <span class="section-badge">Por qué Gestia</span>
+          <h2>Pensado para que empieces sin fricción</h2>
+          <p>Sin instalaciones, sin curvas de aprendizaje eternas y con gente que te acompaña.</p>
+        </div>
+
+        <div class="assurance-grid">
+          <div class="assurance-card" data-reveal>
+            <div class="assurance-icon">
+              <span class="contact-highlight-icon contact-highlight-icon--implementacion" aria-hidden="true"></span>
+            </div>
+            <h3>Implementación rápida</h3>
+            <p>
+              Es una aplicación web: entrás desde el navegador, sin instalar ni actualizar nada. En
+              la mayoría de los casos tu equipo opera desde el primer día.
+            </p>
+          </div>
+
+          <div class="assurance-card" data-reveal>
+            <div class="assurance-icon">
+              <span class="contact-highlight-icon contact-highlight-icon--acompanamiento" aria-hidden="true"></span>
+            </div>
+            <h3>Onboarding asistido</h3>
+            <p>
+              Te ayudamos con las primeras configuraciones mediante un onboarding presencial o
+              virtual, para que arranques con todo listo.
+            </p>
+          </div>
+
+          <div class="assurance-card" data-reveal>
+            <div class="assurance-icon">
+              <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+            </div>
+            <h3>Tus datos, privados</h3>
+            <p>
+              Solo entra al sistema quien tiene usuario y contraseña. Cada persona tiene una única
+              ficha, sin duplicados. Tus datos los ve únicamente tu equipo.
+            </p>
+          </div>
+
+          <div class="assurance-card" data-reveal>
+            <div class="assurance-icon">
+              <i class="fa-solid fa-headset" aria-hidden="true"></i>
+            </div>
+            <h3>Soporte continuo</h3>
+            <p>
+              Estamos para ayudarte siempre que lo necesites, para que Gestia te acompañe a medida
+              que tu clínica crece.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
     <section class="faq section" id="faq" data-testid="landing-faq-section">
       <div class="container">
-        <div class="section-header">
+        <div class="section-header" data-reveal>
           <span class="section-badge">FAQ</span>
           <h2>Preguntas <span class="hero-accent">frecuentes</span></h2>
           <p>Todo lo que necesitás saber antes de empezar con Gestia.</p>
@@ -447,7 +685,7 @@
                   <p>
                     Una agenda solo guarda horarios. Gestia además vincula cada turno con la ficha
                     de la persona, registra el pago, muestra deuda pendiente y permite que el
-                    profesional acceda al historial antes de la atención! Todo en el mismo sistema,
+                    profesional acceda al historial antes de la atención. Todo en el mismo sistema,
                     sin copiar datos entre herramientas.
                   </p>
                 </div>
@@ -499,9 +737,9 @@
                 <summary>¿Se pueden asignar citas a distintos profesionales?</summary>
                 <div class="faq-answer">
                   <p>
-                    Sí. Cada cita se asigna a un profesional específico o dejarlo sin profesional
-                    para asignarselo posteriormente. El sistema valida automáticamente que no
-                    existan dos citas al mismo horario para la misma persona: si hay solapamiento se
+                    Sí. Cada cita se asigna a un profesional específico o podés dejarla sin
+                    profesional para asignarla más tarde. El sistema valida automáticamente que no
+                    existan dos citas al mismo horario para la misma persona: si hay solapamiento,
                     avisa.
                   </p>
                 </div>
@@ -513,8 +751,8 @@
                   <p>
                     Desde la agenda del día podés registrar el monto (bono, servicio, extras),
                     indicar si el pago fue parcial o total y dejar observaciones. La vista de
-                    Seguimiento agrupa citas por persona con el total adeudado, para que se tenga
-                    todo claro sin revisar cita por cita.
+                    Seguimiento agrupa citas por persona con el total adeudado, para tener todo claro
+                    sin revisar cita por cita.
                   </p>
                 </div>
               </details>
@@ -524,7 +762,7 @@
                 <div class="faq-answer">
                   <p>
                     Sí. Desde la configuración de profesionales podés marcar estados como licencia,
-                    ausencia o vacación con un rango de fechas. Mientras ese estado esté activo, el
+                    ausencia o vacaciones con un rango de fechas. Mientras ese estado esté activo, el
                     profesional no aparece disponible en la agenda en ese período.
                   </p>
                 </div>
@@ -534,9 +772,8 @@
                 <summary>¿Puedo ver métricas e indicadores del centro?</summary>
                 <div class="faq-answer">
                   <p>
-                    El panel incluye una estructura de resumen operativo y financiero por período
-                    que es útil para tener un control general sobre turnos y cobros, realizados o no
-                    realizados.
+                    El panel incluye un resumen operativo y financiero por período, útil para tener
+                    un control general sobre turnos y cobros, realizados o no realizados.
                   </p>
                 </div>
               </details>
@@ -551,9 +788,9 @@
                 <div class="faq-answer">
                   <p>
                     No. Gestia es una aplicación web: se accede desde el navegador en cualquier
-                    computadora, sin instalaciones ni actualizaciones manuales. Luego de registrarse
-                    en la plataforma, se puede acceder a la misma desde cualquier dispositivo con
-                    conexión a internet.
+                    computadora, sin instalaciones ni actualizaciones manuales. Luego de registrarte
+                    en la plataforma, podés acceder desde cualquier dispositivo con conexión a
+                    internet.
                   </p>
                 </div>
               </details>
@@ -564,10 +801,9 @@
                   <p>
                     La configuración inicial cubre dar de alta los profesionales, cargar los
                     primeros pacientes/clientes y ajustar los montos. En la mayoría de los casos el
-                    equipo puede operar desde el primer día. Puedes solicitar una demo para ver el
-                    flujo en vivo antes de decidir. Tambien contamos con un sistema de onboarding
-                    presencial o virtual para que un tecnico te ayude con las primeras
-                    configuraciones.
+                    equipo puede operar desde el primer día. Podés solicitar una demo para ver el
+                    flujo en vivo antes de decidir. También contamos con un onboarding presencial o
+                    virtual para que un técnico te ayude con las primeras configuraciones.
                   </p>
                 </div>
               </details>
@@ -576,9 +812,9 @@
                 <summary>¿Mis datos están seguros?</summary>
                 <div class="faq-answer">
                   <p>
-                    Sí. Solo puede entrar al sistema quienes tengan usuario y contraseña, sin eso, no
-                    hay acceso. Además, cada persona tiene una única ficha en el sistema, así que no
-                    hay riesgo de duplicados ni de mezclar información entre pacientes. Tus datos
+                    Sí. Solo pueden entrar al sistema quienes tengan usuario y contraseña; sin eso,
+                    no hay acceso. Además, cada persona tiene una única ficha en el sistema, así que
+                    no hay riesgo de duplicados ni de mezclar información entre pacientes. Tus datos
                     solo los ve tu equipo.
                   </p>
                 </div>
@@ -589,28 +825,106 @@
       </div>
     </section>
 
+    <!-- CONTACTO / CTA FINAL -->
+    <section class="contact section" id="contacto" data-testid="landing-contact-section">
+      <div class="container contact-layout">
+        <div class="contact-info" data-reveal>
+          <span class="section-badge">Empezá hoy</span>
+
+          <h2>¿Listo para llevar tu clínica al siguiente nivel?</h2>
+
+          <p>
+            Dejanos tus datos y coordinamos una demo personalizada, adaptada a cómo trabaja tu
+            clínica. Sin costo y sin compromiso.
+          </p>
+
+          <div class="contact-highlights">
+            <div class="contact-highlight">
+              <span class="contact-highlight-icon contact-highlight-icon--demo" aria-hidden="true"></span>
+              <div class="contact-highlight-content">
+                <span class="contact-highlight-title">Demo personalizada</span>
+                <p>Te mostramos el sistema adaptado a tus necesidades.</p>
+              </div>
+            </div>
+
+            <div class="contact-highlight">
+              <span class="contact-highlight-icon contact-highlight-icon--implementacion" aria-hidden="true"></span>
+              <div class="contact-highlight-content">
+                <span class="contact-highlight-title">Implementación rápida</span>
+                <p>En pocos minutos ya podés usar el sistema.</p>
+              </div>
+            </div>
+
+            <div class="contact-highlight">
+              <span class="contact-highlight-icon contact-highlight-icon--acompanamiento" aria-hidden="true"></span>
+              <div class="contact-highlight-content">
+                <span class="contact-highlight-title">Acompañamiento constante</span>
+                <p>Estamos para ayudarte siempre que lo necesites.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <form class="contact-form" data-testid="landing-contact-form" data-reveal>
+          <div class="input-group">
+            <label for="contact-name">Nombre completo</label>
+            <input id="contact-name" type="text" placeholder="Tu nombre" data-testid="landing-contact-name-input" required />
+          </div>
+
+          <div class="input-group">
+            <label for="contact-clinic">Nombre de tu clínica</label>
+            <input id="contact-clinic" type="text" placeholder="Nombre del centro o consultorio" data-testid="landing-contact-clinic-input" />
+          </div>
+
+          <div class="input-group">
+            <label for="contact-phone">Teléfono (te contactamos por WhatsApp)</label>
+            <input id="contact-phone" type="tel" placeholder="Ej: 11 2345 6789" data-testid="landing-contact-phone-input" required />
+          </div>
+
+          <div class="input-group">
+            <label for="contact-email">Email</label>
+            <input id="contact-email" type="email" placeholder="tu@email.com" data-testid="landing-contact-email-input" required />
+          </div>
+
+          <div class="input-group">
+            <label for="contact-message">¿En qué podemos ayudarte?</label>
+            <textarea id="contact-message" placeholder="Contanos brevemente sobre tu clínica" data-testid="landing-contact-message-input"></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary full-width btn-lg" data-testid="landing-contact-submit-btn">
+            Solicitar demo gratis
+            <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+          </button>
+
+          <p class="contact-form-note">
+            <i class="fa-solid fa-lock" aria-hidden="true"></i>
+            Tus datos solo se usan para contactarte. No enviamos spam.
+          </p>
+        </form>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <footer class="footer" data-testid="landing-footer">
       <div class="container footer-content">
         <div class="footer-brand">
           <div class="footer-brand-header">
-            <img
-              src="images/contacto/demo-personalizada.svg"
-              alt="Logo Gestia"
-              class="footer-logo"
-            />
+            <img src="images/logo/logo.svg" alt="Logo Gestia" class="footer-logo" />
             <h3><span class="hero-accent">Gestia</span></h3>
           </div>
 
           <p>Software de gestión clínica moderno, simple y seguro.</p>
+
+          <a href="#contacto" class="btn btn-primary">Solicitar demo</a>
         </div>
 
         <div class="footer-column">
           <h4 class="footer-column-title">Producto</h4>
           <nav class="footer-column-links">
-            <a href="#features">Features</a>
-            <a href="#workflow">Workflow</a>
-            <!-- <a href="#clientes">Clientes</a> -->
+            <a href="#beneficios">Beneficios</a>
+            <a href="#features">Funciones</a>
+            <a href="#workflow">Cómo funciona</a>
+            <a href="#precios">Precios</a>
             <a href="#contacto">Contacto</a>
           </nav>
         </div>
@@ -631,9 +945,11 @@
           </nav>
         </div>
       </div>
-    </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+      <div class="container footer-bottom">
+        <p>© <span id="footer-year">2026</span> Gestia. Todos los derechos reservados.</p>
+      </div>
+    </footer>
 
     <script src="main.js"></script>
   </body>

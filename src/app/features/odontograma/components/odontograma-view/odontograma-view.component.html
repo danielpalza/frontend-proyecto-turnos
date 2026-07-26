@@ -12,8 +12,21 @@
       <div class="alert alert-danger" data-testid="odontogram-error">{{ loadError() }}</div>
     }
 
+    @if (!loading() && !loadError() && !editable()) {
+      <div class="alert alert-warning d-flex align-items-start gap-2" role="status"
+        data-testid="odontogram-readonly-banner">
+        <i class="bi bi-lock-fill mt-1"></i>
+        <div>
+          <strong>Registro cerrado.</strong>
+          Este turno ya no se puede modificar porque el paciente tiene un registro clínico posterior.
+          Para dejar constancia de un cambio, cargalo en el turno más reciente.
+        </div>
+      </div>
+    }
+
     @if (!loading() && !loadError()) {
-      <div class="odontograma-grid" [class.odontograma-grid--perio]="activeForm === 'periodontograma'">
+      <div class="odontograma-grid" [class.odontograma-grid--perio]="activeForm === 'periodontograma'"
+        [class.odontograma-grid--readonly]="!editable()">
         <div class="odontograma-main-content">
           <app-odontograma-form [hidden]="activeForm !== 'odontograma'"></app-odontograma-form>
           <div class="periodontograma-host" [class.periodontograma-host--full]="activeForm === 'periodontograma'">
