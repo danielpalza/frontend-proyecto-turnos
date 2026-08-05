@@ -14,6 +14,20 @@ Todos los componentes son **standalone** (`standalone: true`, sin `NgModule`). S
 
 ## Shared (`src/app/shared/`)
 
+### `CanDirective` (`[appCan]`)
+- **Archivo**: [`shared/directives/can.directive.ts`](../src/app/shared/directives/can.directive.ts)
+- **Propósito**: directiva de atributo (no estructural) que **deshabilita** el elemento host cuando al usuario le falta una capacidad y le agrega un `title` (tooltip) explicando qué capacidad falta (`capabilityDeniedMessage()`, ver [`core/auth/capabilities.ts`](../src/app/core/auth/capabilities.ts)). El nodo **permanece en el DOM** — a diferencia de `*appCanShow` — con clase `capability-locked`, `aria-disabled="true"` y, si el tag lo soporta (`BUTTON`/`INPUT`/`SELECT`/`TEXTAREA`/`FIELDSET`/`OPTGROUP`/`OPTION`), el atributo `disabled`. Pensada para controles dentro de una pantalla ya visible, donde conviene que el usuario vea que la acción existe pero no la tiene habilitada (y para que specs de Playwright puedan asertar el estado `disabled`). **Nota de corrección**: la tabla de directivas en [`src/app/shared/README.md`](../src/app/shared/README.md) tenía esta descripción intercambiada con la de `*appCanShow` — ya corregida ahí.
+- **Input**: `appCan: string` (requerido) — código de capacidad, p. ej. `'CONFIGURACIONES:VIEW'`.
+- **Se re-evalúa**: en cada emisión de `AuthService.currentUser$` y en cada `ngOnChanges` (si el binding cambia).
+- **Dónde aparece**: ~12 componentes, entre ellos `AppointmentsPanelComponent`, `TurnPaymentModalComponent`, `TurnClinicalModalComponent`, `ProfesionalesPanelComponent`.
+
+### `CanShowDirective` (`*appCanShow`)
+- **Archivo**: [`shared/directives/can.directive.ts`](../src/app/shared/directives/can.directive.ts) (mismo archivo que `CanDirective`)
+- **Propósito**: directiva **estructural** que muestra/oculta contenido (lo quita del DOM con `ViewContainerRef.clear()`, no solo lo esconde con CSS) según si el usuario tiene la capacidad indicada. Pensada para navegación (pestañas, ítems de menú) donde un control gris deshabilitado no aporta nada — a diferencia de `[appCan]`, que sí deja el elemento visible pero bloqueado.
+- **Input**: `appCanShow: string` (requerido) — código de capacidad.
+- **Se re-evalúa**: igual que `CanDirective` (`currentUser$` + `ngOnChanges`).
+- **Dónde aparece**: ítems de navegación filtrados por capacidad (ver [ROUTES.md](./ROUTES.md#capacidades-de-vista-datacapability-y-su-relación-con-el-navbar)).
+
 ### `SearchInputComponent` (`app-search-input`)
 - **Archivo**: [`shared/components/search-input/search-input.component.ts`](../src/app/shared/components/search-input/search-input.component.ts)
 - **Propósito**: input de búsqueda con dropdown de resultados combinando pacientes y/o profesionales, con debounce configurable y filtro opcional "solo con saldo pendiente".
@@ -139,6 +153,15 @@ Todos los componentes son **standalone** (`standalone: true`, sin `NgModule`). S
 - **Servicios que usa**: `AppointmentsService`, `ConfigurationService`.
 - **Dónde aparece**: `SeguimientoViewComponent`.
 
+### `TurnClinicalModalComponent` (`app-turn-clinical-modal`)
+- **Archivo**: [`features/seguimiento/components/turn-clinical-modal/turn-clinical-modal.component.ts`](../src/app/features/seguimiento/components/turn-clinical-modal/turn-clinical-modal.component.ts)
+- **Propósito**: modal de **resumen clínico de solo lectura** de un turno (odontograma + periodontograma: caras/estados por diente cambiados en ese turno, movilidad/furca, KPIs de periodontograma) para consultarlo sin salir de Seguimiento. No documentado previamente en este archivo — coexiste con `TurnPaymentModalComponent` (que cubre precios/pago/observaciones) en la misma vista, ambos abiertos sobre el mismo `selectedAppointment` del padre.
+- **Inputs**: `open`, `appointment` (setter que clona el turno recibido).
+- **Outputs**: `closed`.
+- **Servicios que usa**: `OdontogramaService`, `PeriodontogramaService` (carga vía `forkJoin`, con `switchMap` para descartar respuestas de un turno anterior), `ModuleRulesService` (resuelve `rutaClinica`/label a partir de `appointment.moduloClinicoCodigo`, para no hardcodear "odontograma").
+- **Método público clave**: `openClinicalModule()` — navega a `/<rutaClinica>/<appointmentId>` resuelta dinámicamente (antes `openOdontogram()`, fijo a `/odontograma/<id>`); protegido en el template con `[appCan]="clinicalModuleCapability"` (`<MODULO>:VIEW` del módulo del turno, no una capacidad fija de Odontograma).
+- **Dónde aparece**: `SeguimientoViewComponent`, junto a `TurnPaymentModalComponent` (ver [PAGES.md § Seguimiento](./PAGES.md#seguimiento-de-pacientes) — antes solo mencionaba el modal de pago).
+
 ## Odontograma (`features/odontograma`)
 
 Todos comparten estado vía `OdontogramaStateService` (ver [STATE.md](./STATE.md)); ninguno recibe los datos clínicos por `@Input`, los leen directo del servicio.
@@ -194,6 +217,28 @@ Todos comparten estado vía `OdontogramaStateService` (ver [STATE.md](./STATE.md
 - **Propósito**: mini-gráfico SVG por cara dental (PS, MG, NIC derivado, relleno del saco, marcas de sangrado/placa/supuración/cálculo), con conectores visuales hacia los sitios distales/mesiales de las piezas vecinas para formar una curva continua por arcada.
 - **Inputs**: `probing`, `nic`, `mg`, `bleeding`, `plaque`, `suppuration`, `calculus`, `present` (todos `required`), más `showAxisLabels`, `zeroAtBottom`, `toothId`, `chartFace`, `prevDistal*`, `nextMesial*` (datos de piezas vecinas para encadenar el trazo).
 - **Dónde aparece**: `PeriodontogramaFormComponent` (una instancia por cara — vestibular/lingual — de cada diente).
+
+## Historia Clínica (`features/historia-clinica`)
+
+Módulo clínico `HISTORIA_CLINICA_FREE`, hermano de Odontograma: es el segundo módulo con ficha clínica propia, y el primero construido sobre el diseño explícitamente multi-módulo (ver [ARCHITECTURE.md](./ARCHITECTURE.md)). Comparte estado vía `HistoriaClinicaStateService` (facade, ver [STATE.md](./STATE.md)) — mirror simplificado de `OdontogramaStateService`: acá no hace falta separar en sub-servicios por dominio, la ficha es un único `HistoriaClinicaResponse` plano de 6 secciones fijas.
+
+### `HistoriaClinicaViewComponent` (`app-historia-clinica-view`)
+- **Archivo**: [`features/historia-clinica/components/historia-clinica-view/historia-clinica-view.component.ts`](../src/app/features/historia-clinica/components/historia-clinica-view/historia-clinica-view.component.ts)
+- **Propósito**: contenedor de ruta (`/historia-clinica/:appointmentId`), mirror de `OdontogramaViewComponent`: resuelve el `appointmentId` de la URL, dispara la carga (`HistoriaClinicaStateService.loadForAppointment`) y controla el estado de carga/error/solo-lectura de toda la página. Sin alternancia de sub-formularios (no hay equivalente a odontograma/periodontograma acá): es una sola ficha.
+- **Inputs/Outputs**: ninguno (contenedor enrutado, lee todo de `ActivatedRoute` y del servicio de estado).
+- **Signals propios**: `loading`, `loadError`, `editable` (turno cerrado: registro `FIRMADO`, o el paciente tiene un registro clínico posterior — banner de solo lectura en el template).
+- **Servicios que usa**: `HistoriaClinicaStateService`.
+- **Renderiza**: `HistoriaClinicaFormComponent` (una vez resuelta la carga, sin error).
+- **Dónde aparece**: enrutado directo, ver [PAGES.md](./PAGES.md#historia-clínica) y [ROUTES.md](./ROUTES.md).
+
+### `HistoriaClinicaFormComponent` (`app-historia-clinica-form`)
+- **Archivo**: [`features/historia-clinica/components/historia-clinica-form/historia-clinica-form.component.ts`](../src/app/features/historia-clinica/components/historia-clinica-form/historia-clinica-form.component.ts)
+- **Propósito**: formulario Reactive Forms de las 6 secciones fijas (datos del paciente, motivo de consulta, enfermedad actual, antecedentes médicos, examen físico, diagnóstico + CIE10 + indicaciones), con flujo borrador/firma: "Guardar borrador" (`saveDraft`, sin bloquear) vs. "Firmar y guardar" (`sign`, con modal de confirmación propio — `showSignConfirm` — y bloqueo permanente del registro tras firmar). Detalle de secciones/validaciones en [FORMS.md](./FORMS.md#historia-clínica).
+- **Inputs/Outputs**: ninguno (lee/escribe directo contra `HistoriaClinicaStateService`, igual patrón que los componentes de Odontograma).
+- **Signals propios**: `editable`, `saving`, `signing`, `saveError`, `showSignConfirm`.
+- **Gate de permisos interno**: las secciones "Datos del paciente" y "Antecedentes" (comparten datos con `Patient`/`Patient.anamnesis` — editarlas sincroniza también la ficha del paciente) exigen `TURNOS:MANAGE` o `SEGUIMIENTO:PACIENTES` (`canEditPatientData`, vía `AuthService.hasCapability`), **independiente** de si el usuario puede editar el resto de la historia clínica; sin ese permiso esos controles quedan deshabilitados aunque el formulario esté editable. El payload que se envía usa `form.value` (no `getRawValue()`) a propósito, para que los controles deshabilitados no viajen como "cambiados".
+- **Servicios que usa**: `HistoriaClinicaStateService`, `AuthService`.
+- **Dónde aparece**: `HistoriaClinicaViewComponent`.
 
 ## Pendiente de completar por el desarrollador
 

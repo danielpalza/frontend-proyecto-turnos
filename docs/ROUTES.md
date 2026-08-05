@@ -4,18 +4,25 @@ Fuente única: [`src/app/app.routes.ts`](../src/app/app.routes.ts). Todas las ru
 
 ## Árbol de rutas
 
-| Ruta | Pública/Protegida | Guard | `data.module` requerido | Componente cargado | Redirecciones |
+| Ruta | Pública/Protegida | Guard | `data.capability` requerida | Componente cargado | Redirecciones |
 |---|---|---|---|---|---|
 | `/login` | Pública | — | — | `LoginComponent` | — |
-| `` (raíz) | — | — | — | — | `redirectTo: 'panel'` (`pathMatch: 'full'`) |
-| `/panel` | Protegida | `authGuard` | `PANEL` | `PanelViewComponent` | — |
-| `/turnos` | Protegida | `authGuard` | `TURNOS` | `TurnosViewComponent` | — |
-| `/odontograma/:appointmentId` | Protegida | `authGuard` | `ODONTOGRAMA` | `OdontogramaViewComponent` | — |
+| `/verify-email` | Pública | — | — | `VerifyEmailComponent` | — |
+| `/reset-password` | Pública | — | — | `ResetPasswordComponent` | — |
+| `/403` | Pública | — | — | `ForbiddenComponent` | — |
+| `` (raíz) | — | — | — | — | `redirectTo: homeRedirect` (`pathMatch: 'full'`, función, no string fijo) |
+| `/panel` | Protegida | `authGuard` | `PANEL:VIEW` | `PanelViewComponent` | — |
+| `/turnos` | Protegida | `authGuard` | `TURNOS:VIEW` | `TurnosViewComponent` | — |
+| `/odontograma/:appointmentId` | Protegida | `authGuard` | `ODONTOGRAMA:VIEW` | `OdontogramaViewComponent` | — |
 | `/odontograma` (sin id) | — | — | — | — | `redirectTo: 'turnos'` (`pathMatch: 'full'`) |
-| `/seguimiento` | Protegida | `authGuard` | `SEGUIMIENTO` | `SeguimientoViewComponent` | — |
-| `/configuraciones` | Protegida | `authGuard` | `CONFIGURACIONES` | `ConfiguracionesViewComponent` | — |
-| `/coberturas` | Protegida | `authGuard` | `COBERTURA` | `CoberturasViewComponent` | — |
-| `**` (wildcard) | — | — | — | — | `redirectTo: 'panel'` |
+| `/historia-clinica/:appointmentId` | Protegida | `authGuard` | `HISTORIA_CLINICA_FREE:VIEW` | `HistoriaClinicaViewComponent` | — |
+| `/historia-clinica` (sin id) | — | — | — | — | `redirectTo: 'turnos'` (`pathMatch: 'full'`) |
+| `/seguimiento` | Protegida | `authGuard` | `SEGUIMIENTO:VIEW` | `SeguimientoViewComponent` | — |
+| `/configuraciones` | Protegida | `authGuard` | `CONFIGURACIONES:VIEW` | `ConfiguracionesViewComponent` | — |
+| `/coberturas` | Protegida | `authGuard` | `COBERTURA:VIEW` | `CoberturasViewComponent` | — |
+| `**` (wildcard) | — | — | — | — | `redirectTo: homeRedirect` |
+
+`/odontograma/:appointmentId` y `/historia-clinica/:appointmentId` son dos instancias del mismo patrón: una ruta por **módulo clínico**, cada una detrás de la capacidad `<CODIGO_MODULO>:VIEW` de ese módulo. Ver la nota sobre módulos clínicos múltiples en [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 ## Guard: `authGuard`
 
@@ -31,57 +38,69 @@ export const authGuard: CanActivateFn = (route) => {
     return false;
   }
 
-  const requiredModule = route.data?.['module'] as string | undefined;
-  if (requiredModule && !authService.hasModule(requiredModule)) {
-    router.navigate([requiredModule === 'PANEL' ? '/login' : '/panel']);
+  const requiredCapability = route.data?.['capability'] as string | undefined;
+  if (requiredCapability && !authService.hasCapability(requiredCapability)) {
+    router.navigate(['/403']);
     return false;
   }
 
   return true;
 };
+
+/** Destino de `/` y de cualquier ruta desconocida: la primera pestaña que el usuario puede ver. */
+export const homeRedirect = (): string => {
+  const authService = inject(AuthService);
+  if (!authService.isAuthenticated()) {
+    return '/login';
+  }
+  return resolveHomeRoute(c => authService.hasCapability(c));
+};
 ```
 
 Lógica:
 1. **Autenticación**: `AuthService.isAuthenticated()` decodifica el JWT guardado en `localStorage` (`auth_token`) y valida su `exp` (expiración) sin llamar al backend. Si no hay token o expiró, hace `logout()` (limpia `localStorage`) y redirige a `/login`.
-2. **Autorización por módulo**: cada ruta protegida declara `data: { module: 'XXX' }`. `AuthService.hasModule(code)` chequea que `code` esté en `AuthResponse.modules` (array de códigos de módulo habilitados para ese usuario, entregado por el backend en el login). Si el usuario no tiene el módulo:
-   - Si el módulo requerido era `PANEL` → redirige a `/login` (caso borde: usuario sin ningún módulo habilitado).
-   - Cualquier otro módulo → redirige a `/panel`.
+2. **Autorización por capacidad**: cada ruta protegida declara `data: { capability: Capability.XXX_YYY }` (constante de [`core/auth/capabilities.ts`](../src/app/core/auth/capabilities.ts), no un string suelto). `AuthService.hasCapability(code)` chequea que `code` esté en el set resuelto a partir de `AuthResponse.capabilities` (ver [ARCHITECTURE.md](./ARCHITECTURE.md) y [PERMISOS.md](./PERMISOS.md)). Si el usuario no tiene la capacidad requerida, redirige a **`/403`** — antes de este cambio redirigía a `/panel` (el módulo `data.module` reemplazado dejaba al usuario en una pantalla sin explicación); ahora `ForbiddenComponent` es una página propia.
+
+Reemplaza también al viejo `hasModule`: `data.module`/`AuthService.hasModule()` ya no existen en el código, todo el árbol de rutas quedó migrado a `data.capability`/`hasCapability()`.
 
 No hay un guard de "solo lectura" ni de rol (`OWNER`/etc.) a nivel de ruta — el control de rol (p. ej. `AuthService.hasRole('OWNER')`) se hace **dentro** de los componentes (ver [PAGES.md](./PAGES.md) y la nota de memoria del proyecto sobre autorización diferida), no en el `Routes` array.
 
-## Códigos de módulo (`data.module`) y su relación con el navbar
+## `homeRedirect` y `resolveHomeRoute`
 
-Los mismos códigos de módulo controlan qué pestañas del navbar se muestran (`layout/navbar/navbar.component.ts`, `MODULE_OPTIONS` en `core/models/profesional.model.ts`):
+La raíz (`''`) y el wildcard (`**`) ya no apuntan a un string fijo (`redirectTo: 'panel'`): apuntan a la función `homeRedirect` ([`core/guards/auth.guard.ts`](../src/app/core/guards/auth.guard.ts)), que delega en `resolveHomeRoute()` ([`core/auth/home-route.ts`](../src/app/core/auth/home-route.ts)). `resolveHomeRoute` recorre una lista fija de pestañas (`/panel`, `/turnos`, `/seguimiento`, `/coberturas`, `/configuraciones`, en ese orden) y devuelve la primera cuya capacidad (`PANEL_VIEW`, `TURNOS_VIEW`, etc.) tiene el usuario; si no tiene ninguna, devuelve `/403`. `/odontograma`/`/historia-clinica` no figuran en esa lista: no tienen una ruta fija, siempre se entra desde un turno concreto (ver más abajo). Antes de este cambio, un usuario sin `PANEL` que entraba a `/` terminaba en `/login`, indistinguible de una sesión vencida — ver `docs/PERMISOS.md § 6.5` (referenciado desde el propio código).
 
-| Código | Ruta asociada | Label en navbar |
+## Capacidades de vista (`data.capability`) y su relación con el navbar
+
+Las mismas capacidades `<MODULO>:VIEW` controlan qué pestañas del navbar se muestran (`layout/navbar/navbar.component.ts`, `MODULE_OPTIONS` en `core/models/profesional.model.ts`):
+
+| Capacidad | Ruta asociada | Label en navbar |
 |---|---|---|
-| `PANEL` | `/panel` | Panel |
-| `TURNOS` | `/turnos` | Turnos |
-| `ODONTOGRAMA` | `/odontograma/:appointmentId` (no navega directo; requiere turno activo) | Odontograma |
-| `SEGUIMIENTO` | `/seguimiento` | Seguimiento |
-| `COBERTURA` | `/coberturas` | Cobertura |
-| `CONFIGURACIONES` | `/configuraciones` | Configuración |
+| `PANEL:VIEW` | `/panel` | Panel |
+| `TURNOS:VIEW` | `/turnos` | Turnos |
+| `ODONTOGRAMA:VIEW` / `HISTORIA_CLINICA_FREE:VIEW` / (futuros módulos clínicos) | `/odontograma/:appointmentId` / `/historia-clinica/:appointmentId` (no navegan directo; requieren turno activo) | Atención (una sola pestaña para todos los módulos clínicos) |
+| `SEGUIMIENTO:VIEW` | `/seguimiento` | Seguimiento |
+| `COBERTURA:VIEW` | `/coberturas` | Cobertura |
+| `CONFIGURACIONES:VIEW` | `/configuraciones` | Configuración |
 
-El acceso a `/odontograma/:appointmentId` desde el navbar es especial: el link no navega directo a una ruta fija (`requiresAppointment: true` en `NavItem`); `NavbarComponent.onNavClick()` intercepta el click, busca el último `appointmentId` activo en `OdontogramaStateService.appointmentIdValue` (que persiste en `sessionStorage`, clave `odontograma_last_appointment_id`) y navega a `/odontograma/<id>` si existe, o muestra un toast informativo y navega a `/turnos` si no hay turno cargado.
+El acceso a los módulos clínicos desde el navbar es especial: la pestaña "Atención" no navega directo a una ruta fija (`requiresAppointment: true` en `NavItem`, ver `NavbarComponent`); `NavbarComponent.onNavClick()` intercepta el click, busca el último turno atendido en `ClinicalAttentionService.getLast()` (que persiste en `sessionStorage`, clave `ultima_atencion`, con el `appointmentId` **y** la `rutaClinica` del módulo — ver [STATE.md](./STATE.md)) y navega a `/<rutaClinica>/<id>` si existe, o muestra un toast informativo y navega a `/turnos` si no hay turno cargado. La pestaña se muestra si el usuario tiene `VIEW` de **cualquier** módulo clínico (`NavbarComponent.hasAnyClinicalCapability()`), resuelto dinámicamente contra `GET /api/modules/rules` (`ModuleRulesService`), no contra una lista hardcodeada de módulos.
 
 ## Diagrama
 
 ```mermaid
 flowchart TD
-  Start(["Cualquier URL"]) --> IsLogin{"¿/login?"}
-  IsLogin -- sí --> Login["LoginComponent (pública)"]
-  IsLogin -- no --> Root{"¿ruta vacía?"}
-  Root -- sí --> Panel
+  Start(["Cualquier URL"]) --> IsLogin{"¿/login, /verify-email,<br/>/reset-password o /403?"}
+  IsLogin -- sí --> Public["Componente público"]
+  IsLogin -- no --> Root{"¿ruta vacía o<br/>desconocida?"}
+  Root -- sí --> Home["homeRedirect():<br/>resolveHomeRoute()"]
   Root -- no --> Guard{"authGuard:<br/>¿autenticado?"}
-  Guard -- no --> Login
-  Guard -- sí --> Module{"¿tiene el módulo<br/>requerido por la ruta?"}
-  Module -- no, módulo=PANEL --> Login
-  Module -- no, otro módulo --> Panel["/panel"]
-  Module -- sí --> Dest["Turnos / Odontograma /<br/>Seguimiento / Configuraciones / Coberturas"]
-  Unknown(["Ruta desconocida (**)"]) --> Panel
+  Guard -- no --> Login["/login"]
+  Guard -- sí --> Cap{"¿tiene la capacidad<br/>data.capability de la ruta?"}
+  Cap -- no --> Forbidden["/403 (ForbiddenComponent)"]
+  Cap -- sí --> Dest["Turnos / Odontograma /<br/>Historia Clínica / Seguimiento /<br/>Configuraciones / Coberturas"]
+  Home --> Dest
+  Home -- ninguna capacidad --> Forbidden
 ```
 
 ## Pendiente de completar por el desarrollador
 
-- No hay guard de salida (`CanDeactivate`) documentado en el código para advertir sobre formularios sin guardar al navegar fuera (p. ej. el wizard de paciente o el odontograma con cambios pendientes).
-- No se determinó si existe algún mecanismo de "página no autorizada" distinta de redirigir silenciosamente a `/panel` — no hay ruta `/403` ni `/unauthorized`.
+- No hay guard de salida (`CanDeactivate`) documentado en el código para advertir sobre formularios sin guardar al navegar fuera (p. ej. el wizard de paciente, el odontograma o la historia clínica con cambios pendientes).

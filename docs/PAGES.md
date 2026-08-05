@@ -25,7 +25,7 @@ Una entrada por cada componente enrutado en [`app.routes.ts`](../src/app/app.rou
 
 - **Ruta**: `/panel`
 - **Componente**: `PanelViewComponent` — [`src/app/features/panel/panel-view/panel-view.component.ts`](../src/app/features/panel/panel-view/panel-view.component.ts)
-- **Permisos**: `authGuard`, requiere módulo `PANEL`.
+- **Permisos**: `authGuard`, requiere capacidad `PANEL:VIEW`.
 - **Propósito**: dashboard operativo/financiero del mes: ingresos realizados vs. pendientes, turnos por estado, comparación contra el mes anterior, ranking de profesionales.
 - **Componentes que renderiza**:
   - `MiniCalendarPickerComponent` ×2 (selector "Desde"/"Hasta" para filtrar por rango de fechas dentro del mes)
@@ -42,7 +42,7 @@ Una entrada por cada componente enrutado en [`app.routes.ts`](../src/app/app.rou
 
 - **Ruta**: `/turnos`
 - **Componente**: `TurnosViewComponent` — [`src/app/features/appointments/pages/turnos-view/turnos-view.component.ts`](../src/app/features/appointments/pages/turnos-view/turnos-view.component.ts)
-- **Permisos**: `authGuard`, requiere módulo `TURNOS`.
+- **Permisos**: `authGuard`, requiere capacidad `TURNOS:VIEW`.
 - **Propósito**: vista principal operativa: calendario mensual + panel de turnos del día seleccionado, alta/baja/edición de turnos y de pacientes nuevos en el mismo flujo.
 - **Componentes que renderiza**:
   - `MonthCalendarComponent` — calendario del mes con conteo de turnos/pendientes/cancelados por día y buscador (`app-search-input`) de paciente/profesional.
@@ -64,8 +64,9 @@ Una entrada por cada componente enrutado en [`app.routes.ts`](../src/app/app.rou
 
 - **Ruta**: `/odontograma/:appointmentId` (y `/odontograma` sin id, que redirige a `/turnos`)
 - **Componente**: `OdontogramaViewComponent` — [`src/app/features/odontograma/components/odontograma-view/odontograma-view.component.ts`](../src/app/features/odontograma/components/odontograma-view/odontograma-view.component.ts)
-- **Permisos**: `authGuard`, requiere módulo `ODONTOGRAMA`. Se accede normalmente desde el panel de turnos (no hay link directo en el navbar sin un turno activo, ver [ROUTES.md](./ROUTES.md)).
+- **Permisos**: `authGuard`, requiere capacidad `ODONTOGRAMA:VIEW`. Se accede normalmente desde el panel de turnos (no hay link directo en el navbar sin un turno activo, ver [ROUTES.md](./ROUTES.md)).
 - **Propósito**: ficha clínica dental de un turno concreto — odontograma (piezas dentales, caras, estados/condiciones) y periodontograma (sondaje, márgenes, sangrado/placa/supuración/cálculo), con guardado incremental (delta) y registro de pago del turno.
+- **Uno de N módulos clínicos**: Odontograma ya no es el único módulo con ficha clínica — es uno de N módulos clínicos seleccionables por turno (ver "Historia Clínica" más abajo, y la nota de diseño multi-módulo en [ARCHITECTURE.md](./ARCHITECTURE.md)). Qué módulos existen se resuelve en runtime contra `GET /api/modules/rules` (`ModuleRulesService`), no está hardcodeado. Desde `TurnosViewComponent`/`AppointmentDialogComponent`, dar de alta un turno ahora **exige** elegir explícitamente a qué módulo clínico corresponde (`moduloClinicoId`, sin valor por defecto — ver [FORMS.md](./FORMS.md)); ese valor es lo que decide después si "Iniciar atención" navega a `/odontograma/:id` o a `/historia-clinica/:id`.
 - **Componentes que renderiza**:
   - `OdontogramaFormComponent` (grilla de piezas permanentes/temporales, cada una `ToothFacesComponent`)
   - `PeriodontogramaFormComponent` (tabla por arcada superior/inferior, cada celda con `PerioToothSparklineComponent`)
@@ -81,11 +82,29 @@ Una entrada por cada componente enrutado en [`app.routes.ts`](../src/app/app.rou
 
 ---
 
+## Historia Clínica
+
+- **Ruta**: `/historia-clinica/:appointmentId` (y `/historia-clinica` sin id, que redirige a `/turnos`)
+- **Componente**: `HistoriaClinicaViewComponent` — [`src/app/features/historia-clinica/components/historia-clinica-view/historia-clinica-view.component.ts`](../src/app/features/historia-clinica/components/historia-clinica-view/historia-clinica-view.component.ts)
+- **Permisos**: `authGuard`, requiere capacidad `HISTORIA_CLINICA_FREE:VIEW`. Igual que Odontograma, no hay link fijo en el navbar: se accede desde un turno concreto cuyo `moduloClinicoCodigo` sea `HISTORIA_CLINICA_FREE` (panel de turnos, modal clínico de Seguimiento, o "Atención" del navbar si es el último turno atendido en la sesión).
+- **Propósito**: segundo módulo clínico de la app (módulo `HISTORIA_CLINICA_FREE`, "Historia Clínica Básica") — un formulario genérico de 6 secciones fijas (datos del paciente, motivo de consulta, enfermedad actual, antecedentes médicos, examen físico, diagnóstico + CIE10 + indicaciones) con flujo **borrador → firma**: mientras está en `BORRADOR` se puede guardar y reeditar libremente; al "Firmar y guardar" el registro pasa a `FIRMADO` y queda **inmutable para siempre** (el backend lo hace cumplir en cada escritura, no solo el frontend). También queda de solo lectura si el paciente tiene un registro clínico posterior más reciente (regla de cierre legal de historia clínica).
+- **Componentes que renderiza**:
+  - `HistoriaClinicaFormComponent` (única, sin alternancia de sub-formularios como en Odontograma)
+- **Datos que carga / endpoints** (orquestado por `HistoriaClinicaStateService.loadForAppointment`, un `forkJoin`):
+  - `GET /api/appointments/{id}/historia-clinica` (404 tolerado → registro vacío en `BORRADOR`)
+  - `GET /api/appointments/{id}` (para decidir si corresponde marcar el turno `EN_CURSO`)
+  - Efecto secundario: si el turno está `PENDIENTE` o `CONFIRMADO` y el registro es editable, se dispara `PATCH /api/appointments/{id}/status?status=EN_CURSO` al entrar a la vista (mismo efecto que en Odontograma).
+  - Guardar borrador: `PATCH /api/appointments/{id}/historia-clinica`.
+  - Firmar: `PATCH /api/appointments/{id}/historia-clinica/firmar` — no idempotente, protegido en el componente contra doble click (`signing()` guard) además del `[disabled]` del botón.
+- **Permisos adicionales**: dentro del formulario, las secciones "Datos del paciente" y "Antecedentes" (que sincronizan `Patient`/`Patient.anamnesis`) exigen además `TURNOS:MANAGE` o `SEGUIMIENTO:PACIENTES` — ver [COMPONENTS.md](./COMPONENTS.md#historia-clínica-featureshistoria-clinica) y [FORMS.md](./FORMS.md#historia-clínica).
+
+---
+
 ## Seguimiento de Pacientes
 
 - **Ruta**: `/seguimiento`
 - **Componente**: `SeguimientoViewComponent` — [`src/app/features/seguimiento/seguimiento-view/seguimiento-view.component.ts`](../src/app/features/seguimiento/seguimiento-view/seguimiento-view.component.ts)
-- **Permisos**: `authGuard`, requiere módulo `SEGUIMIENTO`.
+- **Permisos**: `authGuard`, requiere capacidad `SEGUIMIENTO:VIEW`.
 - **Propósito**: doble función en una sola página:
   1. **Historial por paciente** (columna izquierda): lista de pacientes con búsqueda, deuda total, turnos agrupados por año/mes, alta/edición de paciente.
   2. **Gestión de profesionales y usuarios de la organización** (columna derecha, `app-profesionales-panel`) — alta/edición/baja de profesionales, activar/desactivar, e invitar nuevos usuarios a la organización.
@@ -94,6 +113,7 @@ Una entrada por cada componente enrutado en [`app.routes.ts`](../src/app/app.rou
   - `PatientWizardPanelComponent` → embebe `PatientWizardComponent`/`PatientFormComponent` (alta/edición de paciente)
   - `ProfesionalesPanelComponent` → embebe `ProfesionalDialogComponent` e `InvitationDialogComponent`
   - `TurnPaymentModalComponent` (modal de pago/observaciones al hacer click en un turno de la lista)
+  - `TurnClinicalModalComponent` (modal de resumen clínico de solo lectura del turno — odontograma/periodontograma —, abierto sobre el mismo turno seleccionado; el botón "Abrir ficha clínica completa" navega al módulo clínico correspondiente, ver [COMPONENTS.md](./COMPONENTS.md#turnclinicalmodalcomponent-app-turn-clinical-modal))
 - **Datos que carga / endpoints** (orquestado por `PatientDataService`, servicio scoped al componente, no singleton):
   - `GET /api/appointments/seguimiento-resumen` (deuda total y turnos totales por paciente)
   - `PatientService.getPatients()` (caché compartida)
@@ -111,7 +131,7 @@ Una entrada por cada componente enrutado en [`app.routes.ts`](../src/app/app.rou
 
 - **Ruta**: `/configuraciones`
 - **Componente**: `ConfiguracionesViewComponent` — [`src/app/features/configuraciones/configuraciones-view/configuraciones-view.component.ts`](../src/app/features/configuraciones/configuraciones-view/configuraciones-view.component.ts)
-- **Permisos**: `authGuard`, requiere módulo `CONFIGURACIONES`.
+- **Permisos**: `authGuard`, requiere capacidad `CONFIGURACIONES:VIEW`.
 - **Propósito**: **hoy solo contiene** el editor de la plantilla de mensaje de WhatsApp que se usa para recordatorios de turno (con vista previa en vivo, contador de caracteres y botones para insertar variables `{paciente}`, `{fecha}`, `{hora}`, `{profesional}`).
 - **Componentes que renderiza**: ninguno de features — es un panel único autocontenido.
 - **Datos que carga / endpoints**:
@@ -125,7 +145,7 @@ Una entrada por cada componente enrutado en [`app.routes.ts`](../src/app/app.rou
 
 - **Ruta**: `/coberturas`
 - **Componente**: `CoberturasViewComponent` — [`src/app/features/coberturas/coberturas-view/coberturas-view.component.ts`](../src/app/features/coberturas/coberturas-view/coberturas-view.component.ts)
-- **Permisos**: `authGuard`, requiere módulo `COBERTURA`.
+- **Permisos**: `authGuard`, requiere capacidad `COBERTURA:VIEW`.
 - **Propósito**: catálogo (multi-país LatAm) de coberturas/obras sociales/prepagas: favoritos, notas propias, teléfono/web propios, documentos adjuntos (convenios, nomencladores, etc.), y gestión de "intermediarios"/agrupaciones de coberturas.
 - **Componentes que renderiza**: ninguno de `shared/`; usa `ReactiveFormsModule` directo para el formulario de intermediario (modal propio, sin componente separado) y `ConfirmDialogComponent` para confirmar el borrado de una institución.
 - **Datos que carga / endpoints** (`CoberturasService` + `IntermediariosService`):

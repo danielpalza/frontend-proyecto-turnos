@@ -55,8 +55,11 @@ Todas standalone, exportadas por el barrel `index.ts`:
 
 | Directiva | Selector | Qué hace |
 |---|---|---|
-| `CanDirective` | `[appCan]` | Muestra/oculta contenido según las capacidades del usuario (permisos). |
+| `CanDirective` | `[appCan]` | Deshabilita el elemento host si al usuario le falta la capacidad indicada y le agrega un tooltip (`title`) explicando qué permiso falta. El elemento **permanece en el DOM**, solo queda bloqueado — para navegación (donde no tiene sentido mostrar un control gris) usar `CanShowDirective`. |
+| `CanShowDirective` | `*appCanShow` | Directiva **estructural**: muestra u oculta el contenido (lo quita del DOM) según si el usuario tiene la capacidad indicada. Pensada para ítems de navegación (pestañas, menú). |
 | `ScrollLockDirective` | `[appScrollLock]` | Bloquea el scroll del `body` mientras el host esté en el DOM. Usa `ScrollLockService` con conteo de referencias (modales apilados) y compensa el ancho de la scrollbar. |
 | `BodyPortalDirective` | `[appBodyPortal]` | Mueve el host a `document.body` mientras vive. Necesario para overlays `fixed` cuyo ancestro tiene `transform`/`zoom` y recortaría el backdrop. |
+
+Detalle completo (inputs, dónde se aplican) en [`docs/COMPONENTS.md`](../../../docs/COMPONENTS.md#shared-srcappshared).
 
 `ScrollLockDirective` y `BodyPortalDirective` son las que estabilizan los modales de la app — el detalle del patrón está en [docs/UI_RULES.md](../../../docs/UI_RULES.md#overlays-y-modales-scroll-lock--portal-al-body).

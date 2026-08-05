@@ -61,6 +61,7 @@ src/
         ├── appointments/{pages/turnos-view, components/*}
         ├── calendar/components/month-calendar/  # calendario mensual reutilizado por turnos
         ├── odontograma/{components/*, services/*, models/}
+        ├── historia-clinica/{components/historia-clinica-view, components/historia-clinica-form, services/}
         ├── seguimiento/{seguimiento-view, components/*, utils/}
         ├── coberturas/{coberturas-view, coberturas.service.ts, intermediarios.service.ts, coberturas.models.ts}
         └── configuraciones/{configuraciones-view, components/invitation-dialog, components/profesional-dialog}
@@ -90,6 +91,7 @@ Dentro de cada `features/<x>/` el patrón habitual es `pages/` o `<x>-view/` (co
 - **Componente de diálogo controlado por `[open]`/`(openChange)`**: patrón repetido en `ConfirmDialogComponent`, `AppointmentDialogComponent`, `InvitationDialogComponent`, `ProfesionalDialogComponent`, `SaveOdontogramaDialogComponent` — el padre es dueño del booleano `open` y el hijo lo notifica al cerrarse (similar a two-way binding manual). Ver [COMPONENTS.md](./COMPONENTS.md).
 - **Configuración de formulario compartida como función pura**: `getPatientFormConfig(fb)` (en `shared/components/patient-form/patient-form.config.ts`) define los controles/validators del formulario de paciente una sola vez; lo reutilizan `AppointmentDialogComponent`, `PatientWizardPanelComponent` (seguimiento) y `PatientFormComponent`/`PatientWizardComponent` (shell del wizard de 5 pasos).
 - **Migración parcial a Signals**: los módulos más nuevos (`coberturas-view`, `odontograma-view`, `save-odontograma-dialog`) usan `signal()`/`computed()` en vez de `BehaviorSubject`; el resto de la app (turnos, seguimiento, panel) sigue usando RxJS `BehaviorSubject` + `async`/suscripción manual. Conviven ambos estilos.
+- **Diseño explícitamente multi-módulo-clínico**: la app ya no asume un único módulo clínico implícito (Odontograma). Cada turno declara `moduloClinicoId` (obligatorio, sin default — `Appointment.moduloClinicoId`/`AppointmentCreateDTO.moduloClinicoId`, seleccionado a mano en el formulario de alta, ver [FORMS.md](./FORMS.md)), y el catálogo de módulos con ficha clínica propia (hoy Odontograma y la nueva Historia Clínica Básica, `HISTORIA_CLINICA_FREE`) se resuelve en runtime contra `GET /api/modules/rules` (`ModuleRulesService`, cacheado con `shareReplay(1)`), no contra una lista hardcodeada. De ahí que `AppointmentsPanelComponent.openClinicalModule()`/`TurnClinicalModalComponent.openClinicalModule()` naveguen a `/<rutaClinica>/<appointmentId>` resuelta por `moduloClinicoCodigo`, en vez de a `/odontograma/<id>` fijo, y que el navbar tenga una sola pestaña "Atención" para todos los módulos clínicos en vez de una por módulo. Ver [ROUTES.md](./ROUTES.md) y [PAGES.md](./PAGES.md#historia-clínica).
 - **HTTP error handling en dos capas**: el interceptor global (`httpErrorInterceptor`) decide si un error se notifica solo (toast) o si además se re-lanza para que el componente lo maneje; los componentes pueden optar por manejar el error ellos mismos pasando `skipGlobalErrorHandler()` como `HttpContext` (evita doble notificación, salvo en 403 — ver `DEUDA_TECNICA.md § 3.1`). El opt-in **no** es el default: la mayoría de los servicios no lo pasa y notifica dos veces (`DEUDA_TECNICA.md § 3.2`). Detalle en [UI_RULES.md](./UI_RULES.md).
 
 ## Diagrama de arquitectura
@@ -97,8 +99,8 @@ Dentro de cada `features/<x>/` el patrón habitual es `pages/` o `<x>-view/` (co
 ```mermaid
 graph TD
   subgraph SPA["Angular 21 SPA — turnos-app (standalone, zoneless)"]
-    Router["app.routes.ts<br/>(loadComponent por ruta)"] --> Guard["authGuard<br/>(JWT + módulo requerido)"]
-    Guard --> Pages["Páginas de feature<br/>(panel, turnos, odontograma,<br/>seguimiento, coberturas, configuraciones, login)"]
+    Router["app.routes.ts<br/>(loadComponent por ruta)"] --> Guard["authGuard<br/>(JWT + capacidad requerida)"]
+    Guard --> Pages["Páginas de feature<br/>(panel, turnos, odontograma,<br/>historia clínica, seguimiento,<br/>coberturas, configuraciones, login)"]
     Pages --> SharedComp["shared/ (search-input,<br/>mini-calendar-picker, patient-form/-wizard)"]
     Pages --> FeatureComp["Componentes propios de cada feature"]
     Pages --> CoreServices["core/services/*<br/>(Auth, Appointments, Patient,<br/>Profesional, Configuration, Dashboard,<br/>Odontograma, Periodontograma, Invitation)"]
@@ -111,7 +113,7 @@ graph TD
 
 ## Cómo llama al backend
 
-1. `AuthService.login()`/`register()` obtienen un JWT (`AuthResponse.token`) y lo guardan en `localStorage` (`auth_token`, `auth_user`) junto con `organizationId`, `role` y `modules` (lista de módulos habilitados para ese usuario).
+1. `AuthService.login()`/`register()` obtienen un JWT (`AuthResponse.token`) y lo guardan en `localStorage` (`auth_token`, `auth_user`) junto con `organizationId`, `role`, `modules` (lista de módulos habilitados, formato legado) y **`capabilities`** (`AuthResponse.capabilities: string[]`, formato `MODULO:ACCION` — p. ej. `TURNOS:MANAGE`, `ODONTOGRAMA:VIEW` — resuelto por el backend en el login). `capabilities`, no `modules`, es lo que hoy consulta el guard y el resto de la app vía `AuthService.hasCapability(code)`; `hasModule()` quedó `@deprecated` y solo se apoya en `modules` para hidratar sesiones viejas cacheadas en `localStorage` sin `capabilities`. Ver [`core/auth/capabilities.ts`](../src/app/core/auth/capabilities.ts): mirror explícito en TypeScript de la tabla de reglas del backend (`CapabilityCatalog.java`, catálogo de capacidades por módulo, implicancias entre módulos y presets), usado tanto para resolver capacidades de sesiones legadas como para previsualizar en el modal de profesional qué módulos arrastra cada tilde — el backend sigue siendo la única fuente de verdad en tiempo de ejecución (`AuthResponse.capabilities` viene ya resuelto). Este archivo debe mantenerse sincronizado a mano con `bakend-proyecto-turnos/docs/PERMISOS.md`; el contrato completo (capabilities.ts vs. backend) está en [PERMISOS.md](./PERMISOS.md).
 2. `authInterceptor` agrega `Authorization: Bearer <token>` a toda request salvo las de `/auth/*`.
 3. El backend resuelve el tenant (organización) a partir del JWT — el frontend nunca envía `organizationId` explícito en las URLs, salvo donde el modelo lo expone de vuelta (p. ej. `Configuration.organizationId`).
 4. `httpErrorInterceptor` intercepta toda respuesta de error: si es 401 fuera de `/auth/`, hace `logout()` + redirige a `/login`; si no, decide entre notificar globalmente (toast) o dejar que el componente lo resuelva.

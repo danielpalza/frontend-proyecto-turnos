@@ -24,6 +24,9 @@ La app corre con `provideZonelessChangeDetection()` (ver [`app.config.ts`](../sr
 | `DashboardService` | `allMonthAppointments$`, `filteredAppointments$`, `previousMonthAppointments$`, `isLoading$`, `hasError$` | `loadMonth(year, month)`, `applyDateFilter(from, to)`, `refresh()` (llamados desde `PanelViewComponent`) | Observables derivados (`summary$`, `previousSummary$`, `professionalStats$`, `dailyIncomeData$`) calculados con `.pipe(map(...))` sobre `filteredAppointments$`/`previousMonthAppointments$` | No se resetea en logout (no está suscrito a `loggedOut$`); se recalcula al volver a llamar `loadMonth`. |
 | `InvitationService` | sin estado propio (solo wrapper HTTP) | — | `InvitationDialogComponent` mantiene su propia lista local (`invitations: OrganizationInvitation[]`) | — |
 | `OdontogramaService` / `PeriodontogramaService` | sin estado propio (wrappers HTTP) | — | Consumidos por `OdontogramaStateService` | — |
+| `HistoriaClinicaService` | sin estado propio (wrapper HTTP: `GET`/`PATCH .../historia-clinica`, `PATCH .../historia-clinica/firmar`) | — | Consumido por `HistoriaClinicaStateService` | — |
+| `ModuleRulesService` | `rules$` (`Observable`, no `BehaviorSubject`: se memoiza con `shareReplay(1)` sobre `GET /api/modules/rules`, una sola request para toda la sesión) | Se puebla en la primera llamada a `getRules()`/`getClinicalModules()` | `NavbarComponent`, `AppointmentDialogComponent` (selector de módulo clínico del alta de turno), `AppointmentsPanelComponent`/`TurnClinicalModalComponent` (resuelven `rutaClinica`/capacidad a partir de `moduloClinicoCodigo`) | No se resetea en logout (no está suscrito a `loggedOut$`) — describe el sistema de permisos, no datos de la organización, así que no hace falta invalidar la caché entre sesiones. |
+| `ClinicalAttentionService` | sin `Subject` propio; persiste directo en `sessionStorage` | `record(appointmentId, rutaClinica)`, llamado por `HistoriaClinicaStateService`/`OdontogramaStateService` al cargar un turno | `getLast()`, leído por `NavbarComponent` (pestaña "Atención") | No se resetea explícitamente (vive en `sessionStorage`, se pierde solo al cerrar la pestaña) |
 
 > Nota importante: `DashboardService` **no reutiliza** la caché de `AppointmentsService` — llama a `findByDateRange` directamente, así que el Panel y Turnos pueden hacer requests redundantes del mismo rango de fechas si se navega entre ambas páginas.
 
@@ -39,7 +42,22 @@ Patrón **facade + dos sub-servicios**, todos `providedIn: 'root'`:
 **Quién lee**: todos los componentes de la vista de odontograma, más `SaveOdontogramaDialogComponent` (resumen antes de guardar).
 **Se resetea**: no está suscrito a `auth.loggedOut$`; el "reset" ocurre al llamar `loadForAppointment(appointmentId)` para un nuevo turno (recalcula baseline y re-emite todo).
 
-Persistencia extra: `LAST_APPOINTMENT_KEY = 'odontograma_last_appointment_id'` en **`sessionStorage`** — guarda el último `appointmentId` cargado para que `NavbarComponent` pueda ofrecer "volver al odontograma" sin pasar por la URL.
+Persistencia extra: delegada a `ClinicalAttentionService` (ver más abajo) — ya no mantiene su propia clave de `sessionStorage`.
+
+## Módulo Historia Clínica (`features/historia-clinica/services/`)
+
+- **`HistoriaClinicaStateService`** (`providedIn: 'root'`): facade análoga a `OdontogramaStateService` pero sin sub-servicios — la ficha es un único `HistoriaClinicaResponse` plano, no hay granularidad por diente. Estado: `formSubject` (`BehaviorSubject<HistoriaClinicaResponse | null>`, expuesto como `form$`) y `editableSubject` (`BehaviorSubject<boolean>`, expuesto como `editable$`; `false` si el registro está `FIRMADO` o el turno quedó cerrado por la regla de historia clínica). `loadForAppointment(appointmentId)` hace un `forkJoin` (`HistoriaClinicaService.getByAppointment` + `AppointmentsService.findById`, ambos toleran 404), registra el turno en `ClinicalAttentionService.record(appointmentId, 'historia-clinica')` y dispara `PATCH .../status?status=EN_CURSO` si corresponde (mismo efecto secundario que Odontograma). No usa el patrón de "delta contra baseline" de Odontograma: `saveDraft()`/`sign()` envían directo el `FormGroup.value` completo como delta parcial (todos los campos son opcionales salvo los marcados `Validators.required` en el form).
+- **Quién escribe**: `HistoriaClinicaFormComponent` (único formulario).
+- **Quién lee**: `HistoriaClinicaViewComponent` (loading/error/editable) y el propio `HistoriaClinicaFormComponent`.
+- **Se resetea**: no está suscrito a `auth.loggedOut$`; se recalcula al llamar `loadForAppointment(appointmentId)` para un nuevo turno.
+
+## `ClinicalAttentionService` (`core/services/clinical-attention.service.ts`)
+
+Reemplaza el mecanismo que antes vivía solo dentro de `OdontogramaStateService`. Un único servicio singleton, sin `Subject` ni caché en memoria: lee/escribe directo `sessionStorage` en cada llamada.
+
+- `record(appointmentId, rutaClinica)`: guarda `{ appointmentId, rutaClinica }` (JSON) — llamado por `OdontogramaStateService.loadForAppointment()` (con `rutaClinica: 'odontograma'`) y por `HistoriaClinicaStateService.loadForAppointment()` (con `rutaClinica: 'historia-clinica'`).
+- `getLast(): LastAttention | null`: leído por `NavbarComponent.onNavClick()` para resolver a qué ruta/turno navegar la pestaña "Atención".
+- Justificación: una sesión solo puede estar atendiendo un turno a la vez, sin importar el módulo — no tiene sentido que cada módulo clínico lleve su propio "último turno" independiente (antes había una clave de `sessionStorage` por módulo, ver tabla de persistencia más abajo).
 
 ## Estado scoped a un componente (no singleton global)
 
@@ -71,9 +89,9 @@ No hay una regla explícita en el código sobre cuándo usar Signals vs. `Behavi
 | Storage | Clave | Contenido | Quién la usa |
 |---|---|---|---|
 | `localStorage` | `auth_token` | JWT crudo | `AuthService.getToken()`, leído por `authInterceptor` en cada request |
-| `localStorage` | `auth_user` | `AuthResponse` completo (JSON) — incluye `role`, `modules`, `organizationId`, `organizationNombre`, `organizationPais` | `AuthService.getStoredUser()` (hidrata `currentUserSubject` al recargar la página) |
+| `localStorage` | `auth_user` | `AuthResponse` completo (JSON) — incluye `role`, `modules` (legado), `capabilities`, `organizationId`, `organizationNombre`, `organizationPais` | `AuthService.getStoredUser()` (hidrata `currentUserSubject` al recargar la página) |
 | `localStorage` | `coberturas.paisesActivos.<organizationId>` | Array de códigos de país (JSON) que el usuario activó como "chips" en la vista de Coberturas | `CoberturasViewComponent` (persiste por organización; con `try/catch` para tolerar modo privado/cuota excedida) |
-| `sessionStorage` | `odontograma_last_appointment_id` | Último `appointmentId` de odontograma visitado en esta pestaña | `OdontogramaStateService` / `NavbarComponent` |
+| `sessionStorage` | `ultima_atencion` | Último turno clínico atendido en esta pestaña, **`{ appointmentId, rutaClinica }`** (JSON) — reemplaza la clave anterior `odontograma_last_appointment_id` (single-módulo) ahora que hay N módulos clínicos; `rutaClinica` es lo que le dice a `NavbarComponent` a qué ruta navegar (`odontograma` o `historia-clinica`) | `ClinicalAttentionService` (escrito por `OdontogramaStateService`/`HistoriaClinicaStateService` al cargar un turno, leído por `NavbarComponent`) |
 
 No hay uso de `IndexedDB`, cookies propias, ni ningún estado persistido entre pestañas más allá de lo anterior (`localStorage` sí es compartido entre pestañas del mismo origen, pero no hay listeners de `storage` event para sincronizar sesión entre pestañas).
 

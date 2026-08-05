@@ -87,6 +87,7 @@ Los validadores custom compartidos viven en [`shared/validators/custom-validator
 | Campo | Validación |
 |---|---|
 | `profesionalId` | opcional |
+| `moduloClinicoId` | **requerido** (`Validators.required`), sin valor por defecto — select poblado desde `ModuleRulesService.getClinicalModules()` (`GET /api/modules/rules`, cacheado). Declara a qué ficha clínica corresponde el turno (Odontograma, Historia Clínica, o cualquier módulo clínico futuro); el backend lo persiste como `AppointmentCreateDTO.moduloClinicoId` y de ahí sale `moduloClinicoCodigo`/`moduloClinicoNombre` en la respuesta. Es un campo nuevo: antes el turno no declaraba módulo clínico porque solo existía Odontograma implícito — ver la nota de diseño multi-módulo en [ARCHITECTURE.md](./ARCHITECTURE.md). El paso "Turno y pago" del wizard (`PATIENT_WIZARD_STEPS`) lo agregó a sus `requiredControls`, así que bloquea el avance del wizard igual que cualquier otro campo obligatorio del paso. |
 | `hora` | opcional, formato `HH:mm`; dispara verificación de disponibilidad contra `GET /api/appointments/check-availability` con `debounceTime(300)` mientras el usuario escribe, y de nuevo al enviar |
 | `observacionesTurno` | opcional |
 | `precioBono`, `precioTratamiento`, `extras`, `montoPago` | `Validators.min(0)` |
@@ -101,6 +102,29 @@ Solo lectura: resume todos los campos anteriores (`PATIENT_WIZARD_REVIEW_GROUPS`
 - Antes de validar, ambos hacen `trim()` de los campos de texto obligatorios (nombre, apellido, identificación, teléfono, email, domicilio, localidad).
 
 ---
+
+## Historia Clínica (`HistoriaClinicaFormComponent`)
+
+- **Reactive Forms**, `FormGroup` propio (`initForm()`), armado a mano (no reutiliza `getPatientFormConfig` ni ningún config compartido) — a diferencia del formulario de paciente, este es específico del módulo `HISTORIA_CLINICA_FREE` y no se reusa en ningún otro punto de entrada.
+- **No hay wizard por pasos**: las 6 secciones se muestran todas juntas en una sola pantalla (`hc-section` por bloque), sin navegación tipo `PatientWizardComponent`.
+
+### Las 6 secciones
+| # | Sección | Campos | Validación |
+|---|---|---|---|
+| 1 | Datos del paciente (snapshot) | `nombreCompleto`, `dni`, `fechaConsulta`, `cobertura`, `telefono` | `nombreCompleto` y `dni` requeridos; el resto opcional |
+| 2 | Motivo de consulta | `motivoConsulta` | requerido |
+| 3 | Enfermedad actual | `enfermedadActual` | opcional |
+| 4 | Antecedentes médicos | `enfermedades`, `alergias`, `medicacion`, `cirugias`, `embarazo`, `marcapasos`, `consumos`, `otrosAntecedentes` | todos opcionales — mismas claves que el paso 2 del wizard de paciente (`Patient.anamnesis`, ver [`anamnesis.util.ts`](../src/app/core/utils/anamnesis.util.ts)); editarlos acá también sincroniza la ficha del paciente en el backend |
+| 5 | Examen físico | `tensionArterial`, `frecuenciaCardiaca`, `temperatura`, `peso`, `examenPorSistemas` | todos opcionales, sin `Validators.min`/rango en el frontend |
+| 6 | Diagnóstico y plan | `diagnostico`, `diagnosticoCie10Codigo`, `indicaciones` | todos opcionales |
+
+- **Gate de permisos por sección**: las secciones 1 y 4 (datos del paciente y antecedentes) se deshabilitan igual que el resto del formulario si el registro no es editable, **pero además** exigen `Capability.TURNOS_MANAGE` o `Capability.SEGUIMIENTO_PACIENTES` (`HistoriaClinicaFormComponent.canEditPatientData`, vía `AuthService.hasCapability`) — el mismo permiso que edita un paciente en cualquier otro lugar del sistema, no el de editar la historia clínica. Sin ese permiso, esos controles quedan `disable()`d aunque el resto del formulario esté habilitado; como el envío usa `form.value` (no `getRawValue()`), esos campos deshabilitados simplemente no viajan en el payload.
+
+### Flujo borrador ↔ firma (inmutabilidad)
+- **`estado: 'BORRADOR' | 'FIRMADO'`** (`HistoriaClinicaResponse.estado`). Mientras está en `BORRADOR`, "Guardar borrador" (`guardarBorrador()`) persiste el delta (`PATCH .../historia-clinica`) sin restricciones más allá de la validación del form (`motivoConsulta`, `nombreCompleto`, `dni` requeridos).
+- **"Firmar y guardar"** (`confirmarFirma()` → modal de confirmación propio, `showSignConfirm` — → `firmarYGuardar()`, `PATCH .../historia-clinica/firmar`) valida el form igual que el borrador, pero además bloquea el registro **para siempre**: una vez `FIRMADO`, `HistoriaClinicaResponse.editable` pasa a `false` y el backend lo hace cumplir en cada escritura posterior (no es solo una restricción de UI). El componente además se protege contra doble submit con un guard explícito (`if (this.signing()) return;`), porque dos `PATCH /firmar` en paralelo chocan contra una restricción única en la tabla del backend (409).
+- **Registro cerrado por regla externa**: además de `FIRMADO`, `editable` puede venir en `false` si el paciente tiene un turno con historia clínica **posterior** al actual (regla de cierre legal de historia clínica — un registro más nuevo bloquea la edición de uno más viejo). `HistoriaClinicaViewComponent` muestra el mismo banner de "Registro cerrado" en ambos casos, sin distinguirlos en el texto.
+- Cuando `editable` es `false`, todo el `FormGroup` se deshabilita (`form.disable()`), no solo los controles individuales.
 
 ## Formulario de profesional (`ProfesionalDialogComponent`)
 
