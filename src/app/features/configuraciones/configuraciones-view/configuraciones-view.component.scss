@@ -511,3 +511,13 @@
   }
 }
 
+@include mobile {
+  [data-testid="settings-plan-summary"] .plan-summary-usage {
+    display: none;
+  }
+
+  .whatsapp-preview-column {
+    display: none;
+  }
+}
+

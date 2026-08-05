@@ -371,6 +371,11 @@
   }
 }
 
+// th-text-short solo se usa en mobile (ver @include mobile más abajo).
+.th-text-short {
+  display: none;
+}
+
 // ── Utilities ──────────────────────────────────────────────────────────────
 
 @keyframes shimmer {
@@ -403,4 +408,76 @@
     flex-direction: column;
     align-items: center;
   }
+}
+
+@include mobile {
+  // ── Header: refresh-btn al lado de month-nav ──────────────────────────────
+  .panel-header-right {
+    .btn-today { order: 1; }
+    .month-navigation { order: 2; }
+    [data-testid="dashboard-refresh-btn"] { order: 3; }
+    .date-range-selectors { order: 4; flex-basis: 100%; }
+  }
+
+  // ── Summary cards: solo icono + valor, en una sola fila ───────────────────
+  [data-testid="dashboard-summary-panel"] {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: $spacing-sm;
+
+    > div {
+      flex: 1 1 0;
+      width: auto;
+      max-width: none;
+      padding: 0;
+      min-width: 0;
+    }
+  }
+
+  .metric-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.375rem;
+    padding: 0.625rem 0.375rem;
+  }
+
+  .metric-icon-wrap {
+    width: 2rem;
+    height: 2rem;
+    font-size: 1rem;
+  }
+
+  .metric-body {
+    width: 100%;
+    align-items: center;
+  }
+
+  .metric-label,
+  .comparison {
+    display: none;
+  }
+
+  .metric-value {
+    font-size: 1rem;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &.skeleton {
+      min-width: 0;
+    }
+  }
+
+  // ── Tabla de profesionales: sin avatar, textos abreviados ─────────────────
+  [data-testid="dashboard-profesionales-table"] {
+    th:nth-child(1),
+    td:nth-child(1) {
+      display: none;
+    }
+  }
+
+  .th-text-full { display: none; }
+  .th-text-short { display: inline; }
 }

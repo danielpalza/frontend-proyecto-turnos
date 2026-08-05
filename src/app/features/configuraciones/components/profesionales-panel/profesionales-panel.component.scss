@@ -234,6 +234,38 @@
   }
 }
 
+@include mobile {
+  // Línea 1: avatar + nombre/apellido (+ badge "Usuario" si aplica).
+  // Línea 2: badge de estado + iconos de acción, juntos.
+  .profesional-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+      "avatar info    info"
+      ".      badges  actions";
+    row-gap: $spacing-sm;
+  }
+
+  .profesional-avatar {
+    grid-area: avatar;
+  }
+
+  .profesional-info {
+    grid-area: info;
+  }
+
+  .profesional-badges {
+    grid-area: badges;
+    width: auto;
+    padding-left: 0;
+  }
+
+  .profesional-actions {
+    grid-area: actions;
+    margin-left: 0;
+  }
+}
+
 // Modal confirmación de eliminación de profesional
 .modal-backdrop {
   @include modal-backdrop;

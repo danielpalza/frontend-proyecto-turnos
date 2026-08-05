@@ -161,15 +161,19 @@
 }
 
 // Responsive
-@media (max-width: 992px) {
+@include tablet {
   .patients-list {
     max-height: 400px;
   }
 }
 
-@media (max-width: 768px) {
+@include mobile {
   .seguimiento-container {
     padding: 1rem;
+    // Bug: en desktop .seguimiento-container tiene margin: 0 12rem (192px por lado).
+    // Sin este reset, en mobile ese margen deja el contenido sin espacio útil
+    // (prácticamente invisible/inutilizable) — esta es la causa de "no se ve".
+    margin: 0;
   }
 
   .header-section h1 {
@@ -187,5 +191,4 @@
     width: 36px;
     height: 36px;
   }
-
 }

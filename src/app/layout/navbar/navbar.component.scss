@@ -93,7 +93,6 @@
   color: $text-secondary;
 }
 
-// Solo se usa en mobile, donde reemplaza al texto (ver @include mobile más abajo).
 .navbar-user-icon {
   display: none;
   font-size: 1.25rem;
@@ -182,7 +181,7 @@
     }
   }
 
-  // Donde antes estaba el botón hamburguesa: usuario + logout, solo ícono.
+  // Donde antes estaba el botón hamburguesa: usuario + logout.
   .navbar-user {
     position: static;
     flex-direction: row;
@@ -190,13 +189,17 @@
     gap: $spacing-sm;
   }
 
-  .navbar-user-name-text {
-    display: none;
+  // Se muestra el nombre y apellido en vez del ícono (antes reemplazaba al texto).
+  .navbar-user-name {
+    max-width: 30vw;
   }
 
-  .navbar-user-icon {
+  .navbar-user-name-text {
     display: block;
-    color: $text-secondary;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
   }
 
   .btn-logout {

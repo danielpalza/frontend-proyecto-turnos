@@ -60,3 +60,32 @@
   }
 }
 
+@include mobile {
+  // turnos-panel-section debe quedar debajo de daily-summary (y antes del calendario
+  // completo). daily-summary vive dentro de <app-month-calendar>, así que se colapsan
+  // los wrappers intermedios con display:contents para que sus hijos entren al grid de
+  // .main-layout y se puedan reordenar con `order` (complementa las reglas en
+  // month-calendar.component.scss, propias del scope de ese componente).
+  //
+  // Nota: display:contents hace que el min-width:0 de .calendar-section (arriba) deje
+  // de aplicarse (un elemento "contents" no genera caja, así que sus propiedades de
+  // caja se ignoran) — sin ese freno, el track de main-layout puede crecer hasta el
+  // min-content de sus hijos y desbordar el viewport. Se usa minmax(0, 1fr) en el track
+  // para restablecerlo.
+  .main-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .calendar-section {
+    display: contents;
+  }
+
+  app-month-calendar {
+    display: contents;
+  }
+
+  .panel-section {
+    order: 2;
+  }
+}
+

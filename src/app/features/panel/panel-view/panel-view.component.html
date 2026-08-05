@@ -301,14 +301,16 @@
                 Turnos <i [class]="sortIcon('turnos')"></i>
               </th>
               <th class="text-end sortable" (click)="sortBy('facturacion', 'desc')">
-                Facturación <i [class]="sortIcon('facturacion')"></i>
+                <span class="th-text-full">Facturación</span><span class="th-text-short">$</span>
+                <i [class]="sortIcon('facturacion')"></i>
               </th>
               <th
                 class="text-center sortable"
                 style="min-width: 160px"
                 (click)="sortBy('completitud', 'desc')"
               >
-                Tasa de completitud <i [class]="sortIcon('completitud')"></i>
+                <span class="th-text-full">Tasa de completitud</span><span class="th-text-short">%</span>
+                <i [class]="sortIcon('completitud')"></i>
               </th>
               <th></th>
             </tr>
