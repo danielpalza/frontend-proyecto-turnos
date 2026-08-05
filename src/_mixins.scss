@@ -259,6 +259,140 @@
   }
 }
 
+// ============================================
+// MODAL SHELL — backdrop + dialog + content + header + body + footer
+// Cada componente sigue declarando SUS PROPIOS selectores (no colisionan entre
+// módulos, mantienen el View Encapsulation) pero delegan el CSS repetido acá.
+// Existen dos formas de armar el shell según cómo esté el HTML de cada modal:
+//   - "2 capas": elementos hermanos .modal-backdrop (dim+blur) y .modal/[data-testid=...] (centrado)
+//     -> usar modal-backdrop() + modal-centering() por separado.
+//   - "1 capa": un solo elemento hace dim+blur+centrado a la vez (ej. confirm-dialog)
+//     -> usar modal-backdrop-centered().
+// ============================================
+
+@mixin modal-backdrop($blur: 4px, $opacity: 0.45) {
+  position: fixed;
+  inset: 0;
+  background: rgba($text-primary, $opacity);
+  backdrop-filter: blur($blur);
+  z-index: $z-modal-backdrop;
+  animation: modalBackdropFadeIn $transition-slow forwards;
+}
+
+@mixin modal-centering($padding: $spacing-md) {
+  z-index: $z-modal;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  padding: $padding;
+}
+
+/// Variante "1 capa": dim + blur + centrado en el mismo selector.
+@mixin modal-backdrop-centered($blur: 4px, $opacity: 0.45, $padding: $spacing-md) {
+  position: fixed;
+  inset: 0;
+  background: rgba($text-primary, $opacity);
+  backdrop-filter: blur($blur);
+  z-index: $z-modal;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $padding;
+  animation: modalBackdropFadeIn $transition-slow forwards;
+}
+
+/// $max-width es obligatorio: cada modal tiene el suyo (28rem, 32rem, 36rem, 38rem, 42rem, 44rem...).
+@mixin modal-dialog($max-width) {
+  position: relative;
+  z-index: $z-modal-dialog;
+  margin: 0;
+  width: 100%;
+  max-width: $max-width;
+  animation: modalDialogFadeIn $transition-slow forwards;
+}
+
+/// $shadow: pasar $shadow-modal en los dialogs grandes que antes tenían el literal duplicado.
+@mixin modal-content($shadow: $shadow-xl) {
+  background: $card-background;
+  border: 1px solid $border-color;
+  border-radius: $radius-xl;
+  box-shadow: $shadow;
+  overflow: hidden;
+}
+
+@mixin modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-lg;
+  padding: $spacing-xl $spacing-2xl;
+  border-bottom: 1px solid $border-color;
+}
+
+@mixin modal-title-block {
+  display: flex;
+  gap: $spacing-md;
+  align-items: flex-start;
+}
+
+@mixin modal-title {
+  margin: 0 0 0.2rem;
+  font-weight: 600;
+  font-size: 1.125rem;
+  color: $text-primary;
+}
+
+@mixin modal-subtitle {
+  margin: 0;
+  color: $text-secondary;
+  font-size: 0.85rem;
+}
+
+@mixin modal-body($max-height: calc(100vh - 12rem)) {
+  padding: $spacing-2xl;
+  max-height: $max-height;
+  overflow-y: auto;
+}
+
+@mixin modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  padding: $spacing-lg $spacing-2xl;
+  border-top: 1px solid $border-color;
+}
+
+/// Base común de TODOS los botones del footer (independiente de si después
+/// son .btn-primary, .btn-outline-secondary o .btn-danger).
+@mixin modal-btn-base {
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: $radius-md;
+  transition: all $transition-base;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+@mixin modal-btn-outline-secondary {
+  background-color: transparent;
+  border: 1px solid $border-color;
+  color: $text-primary;
+
+  &:hover:not(:disabled) {
+    background-color: $hover-bg;
+    border-color: $primary-color;
+    color: $primary-color;
+  }
+}
+
 @mixin mobile-xs {
   @media (max-width: #{$breakpoint-xs - 1px}) {
     @content;

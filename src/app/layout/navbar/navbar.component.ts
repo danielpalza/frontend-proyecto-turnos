@@ -1,12 +1,14 @@
-import { Component } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
-import { OdontogramaStateService } from '../../features/odontograma/services/odontograma-state.service';
+import { ClinicalAttentionService } from '../../core/services/clinical-attention.service';
 import { NotificationService } from '../../core/services/notification.service';
+import { ModuleRulesService } from '../../core/services/module-rules.service';
+import { ClinicalModuleRule } from '../../core/models/module-rules.model';
 import { Capability } from '../../core/auth/capabilities';
 
-export type ViewType = 'panel' | 'turnos' | 'odontograma' | 'seguimiento' | 'configuraciones';
+export type ViewType = 'panel' | 'turnos' | 'seguimiento' | 'configuraciones';
 
 interface NavItem {
   title: string;
@@ -18,7 +20,20 @@ interface NavItem {
   requiresAppointment?: boolean;
 }
 
+const STATIC_MENU_ITEMS: NavItem[] = [
+  { title: 'Panel', icon: 'bi-speedometer2', route: '/panel', capability: Capability.PANEL_VIEW },
+  { title: 'Turnos', icon: 'bi-calendar', route: '/turnos', capability: Capability.TURNOS_VIEW },
+  { title: 'Seguimiento', icon: 'bi-clipboard-data', route: '/seguimiento', capability: Capability.SEGUIMIENTO_VIEW },
+  { title: 'Cobertura', icon: 'bi-shield-check', route: '/coberturas', capability: Capability.COBERTURA_VIEW },
+  { title: 'Configuraciones', icon: 'bi-gear', route: '/configuraciones', capability: Capability.CONFIGURACIONES_VIEW }
+];
 
+const ATENCION_ITEM: NavItem = {
+  title: 'Atención',
+  icon: 'bi-person-badge',
+  requiresAppointment: true,
+  capability: '' // se resuelve aparte: "cualquiera de" los módulos clínicos, no una sola capacidad fija
+};
 
 @Component({
   selector: 'app-navbar',
@@ -27,29 +42,49 @@ interface NavItem {
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss']
 })
+export class NavbarComponent implements OnInit {
 
-export class NavbarComponent {
+  /**
+   * Módulos clínicos disponibles (Odontograma, Historia Clínica, y los que se agreguen a futuro).
+   * La pestaña "Atención" es una sola para todos: una sesión solo puede estar atendiendo un turno a
+   * la vez, sin importar el módulo, así que no tiene sentido una pestaña por módulo.
+   */
+  private clinicalModules: ClinicalModuleRule[] = [];
+
+  /** Menú desplegable de mobile (ver $breakpoint-sm en _variables.scss). */
+  menuOpen = false;
 
   constructor(
     private router: Router,
     private authService: AuthService,
-    private odontogramaState: OdontogramaStateService,
-    private notification: NotificationService
+    private clinicalAttention: ClinicalAttentionService,
+    private notification: NotificationService,
+    private moduleRulesService: ModuleRulesService
   ) {}
 
+  ngOnInit(): void {
+    this.moduleRulesService.getClinicalModules().subscribe({
+      next: modules => (this.clinicalModules = modules),
+      error: err => console.error('No se pudieron cargar los módulos clínicos:', err)
+    });
+  }
 
-
-  private readonly allMenuItems: NavItem[] = [
-    { title: 'Panel', icon: 'bi-speedometer2', route: '/panel', capability: Capability.PANEL_VIEW },
-    { title: 'Turnos', icon: 'bi-calendar', route: '/turnos', capability: Capability.TURNOS_VIEW },
-    { title: 'Odontograma', icon: 'bi-heart-pulse', requiresAppointment: true, capability: Capability.ODONTOGRAMA_VIEW },
-    { title: 'Seguimiento', icon: 'bi-clipboard-data', route: '/seguimiento', capability: Capability.SEGUIMIENTO_VIEW },
-    { title: 'Cobertura', icon: 'bi-shield-check', route: '/coberturas', capability: Capability.COBERTURA_VIEW },
-    { title: 'Configuraciones', icon: 'bi-gear', route: '/configuraciones', capability: Capability.CONFIGURACIONES_VIEW }
-  ];
+  private hasAnyClinicalCapability(): boolean {
+    return this.clinicalModules.some(m => this.authService.hasCapability(`${m.codigo}:VIEW`));
+  }
 
   get menuItems(): NavItem[] {
-    return this.allMenuItems.filter(item => this.authService.hasCapability(item.capability));
+    const items: NavItem[] = [];
+    const push = (item: NavItem, allowed: boolean) => { if (allowed) items.push(item); };
+
+    push(STATIC_MENU_ITEMS[0], this.authService.hasCapability(Capability.PANEL_VIEW)); // Panel
+    push(STATIC_MENU_ITEMS[1], this.authService.hasCapability(Capability.TURNOS_VIEW)); // Turnos
+    push(ATENCION_ITEM, this.hasAnyClinicalCapability());
+    push(STATIC_MENU_ITEMS[2], this.authService.hasCapability(Capability.SEGUIMIENTO_VIEW)); // Seguimiento
+    push(STATIC_MENU_ITEMS[3], this.authService.hasCapability(Capability.COBERTURA_VIEW)); // Cobertura
+    push(STATIC_MENU_ITEMS[4], this.authService.hasCapability(Capability.CONFIGURACIONES_VIEW)); // Configuraciones
+
+    return items;
   }
 
   get organizationNombre(): string | null {
@@ -64,11 +99,13 @@ export class NavbarComponent {
     return [user.nombre, user.apellido].filter(Boolean).join(' ') || null;
   }
 
-  isOdontogramaActive(): boolean {
-    return this.router.url.startsWith('/odontograma/');
+  isAtencionActive(): boolean {
+    return this.clinicalModules.some(m => this.router.url.startsWith(`/${m.rutaClinica}/`));
   }
 
-
+  navItemTestId(item: NavItem): string {
+    return item.route ? item.route.slice(1) : (item.requiresAppointment ? 'atencion' : 'clinico');
+  }
 
   onNavClick(item: NavItem, event: Event): void {
     if (!item.requiresAppointment) {
@@ -77,16 +114,15 @@ export class NavbarComponent {
 
     event.preventDefault();
 
-    const appointmentId = this.odontogramaState.appointmentIdValue;
+    const last = this.clinicalAttention.getLast();
 
-    if (appointmentId) {
-      this.router.navigate(['/odontograma', appointmentId]);
+    if (last) {
+      this.router.navigate([`/${last.rutaClinica}`, last.appointmentId]);
       return;
     }
 
-
     this.notification.showInfo(
-      'Seleccioná un turno y usá el botón de corazón para abrir el odontograma.'
+      'Seleccioná un turno y usá el botón de corazón para iniciar la atención.'
     );
 
     this.router.navigate(['/turnos']);
@@ -97,6 +133,22 @@ export class NavbarComponent {
     this.router.navigate(['/login']);
   }
 
+  toggleMenu(): void {
+    this.menuOpen = !this.menuOpen;
+  }
+
+  closeMenu(): void {
+    this.menuOpen = false;
+  }
+
+  // Coincide con $breakpoint-sm en _variables.scss: si la pantalla vuelve a
+  // tamaño desktop con el menú mobile abierto, lo cerramos para no dejarlo
+  // "colgado" al redimensionar/rotar.
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    if (this.menuOpen && window.innerWidth >= 768) {
+      this.menuOpen = false;
+    }
+  }
+
 }
-
-

@@ -81,3 +81,26 @@ $shadow-lg: 0 6px 20px rgba(0, 0, 0, 0.15);
 $shadow-xl: 0 10px 40px rgba(0, 0, 0, 0.2);
 $shadow-primary: 0 4px 12px rgba($primary-color, 0.15);
 $shadow-primary-hover: 0 6px 20px rgba($primary-color, 0.35);
+
+// ============================================
+// VARIABLES DE Z-INDEX (modales)
+// ============================================
+// Mismos valores que ya usaban los shells de modal de cada feature
+// (backdrop < capa de centrado < dialog). Tokenizados para no repetir
+// el número mágico 1040/1050/1055 en cada componente.
+$z-modal-backdrop: 1040;
+$z-modal: 1050;
+$z-modal-dialog: 1055;
+
+// Sombra grande para dialogs "pesados" (modales de confirmación/guardado).
+$shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+// ============================================
+// GUÍA DE USO — ROJOS "DANGER" (no agregar un cuarto rojo)
+// ============================================
+// $danger            → chips/badges de ESTADO "soft" (badge-cancelado, tab-count-cancelado)
+//                       y visualizaciones tipo donut/chart. NO usar en botones ni bordes.
+// $danger-light/dark → todo lo INTERACTIVO: botones (.btn-cancel/.btn-delete/.btn-danger),
+//                       bordes .is-invalid, texto .invalid-feedback, hover de íconos de borrar.
+//                       Es el criterio por defecto para "rojo que el usuario toca o error de validación".
+// Nunca un literal hex suelto (#dc3545, etc.) — usar una de las dos variables de arriba.

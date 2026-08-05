@@ -1,5 +1,6 @@
 @use 'sass:color' as color;
 @use 'variables' as *;
+@use 'mixins' as *;
 
 .navbar-container {
   display: flex;
@@ -28,6 +29,34 @@
   font-size: 1rem;
   font-weight: 600;
   color: $text-primary;
+}
+
+.navbar-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid $border-color;
+  background-color: transparent;
+  color: $text-primary;
+  border-radius: $radius-md;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover {
+    background-color: $hover-bg;
+  }
+}
+
+// En desktop el wrapper no debe alterar el layout existente (brand
+// absoluto a la izq., tabs centrados por justify-content, user absoluto
+// a la der.): "display: contents" lo saca del box model y sus hijos
+// (nav-tabs, navbar-user) siguen participando directo del flex de
+// .navbar-container, como si este div no existiera.
+.navbar-menu {
+  display: contents;
 }
 
 .nav-tabs {
@@ -114,3 +143,74 @@
   }
 }
 
+@include mobile {
+  .navbar-container {
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+  }
+
+  .navbar-brand {
+    position: static;
+    min-width: 0;
+  }
+
+  [data-testid="navbar-organization-name"] {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 40vw;
+  }
+
+  .navbar-toggle {
+    display: flex;
+  }
+
+  // El wrapper deja de ser transparente al layout y pasa a ser el panel
+  // desplegable: se posiciona debajo de la navbar como overlay (no empuja
+  // el contenido), para no afectar los `calc(100vh - $navbar-height ...)`
+  // que ya usan otras vistas asumiendo una navbar de altura fija.
+  .navbar-menu {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 0;
+    overflow: hidden;
+    background-color: $card-background;
+    border-bottom: 1px solid $border-color;
+    box-shadow: $shadow-md;
+    transition: max-height $transition-base;
+    z-index: 20;
+
+    &.open {
+      max-height: calc(100vh - #{$navbar-height});
+      overflow-y: auto;
+    }
+  }
+
+  .nav-tabs {
+    flex-direction: column;
+    background-color: transparent;
+    padding: $spacing-sm;
+    border-radius: 0;
+  }
+
+  .nav-tab {
+    width: 100%;
+  }
+
+  .navbar-user {
+    position: static;
+    flex-direction: column;
+    align-items: stretch;
+    gap: $spacing-sm;
+    padding: $spacing-sm $spacing-lg $spacing-lg;
+    border-top: 1px solid $border-color;
+  }
+
+  .btn-logout {
+    justify-content: center;
+  }
+}
