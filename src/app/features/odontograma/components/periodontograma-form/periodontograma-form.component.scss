@@ -1,11 +1,12 @@
 @use 'variables' as *;
+@use 'mixins' as *;
 
 :host {
   display: block;
   // width: auto;
   padding:  0 2rem;
 
-  @media (max-width: 768px) {
+  @include mobile {
     padding: 0 1rem;
   }
 }

@@ -52,7 +52,7 @@
     max-height: 95vh;
     margin: 1.75rem auto;
 
-    @media (max-width: 992px) {
+    @include tablet {
       max-width: 100%;
       margin: 0.5rem;
     }
@@ -63,7 +63,7 @@
     overflow: hidden;
     border-radius: $radius-lg;
     border: none;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    box-shadow: $shadow-modal;
   }
 
   .modal-header {
@@ -117,7 +117,7 @@
     $radius: 4px
   );
 
-  @media (max-width: 992px) {
+  @include tablet {
     max-height: 50vh;
     margin-bottom: 1rem;
   }
@@ -224,7 +224,7 @@ textarea.form-control {
 }
 
 // Responsive
-@media (max-width: 992px) {
+@include tablet {
   .modal .modal-dialog.modal-xl .modal-content {
     max-height: 100vh;
     border-radius: 0;

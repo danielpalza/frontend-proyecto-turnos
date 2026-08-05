@@ -1,0 +1,162 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+.hc-card {
+  background: $card-background;
+  border: 1px solid $border-color;
+  border-radius: $radius-lg;
+  padding: 1.25rem 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.hc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  padding-bottom: 0.75rem;
+
+  .hc-header-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    i {
+      font-size: 1.25rem;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+  }
+
+  .hc-header-date {
+    color: $text-secondary;
+    font-size: 0.9rem;
+  }
+}
+
+.hc-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.hc-section-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: $text-secondary;
+}
+
+.hc-section-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+// "Datos del paciente" y "Antecedentes" sin permiso de edición: mismo aviso que el resto de la app
+// para controles bloqueados (docs/PERMISOS.md § 6.5), no un ícono suelto sin explicación.
+.hc-lock-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: normal;
+  color: $text-muted;
+}
+
+.hc-field input:disabled,
+.hc-field textarea:disabled {
+  background-color: $hover-bg;
+  cursor: not-allowed;
+}
+
+.hc-row {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.hc-row--patient {
+  grid-template-columns: 2fr 1fr;
+}
+
+.hc-row--3col {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.hc-row--2col {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.hc-row--4col {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.hc-row--diagnostico {
+  grid-template-columns: 2fr 1fr;
+}
+
+.hc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  label {
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+}
+
+.hc-field--full {
+  width: 100%;
+}
+
+.hc-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  padding-top: 1rem;
+}
+
+.hc-confirm-overlay {
+  @include modal-backdrop-centered($blur: 0, $opacity: 0.4, $padding: 0);
+  animation: none;
+}
+
+.hc-confirm-box {
+  background: $card-background;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.2);
+}
+
+.hc-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+// Responsive: los grids de 2-4 columnas colapsan a 1 columna en mobile.
+@include mobile {
+  .hc-row--patient,
+  .hc-row--3col,
+  .hc-row--2col,
+  .hc-row--4col,
+  .hc-row--diagnostico {
+    grid-template-columns: 1fr;
+  }
+}

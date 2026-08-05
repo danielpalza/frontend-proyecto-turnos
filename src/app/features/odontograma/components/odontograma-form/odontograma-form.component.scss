@@ -1,11 +1,12 @@
 @use 'variables' as *;
+@use 'mixins' as *;
 
 .teeth-section {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 
-  @media (max-width: 768px) {
+  @include mobile {
     gap: 2rem;
   }
 }
@@ -22,23 +23,11 @@
   justify-content: center;
   gap: 3rem;
   align-items: flex-start;
-
-  @media (max-width: 768px) {
-    gap: 1.5rem;
-  }
-
-  @media (max-width: 640px) {
-    gap: 1rem;
-  }
 }
 
 .teeth-group {
   display: flex;
   gap: 0.75rem;
-
-  @media (max-width: 640px) {
-    gap: 0.5rem;
-  }
 }
 
 .tooth-item {
@@ -138,10 +127,10 @@
   }
 }
 
-@media (max-width: 640px) {
+@include mobile {
   .teeth-container {
     flex-direction: column;
-    gap: 2rem;
+    gap: 1.5rem;
   }
 
   .divider-line {
@@ -151,5 +140,6 @@
   .teeth-group {
     justify-content: center;
     flex-wrap: wrap;
+    gap: 0.5rem;
   }
 }
