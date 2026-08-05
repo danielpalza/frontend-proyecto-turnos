@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Capability } from '../../../../core/auth/capabilities';
 import { CanDirective } from '../../../../shared/directives/can.directive';
@@ -8,6 +8,8 @@ import { Appointment, AppointmentPartialUpdateDTO, Profesional, Patient } from '
 import { AppointmentsService } from '../../../../core/services/appointments.service';
 import { ConfigurationService } from '../../../../core/services/configuration.service';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { ModuleRulesService } from '../../../../core/services/module-rules.service';
+import { ClinicalModuleRule } from '../../../../core/models/module-rules.model';
 import {
   filterProfesionalesForReassign,
   isProfesionalAssignableForReassign
@@ -21,7 +23,7 @@ import { fullName } from '../../../../core/utils/full-name.util';
   templateUrl: './appointments-panel.component.html',
   styleUrls: ['./appointments-panel.component.scss']
 })
-export class AppointmentsPanelComponent implements OnChanges {
+export class AppointmentsPanelComponent implements OnChanges, OnInit {
   readonly Capability = Capability;
   @Input() date: string | null = null;
   @Input() appointments: Appointment[] = [];
@@ -33,13 +35,25 @@ export class AppointmentsPanelComponent implements OnChanges {
 
   private patientsById = new Map<string, Patient>();
   private patientsByIdentificacion = new Map<string, Patient>();
+  /** Índice codigo -> regla, para resolver la ruta y la capacidad del módulo clínico de cada turno. */
+  private clinicalModulesByCodigo = new Map<string, ClinicalModuleRule>();
 
   constructor(
     private appointmentsService: AppointmentsService,
     private whatsappConfig: ConfigurationService,
     private notification: NotificationService,
-    private router: Router
+    private router: Router,
+    private moduleRulesService: ModuleRulesService
   ) {}
+
+  ngOnInit(): void {
+    this.moduleRulesService.getClinicalModules().subscribe({
+      next: modules => {
+        this.clinicalModulesByCodigo = new Map(modules.map(m => [m.codigo, m]));
+      },
+      error: err => console.error('No se pudieron cargar los módulos clínicos:', err)
+    });
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['patients']) {
@@ -615,8 +629,30 @@ export class AppointmentsPanelComponent implements OnChanges {
     this.originalProfesionalId.delete(cardId);
   }
 
-  openOdontogram(appointmentId: string): void {
-    this.router.navigate(['/odontograma', appointmentId]);
+  /**
+   * Redirección dinámica: la ruta se resuelve desde `appointment.moduloClinicoCodigo` contra el
+   * índice de módulos clínicos (`GET /api/modules/rules`), no queda hardcodeada a `/odontograma`.
+   * Un tercer módulo clínico futuro no requiere tocar este componente.
+   */
+  openClinicalModule(appointment: Appointment): void {
+    const ruta = this.getClinicalModuleRuta(appointment);
+    if (!ruta) {
+      this.notification.showInfo('Este turno no tiene un módulo clínico asignado.');
+      return;
+    }
+    this.router.navigate([`/${ruta}`, appointment.id]);
+  }
+
+  private getClinicalModuleRuta(appointment: Appointment): string | null {
+    const codigo = appointment.moduloClinicoCodigo;
+    if (!codigo) return null;
+    return this.clinicalModulesByCodigo.get(codigo)?.rutaClinica ?? null;
+  }
+
+  /** Capacidad requerida para iniciar este turno puntual: `{MODULO}:VIEW` del módulo asignado. */
+  getClinicalModuleCapability(appointment: Appointment): string {
+    const codigo = appointment.moduloClinicoCodigo;
+    return codigo ? `${codigo}:VIEW` : 'SIN_MODULO_CLINICO:VIEW';
   }
 
   hasPatientPhone(appointment: Appointment): boolean {

@@ -301,6 +301,25 @@
         </select>
       </div>
       <div class="col-12 col-md-6">
+        <label class="form-label">Módulo clínico *</label>
+        <select
+          class="form-select"
+          formControlName="moduloClinicoId"
+          [class.is-invalid]="form.get('moduloClinicoId')?.invalid && form.get('moduloClinicoId')?.touched"
+          data-testid="patient-modulo-clinico-select"
+        >
+          <option value="" disabled>Seleccioná un módulo clínico</option>
+          @for (modulo of clinicalModules; track modulo.id) {
+            <option [value]="modulo.id">{{ modulo.nombre }}</option>
+          }
+        </select>
+        @if (form.get('moduloClinicoId')?.invalid && form.get('moduloClinicoId')?.touched) {
+          <div class="invalid-feedback d-block">
+            <i class="bi bi-exclamation-triangle me-1"></i>Elegí a qué ficha clínica corresponde este turno.
+          </div>
+        }
+      </div>
+      <div class="col-12 col-md-6">
         <label class="form-label">Hora del Turno</label>
         <input
           class="form-control"

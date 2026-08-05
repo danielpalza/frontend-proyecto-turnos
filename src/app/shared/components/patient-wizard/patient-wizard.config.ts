@@ -37,7 +37,7 @@ export const PATIENT_WIZARD_STEPS: WizardStepDef[] = [
     subtitle: 'Detalles del turno y pago inicial',
     icon: 'bi-calendar-event',
     appointmentOnly: true,
-    requiredControls: []
+    requiredControls: ['moduloClinicoId']
   },
   {
     id: 5,

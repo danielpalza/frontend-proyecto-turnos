@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Observable, Subject, Subscription, forkJoin, of } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
-import { Capability } from '../../../../core/auth/capabilities';
 import { CanDirective } from '../../../../shared/directives/can.directive';
 import { ScrollLockDirective } from '../../../../shared/directives/scroll-lock.directive';
 import { Appointment } from '../../../../core/models';
@@ -16,8 +15,10 @@ import {
   ValorLeyenda
 } from '../../../../core/models/odontograma.model';
 import { PeriodontogramaDienteDelta, PeriodontogramaResponse } from '../../../../core/models/periodontograma.model';
+import { ClinicalModuleRule } from '../../../../core/models/module-rules.model';
 import { OdontogramaService } from '../../../../core/services/odontograma.service';
 import { PeriodontogramaService } from '../../../../core/services/periodontograma.service';
+import { ModuleRulesService } from '../../../../core/services/module-rules.service';
 import { fullName } from '../../../../core/utils/full-name.util';
 import { formatDate as formatDateShared } from '../../utils/seguimiento-display.util';
 
@@ -68,7 +69,6 @@ export interface PerioSummary {
   styleUrls: ['./turn-clinical-modal.component.scss']
 })
 export class TurnClinicalModalComponent implements OnChanges, OnDestroy {
-  readonly Capability = Capability;
   @Input() open = false;
   @Output() closed = new EventEmitter<void>();
 
@@ -109,13 +109,19 @@ export class TurnClinicalModalComponent implements OnChanges, OnDestroy {
   private loadedAppointmentId: string | null = null;
   private readonly loadRequests = new Subject<string>();
   private readonly subscription: Subscription;
+  private clinicalModulesByCodigo = new Map<string, ClinicalModuleRule>();
 
   constructor(
     private readonly odontogramaService: OdontogramaService,
     private readonly periodontogramaService: PeriodontogramaService,
+    private readonly moduleRulesService: ModuleRulesService,
     private readonly router: Router,
     private readonly cdr: ChangeDetectorRef
   ) {
+    this.moduleRulesService.getClinicalModules().subscribe({
+      next: modules => (this.clinicalModulesByCodigo = new Map(modules.map(m => [m.codigo, m]))),
+      error: err => console.error('No se pudieron cargar los módulos clínicos:', err)
+    });
     // `switchMap` descarta la respuesta del turno anterior si se abre otro antes de que llegue.
     this.subscription = this.loadRequests.pipe(
       switchMap(appointmentId => forkJoin([
@@ -166,11 +172,30 @@ export class TurnClinicalModalComponent implements OnChanges, OnDestroy {
     this.closed.emit();
   }
 
-  openOdontogram(): void {
+  /** Resuelve la ruta desde `moduloClinicoCodigo`, igual que en appointments-panel: no hardcodea odontograma. */
+  private getClinicalModuleRuta(): string | null {
+    const codigo = this.currentAppointment?.moduloClinicoCodigo;
+    if (!codigo) return null;
+    return this.clinicalModulesByCodigo.get(codigo)?.rutaClinica ?? null;
+  }
+
+  get clinicalModuleCapability(): string {
+    const codigo = this.currentAppointment?.moduloClinicoCodigo;
+    return codigo ? `${codigo}:VIEW` : 'SIN_MODULO_CLINICO:VIEW';
+  }
+
+  get clinicalModuleLabel(): string {
+    const codigo = this.currentAppointment?.moduloClinicoCodigo;
+    const nombre = codigo ? this.clinicalModulesByCodigo.get(codigo)?.nombre : null;
+    return nombre ? `Abrir ${nombre.toLowerCase()} completo` : 'Abrir ficha clínica completa';
+  }
+
+  openClinicalModule(): void {
     const appointmentId = this.currentAppointment?.id;
-    if (!appointmentId) return;
+    const ruta = this.getClinicalModuleRuta();
+    if (!appointmentId || !ruta) return;
     this.close();
-    this.router.navigate(['/odontograma', appointmentId]);
+    this.router.navigate([`/${ruta}`, appointmentId]);
   }
 
   /**

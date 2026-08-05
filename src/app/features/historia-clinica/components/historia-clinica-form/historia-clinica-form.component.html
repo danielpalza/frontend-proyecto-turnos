@@ -1,0 +1,223 @@
+<div class="hc-card" data-testid="historia-clinica-form" [formGroup]="form">
+
+  <div class="hc-header">
+    <div class="hc-header-title">
+      <i class="bi bi-file-earmark-medical"></i>
+      <h2>Historia clínica</h2>
+    </div>
+    <div class="hc-header-date">{{ current?.fechaConsulta }}</div>
+  </div>
+
+  @if (isFirmado) {
+    <div class="alert alert-secondary d-flex align-items-start gap-2" data-testid="historia-clinica-signed-banner">
+      <i class="bi bi-patch-check-fill mt-1"></i>
+      <div>
+        <strong>Firmado</strong>
+        @if (current?.firmadoEn) { el {{ current?.firmadoEn }} }
+        @if (current?.firmadoPorNombre) { por {{ current?.firmadoPorNombre }} }
+        . Este registro es inmutable.
+      </div>
+    </div>
+  }
+
+  @if (saveError()) {
+    <div class="alert alert-danger" data-testid="historia-clinica-save-error">{{ saveError() }}</div>
+  }
+
+  <!-- Sección 1 — Datos del paciente -->
+  <section class="hc-section">
+    <div class="hc-section-label-row">
+      <span class="hc-section-label">Datos del paciente</span>
+      @if (!canEditPatientData) {
+        <span class="hc-lock-note" data-testid="historia-clinica-patient-section-locked">
+          <i class="bi bi-lock-fill"></i> Requiere permiso para editar pacientes
+        </span>
+      }
+    </div>
+    <div class="hc-row hc-row--patient">
+      <div class="hc-field hc-field--wide">
+        <label for="hc-nombreCompleto">Nombre completo</label>
+        <input id="hc-nombreCompleto" type="text" class="form-control" formControlName="nombreCompleto"
+          data-testid="historia-clinica-nombre-completo" />
+      </div>
+      <div class="hc-field">
+        <label for="hc-dni">DNI</label>
+        <input id="hc-dni" type="text" class="form-control" formControlName="dni"
+          data-testid="historia-clinica-dni" />
+      </div>
+    </div>
+    <div class="hc-row hc-row--3col">
+      <div class="hc-field">
+        <label for="hc-fechaConsulta">Fecha de consulta</label>
+        <input id="hc-fechaConsulta" type="date" class="form-control" formControlName="fechaConsulta"
+          data-testid="historia-clinica-fecha-consulta" />
+      </div>
+      <div class="hc-field">
+        <label for="hc-cobertura">Cobertura</label>
+        <input id="hc-cobertura" type="text" class="form-control" formControlName="cobertura"
+          data-testid="historia-clinica-cobertura" />
+      </div>
+      <div class="hc-field">
+        <label for="hc-telefono">Teléfono</label>
+        <input id="hc-telefono" type="text" class="form-control" formControlName="telefono"
+          data-testid="historia-clinica-telefono" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Sección 2 — Motivo de consulta -->
+  <section class="hc-section">
+    <span class="hc-section-label">Motivo de consulta</span>
+    <div class="hc-field hc-field--full">
+      <textarea rows="2" class="form-control" formControlName="motivoConsulta"
+        data-testid="historia-clinica-motivo-consulta"></textarea>
+    </div>
+  </section>
+
+  <!-- Sección 3 — Enfermedad actual -->
+  <section class="hc-section">
+    <span class="hc-section-label">Enfermedad actual</span>
+    <div class="hc-field hc-field--full">
+      <textarea rows="2" class="form-control" placeholder="Inicio, evolución, síntomas asociados"
+        formControlName="enfermedadActual" data-testid="historia-clinica-enfermedad-actual"></textarea>
+    </div>
+  </section>
+
+  <!-- Sección 4 — Antecedentes médicos del paciente (mismos campos que la ficha del paciente) -->
+  <section class="hc-section">
+    <div class="hc-section-label-row">
+      <span class="hc-section-label">Antecedentes</span>
+      @if (!canEditPatientData) {
+        <span class="hc-lock-note" data-testid="historia-clinica-antecedentes-section-locked">
+          <i class="bi bi-lock-fill"></i> Requiere permiso para editar pacientes
+        </span>
+      }
+    </div>
+    <div class="hc-row hc-row--2col">
+      <div class="hc-field">
+        <label for="hc-enfermedades">Enfermedades</label>
+        <input id="hc-enfermedades" type="text" class="form-control"
+          formControlName="enfermedades" data-testid="historia-clinica-enfermedades" />
+      </div>
+      <div class="hc-field">
+        <label for="hc-alergias">Alergias</label>
+        <input id="hc-alergias" type="text" class="form-control" formControlName="alergias"
+          data-testid="historia-clinica-alergias" />
+      </div>
+      <div class="hc-field">
+        <label for="hc-medicacion">Medicación actual o previa</label>
+        <input id="hc-medicacion" type="text" class="form-control" formControlName="medicacion"
+          data-testid="historia-clinica-medicacion" />
+      </div>
+      <div class="hc-field">
+        <label for="hc-cirugias">Cirugías/tratamientos/trastornos</label>
+        <input id="hc-cirugias" type="text" class="form-control" formControlName="cirugias"
+          data-testid="historia-clinica-cirugias" />
+      </div>
+      <div class="hc-field">
+        <label for="hc-embarazo">Embarazo o lactancia</label>
+        <input id="hc-embarazo" type="text" class="form-control" formControlName="embarazo"
+          data-testid="historia-clinica-embarazo" />
+      </div>
+      <div class="hc-field">
+        <label for="hc-marcapasos">Marcapasos/prótesis</label>
+        <input id="hc-marcapasos" type="text" class="form-control" formControlName="marcapasos"
+          data-testid="historia-clinica-marcapasos" />
+      </div>
+      <div class="hc-field">
+        <label for="hc-consumos">Consumos (tabaco, alcohol, drogas)</label>
+        <input id="hc-consumos" type="text" class="form-control" formControlName="consumos"
+          data-testid="historia-clinica-consumos" />
+      </div>
+    </div>
+    <div class="hc-field hc-field--full">
+      <label for="hc-otrosAntecedentes">Otros antecedentes</label>
+      <textarea id="hc-otrosAntecedentes" rows="2" class="form-control" maxlength="300"
+        formControlName="otrosAntecedentes" data-testid="historia-clinica-otros-antecedentes"></textarea>
+    </div>
+  </section>
+
+  <!-- Sección 5 — Examen físico -->
+  <section class="hc-section">
+    <span class="hc-section-label">Examen físico</span>
+    <div class="hc-row hc-row--4col">
+      <div class="hc-field">
+        <label for="hc-tensionArterial">Tensión arterial</label>
+        <input id="hc-tensionArterial" type="text" class="form-control" placeholder="120/80"
+          formControlName="tensionArterial" data-testid="historia-clinica-tension-arterial" />
+      </div>
+      <div class="hc-field">
+        <label for="hc-frecuenciaCardiaca">Frec. cardíaca</label>
+        <input id="hc-frecuenciaCardiaca" type="number" class="form-control" formControlName="frecuenciaCardiaca"
+          data-testid="historia-clinica-frecuencia-cardiaca" />
+      </div>
+      <div class="hc-field">
+        <label for="hc-temperatura">Temperatura</label>
+        <input id="hc-temperatura" type="number" step="0.1" class="form-control" formControlName="temperatura"
+          data-testid="historia-clinica-temperatura" />
+      </div>
+      <div class="hc-field">
+        <label for="hc-peso">Peso</label>
+        <input id="hc-peso" type="number" step="0.1" class="form-control" formControlName="peso"
+          data-testid="historia-clinica-peso" />
+      </div>
+    </div>
+    <div class="hc-field hc-field--full">
+      <label for="hc-examenPorSistemas">Examen por sistemas</label>
+      <textarea id="hc-examenPorSistemas" rows="2" class="form-control" formControlName="examenPorSistemas"
+        data-testid="historia-clinica-examen-por-sistemas"></textarea>
+    </div>
+  </section>
+
+  <!-- Sección 6 — Diagnóstico y plan -->
+  <section class="hc-section">
+    <span class="hc-section-label">Diagnóstico y plan</span>
+    <div class="hc-row hc-row--diagnostico">
+      <div class="hc-field hc-field--wide">
+        <label for="hc-diagnostico">Diagnóstico</label>
+        <input id="hc-diagnostico" type="text" class="form-control" formControlName="diagnostico"
+          data-testid="historia-clinica-diagnostico" />
+      </div>
+      <div class="hc-field">
+        <label for="hc-diagnosticoCie10Codigo">Código CIE-10</label>
+        <input id="hc-diagnosticoCie10Codigo" type="text" class="form-control" maxlength="50"
+          formControlName="diagnosticoCie10Codigo" data-testid="historia-clinica-cie10" />
+      </div>
+    </div>
+    <div class="hc-field hc-field--full">
+      <label for="hc-indicaciones">Indicaciones</label>
+      <textarea id="hc-indicaciones" rows="2" class="form-control" placeholder="Estudios, tratamiento, próximo control"
+        formControlName="indicaciones" data-testid="historia-clinica-indicaciones"></textarea>
+    </div>
+  </section>
+
+  @if (editable()) {
+    <div class="hc-footer">
+      <button type="button" class="btn btn-outline-secondary" [disabled]="saving() || signing()"
+        (click)="guardarBorrador()" data-testid="historia-clinica-save-draft-btn">
+        @if (saving()) { Guardando... } @else { Guardar borrador }
+      </button>
+      <button type="button" class="btn btn-primary" [disabled]="saving() || signing()"
+        (click)="confirmarFirma()" data-testid="historia-clinica-sign-btn">
+        @if (signing()) { Firmando... } @else { Firmar y guardar }
+      </button>
+    </div>
+  }
+
+  @if (showSignConfirm()) {
+    <div class="hc-confirm-overlay" data-testid="historia-clinica-sign-confirm-dialog">
+      <div class="hc-confirm-box">
+        <p><strong>¿Firmar esta historia clínica?</strong></p>
+        <p class="text-muted">Una vez firmada, el registro queda cerrado y no se puede volver a editar.</p>
+        <div class="hc-confirm-actions">
+          <button type="button" class="btn btn-outline-secondary" [disabled]="signing()" (click)="cancelarFirma()"
+            data-testid="historia-clinica-sign-cancel-btn">Cancelar</button>
+          <button type="button" class="btn btn-primary" [disabled]="signing()" (click)="firmarYGuardar()"
+            data-testid="historia-clinica-sign-confirm-btn">
+            @if (signing()) { Firmando... } @else { Firmar y guardar }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

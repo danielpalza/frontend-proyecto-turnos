@@ -175,7 +175,7 @@
                 <i class="bi bi-whatsapp"></i>
               </span>
               <button type="button" class="btn-start" title="Iniciar turno"
-                [appCan]="Capability.ODONTOGRAMA_VIEW" (click)="openOdontogram(a.id!)" [attr.data-testid]="'appointment-start-btn-' + a.id">
+                [appCan]="getClinicalModuleCapability(a)" (click)="openClinicalModule(a)" [attr.data-testid]="'appointment-start-btn-' + a.id">
                 <i class="bi bi-heart-pulse"></i>
               </button>
               <button type="button" class="btn-delete" title="Cancelar turno" [appCan]="Capability.TURNOS_MANAGE" (click)="delete.emit(a.id)" [attr.data-testid]="'appointment-delete-btn-' + a.id">

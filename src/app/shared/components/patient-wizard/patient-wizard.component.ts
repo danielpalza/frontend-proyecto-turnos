@@ -2,6 +2,7 @@ import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@
 import { CommonModule } from '@angular/common';
 import { FormGroup } from '@angular/forms';
 import { Patient, Profesional } from '../../../core/models';
+import { ClinicalModuleRule } from '../../../core/models/module-rules.model';
 import { PatientFormComponent } from '../patient-form/patient-form.component';
 import { fullName } from '../../../core/utils/full-name.util';
 import {
@@ -26,6 +27,7 @@ export class PatientWizardComponent {
   @Input() existingPatients: Patient[] = [];
   @Input() selectedPatient: Patient | null = null;
   @Input() profesionales: Profesional[] = [];
+  @Input() clinicalModules: ClinicalModuleRule[] = [];
   @Input() isCheckingAvailability = false;
   @Input() availabilityError: string | null = null;
   @Input() calcularResto: () => number = () => 0;
@@ -136,6 +138,13 @@ export class PatientWizardComponent {
     if (!id) return '';
     const prof = this.profesionales.find(p => p.id === id);
     return prof ? fullName(prof.nombre, prof.apellido) : '';
+  }
+
+  getModuloClinicoLabel(): string {
+    const id = this.form.get('moduloClinicoId')?.value;
+    if (!id) return '';
+    const modulo = this.clinicalModules.find(m => m.id === id);
+    return modulo ? modulo.nombre : '';
   }
 
   onPatientSelect(patient: Patient): void {

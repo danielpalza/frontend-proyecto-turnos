@@ -14,6 +14,7 @@ import { documentNumberValidator } from '../../validators/custom-validators';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Patient, Profesional } from '../../../core/models';
+import { ClinicalModuleRule } from '../../../core/models/module-rules.model';
 import { SearchInputComponent, SearchResult } from '../search-input/search-input.component';
 import { getPatientFormConfig, COBERTURA_PARTICULAR } from './patient-form.config';
 import { fullName } from '../../../core/utils/full-name.util';
@@ -46,6 +47,7 @@ export class PatientFormComponent implements OnInit, OnChanges, OnDestroy {
   @Input() existingPatients: Patient[] = [];
   @Input() selectedPatient: Patient | null = null;
   @Input() profesionales: Profesional[] = [];
+  @Input() clinicalModules: ClinicalModuleRule[] = [];
   @Input() isCheckingAvailability = false;
   @Input() availabilityError: string | null = null;
   @Input() calcularResto: () => number = () => 0;

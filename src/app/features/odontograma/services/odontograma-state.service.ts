@@ -5,6 +5,7 @@ import { OdontogramaService } from '../../../core/services/odontograma.service';
 import { PeriodontogramaService } from '../../../core/services/periodontograma.service';
 import { AppointmentsService } from '../../../core/services/appointments.service';
 import { PatientService } from '../../../core/services/patient.service';
+import { ClinicalAttentionService } from '../../../core/services/clinical-attention.service';
 import { Appointment } from '../../../core/models/appointment.model';
 import { Patient } from '../../../core/models/patient.model';
 import { parseAnamnesis } from '../../../core/utils/anamnesis.util';
@@ -21,8 +22,6 @@ import { OdontoStateService, LeyendaItem } from './odonto-state.service';
 import { PerioStateService } from './perio-state.service';
 
 export type { LeyendaItem };
-
-const LAST_APPOINTMENT_KEY = 'odontograma_last_appointment_id';
 
 /**
  * Fachada delgada que orquesta la carga y guardado combinados de odontograma+periodontograma.
@@ -67,7 +66,7 @@ export class OdontogramaStateService {
 
   /** Refresca el snapshot de pago desde el backend (evita sobreescribir un pago agregado desde otra pestaña mientras tanto). */
   refreshAppointmentPaymentSnapshot(): Observable<void> {
-    const id = this.appointmentIdValue;
+    const id = this.appointmentId;
     if (!id) {
       return of(undefined);
     }
@@ -94,22 +93,9 @@ export class OdontogramaStateService {
     private readonly appointmentsService: AppointmentsService,
     private readonly patientService: PatientService,
     private readonly odontoState: OdontoStateService,
-    private readonly perioState: PerioStateService
+    private readonly perioState: PerioStateService,
+    private readonly clinicalAttention: ClinicalAttentionService
   ) {}
-
-  get appointmentIdValue(): string | null {
-    if (this.appointmentId != null) {
-      return this.appointmentId;
-    }
-    if (typeof sessionStorage === 'undefined') {
-      return null;
-    }
-    const stored = sessionStorage.getItem(LAST_APPOINTMENT_KEY);
-    if (!stored) {
-      return null;
-    }
-    return stored;
-  }
 
   loadForAppointment(appointmentId: string): Observable<void> {
     return forkJoin({
@@ -131,9 +117,7 @@ export class OdontogramaStateService {
     }).pipe(
       tap(({ odonto, perio, appointment }) => {
         this.appointmentId = appointmentId;
-        if (typeof sessionStorage !== 'undefined') {
-          sessionStorage.setItem(LAST_APPOINTMENT_KEY, String(appointmentId));
-        }
+        this.clinicalAttention.record(appointmentId, 'odontograma');
 
         // Ausente = editable: si el backend no opina, manda él al guardar.
         const editable = odonto.editable !== false && perio.editable !== false;

@@ -59,6 +59,20 @@ export const routes: Routes = [
     pathMatch: 'full'
   },
   {
+    path: 'historia-clinica/:appointmentId',
+    canActivate: [authGuard],
+    data: { capability: Capability.HISTORIA_CLINICA_FREE_VIEW },
+    loadComponent: () =>
+      import('./features/historia-clinica/components/historia-clinica-view/historia-clinica-view.component').then(
+        m => m.HistoriaClinicaViewComponent
+      )
+  },
+  {
+    path: 'historia-clinica',
+    redirectTo: 'turnos',
+    pathMatch: 'full'
+  },
+  {
     path: 'seguimiento',
     canActivate: [authGuard],
     data: { capability: Capability.SEGUIMIENTO_VIEW },

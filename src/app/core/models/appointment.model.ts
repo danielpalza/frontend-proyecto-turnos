@@ -5,12 +5,15 @@ export interface Appointment {
   id?: string;
   patientId: string;
   profesionalId?: string;
+  moduloClinicoId: string;
   patientNombre?: string;
   patientApellido?: string;
   patientIdentificacion?: string;
   patientCoberturaNumero?: string;
   profesionalNombre?: string;
   profesionalApellido?: string;
+  moduloClinicoCodigo?: string;
+  moduloClinicoNombre?: string;
   fecha: string;
   hora?: string;
   estado?: AppointmentStatus;
@@ -34,6 +37,8 @@ export type AppointmentStatus =
 export interface AppointmentCreateDTO {
   patientId: string;
   profesionalId?: string;
+  /** Obligatorio: qué ficha clínica corresponde a este turno (selección manual, sin default). */
+  moduloClinicoId: string;
   fecha: string;
   hora?: string;
   estado?: AppointmentStatus;

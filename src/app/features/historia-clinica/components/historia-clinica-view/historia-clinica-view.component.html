@@ -1,0 +1,28 @@
+<div class="historia-clinica-container" data-testid="historia-clinica-page">
+  @if (loading()) {
+    <div class="text-center py-5" data-testid="historia-clinica-loading">
+      <div class="spinner-border text-primary" role="status"></div>
+      <p class="mt-2 text-muted">Cargando historia clínica...</p>
+    </div>
+  }
+
+  @if (loadError()) {
+    <div class="alert alert-danger" data-testid="historia-clinica-error">{{ loadError() }}</div>
+  }
+
+  @if (!loading() && !loadError() && !editable()) {
+    <div class="alert alert-warning d-flex align-items-start gap-2" role="status"
+      data-testid="historia-clinica-readonly-banner">
+      <i class="bi bi-lock-fill mt-1"></i>
+      <div>
+        <strong>Registro cerrado.</strong>
+        Esta historia clínica ya fue firmada, o el paciente tiene un registro clínico posterior.
+        No se puede modificar.
+      </div>
+    </div>
+  }
+
+  @if (!loading() && !loadError()) {
+    <app-historia-clinica-form></app-historia-clinica-form>
+  }
+</div>

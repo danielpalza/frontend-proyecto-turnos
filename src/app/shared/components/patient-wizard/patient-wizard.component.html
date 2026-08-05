@@ -54,6 +54,7 @@
         [existingPatients]="existingPatients"
         [selectedPatient]="selectedPatient"
         [profesionales]="profesionales"
+        [clinicalModules]="clinicalModules"
         [isCheckingAvailability]="isCheckingAvailability"
         [availabilityError]="availabilityError"
         [calcularResto]="calcularResto"
@@ -93,6 +94,10 @@
                     <div class="review-field">
                       <dt>Profesional</dt>
                       <dd [class.review-empty]="!getProfesionalLabel()">{{ getProfesionalLabel() || 'Sin datos' }}</dd>
+                    </div>
+                    <div class="review-field">
+                      <dt>Módulo clínico</dt>
+                      <dd [class.review-empty]="!getModuloClinicoLabel()">{{ getModuloClinicoLabel() || 'Sin datos' }}</dd>
                     </div>
                   }
                 </dl>

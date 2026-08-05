@@ -15,6 +15,7 @@ export type ModuleCode =
   | 'PANEL'
   | 'TURNOS'
   | 'ODONTOGRAMA'
+  | 'HISTORIA_CLINICA_FREE'
   | 'SEGUIMIENTO'
   | 'COBERTURA'
   | 'CONFIGURACIONES';
@@ -29,6 +30,9 @@ export const Capability = {
 
   ODONTOGRAMA_VIEW: 'ODONTOGRAMA:VIEW',
   ODONTOGRAMA_EDIT: 'ODONTOGRAMA:EDIT',
+
+  HISTORIA_CLINICA_FREE_VIEW: 'HISTORIA_CLINICA_FREE:VIEW',
+  HISTORIA_CLINICA_FREE_EDIT: 'HISTORIA_CLINICA_FREE:EDIT',
 
   SEGUIMIENTO_VIEW: 'SEGUIMIENTO:VIEW',
   SEGUIMIENTO_PACIENTES: 'SEGUIMIENTO:PACIENTES',
@@ -62,6 +66,7 @@ export const MODULE_CAPABILITIES: Record<ModuleCode, readonly Capability[]> = {
     Capability.TURNOS_NOTIFY
   ],
   ODONTOGRAMA: [Capability.ODONTOGRAMA_VIEW, Capability.ODONTOGRAMA_EDIT],
+  HISTORIA_CLINICA_FREE: [Capability.HISTORIA_CLINICA_FREE_VIEW, Capability.HISTORIA_CLINICA_FREE_EDIT],
   SEGUIMIENTO: [
     Capability.SEGUIMIENTO_VIEW,
     Capability.SEGUIMIENTO_PACIENTES,
@@ -89,19 +94,30 @@ export const MODULE_CAPABILITIES: Record<ModuleCode, readonly Capability[]> = {
 export const MODULE_IMPLICATIONS: Partial<Record<ModuleCode, readonly Capability[]>> = {
   // Regla A (parcial): entra a la pestaña Turnos para poder iniciar un turno.
   ODONTOGRAMA: [Capability.TURNOS_VIEW],
+  // Regla A (parcial): mismo spillover que ODONTOGRAMA — cualquier módulo clínico necesita ver la
+  // agenda para poder iniciar un turno.
+  HISTORIA_CLINICA_FREE: [Capability.TURNOS_VIEW],
   // Regla B (total): la turnera habilita Seguimiento completo.
   TURNOS: MODULE_CAPABILITIES.SEGUIMIENTO
 };
 
 /** Presets del modal de profesional. Tildan módulos, no capacidades. */
 export const MODULE_PRESETS: { id: string; label: string; modules: readonly ModuleCode[] }[] = [
-  { id: 'PROFESIONAL', label: 'Profesional', modules: ['ODONTOGRAMA'] },
+  { id: 'PROFESIONAL', label: 'Profesional', modules: ['ODONTOGRAMA', 'HISTORIA_CLINICA_FREE'] },
   { id: 'RECEPCION', label: 'Recepción', modules: ['TURNOS', 'COBERTURA'] },
   { id: 'ADMINISTRACION', label: 'Administración', modules: ['PANEL', 'TURNOS', 'CONFIGURACIONES'] },
   {
     id: 'TODOS',
     label: 'Todos',
-    modules: ['PANEL', 'TURNOS', 'ODONTOGRAMA', 'SEGUIMIENTO', 'COBERTURA', 'CONFIGURACIONES']
+    modules: [
+      'PANEL',
+      'TURNOS',
+      'ODONTOGRAMA',
+      'HISTORIA_CLINICA_FREE',
+      'SEGUIMIENTO',
+      'COBERTURA',
+      'CONFIGURACIONES'
+    ]
   }
 ];
 

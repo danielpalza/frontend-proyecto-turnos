@@ -20,6 +20,7 @@ export const MODULE_OPTIONS: { code: string; label: string }[] = [
   { code: 'PANEL', label: 'Panel' },
   { code: 'TURNOS', label: 'Turnos' },
   { code: 'ODONTOGRAMA', label: 'Odontograma' },
+  { code: 'HISTORIA_CLINICA_FREE', label: 'Historia Clínica' },
   { code: 'SEGUIMIENTO', label: 'Seguimiento' },
   { code: 'COBERTURA', label: 'Cobertura' },
   { code: 'CONFIGURACIONES', label: 'Configuración' }

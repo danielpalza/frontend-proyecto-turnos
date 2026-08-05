@@ -20,6 +20,7 @@ const MODULE_ICONS: Record<string, string> = {
   PANEL: 'bi-speedometer2',
   TURNOS: 'bi-calendar',
   ODONTOGRAMA: 'bi-heart-pulse',
+  HISTORIA_CLINICA_FREE: 'bi-file-earmark-medical',
   SEGUIMIENTO: 'bi-clipboard-data',
   COBERTURA: 'bi-shield-check',
   CONFIGURACIONES: 'bi-gear'

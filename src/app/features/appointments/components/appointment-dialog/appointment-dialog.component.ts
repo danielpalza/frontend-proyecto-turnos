@@ -5,6 +5,8 @@ import { Subject, of } from 'rxjs';
 import { takeUntil, debounceTime, distinctUntilChanged, switchMap, catchError } from 'rxjs/operators';
 import { Patient, Profesional, AppointmentCreateDTO } from '../../../../core/models';
 import { AppointmentsService } from '../../../../core/services/appointments.service';
+import { ModuleRulesService } from '../../../../core/services/module-rules.service';
+import { ClinicalModuleRule } from '../../../../core/models/module-rules.model';
 import { ScrollLockDirective } from '../../../../shared/directives/scroll-lock.directive';
 import { PatientWizardComponent, getPatientFormConfig } from '../../../../shared';
 
@@ -32,6 +34,8 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
   selectedPatient: Patient | null = null;
   isNewPatient = true;
   showPatientDropdown = false;
+  /** Módulos clínicos disponibles (esModuloClinico=true) para el selector obligatorio del turno. */
+  clinicalModules: ClinicalModuleRule[] = [];
 
   private readonly PATIENT_FIELDS = [
     'nombre', 'apellido', 'fechaNacimiento', 'edad', 'identificacion', 'telefono', 'email',
@@ -45,14 +49,19 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
   private destroy$ = new Subject<void>();
 
   constructor(
-    private fb: FormBuilder, 
+    private fb: FormBuilder,
     private elRef: ElementRef,
-    private appointmentsService: AppointmentsService
+    private appointmentsService: AppointmentsService,
+    private moduleRulesService: ModuleRulesService
   ) {}
 
   ngOnInit(): void {
     this.initForm();
     this.setupHoraAvailabilityValidation();
+    this.moduleRulesService.getClinicalModules().subscribe({
+      next: modules => (this.clinicalModules = modules),
+      error: err => console.error('No se pudieron cargar los módulos clínicos:', err)
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -68,6 +77,7 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
     this.form = this.fb.group({
       ...getPatientFormConfig(this.fb),
       profesionalId: [''],
+      moduloClinicoId: ['', Validators.required],
       hora: ['09:00'],
       observacionesTurno: [''],
       precioBono: [null, [Validators.min(0), Validators.max(AppointmentDialogComponent.MAX_MONTO)]],
@@ -384,6 +394,7 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
     const appointmentData: AppointmentCreateDTO = {
       patientId: this.selectedPatient?.id || '', // Se actualizará si es paciente nuevo
       profesionalId: raw.profesionalId || undefined,
+      moduloClinicoId: raw.moduloClinicoId,
       fecha: this.selectedDate || '',
       hora: this.normalizeTime(raw.hora), // Normalizar formato de hora
       estado: 'PENDIENTE',
