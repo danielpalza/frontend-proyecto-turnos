@@ -4,8 +4,10 @@
   <div class="modal-dialog modal-xl modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Nueva Cita</h5>
-        <small class="text-muted ms-2">{{ formatDisplayDate(selectedDate) }}</small>
+        <div class="modal-title-wrap">
+          <h5 class="modal-title">Nueva Cita</h5>
+          <small class="text-muted ms-2">{{ formatDisplayDate(selectedDate) }}</small>
+        </div>
         <button type="button" class="btn-close" (click)="close()" [disabled]="isLoading" data-testid="appointment-close-btn"></button>
       </div>
 
@@ -16,6 +18,7 @@
         [existingPatients]="existingPatients"
         [selectedPatient]="selectedPatient"
         [profesionales]="profesionales"
+        [clinicalModules]="clinicalModules"
         [isCheckingAvailability]="isCheckingAvailability"
         [availabilityError]="availabilityError"
         [calcularResto]="calcularResto.bind(this)"

@@ -2,39 +2,53 @@
 @use 'mixins' as *;
 
 .modal {
-  z-index: 1050;
+  @include modal-centering;
 }
 
 .modal-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1040;
+  @include modal-backdrop;
 }
 
 .modal-dialog {
-  position: relative;
-  z-index: 1055;
-  margin: 1.75rem auto;
+  @include modal-dialog(71.25rem); // 1140px, mismo ancho que Bootstrap .modal-xl
   max-height: calc(100vh - 3.5rem);
 }
 
 .modal-content {
-  border-radius: $radius-xl;
-  border: none;
-  box-shadow: $shadow-xl;
+  @include modal-content;
 }
 
 .modal-header {
-  border-bottom: 1px solid $border-color;
-  padding: $spacing-xl $spacing-2xl;
-  
-  .modal-title {
-    font-weight: 600;
-    color: $text-primary;
-  }
+  @include modal-header;
 }
 
+.modal-title-wrap {
+  display: flex;
+  align-items: baseline;
+}
+
+.modal-title {
+  @include modal-title;
+}
+
+@include mobile {
+  .modal {
+    align-items: flex-end;
+    padding: $spacing-md;
+  }
+
+  .modal-dialog {
+    margin: 0;
+    width: 100%;
+    max-width: 100%;
+    max-height: calc(100vh - 2rem);
+  }
+
+  .modal-content {
+    border-radius: $radius-xl $radius-xl 0 0;
+  }
+
+  .modal-header {
+    padding: $spacing-lg;
+  }
+}

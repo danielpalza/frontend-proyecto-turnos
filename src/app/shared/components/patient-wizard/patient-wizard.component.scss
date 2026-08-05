@@ -269,3 +269,48 @@
     padding: 0.5rem 1.5rem;
   }
 }
+
+@include mobile {
+  .wizard-shell {
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .wizard-sidebar {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    gap: $spacing-md;
+    padding: $spacing-lg;
+    border-right: none;
+    border-bottom: 1px solid $border-color;
+  }
+
+  .wizard-stepper,
+  .required-hint {
+    display: none;
+  }
+
+  .wizard-progress {
+    flex: 1;
+    padding: 0;
+    border: none;
+    background: none;
+  }
+
+  .wizard-content {
+    padding: $spacing-lg;
+  }
+
+  .review-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wizard-footer {
+    padding: $spacing-lg;
+
+    .wizard-footer-right {
+      gap: $spacing-sm;
+    }
+  }
+}
