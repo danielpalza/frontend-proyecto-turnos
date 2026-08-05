@@ -110,3 +110,19 @@
     }
   }
 }
+
+@include mobile {
+  .modal-dialog-centered {
+    align-items: flex-end;
+  }
+
+  .modal-dialog {
+    margin: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .modal-content {
+    border-radius: $radius-xl $radius-xl 0 0;
+  }
+}
