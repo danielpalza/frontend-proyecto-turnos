@@ -54,6 +54,7 @@ export interface Intermediario {
   web?: string | null;
   notas?: string | null;
   coberturaIds: string[];
+  documentos: DocumentoAdjunto[];
   createdAt?: string | null;
   updatedAt?: string | null;
 }

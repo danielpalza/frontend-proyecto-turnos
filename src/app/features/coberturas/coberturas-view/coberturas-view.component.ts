@@ -406,6 +406,57 @@ export class CoberturasViewComponent implements OnInit {
     });
   }
 
+  onSubirDocumentoIntermediario(intermediario: Intermediario, files: FileList | null, tipoDocumento: string): void {
+    if (!files || files.length === 0) return;
+    const file = files[0];
+    const ext = file.name.split('.').pop()?.toLowerCase();
+
+    if (!ext || !EXTENSIONES_PERMITIDAS.includes(ext)) {
+      this.notification.showError('Solo se aceptan archivos .pdf, .docx o .doc');
+      return;
+    }
+    if (file.size > TAMANO_MAXIMO_BYTES) {
+      this.notification.showError('El archivo supera el tamaño máximo permitido de 20MB');
+      return;
+    }
+
+    this.intermediariosService.subirArchivo(intermediario.id, file, tipoDocumento || undefined).subscribe({
+      next: documento => {
+        this.intermediarios.update(lista =>
+          lista.map(i => (i.id === intermediario.id ? { ...i, documentos: [...i.documentos, documento] } : i))
+        );
+        this.notification.showSuccess('Archivo subido correctamente.');
+      },
+      error: (err: HttpErrorResponse) => {
+        this.notification.showError(this.errorHandler.getErrorMessage(err, 'subir el archivo'));
+      }
+    });
+  }
+
+  onDescargarDocumentoIntermediario(archivoId: string, nombreArchivo: string): void {
+    this.intermediariosService.descargarArchivo(archivoId, nombreArchivo).subscribe({
+      error: (err: HttpErrorResponse) => {
+        this.notification.showError(this.errorHandler.getErrorMessage(err, 'descargar el archivo'));
+      }
+    });
+  }
+
+  onEliminarDocumentoIntermediario(intermediario: Intermediario, archivoId: string): void {
+    if (!confirm('¿Eliminar este archivo?')) return;
+    this.intermediariosService.eliminarArchivo(archivoId).subscribe({
+      next: () => {
+        this.intermediarios.update(lista =>
+          lista.map(i =>
+            i.id === intermediario.id ? { ...i, documentos: i.documentos.filter(d => d.id !== archivoId) } : i
+          )
+        );
+      },
+      error: (err: HttpErrorResponse) => {
+        this.notification.showError(this.errorHandler.getErrorMessage(err, 'eliminar el archivo'));
+      }
+    });
+  }
+
   // --- Modal de intermediarios (crear/editar) ---
 
   abrirModal(): void {

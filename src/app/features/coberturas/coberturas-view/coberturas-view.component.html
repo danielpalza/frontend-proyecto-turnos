@@ -125,6 +125,47 @@
                 <span>{{ i.notas }}</span>
               </div>
             }
+
+            <div class="cob-detail-row">
+              <i class="bi bi-file-earmark"></i>
+              <span>Documentos ({{ i.documentos.length }})</span>
+            </div>
+            <div class="cob-upload-row">
+              <select class="cob-tipo-doc-select" [attr.data-testid]="'intermediario-tipo-doc-select-' + i.id" #tipoDocSelInt>
+                @for (tipo of tiposDocumento; track tipo.codigo) {
+                  <option [value]="tipo.codigo">{{ tipo.nombre }}</option>
+                }
+              </select>
+              <label class="cob-upload-label" [appCan]="Capability.COBERTURA_MANAGE" [attr.data-testid]="'intermediario-doc-upload-btn-' + i.id">
+                Subir archivo
+                <input
+                  type="file"
+                  accept=".pdf,.docx,.doc"
+                  hidden
+                  (change)="onSubirDocumentoIntermediario(i, $any($event.target).files, tipoDocSelInt.value); $any($event.target).value = ''"
+                />
+              </label>
+            </div>
+
+            @for (doc of i.documentos; track doc.id) {
+              <div class="cob-detail-row cob-detail-row--doc">
+                <i class="bi bi-file-earmark-text"></i>
+                <span
+                  class="cob-doc-nombre"
+                  [attr.data-testid]="'intermediario-doc-descargar-' + doc.id"
+                  (click)="onDescargarDocumentoIntermediario(doc.id, doc.nombreArchivo)"
+                >{{ doc.nombreArchivo }}</span>
+                <button
+                  type="button"
+                  class="cob-icon-btn cob-icon-btn--danger"
+                  [appCan]="Capability.COBERTURA_MANAGE" [attr.data-testid]="'intermediario-doc-borrar-' + doc.id"
+                  (click)="onEliminarDocumentoIntermediario(i, doc.id)"
+                  title="Eliminar"
+                >
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            }
           </div>
         </div>
       }

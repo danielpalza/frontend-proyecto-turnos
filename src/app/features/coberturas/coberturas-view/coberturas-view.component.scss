@@ -419,30 +419,18 @@
 // (backdrop con blur + fade-in, modal-content con icon-circle en el header).
 // ---------------------------------------------------------------
 .modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba($text-primary, 0.45);
-  backdrop-filter: blur(4px);
-  z-index: 1040;
-  animation: modalBackdropFadeIn $transition-slow forwards;
+  @include modal-backdrop;
 }
 
 .modal {
+  @include modal-centering($spacing-lg);
   position: fixed;
   inset: 0;
-  z-index: 1050;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: $spacing-lg;
   overflow-y: auto;
 }
 
 .modal-dialog-cob {
-  position: relative;
-  width: 100%;
-  max-width: 28rem;
-  animation: modalDialogFadeIn $transition-slow forwards;
+  @include modal-dialog(28rem);
 
   &--wide {
     max-width: 42rem;
@@ -450,29 +438,18 @@
 }
 
 .modal-content {
-  background: $card-background;
-  border: 1px solid $border-color;
-  border-radius: $radius-xl;
-  box-shadow: $shadow-xl;
-  overflow: hidden;
+  @include modal-content;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
 }
 
 .modal-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: $spacing-lg;
-  padding: $spacing-xl $spacing-2xl;
-  border-bottom: 1px solid $border-color;
+  @include modal-header;
 }
 
 .title-block {
-  display: flex;
-  gap: $spacing-md;
-  align-items: flex-start;
+  @include modal-title-block;
 }
 
 .icon-circle {
@@ -480,16 +457,11 @@
 }
 
 .modal-title {
-  margin: 0 0 0.2rem;
-  font-weight: 600;
-  font-size: 1.125rem;
-  color: $text-primary;
+  @include modal-title;
 }
 
 .modal-subtitle {
-  margin: 0;
-  color: $text-secondary;
-  font-size: 0.85rem;
+  @include modal-subtitle;
 }
 
 .btn-modal-close {
@@ -497,8 +469,7 @@
 }
 
 .modal-body {
-  padding: $spacing-2xl;
-  overflow-y: auto;
+  @include modal-body($max-height: none);
 }
 
 .form-label {
@@ -519,39 +490,14 @@
 }
 
 .modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-  gap: $spacing-sm;
-  padding: $spacing-lg $spacing-2xl;
-  border-top: 1px solid $border-color;
+  @include modal-footer;
 
   .btn {
-    padding: 0.625rem 1.25rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    border-radius: $radius-md;
-    transition: all $transition-base;
-    cursor: pointer;
-
-    &:disabled {
-      opacity: 0.65;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
+    @include modal-btn-base;
   }
 
   .btn-outline-secondary {
-    background-color: transparent;
-    border: 1px solid $border-color;
-    color: $text-primary;
-
-    &:hover:not(:disabled) {
-      background-color: $hover-bg;
-      border-color: $primary-color;
-      color: $primary-color;
-    }
+    @include modal-btn-outline-secondary;
   }
 
   .btn-primary {
