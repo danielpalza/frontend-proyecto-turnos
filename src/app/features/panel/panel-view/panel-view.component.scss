@@ -75,6 +75,7 @@
 
 .date-range-selectors {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: $spacing-md;
 }

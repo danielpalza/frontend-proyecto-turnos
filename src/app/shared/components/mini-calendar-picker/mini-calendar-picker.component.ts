@@ -20,6 +20,11 @@ interface CalendarDay {
   isDisabled?: boolean;
 }
 
+// Coincide con el ancho fijo de .picker-dropdown (16.5rem) en mini-calendar-picker.component.scss.
+const DROPDOWN_WIDTH = 264;
+const DROPDOWN_OFFSET = 6;
+const VIEWPORT_MARGIN = 8;
+
 @Component({
   selector: 'app-mini-calendar-picker',
   standalone: true,
@@ -38,6 +43,7 @@ export class MiniCalendarPickerComponent implements OnChanges {
 
   isOpen = false;
   calendarDays: CalendarDay[] = [];
+  dropdownPos = { top: 0, left: 0 };
 
   readonly weekDays = ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'];
 
@@ -67,11 +73,28 @@ export class MiniCalendarPickerComponent implements OnChanges {
     return `${day}/${month}/${year}`;
   }
 
-  toggleOpen(): void {
+  toggleOpen(event: Event): void {
     this.isOpen = !this.isOpen;
     if (this.isOpen) {
       this.generateCalendar();
+      const trigger = event.currentTarget as HTMLElement;
+      this.dropdownPos = this.computePosition(trigger.getBoundingClientRect());
     }
+  }
+
+  // Se cierra en vez de reposicionarse: la posición calculada quedaría desalineada del trigger.
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    this.isOpen = false;
+  }
+
+  private computePosition(rect: DOMRect): { top: number; left: number } {
+    const left = Math.max(
+      VIEWPORT_MARGIN,
+      Math.min(rect.left, window.innerWidth - DROPDOWN_WIDTH - VIEWPORT_MARGIN)
+    );
+    const top = rect.bottom + DROPDOWN_OFFSET;
+    return { top, left };
   }
 
   onDaySelect(day: CalendarDay): void {
