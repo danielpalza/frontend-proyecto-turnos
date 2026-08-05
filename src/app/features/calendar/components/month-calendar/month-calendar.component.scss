@@ -351,4 +351,24 @@
   .summary-grid {
     grid-template-columns: 1fr;
   }
+
+  .weekdays,
+  .days-grid {
+    padding: 0 $spacing-xs;
+  }
+
+  .day-cell {
+    min-height: 3.25rem;
+    padding: $spacing-xs;
+    gap: 2px;
+  }
+
+  .day-number {
+    font-size: 0.8rem;
+  }
+
+  .day-status-badges {
+    column-gap: 3px;
+    row-gap: 2px;
+  }
 }
