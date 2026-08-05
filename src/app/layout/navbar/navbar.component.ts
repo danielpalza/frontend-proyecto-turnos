@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
@@ -50,9 +50,6 @@ export class NavbarComponent implements OnInit {
    * la vez, sin importar el módulo, así que no tiene sentido una pestaña por módulo.
    */
   private clinicalModules: ClinicalModuleRule[] = [];
-
-  /** Menú desplegable de mobile (ver $breakpoint-sm en _variables.scss). */
-  menuOpen = false;
 
   constructor(
     private router: Router,
@@ -131,24 +128,6 @@ export class NavbarComponent implements OnInit {
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
-  }
-
-  toggleMenu(): void {
-    this.menuOpen = !this.menuOpen;
-  }
-
-  closeMenu(): void {
-    this.menuOpen = false;
-  }
-
-  // Coincide con $breakpoint-sm en _variables.scss: si la pantalla vuelve a
-  // tamaño desktop con el menú mobile abierto, lo cerramos para no dejarlo
-  // "colgado" al redimensionar/rotar.
-  @HostListener('window:resize')
-  onWindowResize(): void {
-    if (this.menuOpen && window.innerWidth >= 768) {
-      this.menuOpen = false;
-    }
   }
 
 }

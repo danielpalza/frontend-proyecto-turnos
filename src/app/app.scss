@@ -1,4 +1,5 @@
 @use 'variables' as *;
+@use 'mixins' as *;
 
 :host {
   display: block;
@@ -14,6 +15,14 @@
 
 .main-content {
   display: block;
+}
+
+// El navbar mobile termina en una barra de navegación inferior fija
+// (ver navbar.component.scss); dejamos espacio para que no tape el contenido.
+@include mobile {
+  app-navbar + .main-content {
+    padding-bottom: $bottom-nav-height;
+  }
 }
 
 // Ocultar flechas de los inputs de tipo number

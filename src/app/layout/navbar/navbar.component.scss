@@ -31,34 +31,6 @@
   color: $text-primary;
 }
 
-.navbar-toggle {
-  display: none;
-  align-items: center;
-  justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  border: 1px solid $border-color;
-  background-color: transparent;
-  color: $text-primary;
-  border-radius: $radius-md;
-  font-size: 1.25rem;
-  cursor: pointer;
-  transition: all $transition-base;
-
-  &:hover {
-    background-color: $hover-bg;
-  }
-}
-
-// En desktop el wrapper no debe alterar el layout existente (brand
-// absoluto a la izq., tabs centrados por justify-content, user absoluto
-// a la der.): "display: contents" lo saca del box model y sus hijos
-// (nav-tabs, navbar-user) siguen participando directo del flex de
-// .navbar-container, como si este div no existiera.
-.navbar-menu {
-  display: contents;
-}
-
 .nav-tabs {
   display: flex;
   gap: $spacing-sm;
@@ -113,9 +85,18 @@
 }
 
 .navbar-user-name {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
   font-size: 0.875rem;
   font-weight: 500;
   color: $text-secondary;
+}
+
+// Solo se usa en mobile, donde reemplaza al texto (ver @include mobile más abajo).
+.navbar-user-icon {
+  display: none;
+  font-size: 1.25rem;
 }
 
 .btn-logout {
@@ -147,6 +128,9 @@
   .navbar-container {
     justify-content: space-between;
     padding: 0.75rem 1rem;
+    // El contenido ya no crece hacia abajo (la barra de tabs es fija), pero
+    // dejamos espacio abajo por si el navbar-container necesitara scroll propio.
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
   }
 
   .navbar-brand {
@@ -161,56 +145,65 @@
     max-width: 40vw;
   }
 
-  .navbar-toggle {
-    display: flex;
-  }
-
-  // El wrapper deja de ser transparente al layout y pasa a ser el panel
-  // desplegable: se posiciona debajo de la navbar como overlay (no empuja
-  // el contenido), para no afectar los `calc(100vh - $navbar-height ...)`
-  // que ya usan otras vistas asumiendo una navbar de altura fija.
-  .navbar-menu {
-    display: flex;
-    flex-direction: column;
-    position: absolute;
-    top: 100%;
+  // Barra de navegación inferior, siempre visible (sin toggle/colapso).
+  .nav-tabs {
+    position: fixed;
+    bottom: 0;
     left: 0;
     right: 0;
-    max-height: 0;
-    overflow: hidden;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    gap: 0;
+    height: $bottom-nav-height;
+    padding: $spacing-sm $spacing-xs calc(#{$spacing-sm} + env(safe-area-inset-bottom));
     background-color: $card-background;
-    border-bottom: 1px solid $border-color;
-    box-shadow: $shadow-md;
-    transition: max-height $transition-base;
-    z-index: 20;
-
-    &.open {
-      max-height: calc(100vh - #{$navbar-height});
-      overflow-y: auto;
-    }
-  }
-
-  .nav-tabs {
-    flex-direction: column;
-    background-color: transparent;
-    padding: $spacing-sm;
+    border-top: 1px solid $border-color;
     border-radius: 0;
+    box-shadow: $shadow-md;
+    z-index: 20;
   }
 
   .nav-tab {
-    width: 100%;
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    gap: $spacing-xs;
+    min-height: 2.75rem;
+    padding: 0.375rem;
+    width: auto;
+
+    span {
+      display: none;
+    }
+
+    i {
+      font-size: 1.25rem;
+    }
   }
 
+  // Donde antes estaba el botón hamburguesa: usuario + logout, solo ícono.
   .navbar-user {
     position: static;
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row;
+    align-items: center;
     gap: $spacing-sm;
-    padding: $spacing-sm $spacing-lg $spacing-lg;
-    border-top: 1px solid $border-color;
+  }
+
+  .navbar-user-name-text {
+    display: none;
+  }
+
+  .navbar-user-icon {
+    display: block;
+    color: $text-secondary;
   }
 
   .btn-logout {
-    justify-content: center;
+    padding: 0.5rem;
+
+    span {
+      display: none;
+    }
   }
 }

@@ -4,40 +4,30 @@
     <span *ngIf="organizationNombre" data-testid="navbar-organization-name">{{ organizationNombre }}</span>
   </div>
 
-  <button
-    type="button"
-    class="navbar-toggle"
-    (click)="toggleMenu()"
-    [attr.aria-expanded]="menuOpen"
-    aria-label="Abrir menú de navegación"
-    data-testid="navbar-toggle"
-  >
-    <i class="bi" [ngClass]="menuOpen ? 'bi-x-lg' : 'bi-list'"></i>
-  </button>
+  <div class="nav-tabs" data-testid="navbar-tabs">
+    <a
+      *ngFor="let item of menuItems"
+      class="nav-tab"
+      [routerLink]="item.requiresAppointment ? null : item.route"
+      routerLinkActive="active"
+      [class.active]="item.requiresAppointment && isAtencionActive()"
+      (click)="onNavClick(item, $event)"
+      [attr.href]="item.requiresAppointment ? null : item.route"
+      [attr.data-testid]="'navbar-tab-' + navItemTestId(item)"
+    >
+      <i class="bi" [ngClass]="item.icon"></i>
+      <span>{{ item.title }}</span>
+    </a>
+  </div>
 
-  <div class="navbar-menu" [class.open]="menuOpen" data-testid="navbar-menu">
-    <div class="nav-tabs" data-testid="navbar-tabs">
-      <a
-        *ngFor="let item of menuItems"
-        class="nav-tab"
-        [routerLink]="item.requiresAppointment ? null : item.route"
-        routerLinkActive="active"
-        [class.active]="item.requiresAppointment && isAtencionActive()"
-        (click)="onNavClick(item, $event); closeMenu()"
-        [attr.href]="item.requiresAppointment ? null : item.route"
-        [attr.data-testid]="'navbar-tab-' + navItemTestId(item)"
-      >
-        <i class="bi" [ngClass]="item.icon"></i>
-        <span>{{ item.title }}</span>
-      </a>
-    </div>
-
-    <div class="navbar-user" data-testid="navbar-user">
-      <span *ngIf="userFullName" class="navbar-user-name" data-testid="navbar-user-name">{{ userFullName }}</span>
-      <button class="btn-logout" (click)="logout()" title="Cerrar sesión" data-testid="navbar-logout-btn">
-        <i class="bi bi-box-arrow-right"></i>
-        <span>Salir</span>
-      </button>
-    </div>
+  <div class="navbar-user" data-testid="navbar-user">
+    <span *ngIf="userFullName" class="navbar-user-name" [attr.title]="userFullName" data-testid="navbar-user-name">
+      <i class="bi bi-person-circle navbar-user-icon"></i>
+      <span class="navbar-user-name-text">{{ userFullName }}</span>
+    </span>
+    <button class="btn-logout" (click)="logout()" title="Cerrar sesión" data-testid="navbar-logout-btn">
+      <i class="bi bi-box-arrow-right"></i>
+      <span>Salir</span>
+    </button>
   </div>
 </nav>
