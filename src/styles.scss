@@ -7,9 +7,8 @@
 // Importar Bootstrap Icons
 @import "bootstrap-icons/font/bootstrap-icons.css";
 
-// Fuente personalizada
-// Poppins con subset latin-ext (incluye acentos y ñ del español: í, á, é, ó, ú, ñ, ü)
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap&subset=latin-ext');
+// Fuente Poppins: cargada vía <link> en index.html (preconnect + stylesheet),
+// no acá, para evitar pedirla dos veces.
 
 // Estilos globales - CRÍTICO PARA EL SCROLL
 * {
@@ -604,5 +603,5 @@ html.seguimiento-view-active body::-webkit-scrollbar {
 //
 // REFACTORIZACIÓN RECOMENDADA:
 // Los componentes pueden migrar gradualmente a usar estas clases y mixins
-// en lugar de duplicar estilos. Ver ANALISIS-ESTILOS-COMPARATIVO.md para más detalles.
+// en lugar de duplicar estilos. Ver docs/DESIGN_SYSTEM.md para más detalles.
 //

@@ -3,25 +3,12 @@
 @use 'mixins' as *;
 
 .confirm-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba($text-primary, 0.45);
-  backdrop-filter: blur(6px);
-  z-index: 1050;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: $spacing-lg;
-  animation: modalBackdropFadeIn $transition-slow forwards;
+  @include modal-backdrop-centered($blur: 6px, $padding: $spacing-lg);
 }
 
 .confirm-modal {
+  @include modal-content($shadow: $shadow-modal);
   width: min(28rem, 100%);
-  background: $card-background;
-  border: 1px solid $border-color;
-  border-radius: $radius-xl;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  overflow: hidden;
   animation: confirmModalFadeIn $transition-slow forwards;
 
   &--danger {
@@ -144,35 +131,15 @@
   background: linear-gradient(to bottom, $card-background, color.mix(white, $background-color, 35%));
 
   .btn {
+    @include modal-btn-base;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: $spacing-sm;
-    padding: 0.625rem 1.25rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    border-radius: $radius-md;
-    transition: all $transition-base;
-    cursor: pointer;
-
-    &:disabled {
-      opacity: 0.65;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
   }
 
   .btn-outline-secondary {
-    background-color: transparent;
-    border: 1px solid $border-color;
-    color: $text-primary;
-
-    &:hover:not(:disabled) {
-      background-color: $hover-bg;
-      border-color: $primary-color;
-      color: $primary-color;
-    }
+    @include modal-btn-outline-secondary;
   }
 
   .btn-danger {

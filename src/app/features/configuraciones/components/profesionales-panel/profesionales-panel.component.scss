@@ -236,28 +236,14 @@
 
 // Modal confirmación de eliminación de profesional
 .modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba($text-primary, 0.45);
-  backdrop-filter: blur(4px);
-  z-index: 1040;
-  animation: modalBackdropFadeIn $transition-slow forwards;
+  @include modal-backdrop;
 }
 
 [data-testid='settings-delete-user-dialog'] {
-  z-index: 1050;
-  display: flex !important;
-  align-items: center;
-  justify-content: center;
-  padding: $spacing-md;
+  @include modal-centering;
 
   .modal-dialog {
-    position: relative;
-    z-index: 1055;
-    margin: 0;
-    width: 100%;
-    max-width: 36rem;
-    animation: modalDialogFadeIn $transition-slow forwards;
+    @include modal-dialog(36rem);
 
     &.modal-dialog-delete {
       max-width: 32rem;
@@ -265,19 +251,13 @@
   }
 
   .modal-content {
-    background: $card-background;
-    border: 1px solid $border-color;
-    border-radius: $radius-xl;
-    box-shadow: $shadow-xl;
-    overflow: hidden;
+    @include modal-content;
   }
 
   .delete-modal-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: $spacing-lg;
+    @include modal-header;
     padding: $spacing-xl $spacing-2xl $spacing-lg;
+    border-bottom: none;
     background: $card-background;
   }
 
@@ -318,9 +298,7 @@
   }
 
   .modal-body {
-    padding: $spacing-2xl;
-    max-height: calc(100vh - 12rem);
-    overflow-y: auto;
+    @include modal-body;
 
     .delete-modal-message {
       margin: 0 0 $spacing-sm;
@@ -390,40 +368,15 @@
   }
 
   .modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    flex-wrap: wrap;
-    gap: $spacing-sm;
-    border-top: 1px solid $border-color;
-    padding: $spacing-lg $spacing-2xl;
+    @include modal-footer;
     background: $card-background;
 
     .btn {
-      padding: 0.625rem 1.25rem;
-      font-size: 0.875rem;
-      font-weight: 500;
-      border-radius: $radius-md;
-      transition: all $transition-base;
-      cursor: pointer;
-
-      &:disabled {
-        opacity: 0.65;
-        cursor: not-allowed;
-        transform: none;
-        box-shadow: none;
-      }
+      @include modal-btn-base;
     }
 
     .btn-outline-secondary {
-      background-color: transparent;
-      border: 1px solid $border-color;
-      color: $text-primary;
-
-      &:hover:not(:disabled) {
-        background-color: $hover-bg;
-        border-color: $primary-color;
-        color: $primary-color;
-      }
+      @include modal-btn-outline-secondary;
     }
 
     .btn-danger {
