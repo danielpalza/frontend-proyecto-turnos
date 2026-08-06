@@ -13,26 +13,38 @@
 }
 
 .navbar-brand {
-  position: absolute;
-  left: 1.5rem;
   display: flex;
   align-items: center;
   gap: $spacing-sm;
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .navbar-logo {
   height: 2rem;
   width: auto;
+  flex-shrink: 0;
 }
 
 [data-testid="navbar-organization-name"] {
   font-size: 1rem;
   font-weight: 600;
   color: $text-primary;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .nav-tabs {
   display: flex;
+  position: relative;
+  z-index: 1;
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
   gap: $spacing-sm;
   background-color: $sidebar-bg;
   padding: 4px;
@@ -41,6 +53,7 @@
 
 .nav-tab {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   gap: $spacing-sm;
   padding: 0.625rem 1.25rem;
@@ -77,11 +90,14 @@
 }
 
 .navbar-user {
-  position: absolute;
-  right: 1.5rem;
   display: flex;
+  position: relative;
+  z-index: 2;
   align-items: center;
+  justify-content: flex-end;
   gap: $spacing-md;
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .navbar-user-name {
@@ -91,15 +107,26 @@
   font-size: 0.875rem;
   font-weight: 500;
   color: $text-secondary;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.navbar-user-name-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .navbar-user-icon {
   display: none;
+  flex-shrink: 0;
   font-size: 1.25rem;
 }
 
 .btn-logout {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   gap: $spacing-sm;
   padding: 0.5rem 1rem;
@@ -123,6 +150,18 @@
   }
 }
 
+@include desktop-sm {
+  // A partir de $breakpoint-lg, navbar-user solo muestra navbar-logout-btn
+  // con su ícono (se ocultan el nombre de usuario y el texto "Salir").
+  .navbar-user-name {
+    display: none;
+  }
+
+  .btn-logout span {
+    display: none;
+  }
+}
+
 @include mobile {
   .navbar-container {
     justify-content: space-between;
@@ -132,15 +171,7 @@
     padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
   }
 
-  .navbar-brand {
-    position: static;
-    min-width: 0;
-  }
-
   [data-testid="navbar-organization-name"] {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
     max-width: 40vw;
   }
 
@@ -183,30 +214,12 @@
 
   // Donde antes estaba el botón hamburguesa: usuario + logout.
   .navbar-user {
-    position: static;
     flex-direction: row;
     align-items: center;
     gap: $spacing-sm;
   }
 
-  // Se muestra el nombre y apellido en vez del ícono (antes reemplazaba al texto).
-  .navbar-user-name {
-    max-width: 30vw;
-  }
-
-  .navbar-user-name-text {
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    min-width: 0;
-  }
-
   .btn-logout {
     padding: 0.5rem;
-
-    span {
-      display: none;
-    }
   }
 }
