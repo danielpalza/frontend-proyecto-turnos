@@ -31,6 +31,8 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
   @Output() submitForm = new EventEmitter<{ patientData: Partial<Patient>; appointmentData: AppointmentCreateDTO }>();
 
   form!: FormGroup;
+  /** Valores de construcción del form, para que reset() no deje controles en null (ver initForm). */
+  private initialFormValue: Record<string, unknown> = {};
   selectedPatient: Patient | null = null;
   isNewPatient = true;
   showPatientDropdown = false;
@@ -86,6 +88,8 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
       montoPago: [null, [Validators.min(0), Validators.max(AppointmentDialogComponent.MAX_MONTO)]],
       observaciones: ['']
     });
+
+    this.initialFormValue = this.form.getRawValue();
   }
 
   private setPatientFieldsEnabled(enabled: boolean): void {
@@ -154,22 +158,7 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
     this.selectedPatient = null;
     this.isNewPatient = true;
     this.setPatientFieldsEnabled(true);
-    this.form.reset({
-      esTitular: 'si',
-      hora: '09:00',
-      precioBono: null,
-      precioTratamiento: null,
-      extras: null,
-      montoPago: null,
-      enfermedades: '',
-      alergias: '',
-      medicacion: '',
-      cirugias: '',
-      embarazo: '',
-      marcapasos: '',
-      consumos: '',
-      otrosAntecedentes: ''
-    });
+    this.form.reset(this.initialFormValue);
   }
 
   close(): void {
