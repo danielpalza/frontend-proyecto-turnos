@@ -37,6 +37,7 @@ export class HistoriaClinicaFormComponent implements OnInit {
   readonly signing = signal(false);
   readonly saveError = signal<string | null>(null);
   readonly showSignConfirm = signal(false);
+  readonly antecedentesOpen = signal(false);
 
   current: HistoriaClinicaResponse | null = null;
   private readonly destroyRef = inject(DestroyRef);
@@ -101,7 +102,7 @@ export class HistoriaClinicaFormComponent implements OnInit {
       // Sección 2
       motivoConsulta: ['', Validators.required],
       // Sección 3
-      enfermedadActual: [''],
+      condicionActual: [''],
       // Sección 4 — antecedentes médicos del paciente
       enfermedades: [''],
       alergias: [''],

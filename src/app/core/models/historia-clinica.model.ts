@@ -15,8 +15,8 @@ export interface HistoriaClinicaDeltaRequest {
   // Sección 2 — motivo de consulta
   motivoConsulta?: string;
 
-  // Sección 3 — enfermedad actual
-  enfermedadActual?: string;
+  // Sección 3 — condición actual
+  condicionActual?: string;
 
   // Sección 4 — antecedentes médicos del paciente (mismas claves que Patient.anamnesis, ver
   // anamnesis.util.ts). Editar esto también sincroniza la ficha del paciente.

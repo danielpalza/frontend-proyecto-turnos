@@ -11,6 +11,23 @@
   gap: 1.25rem;
 }
 
+.hc-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 1.5rem;
+}
+
+.hc-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.hc-column--right {
+  border-right: 1px solid rgba(0, 0, 0, 0.08);
+  padding-right: 1.25rem;
+}
+
 .hc-header {
   display: flex;
   align-items: center;
@@ -60,6 +77,51 @@
   justify-content: space-between;
   gap: 0.5rem;
   flex-wrap: wrap;
+}
+
+.hc-collapse-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: none;
+  background: none;
+  padding: 0.3rem 0.6rem;
+  margin: -0.3rem -0.6rem;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  // Sombreado siempre visible mientras está colapsado (no depende de :hover) — es la pista de que
+  // se puede interactuar con la sección. $shadow-sm queda demasiado tenue para una pastilla chica.
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
+  transition: box-shadow $transition-base, background-color $transition-base;
+
+  &:hover {
+    background-color: $hover-bg;
+  }
+
+  // Al abrirlo ya es obvio por el contenido visible que es interactivo, así que se retira.
+  &.open {
+    box-shadow: none;
+  }
+
+  .hc-collapse-chevron {
+    font-size: 0.7rem;
+    color: $text-secondary;
+    transition: transform $transition-base;
+  }
+
+  &.open .hc-collapse-chevron {
+    transform: rotate(180deg);
+  }
+}
+
+.hc-collapse-body {
+  display: none;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  &.open {
+    display: flex;
+  }
 }
 
 // "Datos del paciente" y "Antecedentes" sin permiso de edición: mismo aviso que el resto de la app
@@ -158,5 +220,18 @@
   .hc-row--4col,
   .hc-row--diagnostico {
     grid-template-columns: 1fr;
+  }
+
+  // En mobile no hay espacio para dos columnas lado a lado: se apilan.
+  .hc-columns {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .hc-column--right {
+    border-right: none;
+    padding-right: 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    padding-bottom: 1.25rem;
   }
 }

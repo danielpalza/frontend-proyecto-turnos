@@ -1,5 +1,8 @@
 <div class="hc-card" data-testid="historia-clinica-form" [formGroup]="form">
 
+  <div class="hc-columns">
+  <div class="hc-column hc-column--right">
+
   <div class="hc-header">
     <div class="hc-header-title">
       <i class="bi bi-file-earmark-medical"></i>
@@ -74,68 +77,80 @@
     </div>
   </section>
 
-  <!-- Sección 3 — Enfermedad actual -->
+  <!-- Sección 3 — Condición actual -->
   <section class="hc-section">
-    <span class="hc-section-label">Enfermedad actual</span>
+    <span class="hc-section-label">Condición Actual</span>
     <div class="hc-field hc-field--full">
       <textarea rows="2" class="form-control" placeholder="Inicio, evolución, síntomas asociados"
-        formControlName="enfermedadActual" data-testid="historia-clinica-enfermedad-actual"></textarea>
+        formControlName="condicionActual" data-testid="historia-clinica-condicion-actual"></textarea>
     </div>
   </section>
 
   <!-- Sección 4 — Antecedentes médicos del paciente (mismos campos que la ficha del paciente) -->
   <section class="hc-section">
     <div class="hc-section-label-row">
-      <span class="hc-section-label">Antecedentes</span>
+      <button type="button" class="hc-collapse-toggle" [class.open]="antecedentesOpen()"
+        (click)="antecedentesOpen.set(!antecedentesOpen())"
+        data-testid="historia-clinica-antecedentes-toggle-btn"
+        [attr.aria-expanded]="antecedentesOpen()" aria-controls="hc-antecedentes-body">
+        <span class="hc-section-label">Antecedentes</span>
+        <i class="bi bi-chevron-down hc-collapse-chevron"></i>
+      </button>
       @if (!canEditPatientData) {
         <span class="hc-lock-note" data-testid="historia-clinica-antecedentes-section-locked">
           <i class="bi bi-lock-fill"></i> Requiere permiso para editar pacientes
         </span>
       }
     </div>
-    <div class="hc-row hc-row--2col">
-      <div class="hc-field">
-        <label for="hc-enfermedades">Enfermedades</label>
-        <input id="hc-enfermedades" type="text" class="form-control"
-          formControlName="enfermedades" data-testid="historia-clinica-enfermedades" />
+    <div id="hc-antecedentes-body" class="hc-collapse-body" [class.open]="antecedentesOpen()"
+      data-testid="historia-clinica-antecedentes-body">
+      <div class="hc-row hc-row--2col">
+        <div class="hc-field">
+          <label for="hc-enfermedades">Enfermedades</label>
+          <input id="hc-enfermedades" type="text" class="form-control"
+            formControlName="enfermedades" data-testid="historia-clinica-enfermedades" />
+        </div>
+        <div class="hc-field">
+          <label for="hc-alergias">Alergias</label>
+          <input id="hc-alergias" type="text" class="form-control" formControlName="alergias"
+            data-testid="historia-clinica-alergias" />
+        </div>
+        <div class="hc-field">
+          <label for="hc-medicacion">Medicación actual o previa</label>
+          <input id="hc-medicacion" type="text" class="form-control" formControlName="medicacion"
+            data-testid="historia-clinica-medicacion" />
+        </div>
+        <div class="hc-field">
+          <label for="hc-cirugias">Cirugías/tratamientos/trastornos</label>
+          <input id="hc-cirugias" type="text" class="form-control" formControlName="cirugias"
+            data-testid="historia-clinica-cirugias" />
+        </div>
+        <div class="hc-field">
+          <label for="hc-embarazo">Embarazo o lactancia</label>
+          <input id="hc-embarazo" type="text" class="form-control" formControlName="embarazo"
+            data-testid="historia-clinica-embarazo" />
+        </div>
+        <div class="hc-field">
+          <label for="hc-marcapasos">Marcapasos/prótesis</label>
+          <input id="hc-marcapasos" type="text" class="form-control" formControlName="marcapasos"
+            data-testid="historia-clinica-marcapasos" />
+        </div>
+        <div class="hc-field">
+          <label for="hc-consumos">Consumos (tabaco, alcohol, drogas)</label>
+          <input id="hc-consumos" type="text" class="form-control" formControlName="consumos"
+            data-testid="historia-clinica-consumos" />
+        </div>
       </div>
-      <div class="hc-field">
-        <label for="hc-alergias">Alergias</label>
-        <input id="hc-alergias" type="text" class="form-control" formControlName="alergias"
-          data-testid="historia-clinica-alergias" />
+      <div class="hc-field hc-field--full">
+        <label for="hc-otrosAntecedentes">Otros antecedentes</label>
+        <textarea id="hc-otrosAntecedentes" rows="2" class="form-control" maxlength="300"
+          formControlName="otrosAntecedentes" data-testid="historia-clinica-otros-antecedentes"></textarea>
       </div>
-      <div class="hc-field">
-        <label for="hc-medicacion">Medicación actual o previa</label>
-        <input id="hc-medicacion" type="text" class="form-control" formControlName="medicacion"
-          data-testid="historia-clinica-medicacion" />
-      </div>
-      <div class="hc-field">
-        <label for="hc-cirugias">Cirugías/tratamientos/trastornos</label>
-        <input id="hc-cirugias" type="text" class="form-control" formControlName="cirugias"
-          data-testid="historia-clinica-cirugias" />
-      </div>
-      <div class="hc-field">
-        <label for="hc-embarazo">Embarazo o lactancia</label>
-        <input id="hc-embarazo" type="text" class="form-control" formControlName="embarazo"
-          data-testid="historia-clinica-embarazo" />
-      </div>
-      <div class="hc-field">
-        <label for="hc-marcapasos">Marcapasos/prótesis</label>
-        <input id="hc-marcapasos" type="text" class="form-control" formControlName="marcapasos"
-          data-testid="historia-clinica-marcapasos" />
-      </div>
-      <div class="hc-field">
-        <label for="hc-consumos">Consumos (tabaco, alcohol, drogas)</label>
-        <input id="hc-consumos" type="text" class="form-control" formControlName="consumos"
-          data-testid="historia-clinica-consumos" />
-      </div>
-    </div>
-    <div class="hc-field hc-field--full">
-      <label for="hc-otrosAntecedentes">Otros antecedentes</label>
-      <textarea id="hc-otrosAntecedentes" rows="2" class="form-control" maxlength="300"
-        formControlName="otrosAntecedentes" data-testid="historia-clinica-otros-antecedentes"></textarea>
     </div>
   </section>
+
+  </div>
+  <div class="hc-column hc-column--left">
 
   <!-- Sección 5 — Examen físico -->
   <section class="hc-section">
@@ -190,6 +205,9 @@
         formControlName="indicaciones" data-testid="historia-clinica-indicaciones"></textarea>
     </div>
   </section>
+
+  </div>
+  </div>
 
   @if (editable()) {
     <div class="hc-footer">

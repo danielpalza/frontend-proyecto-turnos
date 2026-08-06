@@ -113,7 +113,7 @@ Solo lectura: resume todos los campos anteriores (`PATIENT_WIZARD_REVIEW_GROUPS`
 |---|---|---|---|
 | 1 | Datos del paciente (snapshot) | `nombreCompleto`, `dni`, `fechaConsulta`, `cobertura`, `telefono` | `nombreCompleto` y `dni` requeridos; el resto opcional |
 | 2 | Motivo de consulta | `motivoConsulta` | requerido |
-| 3 | Enfermedad actual | `enfermedadActual` | opcional |
+| 3 | Condición Actual | `condicionActual` | opcional |
 | 4 | Antecedentes médicos | `enfermedades`, `alergias`, `medicacion`, `cirugias`, `embarazo`, `marcapasos`, `consumos`, `otrosAntecedentes` | todos opcionales — mismas claves que el paso 2 del wizard de paciente (`Patient.anamnesis`, ver [`anamnesis.util.ts`](../src/app/core/utils/anamnesis.util.ts)); editarlos acá también sincroniza la ficha del paciente en el backend |
 | 5 | Examen físico | `tensionArterial`, `frecuenciaCardiaca`, `temperatura`, `peso`, `examenPorSistemas` | todos opcionales, sin `Validators.min`/rango en el frontend |
 | 6 | Diagnóstico y plan | `diagnostico`, `diagnosticoCie10Codigo`, `indicaciones` | todos opcionales |
