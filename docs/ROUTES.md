@@ -24,6 +24,14 @@ Fuente única: [`src/app/app.routes.ts`](../src/app/app.routes.ts). Todas las ru
 
 `/odontograma/:appointmentId` y `/historia-clinica/:appointmentId` son dos instancias del mismo patrón: una ruta por **módulo clínico**, cada una detrás de la capacidad `<CODIGO_MODULO>:VIEW` de ese módulo. Ver la nota sobre módulos clínicos múltiples en [ARCHITECTURE.md](./ARCHITECTURE.md).
 
+### Visibilidad del navbar en rutas públicas — bug real, corregido (2026-08-07)
+
+`App.showNavbar` (componente raíz, [`app.ts`](../src/app/app.ts)) decide si se monta `<app-navbar>`. Hasta esta fecha arrancaba en `true` por default y solo se corregía en el primer evento `NavigationEnd` del router — en un deep-link directo a una ruta pública (el caso real: un usuario **sin sesión** abre desde su mail el link de `/reset-password` o `/verify-email`), el navbar llegaba a montarse igual en ese primer render. Al montarse disparaba su propio fetch (`GET /api/modules/rules`) sin token, recibía 401, y `http-error.interceptor.ts` — que manda **cualquier** 401 fuera de `/auth/*` derecho a `/login`, incondicionalmente — cerraba la sesión (inexistente) y redirigía antes de que la página pública llegara a mostrarse. Además, la lista de rutas consideradas "públicas" para el navbar solo incluía `/login`, nunca `/reset-password` ni `/verify-email`.
+
+**Impacto real, no solo de tests:** ningún usuario podía completar un reset de contraseña o verificación de email por link de mail — el navbar los expulsaba a `/login` antes de que la página cargara. Encontrado escribiendo AUTH-067 en `frontend-proyecto-tests`.
+
+**Fix:** el valor inicial de `showNavbar` se deriva de `window.location.pathname` real al arrancar (no un default fijo), y la lista de rutas públicas se amplió a las tres (`/login`, `/reset-password`, `/verify-email`). De paso se agregaron los `data-testid` que le faltaban a `reset-password.component.html` (no tenía ninguno, lo que había ocultado el bug — no había forma de verificar por E2E que la página se mostrara).
+
 ## Guard: `authGuard`
 
 Archivo: [`src/app/core/guards/auth.guard.ts`](../src/app/core/guards/auth.guard.ts). `CanActivateFn` funcional (no clase), se ejecuta en cada ruta protegida:
