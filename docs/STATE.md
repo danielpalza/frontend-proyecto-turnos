@@ -36,6 +36,8 @@ Vale la pena una pasada por el resto de los componentes con `subscribe()` + `OnP
 
 > Nota importante: `DashboardService` **no reutiliza** la caché de `AppointmentsService` — llama a `findByDateRange` directamente, así que el Panel y Turnos pueden hacer requests redundantes del mismo rango de fechas si se navega entre ambas páginas.
 
+> **Fix 2026-08-07** (encontrado escribiendo PAN-028 en `frontend-proyecto-tests`): `computeSummary()` y `computeDailyIncome()` acumulaban `ingresosPendientes`/`pending` para **cualquier** turno con saldo > 0, sin mirar `estado` — un turno `CANCELADO`/`NO_ASISTIO` con precio cargado y sin cobrar inflaba "Ingresos pendientes" del Panel igual que uno realmente pendiente. Se corrigió excluyendo `CANCELADO`/`NO_ASISTIO` de ese cálculo específico — `ingresosTotales` (plata ya cobrada) sigue sumando sin filtrar a propósito, porque un pago ya recibido es ingreso real aunque el turno se cancele después; `professionalStats.facturacion` tampoco se tocó, mismo motivo. Mismo hallazgo, de forma independiente, en el backend (`AppointmentRepository.aggregateSeguimientoResumenByOrganization`, ver `bakend-proyecto-turnos/docs/CAMBIOS_NECESARIOS.md § 17`), corregido el mismo día.
+
 ## Módulo Odontograma (`features/odontograma/services/`)
 
 Patrón **facade + dos sub-servicios**, todos `providedIn: 'root'`:

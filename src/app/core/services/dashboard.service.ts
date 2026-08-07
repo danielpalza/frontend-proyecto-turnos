@@ -107,7 +107,10 @@ export class DashboardService {
       const pendiente = costoTotal - monto;
 
       ingresosTotales += monto;
-      if (pendiente > 0) ingresosPendientes += pendiente;
+      // Un turno cancelado/no asistido no es deuda a cobrar: no hubo servicio prestado que
+      // reclamar (mismo criterio que el resumen de Seguimiento, ver AppointmentRepository
+      // .aggregateSeguimientoResumenByOrganization en el backend).
+      if (pendiente > 0 && a.estado !== 'CANCELADO' && a.estado !== 'NO_ASISTIO') ingresosPendientes += pendiente;
 
       if (a.estado === 'COMPLETADO') turnosCompletados++;
       else if (a.estado === 'PENDIENTE') turnosPendientes++;
@@ -159,6 +162,7 @@ export class DashboardService {
       const dayAppts = appointments.filter(a => a.fecha === dayStr);
       const realized = dayAppts.reduce((sum, a) => sum + (a.montoPago ?? 0), 0);
       const pending = dayAppts.reduce((sum, a) => {
+        if (a.estado === 'CANCELADO' || a.estado === 'NO_ASISTIO') return sum;
         const total = (a.extras ?? 0) + (a.precioBono ?? 0) + (a.precioTratamiento ?? 0);
         return sum + Math.max(0, total - (a.montoPago ?? 0));
       }, 0);
