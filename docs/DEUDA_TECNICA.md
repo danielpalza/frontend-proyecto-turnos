@@ -3,7 +3,9 @@
 > Alcance: deuda del frontend Angular. Complementa [UI_RULES.md](./UI_RULES.md) (convenciones vigentes)
 > y, del lado del backend, `docs/DEUDA_TECNICA_PERMISOS.md`, que cubre la deuda del sistema de permisos.
 >
-> Última actualización: 2026-07-24, rama `main`, tras el relevamiento de toasts duplicados
+> Última actualización: 2026-08-07, tras encontrar una segunda instancia del gotcha de change
+> detection zoneless (sección 4) escribiendo la suite E2E de `frontend-proyecto-tests`. La
+> actualización anterior fue el 2026-07-24, rama `main`, tras el relevamiento de toasts duplicados
 > (sección 3), disparado por el doble toast al entrar con permisos de profesional.
 
 ## 1. Overlays
@@ -206,5 +208,56 @@ Opciones, de menor a mayor alcance:
 3. Un helper `handleHttpError(err, contexto)` en `ErrorHandlerService` que devuelva el mensaje para
    mostrar inline **sin** notificar, y reservar `showError` a los errores de cliente. Convierte el patrón
    canónico en uno que no puede duplicar por construcción.
+
+## 4. Change detection zoneless: campo plano mutado en un `.subscribe()` sin `markForCheck()`
+
+Contexto: la app corre con `provideZonelessChangeDetection()` ([STATE.md](./STATE.md)) — una mutación de
+un campo de clase plano (no signal) dentro del callback de un `.subscribe()` RxJS **no** dispara por sí
+sola un re-render. El síntoma es silencioso: el dato correcto llega (se puede confirmar en Network/consola),
+pero la vista nunca lo refleja, sin ninguna excepción ni warning.
+
+Encontradas dos instancias del mismo patrón en módulos distintos, en sesiones de trabajo separadas:
+
+### 4.1 `AppointmentDialogComponent.setupHoraAvailabilityValidation()` — RESUELTO (2026-08-07)
+
+`availabilityError`/`isCheckingAvailability` se mutaban dentro de un pipeline `debounceTime` +
+`switchMap` sobre `AppointmentsService.checkAvailability()`. El backend respondía `{"available":false}`
+correctamente ante un horario ocupado, pero el input de hora nunca ganaba la clase `is-invalid` ni
+aparecía el mensaje "Este horario ya está ocupado" — el usuario podía intentar guardar un turno en un
+slot ocupado sin ningún aviso previo (el backend igual lo rechazaba al guardar, con un 409, pero el
+aviso *anticipado* que la UI dice ofrecer estaba roto). Encontrado escribiendo TUR-074 en
+`frontend-proyecto-tests`.
+
+**Fix:** se inyectó `ChangeDetectorRef` en el componente y se agregó `this.cdr.markForCheck()` después
+de cada mutación async de esos dos campos — las tres ramas del `switchMap` (sin profesional/fecha/hora,
+formato de hora inválido, inicio de la llamada) más el `subscribe` final (éxito y error).
+
+### 4.2 `ProfesionalesPanelComponent.onSaveProfesional()` — sin resolver
+
+Mismo patrón, esta vez en la rama `error:` de un `subscribe()`: cuando el guardado de un profesional
+falla (ej. matrícula duplicada, 409), `saveProfesionalError` se setea correctamente — confirmado en
+consola, con dos toasts visibles (uno del interceptor HTTP global, otro del propio componente) — pero
+`settings-profesional-save-error` nunca aparece en el DOM, y el botón "Guardar profesional" queda
+deshabilitado con el texto "Guardando…" indefinidamente. El usuario no tiene forma de saber que falló ni
+de reintentar sin recargar la página a mano.
+
+El camino de éxito no se ve afectado porque el refetch de la lista de profesionales que sigue (que sí
+llama `markForCheck()`, en la suscripción de `ngOnInit`) dispara un re-render que de paso también pinta
+los cambios pendientes del propio diálogo — el camino de error no tiene ningún otro disparador cerca que
+lo salve por accidente.
+
+**No se arregló.** Cubierto por un test dedicado marcado `test.fail()` en vez de dejarlo fuera de la
+suite (`tests/configuraciones/profesionales.spec.ts` en `frontend-proyecto-tests`, *"PRO-008 (UI, bug
+conocido)"*): documenta el bug tal cual se comporta hoy — si algún día empieza a pasar solo, es señal de
+que se agregó el `markForCheck()` que falta, y hay que actualizar el test, no arreglarlo a ciegas. Mismo
+fix que 4.1: inyectar `ChangeDetectorRef` y llamar `markForCheck()` en la rama `error:`.
+
+### 4.3 Nada impide una tercera instancia
+
+Mismo problema estructural que § 1.2 y § 3.5: el contrato ("todo `subscribe()` que mute estado en un
+componente `OnPush` necesita `markForCheck()`") está documentado ([STATE.md](./STATE.md)) pero no lo
+fuerza nada — ni test, ni lint, ni un wrapper. Vale la pena una pasada por el resto de los
+`.subscribe()` de componentes con `ChangeDetectionStrategy.OnPush` buscando el mismo patrón antes de que
+aparezca una tercera vez, en vez de encontrarlas una por una a medida que se escriben tests E2E nuevos.
 
 La 1 es un parche útil como red de seguridad, no como arreglo. La 3 es la que corrige el default.

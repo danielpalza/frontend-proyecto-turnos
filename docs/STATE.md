@@ -8,6 +8,12 @@ No hay NgRx, Akita, Elf ni ningún store de terceros. El estado vive en tres for
 
 La app corre con `provideZonelessChangeDetection()` (ver [`app.config.ts`](../src/app/app.config.ts)), así que los componentes que mutan estado fuera de un signal o de un flujo RxJS+`async` deben llamar `ChangeDetectorRef.markForCheck()` manualmente para que la vista se actualice — se ve repetido en casi todos los `subscribe()` de componentes con `ChangeDetectionStrategy.OnPush`.
 
+**Instancias reales de este gotcha, encontradas escribiendo tests E2E (`frontend-proyecto-tests`) — el patrón es "campo plano mutado dentro de un `.subscribe()` sin `markForCheck()`", dos veces en módulos distintos:**
+- `AppointmentDialogComponent.setupHoraAvailabilityValidation()` (**resuelto 2026-08-07**) — `availabilityError`/`isCheckingAvailability` se mutaban dentro de un pipeline `debounceTime`+`switchMap` sobre `checkAvailability()`; el backend respondía correctamente pero el aviso de "horario ya ocupado" nunca se pintaba. Fix: inyectar `ChangeDetectorRef` y llamar `markForCheck()` en cada rama del `switchMap` y en el `subscribe` final.
+- `ProfesionalesPanelComponent.onSaveProfesional()` (**sin resolver** — ver [DEUDA_TECNICA.md](./DEUDA_TECNICA.md)) — mismo patrón en la rama `error:` de `subscribe`: un 409 de matrícula duplicada llega y `saveProfesionalError` se setea, pero el mensaje nunca aparece en el DOM y el botón "Guardar" queda trabado en "Guardando…" indefinidamente. Cubierto por un test con `test.fail()` en `frontend-proyecto-tests` (documenta el bug tal cual se comporta hoy, no lo esconde).
+
+Vale la pena una pasada por el resto de los componentes con `subscribe()` + `OnPush` buscando el mismo patrón antes de que aparezca una tercera instancia.
+
 ## Servicios singleton con caché reactiva (`core/services/`)
 
 | Servicio | Subject(s) | Quién escribe | Quién lee | Se resetea |

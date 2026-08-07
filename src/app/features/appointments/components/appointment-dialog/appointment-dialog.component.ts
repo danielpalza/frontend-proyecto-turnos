@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, OnChanges, OnDestroy, Output, SimpleChanges, ElementRef, HostListener } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, OnChanges, OnDestroy, Output, SimpleChanges, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subject, of } from 'rxjs';
@@ -54,7 +54,8 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
     private fb: FormBuilder,
     private elRef: ElementRef,
     private appointmentsService: AppointmentsService,
-    private moduleRulesService: ModuleRulesService
+    private moduleRulesService: ModuleRulesService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -259,17 +260,20 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
           // Si falta profesional, fecha o hora, limpiamos el error y no validamos
           if (!profesionalId || !this.selectedDate || !hora) {
             this.availabilityError = null;
+            this.cdr.markForCheck();
             return of(null);
           }
 
           const normalizedHora = this.normalizeTime(hora);
           if (!normalizedHora) {
             this.availabilityError = 'Formato de hora inválido. Use HH:mm.';
+            this.cdr.markForCheck();
             return of(null);
           }
 
           this.isCheckingAvailability = true;
           this.availabilityError = null;
+          this.cdr.markForCheck();
 
           return this.appointmentsService.checkAvailability(profesionalId, this.selectedDate, normalizedHora).pipe(
             catchError((err) => {
@@ -284,9 +288,11 @@ export class AppointmentDialogComponent implements OnInit, OnChanges, OnDestroy 
       .subscribe((isAvailable) => {
         this.isCheckingAvailability = false;
         if (isAvailable === null) {
+          this.cdr.markForCheck();
           return;
         }
         this.availabilityError = isAvailable ? null : 'Este horario ya está ocupado. Por favor, seleccione otro horario.';
+        this.cdr.markForCheck();
       });
   }
 
