@@ -1,0 +1,72 @@
+@if (open) {
+<div class="modal-backdrop" appBodyPortal></div>
+<div class="modal fade show d-block" tabindex="-1" role="dialog" appBodyPortal appScrollLock data-testid="documentos-modal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="documentos-modal-header">
+        <div class="documentos-modal-title-wrap">
+          <div class="documentos-modal-icon">
+            <i class="bi bi-file-earmark-text"></i>
+          </div>
+          <h5 class="documentos-modal-title">{{ titulo }}</h5>
+        </div>
+        <button type="button" class="btn-modal-close" aria-label="Cerrar" (click)="cerrar()" data-testid="documentos-cerrar-btn">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="documentos-upload-row">
+          <select class="form-select form-select-sm documentos-tipo-select" data-testid="documentos-tipo-select" #tipoDocSel>
+            @for (tipo of tiposDocumento; track tipo.codigo) {
+              <option [value]="tipo.codigo">{{ tipo.nombre }}</option>
+            }
+          </select>
+          <label
+            class="btn btn-outline-primary btn-sm documentos-upload-label"
+            [appCan]="capabilityManage"
+            data-testid="documentos-upload-input"
+          >
+            <i class="bi bi-upload me-1"></i>Subir archivo
+            <input
+              type="file"
+              accept=".pdf,.docx,.doc"
+              hidden
+              (change)="onSubir($any($event.target).files, tipoDocSel.value); $any($event.target).value = ''"
+            />
+          </label>
+        </div>
+
+        @if (cargando) {
+          <p class="text-muted small mb-0">Cargando documentos…</p>
+        } @else if (documentos.length === 0) {
+          <p class="text-muted small mb-0" data-testid="documentos-vacio">Todavía no se subió ningún documento.</p>
+        } @else {
+          <div class="documentos-lista">
+            @for (doc of documentos; track doc.id) {
+              <div class="documentos-fila" [attr.data-testid]="'documentos-fila-' + doc.id">
+                <i class="bi bi-file-earmark-text"></i>
+                <span
+                  class="documentos-nombre"
+                  [attr.data-testid]="'documentos-descargar-btn-' + doc.id"
+                  (click)="onDescargar(doc)"
+                >{{ doc.nombreArchivo }}</span>
+                <button
+                  type="button"
+                  class="documentos-borrar-btn"
+                  [appCan]="capabilityManage"
+                  [attr.data-testid]="'documentos-borrar-btn-' + doc.id"
+                  (click)="onEliminar(doc)"
+                  title="Eliminar"
+                >
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+}

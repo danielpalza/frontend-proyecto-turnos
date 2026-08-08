@@ -1,0 +1,133 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+.modal-backdrop {
+  @include modal-backdrop;
+}
+
+.modal.fade.show {
+  @include modal-centering;
+
+  .modal-dialog {
+    @include modal-dialog(32rem);
+  }
+
+  .modal-content {
+    @include modal-content;
+  }
+}
+
+.documentos-modal-header {
+  @include modal-header;
+  padding: $spacing-xl $spacing-2xl $spacing-lg;
+  border-bottom: none;
+  background: $card-background;
+}
+
+.documentos-modal-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  min-width: 0;
+}
+
+.documentos-modal-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: $radius-full;
+  background-color: rgba($primary-color, 0.12);
+  color: $primary-color;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  i {
+    font-size: 1rem;
+  }
+}
+
+.documentos-modal-title {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1.125rem;
+  color: $text-primary;
+  line-height: 1.4;
+}
+
+.btn-modal-close {
+  @include btn-modal-close;
+  margin-left: auto;
+}
+
+.modal-body {
+  @include modal-body;
+}
+
+.documentos-upload-row {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-lg;
+  flex-wrap: wrap;
+}
+
+.documentos-tipo-select {
+  flex: 1 1 auto;
+  min-width: 10rem;
+}
+
+.documentos-upload-label {
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.documentos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.documentos-fila {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  border: 1px solid $border-color;
+  border-radius: $radius-md;
+
+  i {
+    color: $text-secondary;
+    flex-shrink: 0;
+  }
+}
+
+.documentos-nombre {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  color: $primary-color;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.documentos-borrar-btn {
+  border: none;
+  background: transparent;
+  color: $danger-light;
+  padding: $spacing-xs;
+  border-radius: $radius-md;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  &:hover {
+    background-color: rgba($danger-light, 0.12);
+  }
+}

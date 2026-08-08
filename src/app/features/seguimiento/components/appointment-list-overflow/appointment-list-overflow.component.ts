@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, Input, NgZone, OnDestroy, Output, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, Input, NgZone, OnDestroy, Output, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Appointment } from '../../../../core/models';
 import { Capability } from '../../../../core/auth/capabilities';
@@ -10,8 +10,8 @@ import { formatDate as formatDateShared, getAppointmentColor as getAppointmentCo
 const DROPDOWN_OFFSET = 6;
 /** Margen mínimo contra los bordes del área visible, en px. */
 const VIEWPORT_MARGIN = 8;
-/** Medidas del dropdown: dos botones de 2.5rem con gap y padding de 0.4rem, más los bordes. */
-const DROPDOWN_WIDTH = 102;
+/** Medidas del dropdown: tres botones de 2.5rem con gap y padding de 0.4rem, más los bordes. */
+const DROPDOWN_WIDTH = 148;
 const DROPDOWN_HEIGHT = 55;
 
 @Component({
@@ -21,7 +21,7 @@ const DROPDOWN_HEIGHT = 55;
   templateUrl: './appointment-list-overflow.component.html',
   styleUrls: ['./appointment-list-overflow.component.scss']
 })
-export class AppointmentListOverflowComponent implements AfterViewInit, OnDestroy {
+export class AppointmentListOverflowComponent implements OnDestroy {
   readonly Capability = Capability;
   @Input() appointments: Appointment[] = [];
   @Input() identificacion!: string;
@@ -29,8 +29,26 @@ export class AppointmentListOverflowComponent implements AfterViewInit, OnDestro
   @Output() appointmentClick = new EventEmitter<Appointment>();
   /** Acción "resumen clínico" del dropdown. */
   @Output() clinicalClick = new EventEmitter<Appointment>();
+  /** Acción "documentos del turno" del dropdown. */
+  @Output() documentsClick = new EventEmitter<Appointment>();
 
-  @ViewChild('apptList') private readonly apptList!: ElementRef<HTMLDivElement>;
+  /**
+   * `#apptList` está detrás de `*ngIf="appointments.length > 0"`: cuando el filtro año/mes deja al
+   * paciente sin turnos, el div no se renderiza y esta referencia queda `undefined`. Usar un setter
+   * (en vez de `ngAfterViewInit` + `!`) evita el crash y además reengancha el `ResizeObserver` solo
+   * cuando el div vuelve a aparecer (p.ej. al cambiar el filtro a un año con turnos) — mismo patrón
+   * que `actionsMenu` acá abajo, que ya resuelve el mismo problema para ese otro `@ViewChild`.
+   */
+  @ViewChild('apptList') set apptList(ref: ElementRef<HTMLDivElement> | undefined) {
+    this.resizeObserver?.disconnect();
+    this.resizeObserver = undefined;
+    if (!ref) {
+      this.isOverflowing = false;
+      return;
+    }
+    this.resizeObserver = new ResizeObserver(entries => this.onResize(entries));
+    this.resizeObserver.observe(ref.nativeElement);
+  }
 
   /**
    * El dropdown se saca de la card y se cuelga de `<body>` apenas se renderiza. Dentro de la card no
@@ -62,11 +80,6 @@ export class AppointmentListOverflowComponent implements AfterViewInit, OnDestro
     private readonly cdr: ChangeDetectorRef,
     private readonly elRef: ElementRef<HTMLElement>
   ) {}
-
-  ngAfterViewInit(): void {
-    this.resizeObserver = new ResizeObserver(entries => this.onResize(entries));
-    this.resizeObserver.observe(this.apptList.nativeElement);
-  }
 
   ngOnDestroy(): void {
     this.resizeObserver?.disconnect();
@@ -127,6 +140,11 @@ export class AppointmentListOverflowComponent implements AfterViewInit, OnDestro
   emitClinical(appointment: Appointment): void {
     this.closeActions();
     this.clinicalClick.emit(appointment);
+  }
+
+  emitDocuments(appointment: Appointment): void {
+    this.closeActions();
+    this.documentsClick.emit(appointment);
   }
 
   @HostListener('document:click', ['$event'])

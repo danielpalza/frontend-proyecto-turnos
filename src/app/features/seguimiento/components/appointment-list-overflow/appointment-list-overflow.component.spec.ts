@@ -43,8 +43,38 @@ describe('AppointmentListOverflowComponent', () => {
   });
 
   describe('sin turnos en el período filtrado', () => {
-    it('BUG conocido: revienta con TypeError en ngAfterViewInit — el ViewChild #apptList queda undefined porque ese div está detrás de *ngIf="appointments.length > 0", y ngAfterViewInit no lo guarda antes de leer .nativeElement. El padre (seguimiento-view) solo evita instanciar este componente si el paciente no tiene NINGÚN turno en ningún período (group.totalTurnos > 0), no si el filtro de año/mes actual da 0 resultados — así que un paciente con turnos en otros meses pero ninguno en el mes filtrado sí puede disparar esto en producción.', async () => {
-      await expect(renderList([])).rejects.toThrow(/nativeElement/);
+    // Antes: `#apptList` (detrás de *ngIf="appointments.length > 0") se leía en ngAfterViewInit sin
+    // guardar contra undefined, y explotaba con TypeError — el padre (seguimiento-view) solo evita
+    // instanciar este componente si el paciente no tiene NINGÚN turno en ningún período
+    // (group.totalTurnos > 0), no si el filtro de año/mes actual da 0 resultados, así que un paciente
+    // con turnos en otros meses pero ninguno en el mes filtrado sí lo disparaba en producción.
+    // Fix: `@ViewChild('apptList')` pasó a setter (mismo patrón que `actionsMenu`), que tolera undefined.
+    it('no revienta y no registra ResizeObserver', async () => {
+      await expect(renderList([])).resolves.toBeTruthy();
+      expect(FakeResizeObserver.instances).toHaveLength(0);
+    });
+
+    it('si después aparecen turnos (cambio de filtro año/mes), engancha el ResizeObserver recién ahí', async () => {
+      const { fixture } = await renderList([]);
+      expect(FakeResizeObserver.instances).toHaveLength(0);
+
+      fixture.componentRef.setInput('appointments', [appt()]);
+      fixture.detectChanges();
+
+      expect(FakeResizeObserver.instances).toHaveLength(1);
+      expect(FakeResizeObserver.instances[0].observe).toHaveBeenCalled();
+    });
+
+    it('si los turnos vuelven a desaparecer, desconecta el ResizeObserver previo', async () => {
+      const { fixture } = await renderList([appt()]);
+      expect(FakeResizeObserver.instances).toHaveLength(1);
+      const first = FakeResizeObserver.instances[0];
+
+      fixture.componentRef.setInput('appointments', []);
+      fixture.detectChanges();
+
+      expect(first.disconnect).toHaveBeenCalled();
+      expect(fixture.componentInstance.isOverflowing).toBe(false);
     });
   });
 

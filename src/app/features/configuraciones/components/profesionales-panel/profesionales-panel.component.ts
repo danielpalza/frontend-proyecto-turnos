@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProfesionalService } from '../../../../core/services/profesional.service';
 import { AuthService } from '../../../../core/services/auth.service';
-import { ProfesionalCreateDTO, Profesional, MODULE_OPTIONS } from '../../../../core/models';
+import { ProfesionalCreateDTO, Profesional, MODULE_OPTIONS, TipoEntidadDocumento } from '../../../../core/models';
 import { fullName } from '../../../../core/utils/full-name.util';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { ErrorHandlerService } from '../../../../core/services/error-handler.service';
@@ -12,13 +12,14 @@ import { Capability } from '../../../../core/auth/capabilities';
 import { CanDirective } from '../../../../shared/directives/can.directive';
 import { BodyPortalDirective } from '../../../../shared/directives/body-portal.directive';
 import { ScrollLockDirective } from '../../../../shared/directives/scroll-lock.directive';
+import { DocumentosModalComponent } from '../../../../shared/components/documentos-modal/documentos-modal.component';
 import { Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-profesionales-panel',
   standalone: true,
-  imports: [CommonModule, ProfesionalDialogComponent, InvitationDialogComponent, CanDirective, BodyPortalDirective, ScrollLockDirective],
+  imports: [CommonModule, ProfesionalDialogComponent, InvitationDialogComponent, CanDirective, BodyPortalDirective, ScrollLockDirective, DocumentosModalComponent],
   templateUrl: './profesionales-panel.component.html',
   styleUrls: ['./profesionales-panel.component.scss']
 })
@@ -37,6 +38,11 @@ export class ProfesionalesPanelComponent implements OnInit, OnDestroy {
   deleteCandidate: Profesional | null = null;
 
   isTogglingActive = false;
+
+  showDocumentosModal = false;
+  documentosEntidadId: string | null = null;
+  documentosTitulo = 'Documentos';
+  readonly documentosTipoEntidad: TipoEntidadDocumento = 'PROFESIONAL';
 
   readonly moduleOptions = MODULE_OPTIONS;
   readonly Capability = Capability;
@@ -108,6 +114,18 @@ export class ProfesionalesPanelComponent implements OnInit, OnDestroy {
       { backgroundColor: 'rgba(253, 205, 15, 0.22)', color: '#D97706' }
     ];
     return palette[index % palette.length];
+  }
+
+  openDocumentosModal(profesional: Profesional): void {
+    if (!profesional.id) return;
+    this.documentosEntidadId = profesional.id;
+    this.documentosTitulo = `Documentos de ${this.getProfesionalFullName(profesional)}`;
+    this.showDocumentosModal = true;
+  }
+
+  closeDocumentosModal(): void {
+    this.showDocumentosModal = false;
+    this.documentosEntidadId = null;
   }
 
   openInviteUser(): void {

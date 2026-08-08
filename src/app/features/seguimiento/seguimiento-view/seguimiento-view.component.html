@@ -45,6 +45,10 @@
                 <div class="flex-grow-1">
                   <div class="d-flex align-items-center gap-2 flex-wrap">
                     <h5 class="m-0 fw-semibold" [attr.data-testid]="'tracking-patient-name-' + group.patient.identificacion">{{ fullName(group.patient.nombre, group.patient.apellido) }}</h5>
+                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                      title="Documentos del paciente" (click)="openDocumentosModalPaciente(group.patient)" [appCan]="Capability.SEGUIMIENTO_VIEW" [attr.data-testid]="'tracking-patient-documents-btn-' + group.patient.identificacion">
+                      <i class="bi bi-file-earmark-text"></i>
+                    </button>
                     <span class="total-deuda" *ngIf="group.totalAdeudado > 0" [attr.data-testid]="'tracking-patient-debt-' + group.patient.identificacion">
                       {{ formatCurrency(group.totalAdeudado) }}
                     </span>
@@ -92,7 +96,8 @@
               </div>
               <app-appointment-list-overflow *ngIf="group.totalTurnos > 0"
                 [appointments]="getFilteredAppointments(group)" [identificacion]="group.patient.identificacion || ''"
-                (appointmentClick)="openTurnModal($event)" (clinicalClick)="openClinicalModal($event)">
+                (appointmentClick)="openTurnModal($event)" (clinicalClick)="openClinicalModal($event)"
+                (documentsClick)="openDocumentosModalTurno($event)">
               </app-appointment-list-overflow>
             </div>
           </div>
@@ -115,4 +120,10 @@
     [open]="showClinicalModal" [appointment]="selectedAppointment"
     (closed)="closeClinicalModal()">
   </app-turn-clinical-modal>
+
+  <!-- Modal Documentos (turno o paciente) -->
+  <app-documentos-modal
+    [open]="showDocumentosModal" [tipoEntidad]="documentosTipoEntidad" [entidadId]="documentosEntidadId"
+    [titulo]="documentosTitulo" (closed)="closeDocumentosModal()">
+  </app-documentos-modal>
 </div>

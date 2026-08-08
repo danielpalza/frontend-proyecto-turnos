@@ -42,6 +42,11 @@
           {{ getProfesionalFullName(prof) }}
           <span class="badge badge-soft badge-usuario text-nowrap" *ngIf="prof.userId"
             [attr.data-testid]="'settings-profesional-usuario-badge-' + prof.id">Usuario</span>
+          <button type="button" class="btn btn-action btn-action-docs" (click)="openDocumentosModal(prof)"
+            title="Documentos" [appCan]="Capability.PROFESIONALES_VIEW"
+            [attr.data-testid]="'settings-profesional-documents-btn-' + prof.id">
+            <i class="bi bi-file-earmark-text"></i>
+          </button>
         </div>
         <div class="profesional-detail" *ngIf="getProfesionalDetalle(prof)">
           {{ getProfesionalDetalle(prof) }}
@@ -155,3 +160,9 @@
   </div>
 </div>
 <div class="modal-backdrop fade show" *ngIf="isDeleteConfirmOpen" appBodyPortal></div>
+
+<!-- Modal Documentos del profesional -->
+<app-documentos-modal
+  [open]="showDocumentosModal" [tipoEntidad]="documentosTipoEntidad" [entidadId]="documentosEntidadId"
+  [titulo]="documentosTitulo" (closed)="closeDocumentosModal()">
+</app-documentos-modal>

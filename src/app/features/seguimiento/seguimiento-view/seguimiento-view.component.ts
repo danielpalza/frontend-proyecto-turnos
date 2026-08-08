@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Capability } from '../../../core/auth/capabilities';
 import { CanDirective } from '../../../shared/directives/can.directive';
 import { FormsModule } from '@angular/forms';
-import { Appointment, Patient } from '../../../core/models';
+import { Appointment, Patient, TipoEntidadDocumento } from '../../../core/models';
 import { AppointmentsService } from '../../../core/services/appointments.service';
 import { PatientService } from '../../../core/services/patient.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -15,12 +15,13 @@ import { AppointmentListOverflowComponent } from '../components/appointment-list
 import { PatientWizardPanelComponent } from '../components/patient-wizard-panel/patient-wizard-panel.component';
 import { TurnPaymentModalComponent } from '../components/turn-payment-modal/turn-payment-modal.component';
 import { TurnClinicalModalComponent } from '../components/turn-clinical-modal/turn-clinical-modal.component';
+import { DocumentosModalComponent } from '../../../shared/components/documentos-modal/documentos-modal.component';
 import { PatientDataService, PatientGroup, MonthOption } from './patient-data.service';
 
 @Component({
   selector: 'app-seguimiento-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, AppointmentListOverflowComponent, PatientWizardPanelComponent, TurnPaymentModalComponent, TurnClinicalModalComponent, CanDirective],
+  imports: [CommonModule, FormsModule, AppointmentListOverflowComponent, PatientWizardPanelComponent, TurnPaymentModalComponent, TurnClinicalModalComponent, DocumentosModalComponent, CanDirective],
   providers: [PatientDataService],
   templateUrl: './seguimiento-view.component.html',
   styleUrls: ['./seguimiento-view.component.scss']
@@ -225,6 +226,37 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
   closeClinicalModal(): void {
     this.showClinicalModal = false;
     this.selectedAppointment = null;
+  }
+
+  // --- Modal Documentos (turno o paciente) ---
+
+  showDocumentosModal = false;
+  documentosTipoEntidad: TipoEntidadDocumento | null = null;
+  documentosEntidadId: string | null = null;
+  documentosTitulo = 'Documentos';
+
+  openDocumentosModalTurno(appointment: Appointment): void {
+    if (!appointment.id) return;
+    this.documentosTipoEntidad = 'APPOINTMENT';
+    this.documentosEntidadId = appointment.id;
+    // Con la hora, no solo la fecha: un paciente puede tener más de un turno el mismo día.
+    const hora = appointment.hora ? ` ${appointment.hora.substring(0, 5)}` : '';
+    this.documentosTitulo = `Documentos del turno (${appointment.fecha}${hora})`;
+    this.showDocumentosModal = true;
+  }
+
+  openDocumentosModalPaciente(patient: Patient): void {
+    if (!patient.id) return;
+    this.documentosTipoEntidad = 'PATIENT';
+    this.documentosEntidadId = patient.id;
+    this.documentosTitulo = `Documentos de ${fullName(patient.nombre, patient.apellido)}`;
+    this.showDocumentosModal = true;
+  }
+
+  closeDocumentosModal(): void {
+    this.showDocumentosModal = false;
+    this.documentosTipoEntidad = null;
+    this.documentosEntidadId = null;
   }
 
   onAppointmentUpdated(updated: Appointment): void {
