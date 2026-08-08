@@ -40,7 +40,17 @@ Todos los componentes son **standalone** (`standalone: true`, sin `NgModule`). S
 - **Propósito**: selector de fecha única compacto (popover con mini-calendario), con soporte de `minDate`/`maxDate` para encadenar dos instancias (rango "desde"/"hasta").
 - **Inputs**: `selectedDate`, `referenceMonth`, `minDate`, `maxDate`, `inputId`.
 - **Outputs**: `dateChange` (string `YYYY-MM-DD`).
-- **Dónde aparece**: `PanelViewComponent` (filtro de rango de fechas del dashboard, dos instancias enlazadas).
+- **Dónde aparece**: `PanelViewComponent` (filtro de rango de fechas del dashboard, dos instancias enlazadas); **desde 2026-08-08**, `SeguimientoViewComponent` (mismo patrón de dos instancias enlazadas, reemplaza a los antiguos selects de año/mes por paciente).
+
+### `DocumentosModalComponent` (`app-documentos-modal`) — nuevo, 2026-08-08
+- **Archivo**: [`shared/components/documentos-modal/documentos-modal.component.ts`](../src/app/shared/components/documentos-modal/documentos-modal.component.ts)
+- **Propósito**: modal compartido de documentos adjuntos (subir/listar/descargar/eliminar), parametrizado por tipo de entidad — cubre Turno, Paciente y Profesional con el mismo componente. Mismo patrón de subida/descarga que ya usaba Coberturas, generalizado. Primer modal del repo que combina `appScrollLock` **y** `appBodyPortal` desde el día uno (ver [DEUDA_TECNICA.md § 1.1](./DEUDA_TECNICA.md) sobre los siete modales legacy que no lo hacen).
+- **Inputs**: `open`, `tipoEntidad` (`'APPOINTMENT'|'PATIENT'|'PROFESIONAL'`), `entidadId`, `titulo`.
+- **Outputs**: `closed`.
+- **Servicios que usa**: `DocumentosService`, `NotificationService`, `ErrorHandlerService`.
+- **Reglas de cliente**: extensión (`pdf`/`docx`/`doc`) y tamaño (20MB) se validan antes de subir, mismos límites que el backend — evita el viaje de red para un archivo que el backend va a rechazar igual.
+- **Capacidad de gestión dinámica**: `capabilityManage` resuelve `PROFESIONALES:MANAGE` si `tipoEntidad === 'PROFESIONAL'`, `SEGUIMIENTO:PACIENTES` en el resto — espejo en el cliente de cómo `DocumentoController` resuelve la capacidad en runtime del lado del backend.
+- **Dónde aparece**: `SeguimientoViewComponent` (documentos de turno y de paciente), `ProfesionalesPanelComponent` (documentos de profesional).
 
 ### `PatientFormComponent` (`app-patient-form`)
 - **Archivo**: [`shared/components/patient-form/patient-form.component.ts`](../src/app/shared/components/patient-form/patient-form.component.ts)
@@ -123,7 +133,7 @@ Todos los componentes son **standalone** (`standalone: true`, sin `NgModule`). S
 
 ### `ProfesionalesPanelComponent` (`app-profesionales-panel`)
 - **Archivo**: [`features/seguimiento/components/profesionales-panel/profesionales-panel.component.ts`](../src/app/features/seguimiento/components/profesionales-panel/profesionales-panel.component.ts)
-- **Propósito**: lista de profesionales de la organización con avatar, badge "Usuario" (si tiene acceso vinculado), activar/desactivar, editar, eliminar, e invitar usuarios. Envuelve `ProfesionalDialogComponent` e `InvitationDialogComponent`.
+- **Propósito**: lista de profesionales de la organización con avatar, badge "Usuario" (si tiene acceso vinculado), activar/desactivar, editar, eliminar, invitar usuarios, y (desde 2026-08-08) un botón de documentos por profesional que abre `DocumentosModalComponent`. Envuelve `ProfesionalDialogComponent` e `InvitationDialogComponent`.
 - **Inputs**: ninguno (carga todo de `ProfesionalService`).
 - **Outputs**: ninguno.
 - **Servicios que usa**: `ProfesionalService`, `AuthService` (`hasRole('OWNER')`).
@@ -139,10 +149,11 @@ Todos los componentes son **standalone** (`standalone: true`, sin `NgModule`). S
 
 ### `AppointmentListOverflowComponent` (`app-appointment-list-overflow`)
 - **Archivo**: [`features/seguimiento/components/appointment-list-overflow/appointment-list-overflow.component.ts`](../src/app/features/seguimiento/components/appointment-list-overflow/appointment-list-overflow.component.ts)
-- **Propósito**: lista compacta de turnos de un paciente que detecta overflow con `ResizeObserver` y permite expandir/colapsar ("ver más").
+- **Propósito**: lista compacta de turnos de un paciente que detecta overflow con `ResizeObserver` y permite expandir/colapsar ("ver más"); dropdown de acciones por turno (pago/observaciones, resumen clínico, documentos).
 - **Inputs**: `appointments`, `identificacion`.
-- **Outputs**: `appointmentClick` (`Appointment`).
-- **Método público**: `collapse()` (invocado por el padre al cambiar el filtro de año/mes).
+- **Outputs**: `appointmentClick` (`Appointment`, abre el modal de pago), `clinicalClick` (`Appointment`, abre el resumen clínico), `documentsClick` (`Appointment`, abre `DocumentosModalComponent`).
+- **Método público**: `collapse()` (invocado por el padre al cambiar de página o de rango de fechas — antes, al cambiar el filtro de año/mes por paciente, eliminado el 2026-08-08).
+- **`@ViewChild('apptList')` es un setter, no un campo + `ngAfterViewInit`** — desconecta/reconecta el `ResizeObserver` cada vez que el div `#apptList` aparece o desaparece del DOM (detrás de `*ngIf="appointments.length > 0"`), en vez de asumir que existe. Ver [DEUDA_TECNICA.md § 7.1](./DEUDA_TECNICA.md) para el bug que este diseño corrige y por qué se prefirió sobre un guard simple.
 - **Dónde aparece**: `SeguimientoViewComponent` (una instancia por paciente listado).
 
 ### `TurnPaymentModalComponent` (`app-turn-payment-modal`)

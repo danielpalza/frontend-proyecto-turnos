@@ -106,22 +106,33 @@ Una entrada por cada componente enrutado en [`app.routes.ts`](../src/app/app.rou
 - **Componente**: `SeguimientoViewComponent` — [`src/app/features/seguimiento/seguimiento-view/seguimiento-view.component.ts`](../src/app/features/seguimiento/seguimiento-view/seguimiento-view.component.ts)
 - **Permisos**: `authGuard`, requiere capacidad `SEGUIMIENTO:VIEW`.
 - **Propósito**: doble función en una sola página:
-  1. **Historial por paciente** (columna izquierda): lista de pacientes con búsqueda, deuda total, turnos agrupados por año/mes, alta/edición de paciente.
-  2. **Gestión de profesionales y usuarios de la organización** (columna derecha, `app-profesionales-panel`) — alta/edición/baja de profesionales, activar/desactivar, e invitar nuevos usuarios a la organización.
+  1. **Historial por paciente** (columna izquierda): lista **paginada** de pacientes con turnos en un
+     rango de fechas (por defecto hoy → hoy + 30 días), búsqueda con debounce, deuda total, turnos del
+     paciente en ese rango, documentos adjuntos, alta/edición de paciente. **Reescrito 2026-08-08**:
+     antes cargaba todos los pacientes de la organización sin filtro de fecha por defecto y ofrecía un
+     select de año/mes de turnos por cada paciente — ver [DEUDA_TECNICA.md § 8](./DEUDA_TECNICA.md)
+     para el detalle del cambio y su impacto en `frontend-proyecto-tests`.
+  2. **Gestión de profesionales y usuarios de la organización** (columna derecha, `app-profesionales-panel`) — alta/edición/baja de profesionales, activar/desactivar, invitar nuevos usuarios, y (desde una sesión anterior) documentos adjuntos por profesional.
 - **Componentes que renderiza**:
-  - `AppointmentListOverflowComponent` (lista de turnos de un paciente, con expandir/colapsar si desborda)
-  - `PatientWizardPanelComponent` → embebe `PatientWizardComponent`/`PatientFormComponent` (alta/edición de paciente)
+  - `AppointmentListOverflowComponent` (lista de turnos de un paciente, con expandir/colapsar si desborda; botón de documentos del turno)
+  - `MiniCalendarPickerComponent` ×2, cross-constrained (`[maxDate]`/`[minDate]`) para el rango desde/hasta — mismo patrón que `panel-view.component.html`
+  - `PatientWizardPanelComponent` → embebe `PatientWizardComponent`/`PatientFormComponent` (alta/edición de paciente); emite `saved` para que la página refresque la página actual sin recargar todo
   - `ProfesionalesPanelComponent` → embebe `ProfesionalDialogComponent` e `InvitationDialogComponent`
   - `TurnPaymentModalComponent` (modal de pago/observaciones al hacer click en un turno de la lista)
   - `TurnClinicalModalComponent` (modal de resumen clínico de solo lectura del turno — odontograma/periodontograma —, abierto sobre el mismo turno seleccionado; el botón "Abrir ficha clínica completa" navega al módulo clínico correspondiente, ver [COMPONENTS.md](./COMPONENTS.md#turnclinicalmodalcomponent-app-turn-clinical-modal))
-- **Datos que carga / endpoints** (orquestado por `PatientDataService`, servicio scoped al componente, no singleton):
-  - `GET /api/appointments/seguimiento-resumen` (deuda total y turnos totales por paciente)
-  - `PatientService.getPatients()` (caché compartida)
-  - `GET /api/appointments/range?startDate=<año>-01-01&endDate=<año>-12-31` por cada año consultado (con caché en memoria por año, `ensureAllYearsLoaded` al filtrar "Todo")
-  - Panel de profesionales: `ProfesionalService.getProfesionales()` (caché), `POST/PATCH/DELETE /api/profesionales/{id}`, `PATCH /api/profesionales/{id}/toggle-active`
+  - `DocumentosModalComponent` (compartido) — documentos de un turno o de un paciente, ver [COMPONENTS.md](./COMPONENTS.md)
+- **Datos que carga / endpoints** (orquestado por `PatientDataService`, servicio scoped al componente, no singleton — reescrito 2026-08-08, ver [STATE.md](./STATE.md#patientdataservice-seguimiento)):
+  - `GET /api/appointments/seguimiento?desde=&hasta=&page=&size=&search=` (**nuevo**) — única fuente de la lista paginada: pacientes con turnos en el rango, sus turnos ya filtrados, y su deuda/total histórico.
+  - `PatientService.getPatients()` (caché compartida) — ya **no** alimenta la lista de la página; se usa solo para el chequeo de duplicados de documento en el wizard de alta.
+  - Documentos: `GET/POST /api/appointments/{id}/documentos`, `GET/POST /api/patients/{id}/documentos`, `GET /api/documentos/{id}/descarga`, `DELETE /api/documentos/{id}`.
+  - Panel de profesionales: `ProfesionalService.getProfesionales()` (caché), `POST/PATCH/DELETE /api/profesionales/{id}`, `PATCH /api/profesionales/{id}/toggle-active`, `GET/POST /api/profesionales/{id}/documentos`.
   - Invitaciones: `GET/POST /api/invitations`, `DELETE /api/invitations/{id}`
   - Modal de pago: mismos endpoints de turno que en Turnos (`PATCH /api/appointments/{id}`, `/addPayment`)
 - **Permisos adicionales**: el botón "Invitar usuario" y la sección de creación de acceso de usuario en `ProfesionalDialogComponent` solo se muestran si `AuthService.hasRole('OWNER')`.
+
+> `GET /api/appointments/seguimiento-resumen` (sin paginar, deuda/turnos históricos de toda la
+> organización) sigue existiendo en el backend (`bakend-proyecto-turnos/docs/API_ENDPOINTS.md`) pero
+> esta página **ya no lo consume** — no se determinó desde este repo si algún otro caller lo sigue usando.
 
 > Nota: aunque conceptualmente "gestionar profesionales" suena a Configuraciones, en el código real ese panel vive dentro de la página **Seguimiento**, no en Configuraciones. Ver también la nota de memoria del proyecto sobre autorización diferida (`ProfesionalController` sin chequeo de rol propio en el backend).
 

@@ -73,9 +73,27 @@ Reemplaza el mecanismo que antes vivía solo dentro de `OdontogramaStateService`
 
 Archivo: [`features/seguimiento/seguimiento-view/patient-data.service.ts`](../src/app/features/seguimiento/seguimiento-view/patient-data.service.ts). Está `@Injectable()` **sin** `providedIn: 'root'`, y se declara en `providers: [PatientDataService]` del propio `SeguimientoViewComponent` — cada vez que se entra a `/seguimiento` se crea una instancia nueva (caché vacía), y se destruye al salir.
 
-- Estado: campos de clase **planos, no reactivos** (`patients: Patient[]`, `patientGroups: PatientGroup[]`, `appointmentsByYear: Map<string, Appointment[]>`, `resumenByIdentificacion: Map`, `selectedYearByIdentificacion`/`selectedMonthByIdentificacion: Record<string,string>`).
-- El componente (`SeguimientoViewComponent`) llama métodos imperativos (`setPatients()`, `setResumen()`, `updatePatientGroups()`) y luego `cdr.markForCheck()` a mano — no hay ningún `Observable` de estado derivado.
-- **Advertencia de diseño documentada en el propio código** (comentario en `refreshFiltersForGroup`): bajo change detection zoneless, si un getter devuelve un array/objeto **nuevo** en cada evaluación de template (aunque el contenido sea idéntico), Angular vuelve a marcar la vista sucia en cada ciclo → dispara `NG0103` (bucle infinito). Por eso `getAvailableMonths()`/`getFilteredAppointments()` leen de un cache (`availableMonthsByIdentificacion`/`filteredAppointmentsByIdentificacion`) recalculado explícitamente, nunca desde el template directo.
+**Reescrito por completo el 2026-08-08** para pasar de "cachear todos los pacientes y todos los turnos
+de todos los años en memoria" a **dueño del estado de una sola página** del backend:
+
+- Estado: campos de clase **planos, no reactivos** — `desde`/`hasta` (rango de fechas, `string`
+  `YYYY-MM-DD`), `page`/`size` (`size` es `readonly = 20`), `searchTerm`, y el resultado de la última
+  página pedida: `patientGroups: SeguimientoPatientGroup[]`, `totalPages`, `totalElements`, `cargando`.
+  Ya no hay ningún campo por-paciente (`selectedYearByIdentificacion`, `appointmentsByYear`, etc.) — el
+  filtro es global a la página, no por tarjeta.
+- Un único método público, `loadPage(): Observable<void>` — pide `AppointmentsService.getSeguimiento(desde, hasta, page, size, searchTerm.trim() || undefined)`,
+  reemplaza `patientGroups`/`totalPages`/`totalElements` con la respuesta, y reconstruye
+  `patientsMap` (`Map<identificacion, Patient>`) desde cero en cada carga — **no** acumula entre
+  páginas (buscar o pasar de página dos borra el mapeo de la página anterior, ver
+  [DEUDA_TECNICA.md § 8](./DEUDA_TECNICA.md) sobre qué implica esto para E2E). El componente llama
+  `loadPage().subscribe({ next: () => cdr.markForCheck() })` — sigue siendo el componente quien pide el
+  refresco de la vista a mano, el servicio no expone ningún `Observable` de estado derivado.
+- La advertencia de `NG0103` (bucle infinito por getters que devuelven arrays/objetos nuevos en cada
+  evaluación de template) que motivaba los caches `availableMonthsByIdentificacion`/
+  `filteredAppointmentsByIdentificacion` **ya no aplica**: esos caches y los getters que los alimentaban
+  se eliminaron junto con el filtro por año/mes — `patientGroups`/`group.appointments` se leen directo
+  del template porque ya vienen filtrados y estables desde la última respuesta del backend, no
+  recalculados en cada ciclo.
 
 ### Mapas de edición inline en `AppointmentsPanelComponent`
 

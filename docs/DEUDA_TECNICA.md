@@ -3,7 +3,13 @@
 > Alcance: deuda del frontend Angular. Complementa [UI_RULES.md](./UI_RULES.md) (convenciones vigentes)
 > y, del lado del backend, `docs/DEUDA_TECNICA_PERMISOS.md`, que cubre la deuda del sistema de permisos.
 >
-> Última actualización: 2026-08-08, tras la auditoría UT-070 (§ 4.3): tercera instancia confirmada del
+> Última actualización: 2026-08-08, tras la paginación real de Seguimiento (reemplazo de los filtros
+> individuales de año/mes por paciente por un único rango desde/hasta): se marcó § 7.1 como **resuelto**
+> (fix aplicado, setter de `@ViewChild` en vez de `ngAfterViewInit`), se actualizó la referencia stale de
+> § 3.2/3.3 a `seguimiento-view.component.ts`, y se agregó la § 8 documentando los huecos que este
+> cambio (más el módulo de Documentos de una sesión anterior) deja en `frontend-proyecto-tests` —
+> incluida la confirmación de que 4 tests de `filtros-y-ficha.spec.ts` van a fallar.
+> Anteriormente, misma fecha: tras la auditoría UT-070 (§ 4.3): tercera instancia confirmada del
 > patrón de `markForCheck()` faltante, en `ConfiguracionesViewComponent.saveWhatsappTemplate()`.
 > Anteriormente, misma fecha: se agregó la § 7 (`AppointmentListOverflowComponent`: dos bugs
 > — un `TypeError` en `ngAfterViewInit` cuando el mes filtrado no tiene turnos, y un nodo huérfano en
@@ -185,7 +191,7 @@ todos los sitios de § 3.2 *y* los 403 de los correctos.
 | `configuraciones/.../invitation-dialog` | :75, :116, :144 | `findAll` / `create` / `revoke` |
 | `configuraciones/.../profesionales-panel` | :162, :205, :227 | `create`/`update` / `delete` / `toggleActive` |
 | `configuraciones/configuraciones-view` | :135 | `saveMensajeWhatsapp` |
-| `seguimiento/seguimiento-view` | :85 | `handleLoadError`, solo por la rama `getSeguimientoResumen()` |
+| `seguimiento/seguimiento-view` | :118 | `handleLoadError`, dispara si falla `patientData.loadPage()` (**actualizado 2026-08-08**: antes era una rama de `getSeguimientoResumen()`, reemplazado por la paginación real — ver § nueva sobre `frontend-proyecto-tests` más abajo) |
 | `seguimiento/.../patient-wizard-panel` | :185 | duplica **solo al editar**: `create(…, true)` marca skip, `update(…)` no |
 
 Arreglo: por cada uno, o marcar la petición con `skipGlobalErrorHandler()` (si el componente necesita el
@@ -200,7 +206,10 @@ rama `error:` no llega jamás:
 
 - `appointments/pages/turnos-view` :95, :118, :140 — `getFilteredAppointments()` / `getPatients()` / `getProfesionales()`
 - `configuraciones/.../profesionales-panel` :75 — `getProfesionales()`
-- `seguimiento/seguimiento-view` :85, por la rama `patientService.getPatients()`
+- ~~`seguimiento/seguimiento-view` :85, por la rama `patientService.getPatients()`~~ — **ya no aplica
+  (2026-08-08)**: con la reescritura para la paginación, esa suscripción (`ngOnInit`, línea 88) quedó
+  con un `next:` solo, sin rama `error:` — el hueco pasó de "handler muerto" a "sin handler", mismo
+  riesgo de fallo silencioso pero ya no es un caso de esta subsección específica.
 
 No duplican nada; el problema es lo contrario. Aparentan cubrir el fallo de carga de esos caches, que en
 realidad hoy **se traga en silencio** el `catchError` del servicio (el cache queda con el valor anterior y
@@ -442,7 +451,7 @@ Encontrados el 2026-08-08 escribiendo
 (Tier 6 de [PLAN_DE_TESTING.md](./PLAN_DE_TESTING.md)). Ninguno de los dos se corrigió — mismo criterio
 que los puntos 4.2 y 6 de esta lista: el spec fija el comportamiento actual con un test explícito.
 
-### 7.1 `ngAfterViewInit` revienta con `TypeError` si el período filtrado no tiene turnos
+### 7.1 `ngAfterViewInit` revienta con `TypeError` si el período filtrado no tiene turnos — RESUELTO (2026-08-08)
 
 ```ts
 @ViewChild('apptList') private readonly apptList!: ElementRef<HTMLDivElement>;
@@ -457,18 +466,41 @@ El div con `#apptList` está detrás de `*ngIf="appointments.length > 0"` en el 
 turnos llega vacío, ese `ViewChild` nunca se resuelve y `ngAfterViewInit` lee `.nativeElement` de
 `undefined`.
 
-El padre (`seguimiento-view.component.html`) solo evita instanciar este componente cuando
-`group.totalTurnos === 0` (el total histórico del paciente, sin filtrar). Pero le pasa
-`[appointments]="getFilteredAppointments(group)"`, que sí aplica el filtro de año/mes seleccionado —
-así que un paciente con turnos en **otros** meses pero ninguno en el mes actualmente filtrado deja
-`group.totalTurnos > 0` (el componente se crea) y `getFilteredAppointments(group)` en `[]` (el
-`ViewChild` no se resuelve). Es decir, **sí es alcanzable en producción**, no un caso de laboratorio:
-cualquier paciente con turnos fuera del mes que se esté mirando en Seguimiento lo dispara al elegir ese
-mes.
+Con el filtro de año/mes por paciente que existía en su momento, esto **sí era alcanzable en
+producción**: un paciente con turnos en otros meses pero ninguno en el mes filtrado dejaba
+`group.totalTurnos > 0` (el componente se creaba) y la lista filtrada en `[]` (el `ViewChild` no se
+resolvía). Con la paginación de Seguimiento (2026-08-08, ver § nueva más abajo) ese camino puntual ya no
+existe — el backend solo incluye pacientes con al menos un turno en el rango elegido, y `[appointments]`
+llega directamente filtrado al rango desde ahí, así que hoy `group.appointments` no debería llegar vacío
+para un paciente listado. El fix se mantiene igual porque el componente sigue siendo genérico (no asume
+nada sobre quién lo llama) y el caso general —`appointments` en `[]` en cualquier momento de la vida del
+componente— sigue siendo válido para cubrir.
 
-**Arreglo de raíz, cuando se priorice:** guardar `this.apptList?.nativeElement` con optional chaining
-antes de llamar a `observe(...)`, o mover el div `#apptList` fuera del `*ngIf` (dejando el mensaje vacío
-como contenido condicional *adentro* de un contenedor que siempre exista).
+**Fix:** se convirtió `@ViewChild('apptList')` de campo plano + `ngAfterViewInit` a un **setter**,
+espejando el patrón que ya usaba `@ViewChild('actionsMenu')` en el mismo componente (ver
+[appointment-list-overflow.component.ts:42-51](../src/app/features/seguimiento/components/appointment-list-overflow/appointment-list-overflow.component.ts)):
+
+```ts
+@ViewChild('apptList') set apptList(ref: ElementRef<HTMLDivElement> | undefined) {
+  this.resizeObserver?.disconnect();
+  this.resizeObserver = undefined;
+  if (!ref) {
+    this.isOverflowing = false;
+    return;
+  }
+  this.resizeObserver = new ResizeObserver(entries => this.onResize(entries));
+  this.resizeObserver.observe(ref.nativeElement);
+}
+```
+
+Elegido explícitamente en vez de un guard con optional chaining (`this.apptList?.nativeElement`) porque
+resuelve un problema adicional que el guard por sí solo no cubría: `ngAfterViewInit` solo corre **una
+vez**, así que un guard ahí nunca reengancharía el `ResizeObserver` si la lista pasaba de vacía a tener
+turnos más tarde (ej. al ampliar el rango de fechas). El setter, en cambio, se dispara cada vez que el
+nodo `#apptList` aparece o desaparece del DOM — desconecta el observer previo en ambos casos y solo
+vuelve a observar cuando el `ref` existe. Verificado con specs dedicados: no revienta y no registra
+`ResizeObserver` con lista vacía; si después aparecen turnos, engancha el `ResizeObserver` recién ahí;
+si los turnos vuelven a desaparecer, desconecta el `ResizeObserver` previo.
 
 ### 7.2 El dropdown de acciones reubicado en `document.body` queda huérfano si el componente se destruye mientras está abierto
 
@@ -492,3 +524,94 @@ dos botones) queda colgado de `<body>` para siempre.
 
 **Arreglo de raíz, cuando se priorice:** en `ngOnDestroy()`, además de `detachDismissListeners()`,
 remover `this.menuElement` del DOM si sigue conectado (`this.menuElement?.remove()`).
+
+## 8. Huecos pendientes en `frontend-proyecto-tests` tras la paginación de Seguimiento (2026-08-08)
+
+Esta sección documenta el estado de la suite E2E de Playwright (repo hermano
+`frontend-proyecto-tests`, **no editado** en esta sesión — quedó explícitamente fuera de alcance) frente
+a dos cambios funcionales hechos en este repo: (a) la migración del storage de adjuntos a Cloudflare R2
++ el módulo genérico de Documentos (Turno/Paciente/Profesional), y (b) el reemplazo de los filtros de
+año/mes por paciente de Seguimiento por un único filtro de rango de fechas con paginación real. Ninguno
+de los dos tiene todavía cobertura E2E — se listan acá para que quien retome ese repo no tenga que
+redescubrir la superficie de cambio leyendo diffs.
+
+### 8.1 Testids eliminados — confirmado: `filtros-y-ficha.spec.ts` los usa directamente
+
+La pestaña Seguimiento **ya no** tiene selects de año/mes por paciente. Se eliminaron los testids:
+
+- `tracking-year-filter-{identificacion}`
+- `tracking-month-filter-{identificacion}`
+
+**Confirmado por lectura directa de `frontend-proyecto-tests/tests/seguimiento/filtros-y-ficha.spec.ts`**
+(no es una suposición): 4 de sus 6 tests van a fallar por elemento no encontrado —
+
+- `SEG-025` ("el filtro por año acota el historial...") — `tracking-year-filter-{dni}` línea 58.
+- `SEG-026` ("el filtro por mes acota...") — `tracking-month-filter-{dni}` línea 73.
+- `SEG-027` ("el filtro 'Todo' en año carga turnos de todos los años, `ensureAllYearsLoaded`") —
+  `tracking-year-filter-{dni}` línea 87. Este test en particular queda **conceptualmente obsoleto**, no
+  solo roto: `ensureAllYearsLoaded` (el método que nombra) ya no existe, el nuevo modelo no tiene
+  noción de "cargar todos los años", solo un rango desde/hasta explícito.
+- `SEG-029` ("un paciente con 40+ turnos renderiza sin degradarse") — `tracking-year-filter-{dni}`
+  línea 114, además de medir un timing (`< 8s`) que ya no es comparable: antes medía renderizar 40
+  turnos de un paciente ya cargado en memoria, ahora la carga es paginada y llega del backend.
+
+`SEG-028` (estado vacío de ficha) y `SEG-036` (buscador por email) no tocan esos testids y probablemente
+sigan pasando, pero no se ejecutó la suite real para confirmarlo (fuera de alcance: el repo de tests
+está explícitamente excluido de edición en esta sesión, y correrlo no es lo mismo que editarlo pero
+tampoco aporta si de cualquier forma no se va a actuar sobre el resultado ahí).
+
+El método de componente que respaldaba estos filtros (`getFilteredAppointments(group)`,
+`onYearFilterChange`, `onMonthFilterChange`, `getAvailableMonths`, `ensureAllYearsLoaded`) se eliminó
+por completo — el filtrado por fecha ahora es global a la página, vía el rango desde/hasta (§ 8.2), no
+por paciente.
+
+### 8.2 Testids nuevos, sin cobertura E2E todavía
+
+Agregados por la reescritura de Seguimiento a paginación real (`seguimiento-view.component.html`):
+
+| Testid | Qué es |
+|---|---|
+| `tracking-date-range` | Contenedor de los dos selectores de fecha |
+| `tracking-date-from-field` / `tracking-date-from-label` | Selector "Desde" (`app-mini-calendar-picker`) |
+| `tracking-date-to-field` / `tracking-date-to-label` | Selector "Hasta" |
+| `tracking-loading` | Spinner mientras `cargando` está en `true` |
+| `tracking-pagination` | Contenedor de paginación (solo se renderiza si `totalPages > 1`) |
+| `tracking-page-prev-btn` / `tracking-page-next-btn` | Botones anterior/siguiente, `disabled` en los bordes |
+| `tracking-page-indicator` | Texto "Página X de Y (N pacientes)" |
+
+`tracking-search-input`, `tracking-no-results` y `tracking-patients-list` **no son nuevos** (ya
+existían), pero su semántica cambió: la búsqueda ahora tiene debounce de 300ms y dispara una request al
+backend (antes filtraba en memoria sobre la lista completa ya cargada), y la lista vacía puede deberse a
+"sin resultados de búsqueda" o a "sin pacientes con turnos en el rango" (mismo testid
+`tracking-no-results`, texto condicional distinto — ver `seguimiento-view.component.html`).
+
+Del módulo de Documentos (implementado en una sesión anterior a esta, tampoco cubierto en
+`frontend-proyecto-tests` hasta donde se pudo determinar desde este repo):
+
+| Testid | Qué es |
+|---|---|
+| `documentos-modal`, `documentos-cerrar-btn`, `documentos-tipo-select`, `documentos-upload-input`, `documentos-vacio`, `documentos-fila-{id}`, `documentos-descargar-btn-{id}`, `documentos-borrar-btn-{id}` | Modal compartido `DocumentosModalComponent` |
+| `tracking-patient-documents-btn-{identificacion}` | Botón "Documentos del paciente", junto al nombre en la card de Seguimiento |
+| `tracking-appointment-documents-btn-{appointmentId}` | Botón "Documentos" en el dropdown de acciones de un turno (`AppointmentListOverflowComponent`) |
+| `settings-profesional-documents-btn-{profesionalId}` | Botón "Documentos" en el panel de Profesionales (Configuraciones) |
+
+### 8.3 Cambio de comportamiento que puede romper flujos E2E existentes, no solo testids puntuales
+
+Antes, Seguimiento cargaba y mostraba **todos** los pacientes de la organización sin necesidad de que el
+usuario eligiera nada. Ahora:
+
+1. Al entrar, se aplica un rango por defecto **hoy → hoy + 30 días** (`ngOnInit`,
+   `getTodayAsYYYYMMDD()`/`addDays(..., 30)`) y solo aparecen pacientes con **al menos un turno en ese
+   rango**. Un spec que hoy asuma "todos los pacientes de seed data aparecen en Seguimiento sin tocar
+   nada" va a fallar si esos pacientes de seed no tienen turnos dentro de los próximos 30 días desde la
+   fecha real de ejecución del test.
+2. La lista está **paginada** (20 pacientes por página, `PatientDataService.size`). Un spec que cuente
+   filas esperando ver *todos* los pacientes con turnos en el rango en una sola pantalla se rompe si hay
+   más de 20 — antes no existía este límite.
+3. Buscar por nombre/documento ahora pega al backend con debounce (300ms) en vez de filtrar en memoria
+   al instante — un test que no espere ese margen antes de aserear sobre el resultado puede leer el
+   estado previo a que la respuesta llegue.
+
+No se pudo determinar desde este repo si `frontend-proyecto-tests` tiene specs de Seguimiento que
+dependan de alguno de estos tres supuestos — hace falta revisar ese repo directamente
+(`docs/PLAN_DE_PRUEBAS.md` ahí, o grepear `tracking-` en sus specs) antes de darlo por seguro.
