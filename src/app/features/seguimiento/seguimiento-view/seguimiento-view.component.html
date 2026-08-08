@@ -9,32 +9,60 @@
             <h1 class="fw-bold mb-0" data-testid="tracking-page-title">
               <i class="bi bi-clipboard-data me-2 text-primary"></i>Seguimiento de Pacientes
             </h1>
-            <p class="text-muted mb-0" data-testid="tracking-page-subtitle">Historial y seguimiento de todos los pacientes</p>
+            <p class="text-muted mb-0" data-testid="tracking-page-subtitle">Pacientes con turnos en el rango seleccionado</p>
           </div>
           <button type="button" class="btn btn-primary" [appCan]="Capability.SEGUIMIENTO_PACIENTES" (click)="openNewPatientWizard()" data-testid="tracking-new-patient-btn">
             <i class="bi bi-person-plus me-1"></i>Nuevo paciente
           </button>
         </div>
 
+        <!-- Filtro de rango de fechas (reemplaza los selects de año/mes por paciente) -->
+        <div class="date-range-selectors mb-3" data-testid="tracking-date-range">
+          <div class="date-field" data-testid="tracking-date-from-field">
+            <label for="tracking-date-from" data-testid="tracking-date-from-label">Desde</label>
+            <app-mini-calendar-picker
+              inputId="tracking-date-from"
+              [selectedDate]="desde"
+              [maxDate]="hasta"
+              (dateChange)="onDesdeChange($event)"
+            />
+          </div>
+          <div class="date-field" data-testid="tracking-date-to-field">
+            <label for="tracking-date-to" data-testid="tracking-date-to-label">Hasta</label>
+            <app-mini-calendar-picker
+              inputId="tracking-date-to"
+              [selectedDate]="hasta"
+              [minDate]="desde"
+              (dateChange)="onHastaChange($event)"
+            />
+          </div>
+        </div>
+
         <!-- Buscador -->
         <div class="mb-4 position-relative search-container">
           <i class="bi bi-search position-absolute top-50 translate-middle-y ms-3 text-muted"></i>
-          <input type="text" class="form-control ps-5" placeholder="Buscar por nombre, documento o email..."
-            [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" data-testid="tracking-search-input" />
+          <input type="text" class="form-control ps-5" placeholder="Buscar por nombre o documento..."
+            [(ngModel)]="searchTerm" data-testid="tracking-search-input" />
+        </div>
+
+        <!-- Cargando -->
+        <div *ngIf="cargando" class="text-center text-muted py-4" data-testid="tracking-loading">
+          <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          Cargando...
         </div>
 
         <!-- Sin resultados -->
-        <div *ngIf="patientGroups.length === 0" class="card empty-state" data-testid="tracking-no-results">
+        <div *ngIf="!cargando && patientGroups.length === 0" class="card empty-state" data-testid="tracking-no-results">
           <div class="card-body text-center p-5">
             <i class="bi bi-people fs-1 mb-3 d-block text-muted opacity-50"></i>
             <p class="text-muted mb-0">
-              {{ searchTerm ? 'No se encontraron pacientes' : 'No hay pacientes registrados' }}
+              {{ searchTerm ? 'No se encontraron pacientes' : 'Ningún paciente tiene turnos en el rango de fechas seleccionado' }}
             </p>
           </div>
         </div>
 
         <!-- Lista de pacientes -->
-        <div class="patients-list" *ngIf="patientGroups.length > 0" data-testid="tracking-patients-list">
+        <div class="patients-list" *ngIf="!cargando && patientGroups.length > 0" data-testid="tracking-patients-list">
           <div *ngFor="let group of patientGroups; trackBy: trackByPatientIdentificacion" class="card shadow-sm patient-card mb-4" [attr.data-testid]="'tracking-patient-card-' + group.patient.identificacion">
             <div class="card-header bg-white">
               <div class="d-flex align-items-center gap-3">
@@ -68,38 +96,35 @@
             </div>
 
             <div class="card-body">
-              <!-- Historial de turnos -->
-              <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
-                <p class="fw-semibold text-secondary mb-0" [attr.data-testid]="'tracking-patient-history-label-' + group.patient.identificacion">
-                  <i class="bi bi-calendar-check me-2"></i>Historial de turnos ({{
-                  group.totalTurnos
-                  }})
-                </p>
-                <div class="d-flex gap-2" *ngIf="group.totalTurnos > 0">
-                  <select class="form-select form-select-sm year-filter"
-                    [ngModel]="getSelectedYear(group.patient.identificacion)" (ngModelChange)="onYearFilterChange(group.patient.identificacion, $event)"
-                    [attr.data-testid]="'tracking-year-filter-' + group.patient.identificacion">
-                    <option value="all">Todo</option>
-                    <option *ngFor="let y of group.availableYears" [value]="y">{{ y }}</option>
-                  </select>
-                  <select class="form-select form-select-sm month-filter"
-                    [ngModel]="getSelectedMonth(group.patient.identificacion)" (ngModelChange)="onMonthFilterChange(group.patient.identificacion, $event)"
-                    [attr.data-testid]="'tracking-month-filter-' + group.patient.identificacion">
-                    <option value="all">Todo</option>
-                    <option *ngFor="let m of getAvailableMonths(group.patient.identificacion)" [value]="m.value">{{ m.label }}</option>
-                  </select>
-                </div>
-              </div>
+              <!-- Turnos en el rango seleccionado -->
+              <p class="fw-semibold text-secondary mb-2" [attr.data-testid]="'tracking-patient-history-label-' + group.patient.identificacion">
+                <i class="bi bi-calendar-check me-2"></i>Turnos en el rango ({{ group.appointments.length }})
+                <span class="text-muted fw-normal" *ngIf="group.totalTurnos > group.appointments.length">
+                  · {{ group.totalTurnos }} en total
+                </span>
+              </p>
 
-              <div *ngIf="group.totalTurnos === 0" class="text-muted small mb-2">
-                Sin turnos registrados
-              </div>
-              <app-appointment-list-overflow *ngIf="group.totalTurnos > 0"
-                [appointments]="getFilteredAppointments(group)" [identificacion]="group.patient.identificacion || ''"
+              <app-appointment-list-overflow
+                [appointments]="group.appointments" [identificacion]="group.patient.identificacion || ''"
                 (appointmentClick)="openTurnModal($event)" (clinicalClick)="openClinicalModal($event)"
                 (documentsClick)="openDocumentosModalTurno($event)">
               </app-appointment-list-overflow>
             </div>
+          </div>
+
+          <!-- Paginación -->
+          <div class="tracking-pagination" data-testid="tracking-pagination" *ngIf="totalPages > 1">
+            <button type="button" class="btn btn-outline-secondary btn-sm" [disabled]="page === 0"
+              (click)="goToPreviousPage()" data-testid="tracking-page-prev-btn">
+              <i class="bi bi-chevron-left"></i> Anterior
+            </button>
+            <span class="tracking-page-indicator" data-testid="tracking-page-indicator">
+              Página {{ page + 1 }} de {{ totalPages }} ({{ totalElements }} {{ totalElements === 1 ? 'paciente' : 'pacientes' }})
+            </span>
+            <button type="button" class="btn btn-outline-secondary btn-sm" [disabled]="page + 1 >= totalPages"
+              (click)="goToNextPage()" data-testid="tracking-page-next-btn">
+              Siguiente <i class="bi bi-chevron-right"></i>
+            </button>
           </div>
         </div>
       </div>
@@ -107,7 +132,7 @@
   </div>
 
   <!-- Wizard de paciente (crear/editar) -->
-  <app-patient-wizard-panel [patients]="patients"></app-patient-wizard-panel>
+  <app-patient-wizard-panel [patients]="patients" (saved)="onPatientSaved()"></app-patient-wizard-panel>
 
   <!-- Modal Pago y observaciones del turno -->
   <app-turn-payment-modal

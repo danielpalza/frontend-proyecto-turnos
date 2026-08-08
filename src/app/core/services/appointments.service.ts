@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpContext, HttpErrorResponse } from '@angular/common/http';
 import { Observable, BehaviorSubject, Subject, tap, map, catchError, of, combineLatest, EMPTY, throwError, switchMap } from 'rxjs';
-import { Appointment, AppointmentCreateDTO, AppointmentPartialUpdateDTO, AppointmentStatus, AppointmentCountByDate, PatientSeguimientoResumen } from '../models';
+import { Appointment, AppointmentCreateDTO, AppointmentPartialUpdateDTO, AppointmentStatus, AppointmentCountByDate, PatientSeguimientoResumen, PageResponse, SeguimientoPatientGroup } from '../models';
 import { API_CONFIG } from './api.config';
 import { skipGlobalErrorHandler } from '../interceptors/http-context';
 import { ErrorHandlerService } from './error-handler.service';
@@ -159,6 +159,17 @@ export class AppointmentsService {
 
   getSeguimientoResumen(): Observable<PatientSeguimientoResumen[]> {
     return this.http.get<PatientSeguimientoResumen[]>(`${this.apiUrl}/seguimiento-resumen`);
+  }
+
+  /** Seguimiento paginado: solo pacientes con turnos en [desde,hasta]. No reemplaza a `range`/`getSeguimientoResumen`, que sigue usando el calendario. */
+  getSeguimiento(
+    desde: string, hasta: string, page: number, size: number, search?: string
+  ): Observable<PageResponse<SeguimientoPatientGroup>> {
+    let params: Record<string, string> = { desde, hasta, page: String(page), size: String(size) };
+    if (search) {
+      params = { ...params, search };
+    }
+    return this.http.get<PageResponse<SeguimientoPatientGroup>>(`${this.apiUrl}/seguimiento`, { params });
   }
 
   getAppointmentCountByDateRange(startDate: string, endDate: string): Observable<AppointmentCountByDate> {

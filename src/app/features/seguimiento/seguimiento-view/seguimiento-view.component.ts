@@ -3,35 +3,57 @@ import { CommonModule } from '@angular/common';
 import { Capability } from '../../../core/auth/capabilities';
 import { CanDirective } from '../../../shared/directives/can.directive';
 import { FormsModule } from '@angular/forms';
-import { Appointment, Patient, TipoEntidadDocumento } from '../../../core/models';
-import { AppointmentsService } from '../../../core/services/appointments.service';
+import { Appointment, Patient, SeguimientoPatientGroup, TipoEntidadDocumento } from '../../../core/models';
 import { PatientService } from '../../../core/services/patient.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
-import { combineLatest, Subscription } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { fullName } from '../../../core/utils/full-name.util';
 import { formatCurrency as formatCurrencyShared } from '../../../core/utils/currency.util';
+import { formatDateToYYYYMMDD, getTodayAsYYYYMMDD } from '../../../core/utils/date.utils';
 import { AppointmentListOverflowComponent } from '../components/appointment-list-overflow/appointment-list-overflow.component';
 import { PatientWizardPanelComponent } from '../components/patient-wizard-panel/patient-wizard-panel.component';
 import { TurnPaymentModalComponent } from '../components/turn-payment-modal/turn-payment-modal.component';
 import { TurnClinicalModalComponent } from '../components/turn-clinical-modal/turn-clinical-modal.component';
 import { DocumentosModalComponent } from '../../../shared/components/documentos-modal/documentos-modal.component';
-import { PatientDataService, PatientGroup, MonthOption } from './patient-data.service';
+import { MiniCalendarPickerComponent } from '../../../shared/components/mini-calendar-picker/mini-calendar-picker.component';
+import { PatientDataService } from './patient-data.service';
+
+const SEARCH_DEBOUNCE_MS = 300;
+const DEFAULT_RANGE_DAYS = 30;
 
 @Component({
   selector: 'app-seguimiento-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, AppointmentListOverflowComponent, PatientWizardPanelComponent, TurnPaymentModalComponent, TurnClinicalModalComponent, DocumentosModalComponent, CanDirective],
+  imports: [
+    CommonModule, FormsModule, AppointmentListOverflowComponent, PatientWizardPanelComponent,
+    TurnPaymentModalComponent, TurnClinicalModalComponent, DocumentosModalComponent,
+    MiniCalendarPickerComponent, CanDirective
+  ],
   providers: [PatientDataService],
   templateUrl: './seguimiento-view.component.html',
   styleUrls: ['./seguimiento-view.component.scss']
 })
 export class SeguimientoViewComponent implements OnInit, OnDestroy {
   readonly Capability = Capability;
-  get patients(): Patient[] { return this.patientData.patients; }
-  get patientGroups(): PatientGroup[] { return this.patientData.patientGroups; }
+
+  /** Todos los pacientes de la organización — solo para el chequeo de duplicados del wizard, independiente de la página de Seguimiento. */
+  patients: Patient[] = [];
+
+  get patientGroups(): SeguimientoPatientGroup[] { return this.patientData.patientGroups; }
+  get cargando(): boolean { return this.patientData.cargando; }
+  get desde(): string { return this.patientData.desde; }
+  get hasta(): string { return this.patientData.hasta; }
+  get page(): number { return this.patientData.page; }
+  get totalPages(): number { return this.patientData.totalPages; }
+  get totalElements(): number { return this.patientData.totalElements; }
+
   get searchTerm(): string { return this.patientData.searchTerm; }
-  set searchTerm(value: string) { this.patientData.searchTerm = value; }
+  set searchTerm(value: string) {
+    this.patientData.searchTerm = value;
+    this.searchChanged$.next(value);
+  }
 
   @ViewChildren(AppointmentListOverflowComponent) appointmentLists!: QueryList<AppointmentListOverflowComponent>;
   @ViewChild(PatientWizardPanelComponent) wizardPanel!: PatientWizardPanelComponent;
@@ -44,10 +66,9 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
   selectedAppointment: Appointment | null = null;
 
   private subscriptions = new Subscription();
-  private yearFilterSeq = new Map<string, number>(); // descarta respuestas de filtro de año fuera de orden, por paciente
+  private readonly searchChanged$ = new Subject<string>();
 
   constructor(
-    private appointmentsService: AppointmentsService,
     private patientService: PatientService,
     private notification: NotificationService,
     private errorHandler: ErrorHandlerService,
@@ -58,25 +79,37 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     document.documentElement.classList.add('seguimiento-view-active');
 
-    this.subscriptions.add(
-      combineLatest([
-        this.appointmentsService.getSeguimientoResumen(),
-        this.patientService.getPatients()
-      ]).subscribe({
-        next: ([resumen, patients]) => {
-          this.patientData.setPatients(patients);
-          this.patientData.setResumen(resumen);
+    this.patientData.desde = getTodayAsYYYYMMDD();
+    this.patientData.hasta = this.addDays(new Date(), DEFAULT_RANGE_DAYS);
 
-          this.subscriptions.add(
-            this.patientData.loadYear(this.patientData.currentYear()).subscribe({
-              next: () => {
-                this.patientData.updatePatientGroups();
-                this.cdr.markForCheck();
-              },
-              error: (err) => this.handleLoadError(err)
-            })
-          );
-        },
+    // Lista completa de pacientes, solo para el chequeo de duplicados del wizard — independiente
+    // de la página de Seguimiento (ver comentario en patient-data.service.ts).
+    this.subscriptions.add(
+      this.patientService.getPatients().subscribe({
+        next: (list) => { this.patients = list; this.cdr.markForCheck(); }
+      })
+    );
+
+    this.subscriptions.add(
+      this.searchChanged$.pipe(debounceTime(SEARCH_DEBOUNCE_MS), distinctUntilChanged()).subscribe(() => {
+        this.patientData.page = 0;
+        this.fetchPage();
+      })
+    );
+
+    this.fetchPage();
+  }
+
+  ngOnDestroy(): void {
+    document.documentElement.classList.remove('seguimiento-view-active');
+    this.subscriptions.unsubscribe();
+  }
+
+  private fetchPage(): void {
+    this.collapseAllAppointmentLists();
+    this.subscriptions.add(
+      this.patientData.loadPage().subscribe({
+        next: () => this.cdr.markForCheck(),
         error: (err) => this.handleLoadError(err)
       })
     );
@@ -92,71 +125,46 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
     }
   }
 
-  private refreshResumenAndGroups(): void {
-    this.subscriptions.add(
-      this.patientData.refreshResumen().subscribe({
-        next: () => this.cdr.markForCheck(),
-        error: (err) => this.handleLoadError(err)
-      })
-    );
+  private collapseAllAppointmentLists(): void {
+    this.appointmentLists?.forEach(list => list.collapse());
   }
 
-  ngOnDestroy(): void {
-    document.documentElement.classList.remove('seguimiento-view-active');
-    this.subscriptions.unsubscribe();
+  private addDays(date: Date, days: number): string {
+    const result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return formatDateToYYYYMMDD(result);
   }
 
-  getSelectedYear(identificacion?: string | null): string {
-    return this.patientData.getSelectedYear(identificacion);
+  // --- Filtro de rango de fechas (global, reemplaza los selects de año/mes por paciente) ---
+
+  onDesdeChange(value: string): void {
+    this.patientData.desde = value;
+    this.patientData.page = 0;
+    this.fetchPage();
   }
 
-  getSelectedMonth(identificacion?: string | null): string {
-    return this.patientData.getSelectedMonth(identificacion);
+  onHastaChange(value: string): void {
+    this.patientData.hasta = value;
+    this.patientData.page = 0;
+    this.fetchPage();
   }
 
-  onYearFilterChange(identificacion: string | undefined | null, value: string): void {
-    if (!identificacion) return;
-    this.collapseAppointmentList(identificacion);
-    const seq = (this.yearFilterSeq.get(identificacion) ?? 0) + 1;
-    this.yearFilterSeq.set(identificacion, seq);
-    this.subscriptions.add(
-      this.patientData.onYearFilterChange(identificacion, value).subscribe({
-        next: () => {
-          if (this.yearFilterSeq.get(identificacion) !== seq) return; // respuesta obsoleta, se descarta
-          this.patientData.updatePatientGroups();
-          this.cdr.markForCheck();
-        },
-        error: (err) => this.handleLoadError(err)
-      })
-    );
+  // --- Paginación ---
+
+  goToPreviousPage(): void {
+    if (this.patientData.page === 0) return;
+    this.patientData.page--;
+    this.fetchPage();
   }
 
-  onMonthFilterChange(identificacion: string | undefined | null, value: string): void {
-    if (!identificacion) return;
-    this.collapseAppointmentList(identificacion);
-    this.patientData.onMonthFilterChange(identificacion, value);
+  goToNextPage(): void {
+    if (this.patientData.page + 1 >= this.patientData.totalPages) return;
+    this.patientData.page++;
+    this.fetchPage();
   }
 
-  /** Colapsa la lista de turnos expandida de un paciente (p.ej. al cambiar de año/mes). */
-  private collapseAppointmentList(identificacion: string): void {
-    this.appointmentLists?.find(list => list.identificacion === identificacion)?.collapse();
-  }
-
-  getAvailableMonths(identificacion?: string | null): MonthOption[] {
-    return this.patientData.getAvailableMonths(identificacion);
-  }
-
-  getFilteredAppointments(group: PatientGroup): Appointment[] {
-    return this.patientData.getFilteredAppointments(group);
-  }
-
-  trackByPatientIdentificacion(_index: number, group: PatientGroup): string {
+  trackByPatientIdentificacion(_index: number, group: SeguimientoPatientGroup): string {
     return group.patient.identificacion;
-  }
-
-  onSearchChange(): void {
-    // Solo actualizar cuando cambia el término de búsqueda
-    this.patientData.updatePatientGroups();
   }
 
   fullName(nombre?: string | null, apellido?: string | null): string {
@@ -168,7 +176,7 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
   }
 
   /** Editar paciente desde la tarjeta de la lista */
-  editPatientFromGroup(group: PatientGroup): void {
+  editPatientFromGroup(group: SeguimientoPatientGroup): void {
     this.wizardPanel.openEdit(group.patient);
   }
 
@@ -177,10 +185,15 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
     this.wizardPanel.openNew();
   }
 
+  /** El wizard emite `saved` al crear/actualizar con éxito — refresca la página actual. */
+  onPatientSaved(): void {
+    this.fetchPage();
+  }
+
   getCoberturaInfo(identificacion: string): string {
     const patient = this.getPatientByIdentificacion(identificacion);
     if (!patient) return '';
-    
+
     const parts: string[] = [];
     if (patient.coberturaNombre) {
       parts.push(patient.coberturaNombre);
@@ -191,7 +204,7 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
     if (patient.coberturaNumero) {
       parts.push(`(${patient.coberturaNumero})`);
     }
-    
+
     return parts.length > 0 ? parts.join(' ') : '';
   }
 
@@ -259,8 +272,7 @@ export class SeguimientoViewComponent implements OnInit, OnDestroy {
     this.documentosEntidadId = null;
   }
 
-  onAppointmentUpdated(updated: Appointment): void {
-    this.patientData.updateCachedAppointment(updated);
-    this.refreshResumenAndGroups();
+  onAppointmentUpdated(_updated: Appointment): void {
+    this.fetchPage();
   }
 }

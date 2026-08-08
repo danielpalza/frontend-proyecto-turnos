@@ -1,9 +1,8 @@
 import { render } from '@testing-library/angular';
-import { of, Subject, throwError } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 import { SeguimientoViewComponent } from './seguimiento-view.component';
-import { PatientDataService, PatientGroup } from './patient-data.service';
-import { AppointmentsService } from '../../../core/services/appointments.service';
+import { PatientDataService } from './patient-data.service';
 import { PatientService } from '../../../core/services/patient.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
@@ -13,19 +12,19 @@ import { CoberturasService } from '../../coberturas/coberturas.service';
 import { OdontogramaService } from '../../../core/services/odontograma.service';
 import { PeriodontogramaService } from '../../../core/services/periodontograma.service';
 import { ModuleRulesService } from '../../../core/services/module-rules.service';
-import { Appointment, Patient } from '../../../core/models';
+import { AppointmentsService } from '../../../core/services/appointments.service';
+import { Appointment, Patient, SeguimientoPatientGroup } from '../../../core/models';
 
 function patient(overrides: Partial<Patient> = {}): Patient {
   return { id: 'p1', nombre: 'Ana', apellido: 'García', identificacion: '12345678', ...overrides } as Patient;
 }
 
-function group(overrides: Partial<PatientGroup> = {}): PatientGroup {
+function group(overrides: Partial<SeguimientoPatientGroup> = {}): SeguimientoPatientGroup {
   return {
     patient: patient(),
     appointments: [],
     totalAdeudado: 0,
     totalTurnos: 0,
-    availableYears: ['2026'],
     ...overrides
   };
 }
@@ -36,24 +35,17 @@ function appt(overrides: Partial<Appointment> = {}): Appointment {
 
 function makePatientDataMock() {
   return {
-    patients: [] as Patient[],
-    patientGroups: [] as PatientGroup[],
-    patientsMap: new Map<string, Patient>(),
+    desde: '',
+    hasta: '',
+    page: 0,
+    size: 20,
     searchTerm: '',
-    setPatients: vi.fn(),
-    setResumen: vi.fn(),
-    refreshResumen: vi.fn(() => of(undefined)),
-    updateCachedAppointment: vi.fn(),
-    currentYear: vi.fn(() => '2026'),
-    loadYear: vi.fn(() => of([] as Appointment[])),
-    ensureAllYearsLoaded: vi.fn(() => of(null)),
-    updatePatientGroups: vi.fn(),
-    getSelectedYear: vi.fn(() => '2026'),
-    getSelectedMonth: vi.fn(() => 'all'),
-    onYearFilterChange: vi.fn((_id: string, _v: string) => of(null)),
-    onMonthFilterChange: vi.fn(),
-    getAvailableMonths: vi.fn(() => []),
-    getFilteredAppointments: vi.fn((g: PatientGroup) => g.appointments)
+    patientGroups: [] as SeguimientoPatientGroup[],
+    patientsMap: new Map<string, Patient>(),
+    totalPages: 0,
+    totalElements: 0,
+    cargando: false,
+    loadPage: vi.fn(() => of(undefined))
   };
 }
 
@@ -61,7 +53,6 @@ function makeMocks() {
   return {
     patientData: makePatientDataMock(),
     appointmentsService: {
-      getSeguimientoResumen: vi.fn(() => of([])),
       addPaymentWithFeedback: vi.fn(() => of(appt())),
       updateWithFeedback: vi.fn(() => of(appt()))
     },
@@ -121,97 +112,160 @@ describe('SeguimientoViewComponent', () => {
       expect(document.documentElement.classList.contains('seguimiento-view-active')).toBe(false);
     });
 
-    it('camino feliz: resumen+pacientes -> loadYear -> updatePatientGroups se llama una sola vez', async () => {
+    it('setea desde=hoy y hasta=hoy+30 dias por defecto, y carga la primera pagina una sola vez', async () => {
+      const mocks = makeMocks();
+
+      await renderView(mocks);
+
+      expect(mocks.patientData.desde).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(mocks.patientData.hasta).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(mocks.patientData.desde < mocks.patientData.hasta).toBe(true);
+      expect(mocks.patientData.loadPage).toHaveBeenCalledTimes(1);
+    });
+
+    it('puebla `patients` desde PatientService, para el chequeo de duplicados del wizard', async () => {
       const mocks = makeMocks();
       const patients = [patient()];
       mocks.patientService.getPatients.mockReturnValue(of(patients));
 
-      await renderView(mocks);
+      const { fixture } = await renderView(mocks);
 
-      expect(mocks.patientData.setPatients).toHaveBeenCalledWith(patients);
-      expect(mocks.patientData.setResumen).toHaveBeenCalled();
-      expect(mocks.patientData.loadYear).toHaveBeenCalledWith('2026');
-      expect(mocks.patientData.updatePatientGroups).toHaveBeenCalledTimes(1);
+      expect(fixture.componentInstance.patients).toEqual(patients);
     });
 
-    it('error 404 al cargar: se ignora en silencio, sin toast', async () => {
+    it('error 404 al cargar la pagina: se ignora en silencio, sin toast', async () => {
       const mocks = makeMocks();
-      mocks.appointmentsService.getSeguimientoResumen.mockReturnValue(throwError(() => ({ status: 404 })));
+      mocks.patientData.loadPage.mockReturnValue(throwError(() => ({ status: 404 })));
+
       await renderView(mocks);
 
       expect(mocks.notification.showError).not.toHaveBeenCalled();
     });
 
-    it('otro error: dispara el toast', async () => {
+    it('otro error al cargar la pagina: dispara el toast', async () => {
       const mocks = makeMocks();
-      mocks.appointmentsService.getSeguimientoResumen.mockReturnValue(throwError(() => ({ status: 500 })));
+      mocks.patientData.loadPage.mockReturnValue(throwError(() => ({ status: 500 })));
+
       await renderView(mocks);
 
       expect(mocks.notification.showError).toHaveBeenCalledWith('Error al cargar los datos');
     });
   });
 
-  describe('onYearFilterChange: descarta respuestas de filtro fuera de orden, por paciente (independiente entre pacientes)', () => {
-    it('una respuesta vieja del paciente A no pisa una más nueva del mismo paciente', async () => {
+  describe('buscador con debounce', () => {
+    it('cambiar el termino de busqueda no recarga hasta pasado el debounce, y resetea a pagina 0', async () => {
+      vi.useFakeTimers();
       const mocks = makeMocks();
-      const responses: Subject<null>[] = [new Subject(), new Subject()];
-      let call = 0;
-      mocks.patientData.onYearFilterChange.mockImplementation(() => responses[call++] as never);
       const { fixture } = await renderView(mocks);
+      mocks.patientData.page = 3;
+      mocks.patientData.loadPage.mockClear();
 
-      fixture.componentInstance.onYearFilterChange('12345678', '2025');
-      fixture.componentInstance.onYearFilterChange('12345678', '2024');
-      mocks.patientData.updatePatientGroups.mockClear();
+      fixture.componentInstance.searchTerm = 'ana';
+      expect(mocks.patientData.loadPage).not.toHaveBeenCalled();
 
-      responses[0].next(null); // respuesta vieja (del primer cambio) llega después
-      expect(mocks.patientData.updatePatientGroups).not.toHaveBeenCalled();
+      vi.advanceTimersByTime(300);
 
-      responses[1].next(null); // respuesta del segundo cambio (la vigente)
-      expect(mocks.patientData.updatePatientGroups).toHaveBeenCalledTimes(1);
+      expect(mocks.patientData.searchTerm).toBe('ana');
+      expect(mocks.patientData.page).toBe(0);
+      expect(mocks.patientData.loadPage).toHaveBeenCalledTimes(1);
+
+      vi.useRealTimers();
     });
 
-    it('los contadores de secuencia son independientes entre pacientes distintos', async () => {
-      const mocks = makeMocks();
-      const mainSubject = new Subject<null>();
-      mocks.patientData.onYearFilterChange.mockImplementation((id: string) => (id === 'pA' ? mainSubject : of(null)) as never);
-      const { fixture } = await renderView(mocks);
-
-      fixture.componentInstance.onYearFilterChange('pA', '2025');
-      fixture.componentInstance.onYearFilterChange('pB', '2024');
-      mocks.patientData.updatePatientGroups.mockClear();
-
-      mainSubject.next(null);
-
-      expect(mocks.patientData.updatePatientGroups).toHaveBeenCalledTimes(1);
-    });
-
-    it('sin identificacion, no hace nada', async () => {
+    it('varias teclas seguidas antes de que venza el debounce disparan una sola carga', async () => {
+      vi.useFakeTimers();
       const mocks = makeMocks();
       const { fixture } = await renderView(mocks);
+      mocks.patientData.loadPage.mockClear();
 
-      fixture.componentInstance.onYearFilterChange(null, '2025');
+      fixture.componentInstance.searchTerm = 'a';
+      vi.advanceTimersByTime(100);
+      fixture.componentInstance.searchTerm = 'an';
+      vi.advanceTimersByTime(100);
+      fixture.componentInstance.searchTerm = 'ana';
+      vi.advanceTimersByTime(300);
 
-      expect(mocks.patientData.onYearFilterChange).not.toHaveBeenCalled();
+      expect(mocks.patientData.loadPage).toHaveBeenCalledTimes(1);
+
+      vi.useRealTimers();
     });
   });
 
-  describe('onMonthFilterChange', () => {
-    it('delega en el servicio', async () => {
+  describe('onDesdeChange / onHastaChange', () => {
+    it('onDesdeChange actualiza desde, resetea la pagina y recarga', async () => {
       const mocks = makeMocks();
+      mocks.patientData.page = 2;
       const { fixture } = await renderView(mocks);
+      mocks.patientData.loadPage.mockClear();
 
-      fixture.componentInstance.onMonthFilterChange('12345678', '08');
+      fixture.componentInstance.onDesdeChange('2026-01-01');
 
-      expect(mocks.patientData.onMonthFilterChange).toHaveBeenCalledWith('12345678', '08');
+      expect(mocks.patientData.desde).toBe('2026-01-01');
+      expect(mocks.patientData.page).toBe(0);
+      expect(mocks.patientData.loadPage).toHaveBeenCalledTimes(1);
     });
 
-    it('sin identificacion, no hace nada', async () => {
+    it('onHastaChange actualiza hasta, resetea la pagina y recarga', async () => {
+      const mocks = makeMocks();
+      mocks.patientData.page = 2;
+      const { fixture } = await renderView(mocks);
+      mocks.patientData.loadPage.mockClear();
+
+      fixture.componentInstance.onHastaChange('2026-12-31');
+
+      expect(mocks.patientData.hasta).toBe('2026-12-31');
+      expect(mocks.patientData.page).toBe(0);
+      expect(mocks.patientData.loadPage).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('paginación', () => {
+    it('goToNextPage incrementa la página y recarga', async () => {
+      const mocks = makeMocks();
+      mocks.patientData.totalPages = 3;
+      const { fixture } = await renderView(mocks);
+      mocks.patientData.loadPage.mockClear();
+
+      fixture.componentInstance.goToNextPage();
+
+      expect(mocks.patientData.page).toBe(1);
+      expect(mocks.patientData.loadPage).toHaveBeenCalledTimes(1);
+    });
+
+    it('goToNextPage no hace nada en la última página', async () => {
+      const mocks = makeMocks();
+      mocks.patientData.page = 2;
+      mocks.patientData.totalPages = 3;
+      const { fixture } = await renderView(mocks);
+      mocks.patientData.loadPage.mockClear();
+
+      fixture.componentInstance.goToNextPage();
+
+      expect(mocks.patientData.page).toBe(2);
+      expect(mocks.patientData.loadPage).not.toHaveBeenCalled();
+    });
+
+    it('goToPreviousPage no hace nada en la primera página', async () => {
       const mocks = makeMocks();
       const { fixture } = await renderView(mocks);
+      mocks.patientData.loadPage.mockClear();
 
-      fixture.componentInstance.onMonthFilterChange(undefined, '08');
+      fixture.componentInstance.goToPreviousPage();
 
-      expect(mocks.patientData.onMonthFilterChange).not.toHaveBeenCalled();
+      expect(mocks.patientData.page).toBe(0);
+      expect(mocks.patientData.loadPage).not.toHaveBeenCalled();
+    });
+
+    it('goToPreviousPage decrementa cuando no está en la primera página', async () => {
+      const mocks = makeMocks();
+      mocks.patientData.page = 2;
+      const { fixture } = await renderView(mocks);
+      mocks.patientData.loadPage.mockClear();
+
+      fixture.componentInstance.goToPreviousPage();
+
+      expect(mocks.patientData.page).toBe(1);
+      expect(mocks.patientData.loadPage).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -255,15 +309,14 @@ describe('SeguimientoViewComponent', () => {
       expect(fixture.componentInstance.selectedAppointmentPatient).toBe(p);
     });
 
-    it('onAppointmentUpdated actualiza el cache y refresca el resumen', async () => {
+    it('onAppointmentUpdated recarga la página actual', async () => {
       const mocks = makeMocks();
       const { fixture } = await renderView(mocks);
-      const updated = appt({ id: 'a1' });
+      mocks.patientData.loadPage.mockClear();
 
-      fixture.componentInstance.onAppointmentUpdated(updated);
+      fixture.componentInstance.onAppointmentUpdated(appt({ id: 'a1' }));
 
-      expect(mocks.patientData.updateCachedAppointment).toHaveBeenCalledWith(updated);
-      expect(mocks.patientData.refreshResumen).toHaveBeenCalled();
+      expect(mocks.patientData.loadPage).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -314,15 +367,15 @@ describe('SeguimientoViewComponent', () => {
       expect(fixture.componentInstance.wizardPanel.isOpen).toBe(true);
       expect(fixture.componentInstance.wizardPanel.selectedPatientForForm).toBeNull();
     });
-  });
 
-  it('onSearchChange delega en updatePatientGroups', async () => {
-    const mocks = makeMocks();
-    const { fixture } = await renderView(mocks);
-    mocks.patientData.updatePatientGroups.mockClear();
+    it('onPatientSaved (evento del wizard) recarga la página actual', async () => {
+      const mocks = makeMocks();
+      const { fixture } = await renderView(mocks);
+      mocks.patientData.loadPage.mockClear();
 
-    fixture.componentInstance.onSearchChange();
+      fixture.componentInstance.onPatientSaved();
 
-    expect(mocks.patientData.updatePatientGroups).toHaveBeenCalledTimes(1);
+      expect(mocks.patientData.loadPage).toHaveBeenCalledTimes(1);
+    });
   });
 });

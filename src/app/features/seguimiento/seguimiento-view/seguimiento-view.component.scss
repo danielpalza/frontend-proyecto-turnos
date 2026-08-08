@@ -11,6 +11,42 @@
   margin: 0 12rem;
 }
 
+.date-range-selectors {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.date-field {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: $spacing-sm;
+
+  label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: $text-secondary;
+    margin: 0;
+    white-space: nowrap;
+  }
+}
+
+.tracking-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-lg;
+  padding: $spacing-lg 0;
+}
+
+.tracking-page-indicator {
+  color: $text-secondary;
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
 .header-section {
   h1 {
     color: $text-primary;

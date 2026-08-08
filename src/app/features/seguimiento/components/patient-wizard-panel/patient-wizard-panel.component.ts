@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Patient } from '../../../../core/models';
@@ -18,6 +18,8 @@ import { finalize } from 'rxjs/operators';
 })
 export class PatientWizardPanelComponent implements OnInit {
   @Input() patients: Patient[] = [];
+  /** Emite tras crear/actualizar con éxito — Seguimiento lo usa para refrescar la página actual. */
+  @Output() saved = new EventEmitter<void>();
 
   patientForm!: FormGroup;
   selectedPatientForForm: Patient | null = null;
@@ -173,6 +175,7 @@ export class PatientWizardPanelComponent implements OnInit {
         this.notification.showSuccess(
           this.selectedPatientForForm?.id ? 'Paciente actualizado correctamente.' : 'Paciente creado correctamente.'
         );
+        this.saved.emit();
         this.close();
       },
       error: (err) => {
