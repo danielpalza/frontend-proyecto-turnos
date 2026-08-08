@@ -24,10 +24,17 @@ Fuente: `package.json` (raíz del repo), contrastado contra usos reales en `src/
 
 | Paquete | Versión | Para qué se usa |
 |---|---|---|
-| `@angular/build` | ^21.0.1 | Builder moderno de Angular (`@angular/build:application`, `@angular/build:dev-server`) usado por `angular.json` para build/serve (basado en esbuild/Vite, reemplaza a `@angular-devkit/build-angular`). |
+| `@angular/build` | ^21.0.1 | Builder moderno de Angular (`@angular/build:application`, `@angular/build:dev-server`, y desde esta ronda `@angular/build:unit-test`) usado por `angular.json` para build/serve/test (basado en esbuild/Vite, reemplaza a `@angular-devkit/build-angular`). |
 | `@angular/cli` | ^21.0.1 | CLI (`ng serve`, `ng build`, `ng test`, `ng generate`). |
 | `@angular/compiler-cli` | ^21.0.0 | Compilación AOT/type-checking de templates. |
 | `typescript` | ~5.9.2 | Lenguaje. `tsconfig.json` fuerza `strict: true`, `strictTemplates: true`, `strictInjectionParameters: true`. |
+| `vitest` | ^4.1.10 | Runner de tests, invocado por `@angular/build:unit-test`. Ver [TESTING.md](./TESTING.md). |
+| `jsdom` | ^29.1.1 | Entorno DOM para correr los specs sin navegador real. |
+| `@vitest/coverage-v8` | ^4.1.10 | Proveedor de cobertura del target `test` (configuración `ci`). |
+| `@testing-library/angular` | ^19.4.2 | Render/queries de componentes orientadas a comportamiento de usuario. |
+| `@testing-library/dom` | ^10.4.1 | Peer dependency de `@testing-library/angular`. |
+| `@testing-library/user-event` | ^14.6.3 | Simulación de interacción de usuario (`type`, `click`) en los specs de componente. |
+| `@testing-library/jest-dom` | ^7.0.0 | Matchers extra (`toBeVisible`, etc.), registrados vía `src/test-setup.ts`. |
 
 ## ¿Hay algo de servidor en este repo?
 
@@ -40,7 +47,8 @@ Fuente: `package.json` (raíz del repo), contrastado contra usos reales en `src/
 | `start` | `ng serve` | Servidor de desarrollo (`localhost:4200` por defecto), usa `API_CONFIG.baseUrl` local (`http://localhost:8080/api`). |
 | `build` | `ng build` | Build de producción a `dist/turnos-app` (budgets: 500kB warning / 1MB error inicial). |
 | `watch` | `ng build --watch --configuration development` | Build en modo desarrollo con watch. |
-| `test` | `ng test` | Corre Vitest (`tsconfig.spec.json` referencia `vitest/globals`). **No hay archivos `*.spec.ts` en el repo hoy**, así que este script no ejecuta ningún test real todavía. |
+| `test` | `ng test` | Corre los 70 `*.spec.ts` del repo (839 tests, Vitest vía `@angular/build:unit-test`), sin cobertura. Ver [TESTING.md](./TESTING.md). |
+| `test:coverage` | `ng test --configuration=ci` | Igual, con cobertura v8 y el gate del 75 % acotado a los archivos con spec. Ver [TESTING.md § 6](./TESTING.md#6-cobertura). |
 
 `ng e2e` no está configurado (Angular CLI no trae runner e2e por defecto); ver la nota sobre `POMS/` y Playwright en [ARCHITECTURE.md](./ARCHITECTURE.md#testing-e2e-poms).
 

@@ -12,7 +12,7 @@
 - **Estado**: servicios singleton (`providedIn: 'root'`) con `BehaviorSubject` de RxJS (patrón predominante) + `signal()`/`computed()` de Angular en el código más nuevo (coberturas, odontograma). No hay NgRx, Akita ni ningún store de terceros. Ver [STATE.md](./STATE.md).
 - **UI/CSS**: Bootstrap 5 + Bootstrap Icons + SCSS propio (variables/mixins). No hay Angular Material, Tailwind ni CSS-in-JS. Ver [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md).
 - **Gráficos**: Chart.js vía `ng2-charts` (solo en el Panel/dashboard).
-- **Testing**: `ng test` corre con **Vitest** (`tsconfig.spec.json` referencia `vitest/globals`), pero **no existe ningún archivo `*.spec.ts` en `src/`** — no hay tests unitarios escritos hoy. Ver nota sobre `POMS/` en la sección "Testing e2e" más abajo.
+- **Testing**: `ng test` corre con **Vitest** vía el builder `@angular/build:unit-test` (`tsconfig.spec.json` referencia `vitest/globals`), con `@testing-library/angular` para componentes y `HttpTestingController` nativo para servicios con `HttpClient`. Desde 2026-08-08 la suite tiene 839 tests en 70 archivos (implementación completa de [PLAN_DE_TESTING.md](./PLAN_DE_TESTING.md)) y un gate de cobertura al 75 % acotado a esos archivos (medición real: ~89 % instrucciones / ~80 % branches) — ver [TESTING.md](./TESTING.md). Ver nota sobre `POMS/` en la sección "Testing e2e" más abajo.
 - **Sin backend propio**: no hay `express`, `cors`, `mysql2` ni ningún paquete de servidor en `package.json`. Este repo es un **frontend puro (SPA)**; no corre ningún proceso server-side propio. Ver [DEPENDENCIES.md](./DEPENDENCIES.md).
 
 ## Cómo se resuelve la URL del backend
@@ -125,5 +125,5 @@ La carpeta raíz `POMS/` contiene Page Object Models de Playwright (`login.page.
 ## Pendiente de completar por el desarrollador
 
 - No hay documentación en el código sobre el catálogo completo de roles (`AuthResponse.role`). Solo se verificó en código el uso de `'OWNER'` (`AuthService.hasRole('OWNER')`, usado en `ProfesionalesPanelComponent` para mostrar "Invitar usuario" y habilitar la creación de accesos). No se pudo determinar desde el frontend qué otros valores de `role` existen ni sus permisos — es información del backend.
-- No existen archivos `*.spec.ts`: no se puede documentar cobertura de tests unitarios porque no hay ninguno.
+- El Jenkinsfile todavía no corre ningún test (`npm ci` + `npm run build` únicamente) pese a que la suite ya tiene 839 tests — ver [TESTING.md § 8](./TESTING.md#8-huecos-conocidos), es el hueco de mayor impacto que queda abierto.
 - No hay `README`/config que explique la relación exacta entre este repo y `frontend-proyecto-tests` (dónde corre Playwright, cómo se referencian los Page Objects de `POMS/` desde el otro repo).

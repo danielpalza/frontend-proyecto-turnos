@@ -3,10 +3,24 @@
 > Alcance: deuda del frontend Angular. Complementa [UI_RULES.md](./UI_RULES.md) (convenciones vigentes)
 > y, del lado del backend, `docs/DEUDA_TECNICA_PERMISOS.md`, que cubre la deuda del sistema de permisos.
 >
-> Última actualización: 2026-08-07, tras encontrar una segunda instancia del gotcha de change
+> Última actualización: 2026-08-08, tras la auditoría UT-070 (§ 4.3): tercera instancia confirmada del
+> patrón de `markForCheck()` faltante, en `ConfiguracionesViewComponent.saveWhatsappTemplate()`.
+> Anteriormente, misma fecha: se agregó la § 7 (`AppointmentListOverflowComponent`: dos bugs
+> — un `TypeError` en `ngAfterViewInit` cuando el mes filtrado no tiene turnos, y un nodo huérfano en
+> `document.body` si el componente se destruye con el dropdown de acciones abierto — encontrados
+> escribiendo su spec, Tier 6 de [PLAN_DE_TESTING.md](./PLAN_DE_TESTING.md)) y la § 6
+> (`ProfesionalesPanelComponent.onSaveProfesional`: el toast de éxito siempre dice "creado", incluso al
+> actualizar, por leer `editingProfesional` después de que `closeAddProfesional()` ya lo vació).
+> Anteriormente, 2026-08-07: se agregó la § 5 (`PerioStateService`: `hasPerioData` compara
+> contra un objeto parcial y marca cualquier diente sin baseline como "con datos", encontrado
+> escribiendo el spec de Tier 2 de [PLAN_DE_TESTING.md](./PLAN_DE_TESTING.md)). Antes, misma fecha:
+> encontrar una **séptima** instancia del hueco de § 1.1 (`turn-clinical-modal`, no listado en el
+> relevamiento original) mientras se profundizaba el detalle técnico del mismo plan — ver nota al
+> final de § 1.1. Antes de eso, misma fecha: encontrar una segunda instancia del gotcha de change
 > detection zoneless (sección 4) escribiendo la suite E2E de `frontend-proyecto-tests`. La
 > actualización anterior fue el 2026-07-24, rama `main`, tras el relevamiento de toasts duplicados
-> (sección 3), disparado por el doble toast al entrar con permisos de profesional.
+> (sección 3), disparado por el doble toast al
+> entrar con permisos de profesional.
 
 ## 1. Overlays
 
@@ -14,10 +28,10 @@ Contexto: hoy conviven dos directivas para modales, ambas en `src/app/shared/dir
 
 | Directiva | Qué resuelve | Dónde está aplicada |
 |---|---|---|
-| `appScrollLock` | Bloquea el scroll de página mientras el modal está abierto | los 9 modales |
+| `appScrollLock` | Bloquea el scroll de página mientras el modal está abierto | los 10 modales |
 | `appBodyPortal` | Saca el overlay del contexto de un ancestro con `zoom`/`transform` | solo los 3 de Configuraciones |
 
-### 1.1 Seis modales dependen de que ningún ancestro cree un bloque contenedor
+### 1.1 Siete modales dependen de que ningún ancestro cree un bloque contenedor
 
 Un elemento con `zoom`, `transform`, `filter`, `perspective`, `will-change` o `contain` pasa a ser el
 **bloque contenedor** de sus descendientes `position: fixed`. Cuando eso ocurre, un `.modal-backdrop`
@@ -28,7 +42,8 @@ Fue exactamente el bug de Configuraciones: `.settings-panels-scale` aplica `zoom
 y el backdrop del diálogo de profesional no cubría la pantalla. Se resolvió con `appBodyPortal`, que
 teletransporta el overlay al `body`.
 
-Los seis modales restantes **no** llevan la directiva:
+Los siete modales restantes **no** llevan la directiva (confirmado leyendo cada template, no solo el
+`.ts`: los 7 tienen `appScrollLock` pero ninguno importa `BodyPortalDirective`):
 
 - `appointments/components/appointment-dialog`
 - `appointments/components/confirm-dialog`
@@ -36,6 +51,9 @@ Los seis modales restantes **no** llevan la directiva:
 - `odontograma/components/save-odontograma-dialog`
 - `seguimiento/components/patient-wizard-panel`
 - `seguimiento/components/turn-payment-modal`
+- `seguimiento/components/turn-clinical-modal` — **agregado 2026-08-07**: no estaba en el relevamiento
+  original (§ recontado abajo). Mismo patrón exacto que los otros seis: `.modal-backdrop` en su
+  template con `appScrollLock` pero sin `appBodyPortal`.
 
 Hoy funcionan **por ausencia de la condición que dispara el bug**, no por diseño: ninguna de esas vistas
 tiene todavía un ancestro que cree bloque contenedor. La deuda es que la corrección quedó puntual en vez
@@ -43,11 +61,22 @@ de sistémica — el día que alguien agregue un `transform` (una animación de 
 escalado como el de Configuraciones) el bug reaparece ahí, y de forma difícil de atribuir: el síntoma
 aparece en el modal, la causa está en un CSS lejano.
 
-**Arreglo de raíz:** aplicar `appBodyPortal` a los seis. Es una línea por template más el registro en
+**Arreglo de raíz:** aplicar `appBodyPortal` a los siete. Es una línea por template más el registro en
 `imports` del componente standalone. Teletransportar todo overlay al `body` es además el comportamiento
 que ya asumen Bootstrap y CDK Overlay, así que no introduce un patrón nuevo.
 
 No se hizo en su momento por acotar el cambio a lo reportado.
+
+**Nota sobre cómo se encontró el séptimo caso (2026-08-07):** el relevamiento original de esta sección
+se hizo a ojo sobre el código; al diseñar la auditoría automatizada que propone § 1.2 (documentada como
+UT-069 en [PLAN_DE_TESTING.md § 12](./PLAN_DE_TESTING.md)), se greppeó `appScrollLock` en todos los
+templates y se comparó contra `appBodyPortal` en el mismo archivo — ese método encontró
+`turn-clinical-modal`, que el ojo humano se había salteado. También reveló que **no todos los modales
+usan las clases `.modal`/`.modal-backdrop` literales**: `confirm-dialog` usa nombres propios
+(`.confirm-modal-backdrop`, `.confirm-modal`). Por eso la auditoría de UT-069 debe buscar por la
+**directiva** (`appScrollLock` sin `appBodyPortal` en el mismo template), no por el nombre de la clase
+CSS — buscar por clase se habría perdido `confirm-dialog` igual que se perdió `turn-clinical-modal` a
+ojo.
 
 ### 1.2 El contrato de un modal nuevo no está forzado por nada
 
@@ -252,12 +281,214 @@ conocido)"*): documenta el bug tal cual se comporta hoy — si algún día empie
 que se agregó el `markForCheck()` que falta, y hay que actualizar el test, no arreglarlo a ciegas. Mismo
 fix que 4.1: inyectar `ChangeDetectorRef` y llamar `markForCheck()` en la rama `error:`.
 
-### 4.3 Nada impide una tercera instancia
+### 4.3 Una tercera instancia, encontrada en la auditoría UT-070
 
-Mismo problema estructural que § 1.2 y § 3.5: el contrato ("todo `subscribe()` que mute estado en un
-componente `OnPush` necesita `markForCheck()`") está documentado ([STATE.md](./STATE.md)) pero no lo
-fuerza nada — ni test, ni lint, ni un wrapper. Vale la pena una pasada por el resto de los
-`.subscribe()` de componentes con `ChangeDetectionStrategy.OnPush` buscando el mismo patrón antes de que
-aparezca una tercera vez, en vez de encontrarlas una por una a medida que se escriben tests E2E nuevos.
+Mismo problema estructural que § 1.2 y § 3.5: el contrato ("todo `subscribe()` que mute estado
+consultado por el template necesita `markForCheck()`, incluso sin `OnPush` explícito — la app entera es
+zoneless con `provideZonelessChangeDetection()`") está documentado ([STATE.md](./STATE.md)) pero no lo
+fuerza nada — ni test, ni lint, ni un wrapper.
 
-La 1 es un parche útil como red de seguridad, no como arreglo. La 3 es la que corrige el default.
+**La tercera instancia** (encontrada el 2026-08-08 en la auditoría semi-manual UT-070 de
+[PLAN_DE_TESTING.md § 12.1](./PLAN_DE_TESTING.md)): `ConfiguracionesViewComponent.saveWhatsappTemplate()`.
+
+```ts
+saveWhatsappTemplate(): void {
+  this.configurationService.saveMensajeWhatsapp(this.whatsappTemplate).subscribe({
+    next: () => {
+      this.whatsappSaved = true;
+      setTimeout(() => { this.whatsappSaved = false; }, 3000); // ← tampoco llama markForCheck() acá
+    },
+    error: (err) => { /* ... no llama markForCheck() tampoco ... */ }
+  });
+}
+```
+
+El componente sí inyecta `ChangeDetectorRef` y sí lo usa correctamente en la suscripción de `ngOnInit`
+(`getConfig()`) — pero ni la rama `next:` de `saveWhatsappTemplate()` ni el `setTimeout` que la sigue lo
+llaman. El template consulta `whatsappSaved` con un `*ngIf` directo (sin `async pipe` ni señal):
+
+```html
+<span class="text-success small fw-semibold" *ngIf="whatsappSaved">
+  <i class="bi bi-check-circle me-1"></i>Configuracion guardada
+</span>
+```
+
+Al guardar la plantilla de WhatsApp, el estado interno (`whatsappSaved`) se actualiza correctamente
+(confirmado por el spec, que lo lee directo del componente), pero el mensaje de confirmación
+"Configuración guardada" puede no aparecer en pantalla — depende de si algún otro disparador ajeno
+(otro `signal()`, otro evento de template) fuerza un ciclo de detección de cambios cerca en el tiempo.
+A diferencia de § 4.1/4.2 (donde el mensaje de error simplemente nunca aparece), acá el síntoma es más
+errático: puede aparecer a veces sí y a veces no, según qué más esté pasando en la página en ese momento
+— lo cual lo hace más difícil de notar/reportar que los otros dos casos.
+
+**No se arregló** — mismo criterio de toda esta lista: el spec
+(`configuraciones-view.component.spec.ts`) fija el comportamiento actual leyendo el estado del
+componente directamente, sin depender del DOM para esa aserción puntual.
+
+**Arreglo de raíz, cuando se priorice:** agregar `this.cdr.markForCheck()` en la rama `next:` de
+`saveWhatsappTemplate()` y dentro del callback del `setTimeout`, igual que ya hace `ngOnInit`.
+
+**Revisados en la misma auditoría, sin poder confirmar si son bugs reales o no** (quedan para una
+próxima ronda, no vale la pena adivinar sin poder observar el DOM real bajo carga):
+- `TurnPaymentModalComponent` (UT-067): ningún método de guardado (precio, observaciones, pago) inyecta
+  `ChangeDetectorRef` ni usa señales — mismo patrón de riesgo que los tres casos confirmados arriba.
+- `PatientWizardPanelComponent` (UT-065): mismo patrón — `savePatient()` no inyecta `ChangeDetectorRef`.
+- `SaveOdontogramaDialogComponent` (UT-062): mixto — `saveError` es una señal (se re-renderiza sola),
+  pero `saving`/`open` son campos planos sin `markForCheck()` cerca; no se pudo confirmar si el
+  `openChange.emit()` de `close()` alcanza a disparar un ciclo de detección que de paso los actualice.
+
+Vale la pena una pasada más sistemática (posiblemente con un test que renderice cada componente y
+verifique el DOM tras un `fixture.detectChanges(false)` diferido, no con un spy sobre
+`ChangeDetectorRef` — ver la nota correspondiente en
+[PLAN_DE_TESTING.md](./PLAN_DE_TESTING.md#15-historial)) antes de asumir que estos tres están bien o
+mal.
+
+La 1 y la 3 confirmadas son parches útiles como red de seguridad, no arreglos — el 4.3 original de esta
+sección (auditar sistemáticamente en vez de encontrarlas una por una) sigue siendo lo que corrige el
+default.
+
+## 5. `PerioStateService`: todo diente sin baseline viaja en el delta de guardado, tenga datos o no
+
+Encontrado el 2026-08-07 escribiendo el spec de `PerioStateService`
+(`src/app/features/odontograma/services/perio-state.service.spec.ts`, Tier 2 de
+[PLAN_DE_TESTING.md](./PLAN_DE_TESTING.md)) — no es un caso de laboratorio, el test más simple posible
+(`loadPerio()` con estado vacío, sin tocar nada, `buildPeriodontogramDelta()`) ya lo reproduce.
+
+**La causa** está en `perio-delta.util.ts`:
+
+```ts
+export function dienteDeltaEquals(a: PeriodontogramaDienteDelta, b: PeriodontogramaDienteDelta): boolean {
+  const fields = [/* 36 campos: mobility, furcation, y 34 de sondaje/sangrado/placa/... */];
+  return fields.every(f => (a[f] ?? (typeof a[f] === 'boolean' ? false : 0)) === (b[f] ?? (typeof b[f] === 'boolean' ? false : 0)));
+}
+
+export function hasPerioData(d: PeriodontogramaDienteDelta): boolean {
+  return dienteDeltaEquals(d, { numeroDiente: d.numeroDiente, mobility: 0, furcation: 0 }) === false;
+}
+```
+
+`hasPerioData` compara contra un objeto que solo tiene 3 de los 36 campos (`numeroDiente`, `mobility`,
+`furcation`) — los otros 33 (24 de ellos booleanos: sangrado/placa/supuración/cálculo ×
+vestibular/lingual × mesial/central/distal) quedan `undefined` en ese objeto. El fallback de
+`dienteDeltaEquals` decide el default mirando `typeof` del valor que falta: como `typeof undefined`
+nunca es `'boolean'`, esos 24 campos caen a `0` en vez de `false`. Un diente realmente vacío (con sus
+24 flags en `false`, que es lo que arma `emptyPerioFace()`) nunca resulta "igual" a ese objeto de
+comparación porque `false !== 0` en JavaScript — así que `hasPerioData` devuelve `true` para
+**cualquier** diente sin baseline previo, tenga datos clínicos reales o no.
+
+**Efecto en `buildPeriodontogramDelta()`** (`perio-state.service.ts`): todo diente del mapa de 32 que
+no tiene una entrada previa en `baselinePerio.dientes` pasa por `hasPerioData` y, por este bug, siempre
+entra al delta de guardado — aunque el usuario no haya tocado nada. Si el backend representa
+`estadoActual`/`cambiosTurno` como una lista dispersa (solo los dientes con datos reales, que es lo más
+razonable para no inflar la respuesta), esto significa que **cada guardado de periodontograma reenvía
+como "cambiados" todos los dientes todavía no tocados**, no solo los del turno actual — ruido en el
+payload como mínimo, y un riesgo real si el backend interpreta "presente en el delta" como "el
+profesional lo revisó".
+
+**Por qué `leyendaHasData` (el equivalente del lado Odontograma, `odonto-delta.util.ts`) no tiene este
+problema**: chequea cada campo explícitamente con `!!(l.ausencia || l.implante || ...)`, no compara
+contra un objeto parcial — no hay ningún `typeof` de por medio. Es la asimetría entre ambos lados que
+ya anticipaba [PLAN_DE_TESTING.md § 8.1](./PLAN_DE_TESTING.md) antes de escribir el spec ("revisar si
+una reversión a *sin datos* con baseline con datos genera delta, igual que en `odonto-delta.util.ts`")
+— al escribirlo, resultó ser peor de lo esperado: no es una reversión que no se detecta, es que el
+diente **nunca** se puede detectar como "sin cambios" si no tiene baseline.
+
+**No se corrigió.** El spec (`perio-state.service.spec.ts`) fija el comportamiento actual con un test
+explícito (`"BUG conocido: sin ningún baseline, los 32 dientes vacíos igual entran al delta"`) en vez
+de un caso ideal inventado — mismo criterio que el punto 4.2 de esta lista.
+
+**Arreglo de raíz, cuando se priorice:** pasarle a `hasPerioData` un objeto de comparación con los 36
+campos explícitos (`{ ...emptyPerioFace-shaped, mobility: 0, furcation: 0 }`, todos los booleanos en
+`false` de verdad), no uno parcial — o más simple, reescribir `hasPerioData` para chequear cada campo
+como hace `leyendaHasData`, sin pasar por `dienteDeltaEquals` contra un objeto incompleto.
+
+## 6. `ProfesionalesPanelComponent.onSaveProfesional()`: el toast de éxito siempre dice "creado", incluso al actualizar
+
+Encontrado el 2026-08-08 escribiendo el spec de `ProfesionalesPanelComponent`
+(`src/app/features/configuraciones/components/profesionales-panel/profesionales-panel.component.spec.ts`,
+Tier 6 de [PLAN_DE_TESTING.md](./PLAN_DE_TESTING.md), UT-056).
+
+**La causa**, en la rama `next:` de `onSaveProfesional()`:
+
+```ts
+next: () => {
+  this.isSavingProfesional = false;
+  this.closeAddProfesional();       // ← pone this.editingProfesional = null
+  this.notification.showSuccess(
+    this.editingProfesional ? 'Profesional actualizado correctamente.' : 'Profesional creado correctamente.'
+  );                                  // ← lee editingProfesional DESPUÉS de que closeAddProfesional() ya lo vació
+},
+```
+
+`closeAddProfesional()` limpia `editingProfesional` (entre otras cosas, para dejar el formulario listo
+para la próxima apertura) **antes** de que el `? :` del mensaje lo lea — así que la condición siempre
+evalúa `null`/falsy y el toast dice "creado" sin importar si en realidad se llamó a `update()`. La
+llamada al servicio en sí es correcta (`update(id, dto)` cuando corresponde); el problema es puramente
+cosmético, en el texto del toast. La rama `error:` no tiene este problema porque lee
+`this.editingProfesional` sin haber llamado antes a ningún reset.
+
+**No se corrigió.** El spec fija el comportamiento actual con un test explícito (`'BUG: el toast de
+éxito siempre dice "creado", incluso al actualizar...'`) en vez de asumir el mensaje correcto — mismo
+criterio que los puntos 4.2 y 5 de esta lista.
+
+**Arreglo de raíz, cuando se priorice:** leer `this.editingProfesional` (o guardarlo en una variable
+local al principio del método) **antes** de llamar a `closeAddProfesional()`, o mover el
+`showSuccess(...)` antes del cierre del formulario.
+
+## 7. `AppointmentListOverflowComponent`: dos bugs encontrados escribiendo su spec (UT-064)
+
+Encontrados el 2026-08-08 escribiendo
+`src/app/features/seguimiento/components/appointment-list-overflow/appointment-list-overflow.component.spec.ts`
+(Tier 6 de [PLAN_DE_TESTING.md](./PLAN_DE_TESTING.md)). Ninguno de los dos se corrigió — mismo criterio
+que los puntos 4.2 y 6 de esta lista: el spec fija el comportamiento actual con un test explícito.
+
+### 7.1 `ngAfterViewInit` revienta con `TypeError` si el período filtrado no tiene turnos
+
+```ts
+@ViewChild('apptList') private readonly apptList!: ElementRef<HTMLDivElement>;
+...
+ngAfterViewInit(): void {
+  this.resizeObserver = new ResizeObserver(entries => this.onResize(entries));
+  this.resizeObserver.observe(this.apptList.nativeElement); // ← undefined si appointments.length === 0
+}
+```
+
+El div con `#apptList` está detrás de `*ngIf="appointments.length > 0"` en el template. Si el array de
+turnos llega vacío, ese `ViewChild` nunca se resuelve y `ngAfterViewInit` lee `.nativeElement` de
+`undefined`.
+
+El padre (`seguimiento-view.component.html`) solo evita instanciar este componente cuando
+`group.totalTurnos === 0` (el total histórico del paciente, sin filtrar). Pero le pasa
+`[appointments]="getFilteredAppointments(group)"`, que sí aplica el filtro de año/mes seleccionado —
+así que un paciente con turnos en **otros** meses pero ninguno en el mes actualmente filtrado deja
+`group.totalTurnos > 0` (el componente se crea) y `getFilteredAppointments(group)` en `[]` (el
+`ViewChild` no se resuelve). Es decir, **sí es alcanzable en producción**, no un caso de laboratorio:
+cualquier paciente con turnos fuera del mes que se esté mirando en Seguimiento lo dispara al elegir ese
+mes.
+
+**Arreglo de raíz, cuando se priorice:** guardar `this.apptList?.nativeElement` con optional chaining
+antes de llamar a `observe(...)`, o mover el div `#apptList` fuera del `*ngIf` (dejando el mensaje vacío
+como contenido condicional *adentro* de un contenedor que siempre exista).
+
+### 7.2 El dropdown de acciones reubicado en `document.body` queda huérfano si el componente se destruye mientras está abierto
+
+El setter de `@ViewChild('actionsMenu')` mueve ese nodo a `document.body` apenas se crea (ver el
+comentario del propio componente, que explica por qué: los `overflow` de los contenedores padres y el
+`transform` del hover de la card lo recortarían mal). Cuando el usuario lo cierra en el uso normal
+(`closeActions()`, que apaga el `*ngIf="openActionsAppointment as app"`), Angular sí lo remueve
+correctamente del DOM — el propio comentario lo dice: *"su `removeChild` llama a `node.remove()`, que
+no depende de quién sea el padre"*.
+
+Pero si el **componente entero** se destruye mientras ese dropdown sigue abierto (por ejemplo,
+navegando fuera de Seguimiento, o si el `*ngFor` de pacientes hace desaparecer esa fila) con
+`fixture.destroy()` en el test se confirma que el nodo reubicado en `<body>` **no** se limpia: queda
+huérfano y `conectado al DOM` (`isConnected === true`) después de destruir el fixture. `ngOnDestroy()`
+solo desconecta el `ResizeObserver` y los listeners de scroll/resize/Escape (`detachDismissListeners()`)
+— no hace nada con `menuElement`.
+
+En una sesión real esto es una fuga de nodos DOM acumulativa: cada vez que se navega fuera de
+Seguimiento con un dropdown de turno abierto, un `<div class="appointment-actions">` completo (con sus
+dos botones) queda colgado de `<body>` para siempre.
+
+**Arreglo de raíz, cuando se priorice:** en `ngOnDestroy()`, además de `detachDismissListeners()`,
+remover `this.menuElement` del DOM si sigue conectado (`this.menuElement?.remove()`).
