@@ -3,7 +3,10 @@
 > Alcance: deuda del frontend Angular. Complementa [UI_RULES.md](./UI_RULES.md) (convenciones vigentes)
 > y, del lado del backend, `docs/DEUDA_TECNICA_PERMISOS.md`, que cubre la deuda del sistema de permisos.
 >
-> Última actualización: 2026-08-08, tras la paginación real de Seguimiento (reemplazo de los filtros
+> Última actualización: 2026-08-09, se agregó la § 9 documentando el panel superadmin nuevo
+> (`features/admin/`): ninguna acción destructiva pide confirmación, y no tiene tests en ningún nivel
+> (ni unitarios ni E2E), aunque sí tiene los `data-testid` puestos.
+> Anteriormente, 2026-08-08, tras la paginación real de Seguimiento (reemplazo de los filtros
 > individuales de año/mes por paciente por un único rango desde/hasta): se marcó § 7.1 como **resuelto**
 > (fix aplicado, setter de `@ViewChild` en vez de `ngAfterViewInit`), se actualizó la referencia stale de
 > § 3.2/3.3 a `seguimiento-view.component.ts`, y se agregó la § 8 documentando los huecos que este
@@ -615,3 +618,40 @@ usuario eligiera nada. Ahora:
 No se pudo determinar desde este repo si `frontend-proyecto-tests` tiene specs de Seguimiento que
 dependan de alguno de estos tres supuestos — hace falta revisar ese repo directamente
 (`docs/PLAN_DE_PRUEBAS.md` ahí, o grepear `tracking-` en sus specs) antes de darlo por seguro.
+
+## 9. Panel superadmin (`features/admin/`) — sin confirmación en acciones destructivas, sin tests (2026-08-09)
+
+Feature nueva, cuatro componentes (`AdminViewComponent` + 3 diálogos, ver
+[COMPONENTS.md](./COMPONENTS.md#admin-featuresadmin--panel-superadmin-nuevo-2026-08-09)). Dos huecos
+reales, no solo ausencia de tests:
+
+### 9.1 Ninguna acción destructiva pide confirmación
+
+Desactivar una organización, desactivar un usuario, o cambiarle el rol a un usuario (incluido
+degradarlo de `ADMIN` a `USER`) dispara el `PATCH`/`PUT` correspondiente **de inmediato** al hacer
+click/`change` — sin el `ConfirmDialogComponent` que ya existe en el proyecto y se usa en otras páginas
+para bajas equivalentes (Turnos, Coberturas). La única protección contra un click accidental es del
+lado del backend: `AdminGuard` impide que un `ADMIN` se autodesactive o se cambie el rol a sí mismo, y
+que el sistema quede sin ningún `ADMIN` activo — pero **no** protege contra desactivar por error a la
+organización o al usuario equivocado, que son las acciones más frecuentes de este panel.
+
+**Por qué importa más que en el resto de la app:** el resto de las bajas sin confirmación en el
+proyecto son acotadas a una organización (afectan como mucho los datos de una clínica). Acá una
+desactivación errónea puede dejar sin acceso a una organización cliente completa, o degradar al único
+otro `ADMIN` con el que un operador cuenta para tareas puntuales — el radio de impacto de un click
+accidental es mayor que en cualquier otra pantalla de la app.
+
+**Arreglo sugerido:** envolver `toggleOrgActive`, el toggle de usuario y el `change` del `<select>` de
+rol en `AdminOrganizationUsersDialogComponent` con el mismo `ConfirmDialogComponent` ya usado en Turnos/
+Coberturas — no hace falta un componente nuevo, solo cablearlo acá también.
+
+### 9.2 Cero cobertura de tests, en ambos niveles
+
+- **Unitarios**: no existe ningún `*.spec.ts` bajo `src/app/features/admin/` — ninguno de los cuatro
+  componentes ni `admin.service.ts` tienen test.
+- **E2E**: `frontend-proyecto-tests` no tiene ningún spec para `/admin` — no hay ni siquiera un
+  `test.skip` placeholder que deje el hueco visible en el reporte (a diferencia de otros huecos ya
+  documentados en ese repo). Ver `frontend-proyecto-tests/docs/PLAN_DE_PRUEBAS.md` y `ESTRUCTURA.md`.
+- Los `data-testid` **sí** están puestos en los cuatro componentes (confirmado — ver
+  [COMPONENTS.md](./COMPONENTS.md#admin-featuresadmin--panel-superadmin-nuevo-2026-08-09)), así que no
+  falta esa parte para que alguien escriba las pruebas — falta directamente escribirlas.
