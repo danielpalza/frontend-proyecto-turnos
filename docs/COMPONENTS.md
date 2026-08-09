@@ -251,6 +251,39 @@ Módulo clínico `HISTORIA_CLINICA_FREE`, hermano de Odontograma: es el segundo 
 - **Servicios que usa**: `HistoriaClinicaStateService`, `AuthService`.
 - **Dónde aparece**: `HistoriaClinicaViewComponent`.
 
+## Admin (`features/admin`) — panel superadmin, nuevo 2026-08-09
+
+Cross-organización, exclusivo del rol `ADMIN` (no del sistema de capacidades) — ver [PERMISOS.md § 9](./PERMISOS.md#9-rol-admin--panel-superadmin-mecanismo-aparte) y [PAGES.md](./PAGES.md#panel-superadmin). Ninguno de los cuatro componentes tiene spec unitario (`*.spec.ts`) ni cobertura E2E — ver [DEUDA_TECNICA.md](./DEUDA_TECNICA.md).
+
+### `AdminViewComponent` (`app-admin-view`)
+- **Archivo**: [`features/admin/admin-view/admin-view.component.ts`](../src/app/features/admin/admin-view/admin-view.component.ts)
+- **Propósito**: contenedor de ruta (`/admin`). Carga y lista **todas** las organizaciones (`AdminService.listarOrganizaciones()`, sin paginar — lista plana con scroll) con nombre, slug, país, estado activo/inactivo, resumen de plan, y tres chips de conteo (usuarios/pacientes/turnos). Por fila: activar/desactivar (dispara el `PATCH` directo, sin confirmación), y tres botones que abren cada uno de los diálogos hijos.
+- **Inputs/Outputs**: ninguno (contenedor enrutado).
+- **Servicios que usa**: `AdminService`, `NotificationService`.
+- **Renderiza**: `AdminOrganizationPlanDialogComponent`, `AdminOrganizationModulesDialogComponent`, `AdminOrganizationUsersDialogComponent` — los tres montados como hermanos, alternados por flags booleanos (`*ngIf`), no ruteados.
+- **Dónde aparece**: enrutado directo, ver [ROUTES.md](./ROUTES.md).
+
+### `AdminOrganizationPlanDialogComponent` (`app-admin-organization-plan-dialog`)
+- **Archivo**: [`features/admin/components/admin-organization-plan-dialog/admin-organization-plan-dialog.component.ts`](../src/app/features/admin/components/admin-organization-plan-dialog/admin-organization-plan-dialog.component.ts)
+- **Propósito**: formulario Reactive Forms de los 4 campos de plan/facturación (`planNombre`, `planPrecio`, `fechaContratacion`, `fechaUltimoPago`), pre-cargado desde la organización recibida. Sin lógica de cobro — son campos administrativos que un `ADMIN` completa a mano. Única validación: `Validators.min(0)` en el precio.
+- **Inputs**: `open`, `organization`.
+- **Outputs**: `openChange`, `save` (`OrganizationPlanUpdateDTO`) — el padre (`AdminViewComponent`) hace el `PUT` real y cierra el diálogo.
+- **Dónde aparece**: `AdminViewComponent`.
+
+### `AdminOrganizationModulesDialogComponent` (`app-admin-organization-modules-dialog`)
+- **Archivo**: [`features/admin/components/admin-organization-modules-dialog/admin-organization-modules-dialog.component.ts`](../src/app/features/admin/components/admin-organization-modules-dialog/admin-organization-modules-dialog.component.ts)
+- **Propósito**: grilla de tarjetas de módulo (mismo `MODULE_OPTIONS`/mismo patrón visual que el selector de módulos de `ProfesionalDialogComponent`), pre-tildada desde `organization.modules` filtrado a `activo`. El submit emite el set completo de códigos seleccionados — **reemplazo total**, no incremental, coincide con la semántica de `PUT .../modules` del backend.
+- **Inputs**: `open`, `organization`.
+- **Outputs**: `openChange`, `save` (`string[]` de `moduleCodes`).
+- **Dónde aparece**: `AdminViewComponent`.
+
+### `AdminOrganizationUsersDialogComponent` (`app-admin-organization-users-dialog`)
+- **Archivo**: [`features/admin/components/admin-organization-users-dialog/admin-organization-users-dialog.component.ts`](../src/app/features/admin/components/admin-organization-users-dialog/admin-organization-users-dialog.component.ts)
+- **Propósito**: a diferencia de los otros dos diálogos (puramente presentacionales, emiten y dejan que el padre llame al backend), **este hace sus propias llamadas HTTP**: al abrirse carga los usuarios de la organización (`AdminService.listarUsuarios`), y cada fila tiene un `<select>` de rol (`ADMIN_ROLE_OPTIONS`: Dueño/Superadmin/Usuario) que hace `PUT` inmediato en `change`, y un botón de activar/desactivar que hace `PATCH` inmediato — ninguno de los dos con confirmación previa. Si el `PUT` de rol falla, revierte el `<select>` al valor anterior a mano. Sin guard del lado del cliente contra apuntarse a uno mismo — confía enteramente en `AdminGuard` del backend y muestra el mensaje de error que devuelva.
+- **Inputs**: `open`, `organization`.
+- **Outputs**: `openChange`.
+- **Dónde aparece**: `AdminViewComponent`.
+
 ## Pendiente de completar por el desarrollador
 
 - `PatientComboboxComponent` no tiene ningún consumidor en el código actual. Confirmar si debe eliminarse o si está pensado para un flujo futuro no implementado todavía.

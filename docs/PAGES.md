@@ -167,7 +167,24 @@ Una entrada por cada componente enrutado en [`app.routes.ts`](../src/app/app.rou
   - `GET/POST/PUT/DELETE /api/intermediarios` (agrupaciones de coberturas por intermediario/broker)
 - El país por defecto del selector de "nuevo intermediario" es `organizationPais` del usuario logueado (`AuthService.getCurrentUser()`).
 
+## Panel Superadmin
+
+- **Ruta**: `/admin`
+- **Componente**: `AdminViewComponent` — [`src/app/features/admin/admin-view/admin-view.component.ts`](../src/app/features/admin/admin-view/admin-view.component.ts)
+- **Permisos**: `authGuard`, requiere **rol** `ADMIN` (`data: { role: 'ADMIN' }`), no capacidad — ver [ROUTES.md](./ROUTES.md) y [PERMISOS.md § 9](./PERMISOS.md). Un `OWNER`/`USER` que entra a `/admin` cae en `/403`; un `ADMIN` siempre aterriza acá al loguearse, sin importar si además tiene capacidades de alguna organización (`resolveHomeRouteForUser`, ver ROUTES.md).
+- **Propósito**: operación del SaaS, no de una clínica — panel cross-organización para quien administra la plataforma, no para el personal de una clínica. Lista todas las organizaciones dadas de alta con métricas agregadas (usuarios, pacientes, turnos) y permite activar/desactivar cada una, editar su plan/facturación, reemplazar el set completo de módulos contratados, y gestionar los usuarios de cualquier organización (activar/desactivar, cambiar rol).
+- **Componentes que renderiza**: `AdminOrganizationPlanDialogComponent`, `AdminOrganizationModulesDialogComponent`, `AdminOrganizationUsersDialogComponent` — los tres son diálogos hermanos, montados con `*ngIf`/`[open]` en el mismo template, no ruteados.
+- **Datos que carga / endpoints** (`AdminService`, base `/api/admin`):
+  - `GET /organizations` (listado inicial, sin paginación — lista plana con scroll)
+  - `GET /organizations/{orgId}` , `PATCH /organizations/{orgId}/toggle-active`
+  - `PUT /organizations/{orgId}/plan` (`planNombre`, `planPrecio`, `fechaContratacion`, `fechaUltimoPago` — sin lógica de cobro, campos administrativos)
+  - `PUT /organizations/{orgId}/modules` (reemplazo total del set de módulos contratados, no incremental)
+  - `GET /organizations/{orgId}/users`, `PATCH /organizations/{orgId}/users/{userId}/toggle-active`, `PUT /organizations/{orgId}/users/{userId}/role`
+- **Sin confirmación en acciones destructivas**: a diferencia de otras páginas (Turnos, Coberturas) que usan `ConfirmDialogComponent` antes de una baja, acá desactivar una organización, desactivar un usuario o cambiarle el rol dispara el `PATCH`/`PUT` **de inmediato** al hacer click/`change`, sin diálogo de confirmación intermedio. La única protección contra un error es del lado del backend (`AdminGuard`: no autodesactivarse, no dejar el sistema sin ningún `ADMIN` activo) — ver "Pendiente" abajo y [DEUDA_TECNICA.md](./DEUDA_TECNICA.md).
+- **Sin tests**: ni specs unitarios (`*.spec.ts`) ni cobertura E2E — los `data-testid` sí están puestos en los cuatro componentes, listos para que alguien escriba cualquiera de los dos.
+
 ## Pendiente de completar por el desarrollador
 
-- La tarjeta de plan/cupos de usuarios en Configuraciones (`"Plan Pro"`, `"3 / 5"`) es estática — no se pudo determinar si hay un endpoint de facturación/planes real pendiente de conectar, o si es solo un placeholder visual.
+- La tarjeta de plan/cupos de usuarios en Configuraciones (`"Plan Pro"`, `"3 / 5"`) sigue siendo estática. **Ya no es una incógnita si existe un endpoint de plan/facturación real** — existe (`PUT /api/admin/organizations/{orgId}/plan`, ver arriba) — pero es exclusivo del panel superadmin (`ADMIN`), cross-organización; no hay ningún endpoint para que una organización lea/muestre **su propio** plan desde Configuraciones. Conectar esta tarjeta a datos reales requeriría un endpoint nuevo del lado del `OWNER`, no reutilizar el del panel admin.
 - No hay página de "perfil de usuario" propio (cambiar contraseña, editar datos personales del usuario logueado) detectada en las rutas.
+- Agregar confirmación (`ConfirmDialogComponent`, ya usado en otras páginas) antes de desactivar una organización o un usuario, o cambiarle el rol, desde el panel superadmin — hoy esas acciones son inmediatas, sin paso intermedio.

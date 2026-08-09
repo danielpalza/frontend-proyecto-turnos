@@ -20,6 +20,7 @@ Fuente única: [`src/app/app.routes.ts`](../src/app/app.routes.ts). Todas las ru
 | `/seguimiento` | Protegida | `authGuard` | `SEGUIMIENTO:VIEW` | `SeguimientoViewComponent` | — |
 | `/configuraciones` | Protegida | `authGuard` | `CONFIGURACIONES:VIEW` | `ConfiguracionesViewComponent` | — |
 | `/coberturas` | Protegida | `authGuard` | `COBERTURA:VIEW` | `CoberturasViewComponent` | — |
+| `/admin` | Protegida | `authGuard` | — (usa `data.role: 'ADMIN'`, no capacidad) | `AdminViewComponent` | — |
 | `**` (wildcard) | — | — | — | — | `redirectTo: homeRedirect` |
 
 `/odontograma/:appointmentId` y `/historia-clinica/:appointmentId` son dos instancias del mismo patrón: una ruta por **módulo clínico**, cada una detrás de la capacidad `<CODIGO_MODULO>:VIEW` de ese módulo. Ver la nota sobre módulos clínicos múltiples en [ARCHITECTURE.md](./ARCHITECTURE.md).
@@ -52,6 +53,12 @@ export const authGuard: CanActivateFn = (route) => {
     return false;
   }
 
+  const requiredRole = route.data?.['role'] as string | undefined;
+  if (requiredRole && !authService.hasRole(requiredRole)) {
+    router.navigate(['/403']);
+    return false;
+  }
+
   return true;
 };
 
@@ -61,21 +68,24 @@ export const homeRedirect = (): string => {
   if (!authService.isAuthenticated()) {
     return '/login';
   }
-  return resolveHomeRoute(c => authService.hasCapability(c));
+  return resolveHomeRouteForUser(authService);
 };
 ```
 
 Lógica:
 1. **Autenticación**: `AuthService.isAuthenticated()` decodifica el JWT guardado en `localStorage` (`auth_token`) y valida su `exp` (expiración) sin llamar al backend. Si no hay token o expiró, hace `logout()` (limpia `localStorage`) y redirige a `/login`.
 2. **Autorización por capacidad**: cada ruta protegida declara `data: { capability: Capability.XXX_YYY }` (constante de [`core/auth/capabilities.ts`](../src/app/core/auth/capabilities.ts), no un string suelto). `AuthService.hasCapability(code)` chequea que `code` esté en el set resuelto a partir de `AuthResponse.capabilities` (ver [ARCHITECTURE.md](./ARCHITECTURE.md) y [PERMISOS.md](./PERMISOS.md)). Si el usuario no tiene la capacidad requerida, redirige a **`/403`** — antes de este cambio redirigía a `/panel` (el módulo `data.module` reemplazado dejaba al usuario en una pantalla sin explicación); ahora `ForbiddenComponent` es una página propia.
+3. **Autorización por rol (nuevo, 2026-08-09)**: `data: { role: 'ADMIN' }` en vez de `data.capability` — hoy solo lo usa `/admin`. `AuthService.hasRole(role)` es una comparación simple `currentUser.role === role`, **completamente separada** del sistema de capacidades: no deriva de módulos ni pasa por `resolveCapabilities()`. Mismo criterio que el backend (`@RequiresRole` vs. `@RequiresCapability`, ver `docs/PERMISOS.md § 9` de este repo y `bakend-proyecto-turnos/docs/PERMISOS.md § 6.3`): el rol `ADMIN` es cross-organización por diseño, y el sistema de capacidades está acotado a una sola organización, así que no tiene sentido expresarlo como capacidad.
 
-Reemplaza también al viejo `hasModule`: `data.module`/`AuthService.hasModule()` ya no existen en el código, todo el árbol de rutas quedó migrado a `data.capability`/`hasCapability()`.
+Reemplaza también al viejo `hasModule`: `data.module`/`AuthService.hasModule()` ya no existen en el código, todo el árbol de rutas quedó migrado a `data.capability`/`hasCapability()` (y, para `/admin`, a `data.role`/`hasRole()`).
 
-No hay un guard de "solo lectura" ni de rol (`OWNER`/etc.) a nivel de ruta — el control de rol (p. ej. `AuthService.hasRole('OWNER')`) se hace **dentro** de los componentes (ver [PAGES.md](./PAGES.md) y la nota de memoria del proyecto sobre autorización diferida), no en el `Routes` array.
+No hay un guard de "solo lectura" a nivel de ruta para roles como `OWNER` — ese control se sigue haciendo **dentro** de los componentes (ver [PAGES.md](./PAGES.md)). El único chequeo de rol a nivel de `Routes` es el de `ADMIN` sobre `/admin`.
 
-## `homeRedirect` y `resolveHomeRoute`
+## `homeRedirect` y `resolveHomeRouteForUser`
 
-La raíz (`''`) y el wildcard (`**`) ya no apuntan a un string fijo (`redirectTo: 'panel'`): apuntan a la función `homeRedirect` ([`core/guards/auth.guard.ts`](../src/app/core/guards/auth.guard.ts)), que delega en `resolveHomeRoute()` ([`core/auth/home-route.ts`](../src/app/core/auth/home-route.ts)). `resolveHomeRoute` recorre una lista fija de pestañas (`/panel`, `/turnos`, `/seguimiento`, `/coberturas`, `/configuraciones`, en ese orden) y devuelve la primera cuya capacidad (`PANEL_VIEW`, `TURNOS_VIEW`, etc.) tiene el usuario; si no tiene ninguna, devuelve `/403`. `/odontograma`/`/historia-clinica` no figuran en esa lista: no tienen una ruta fija, siempre se entra desde un turno concreto (ver más abajo). Antes de este cambio, un usuario sin `PANEL` que entraba a `/` terminaba en `/login`, indistinguible de una sesión vencida — ver `docs/PERMISOS.md § 6.5` (referenciado desde el propio código).
+La raíz (`''`) y el wildcard (`**`) ya no apuntan a un string fijo (`redirectTo: 'panel'`): apuntan a la función `homeRedirect` ([`core/guards/auth.guard.ts`](../src/app/core/guards/auth.guard.ts)), que delega en `resolveHomeRouteForUser()` ([`core/auth/home-route.ts`](../src/app/core/auth/home-route.ts)) — **la única función que debe decidir a dónde mandar a un usuario autenticado**, para no duplicar el orden de prioridad en más de un lugar (tanto el guard como `ForbiddenComponent` pasan por acá).
+
+`resolveHomeRouteForUser` mira primero el rol: si `hasRole('ADMIN')`, devuelve `/admin` sin más chequeos — el dueño del SaaS aterriza siempre en el panel superadmin, tenga o no capacidades de alguna organización real (podría además ser dueño de una clínica de prueba, y aun así no debe ir a `/panel`). Si no es `ADMIN`, delega en `resolveHomeRoute()`, que recorre una lista fija de pestañas (`/panel`, `/turnos`, `/seguimiento`, `/coberturas`, `/configuraciones`, en ese orden) y devuelve la primera cuya capacidad (`PANEL_VIEW`, `TURNOS_VIEW`, etc.) tiene el usuario; si no tiene ninguna, devuelve `/403`. `/odontograma`/`/historia-clinica` no figuran en esa lista: no tienen una ruta fija, siempre se entra desde un turno concreto (ver más abajo). Antes de este cambio, un usuario sin `PANEL` que entraba a `/` terminaba en `/login`, indistinguible de una sesión vencida — ver `docs/PERMISOS.md § 6.5` (referenciado desde el propio código).
 
 ## Capacidades de vista (`data.capability`) y su relación con el navbar
 
@@ -99,14 +109,16 @@ flowchart TD
   Start(["Cualquier URL"]) --> IsLogin{"¿/login, /verify-email,<br/>/reset-password o /403?"}
   IsLogin -- sí --> Public["Componente público"]
   IsLogin -- no --> Root{"¿ruta vacía o<br/>desconocida?"}
-  Root -- sí --> Home["homeRedirect():<br/>resolveHomeRoute()"]
+  Root -- sí --> Home["homeRedirect():<br/>resolveHomeRouteForUser()"]
   Root -- no --> Guard{"authGuard:<br/>¿autenticado?"}
   Guard -- no --> Login["/login"]
-  Guard -- sí --> Cap{"¿tiene la capacidad<br/>data.capability de la ruta?"}
+  Guard -- sí --> Cap{"¿tiene la capacidad<br/>data.capability, o el rol<br/>data.role, de la ruta?"}
   Cap -- no --> Forbidden["/403 (ForbiddenComponent)"]
   Cap -- sí --> Dest["Turnos / Odontograma /<br/>Historia Clínica / Seguimiento /<br/>Configuraciones / Coberturas"]
-  Home --> Dest
-  Home -- ninguna capacidad --> Forbidden
+  Cap -- sí, rol ADMIN --> AdminDest["/admin (panel superadmin)"]
+  Home -- "hasRole('ADMIN')" --> AdminDest
+  Home -- sin rol ADMIN --> Dest
+  Home -- ninguna capacidad ni rol --> Forbidden
 ```
 
 ## Pendiente de completar por el desarrollador

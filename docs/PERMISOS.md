@@ -134,12 +134,14 @@ este cambio, el guard leía `route.data['module']` y redirigía a `/panel`, lo q
 una pantalla sin explicación cuando no tenía ese módulo. Detalle completo del árbol de rutas y el
 guard en [ROUTES.md](./ROUTES.md#guard-authguard).
 
-### 6.5 `resolveHomeRoute()` y el destino de `/` y `**`
+### 6.5 `resolveHomeRouteForUser()` y el destino de `/` y `**`
 
 [`core/auth/home-route.ts`](../src/app/core/auth/home-route.ts) resuelve a qué ruta mandar a un
-usuario recién logueado (o que entra a una URL desconocida): recorre una lista fija de pestañas en
-orden (`/panel`, `/turnos`, `/seguimiento`, `/coberturas`, `/configuraciones`) y devuelve la primera
-cuya capacidad `*_VIEW` tiene el usuario; si no tiene ninguna, devuelve `/403`. Antes de esta función,
+usuario recién logueado (o que entra a una URL desconocida). `resolveHomeRouteForUser` mira primero el
+**rol**: si `hasRole('ADMIN')`, devuelve `/admin` sin más chequeos (ver [§ 9](#9-rol-admin--panel-superadmin-mecanismo-aparte)
+más abajo). Si no, delega en `resolveHomeRoute()`, que recorre una lista fija de pestañas en orden
+(`/panel`, `/turnos`, `/seguimiento`, `/coberturas`, `/configuraciones`) y devuelve la primera cuya
+capacidad `*_VIEW` tiene el usuario; si no tiene ninguna, devuelve `/403`. Antes de esta función,
 `redirectTo` de `''`/`**` era el string fijo `'panel'`, así que un usuario sin `PANEL:VIEW` terminaba
 en un guard que lo mandaba a `/login` — indistinguible de una sesión vencida. `/odontograma` y
 `/historia-clinica` no están en esa lista: no tienen una ruta fija propia, siempre se entra desde un
@@ -171,7 +173,34 @@ p. ej. `"odontograma"`, `"historia-clinica"`) e `icono`. Tres consumidores:
 Ver el diseño multi-módulo completo en [ARCHITECTURE.md](./ARCHITECTURE.md) y el estado/persistencia
 del "último turno atendido" (`ClinicalAttentionService`) en [STATE.md](./STATE.md).
 
-## 8. Ver también
+## 9. Rol `ADMIN` / panel superadmin — mecanismo aparte
+
+`ADMIN` (2026-08-09) **no** pasa por nada de lo descripto arriba — no es un módulo, no tiene entrada en
+`MODULE_CAPABILITIES`/`MODULE_IMPLICATIONS`/`MODULE_PRESETS`, y `capabilities.ts` no lo menciona en
+absoluto. Es un chequeo de **rol puro**, cross-organización, para el panel superadmin (`/admin`,
+`AdminViewComponent`) — mismo criterio que el backend (`@RequiresRole` vs. `@RequiresCapability`, ver
+`bakend-proyecto-turnos/docs/PERMISOS.md § 6.3`): el sistema de capacidades está acotado por diseño a
+los módulos contratados de **una** organización, y este panel opera sobre todas.
+
+- **`AuthService.hasRole(role)`** (`core/services/auth.service.ts`): comparación directa
+  `currentUser.role === role`, sin derivar nada de `modules`/`capabilities`.
+- **Ruteo**: `data: { role: 'ADMIN' }` en vez de `data: { capability: ... }` sobre la ruta `/admin`;
+  `authGuard` chequea ambos tipos de dato de forma independiente (ver [ROUTES.md](./ROUTES.md)).
+- **Prioridad de aterrizaje**: `resolveHomeRouteForUser()` mira `hasRole('ADMIN')` **antes** que
+  cualquier capacidad — un `ADMIN` va siempre a `/admin`, aunque además tenga módulos de una
+  organización real (ver [§ 6.5](#65-resolvehomerouteforuser-y-el-destino-de--y-)).
+- **Errores**: un 403 de `AdminGuard`/`AdminController` (`ForbiddenException` del backend) viaja **sin**
+  el campo `requiredCapability` que sí llevan los 403 de capacidad — `http-error.interceptor.ts` lo
+  distingue explícitamente para no forzar un logout cuando lo que falló fue una baranda de rol, no una
+  sesión vieja (ver [UI_RULES.md](./UI_RULES.md)).
+- **Sin vista reducida por capacidad dentro del panel**: a diferencia del resto de la app (que muestra
+  controles deshabilitados con `[appCan]`/`*appCanShow` según capacidad), `/admin` es todo-o-nada — se
+  entra completo o no se entra, no hay una versión parcial del panel para ningún otro rol.
+
+Detalle de componentes/endpoints del panel en [PAGES.md](./PAGES.md#panel-superadmin) y
+[ARCHITECTURE.md](./ARCHITECTURE.md).
+
+## 10. Ver también
 
 - [ROUTES.md](./ROUTES.md) — árbol de rutas, guard, `homeRedirect`.
 - [COMPONENTS.md](./COMPONENTS.md#shared-srcappshared) — inputs/outputs de `CanDirective`/`CanShowDirective`.

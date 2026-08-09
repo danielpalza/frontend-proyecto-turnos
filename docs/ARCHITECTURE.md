@@ -64,7 +64,8 @@ src/
         ├── historia-clinica/{components/historia-clinica-view, components/historia-clinica-form, services/}
         ├── seguimiento/{seguimiento-view, components/*, utils/}
         ├── coberturas/{coberturas-view, coberturas.service.ts, intermediarios.service.ts, coberturas.models.ts}
-        └── configuraciones/{configuraciones-view, components/invitation-dialog, components/profesional-dialog}
+        ├── configuraciones/{configuraciones-view, components/invitation-dialog, components/profesional-dialog}
+        └── admin/{admin-view, admin.service.ts, admin.models.ts, components/admin-organization-plan-dialog, components/admin-organization-modules-dialog, components/admin-organization-users-dialog}  # panel superadmin (2026-08-09), rol ADMIN — no usa el sistema de capacidades por módulo, ver PERMISOS.md § 9
 ```
 
 `public/` contiene assets estáticos servidos tal cual (logo, imágenes de landing, iconos del odontograma, favicon) — mapeado por `angular.json` (`assets: [{ glob: '**/*', input: 'public' }]`).
