@@ -133,7 +133,7 @@ function extractContextFromUrl(url: string): string {
 }
 
 /**
- * Un 403 tiene dos causas distintas que desde afuera se ven igual, y merecen respuestas opuestas.
+ * Un 403 tiene causas distintas que desde afuera se ven igual, y merecen respuestas opuestas.
  *
  * Si el frontend **cree** que tiene la capacidad que el backend rechazó, la sesión quedó
  * desactualizada: las capacidades viajan en el login y se cachean en `localStorage` con un JWT de
@@ -141,8 +141,13 @@ function extractContextFromUrl(url: string): string {
  * forzar el re-login, avisando por qué.
  *
  * Si el frontend ya sabía que no la tiene, el usuario llegó por una URL directa o un botón que
- * todavía no declara su capacidad: alcanza con avisarle. Echarlo a login sería desproporcionado, y
- * es lo que hacía antes con cualquier 403 — sin mensaje, así que se leía como sesión vencida.
+ * todavía no declara su capacidad: alcanza con avisarle. Echarlo a login sería desproporcionado.
+ *
+ * Un 403 sin `requiredCapability` no es ninguno de los dos casos anteriores — no hay capacidad
+ * involucrada (rol incorrecto en `AdminController`, o una baranda de `ModuleGrantGuard`/`AdminGuard`,
+ * que viajan como `ForbiddenException` planas). Tratarlo como sesión vencida forzaba logout de
+ * cualquiera que pisara una baranda de autoescalada o entrara al panel superadmin sin ser ADMIN, en
+ * vez de mostrarle el mensaje del backend.
  */
 function handleCapabilityForbidden(
   error: HttpErrorResponse,
@@ -153,9 +158,12 @@ function handleCapabilityForbidden(
   const requiredCapability: string | undefined = error.error?.requiredCapability;
   const message: string = error.error?.message || 'No tenés permiso para realizar esta acción';
 
-  // Sin el campo no se puede distinguir: se conserva el comportamiento anterior (cerrar sesión).
+  // Sin el campo no hay capacidad que pueda estar desactualizada: no es sesión vencida, es un 403
+  // de otro tipo (rol incorrecto de AdminController, o una baranda de ModuleGrantGuard/AdminGuard).
+  // Antes cualquier 403 sin el campo forzaba logout — cerraba la sesión de quien pisaba una baranda
+  // de autoescalada o el panel superadmin, en vez de mostrarle el mensaje.
   const sesionDesactualizada =
-    !requiredCapability || authService.hasCapability(requiredCapability);
+    !!requiredCapability && authService.hasCapability(requiredCapability);
 
   if (sesionDesactualizada) {
     notification.showError('Tus permisos cambiaron. Iniciá sesión de nuevo para continuar.');

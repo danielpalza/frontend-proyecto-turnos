@@ -1,0 +1,137 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+:host {
+  display: contents;
+}
+
+.modal-backdrop {
+  @include modal-backdrop;
+}
+
+.modal {
+  @include modal-centering;
+}
+
+.modal-dialog-admin-plan {
+  @include modal-dialog(34rem);
+}
+
+.modal-content {
+  @include modal-content;
+}
+
+.modal-header {
+  @include modal-header;
+}
+
+.title-block {
+  @include modal-title-block;
+}
+
+.icon-circle {
+  @include icon-wrapper-circle-sm;
+}
+
+.modal-title {
+  @include modal-title;
+}
+
+.modal-subtitle {
+  @include modal-subtitle;
+}
+
+.btn-modal-close {
+  @include btn-modal-close;
+}
+
+.modal-body {
+  @include modal-body;
+}
+
+.form-label {
+  display: block;
+  font-weight: 500;
+  color: $text-secondary;
+  font-size: 0.875rem;
+  margin-bottom: $spacing-sm;
+}
+
+.form-control {
+  @include input-focus($radius-sm, 3px);
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.9375rem;
+  color: $text-primary;
+
+  &.is-invalid {
+    border-color: $danger-light;
+  }
+}
+
+.invalid-feedback {
+  display: none;
+  color: $danger-light;
+  font-size: 0.78rem;
+  margin-top: 0.3rem;
+
+  &.show {
+    display: block;
+  }
+}
+
+.alert-danger {
+  background-color: rgba($danger-light, 0.1);
+  border: 1px solid rgba($danger-light, 0.25);
+  color: $danger-dark;
+  border-radius: $radius-md;
+  font-size: 0.875rem;
+}
+
+.modal-footer {
+  @include modal-footer;
+
+  .btn {
+    @include modal-btn-base;
+  }
+
+  .btn-outline-secondary {
+    @include modal-btn-outline-secondary;
+  }
+
+  .btn-primary {
+    @include button-gradient-primary();
+  }
+}
+
+@include mobile {
+  .modal {
+    align-items: flex-end;
+    padding: $spacing-md;
+  }
+
+  .modal-dialog-admin-plan {
+    margin: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .modal-content {
+    border-radius: $radius-lg $radius-lg 0 0;
+  }
+
+  .modal-header,
+  .modal-body {
+    padding: $spacing-lg;
+  }
+
+  .modal-footer {
+    flex-direction: column-reverse;
+    padding: $spacing-lg;
+
+    .btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}

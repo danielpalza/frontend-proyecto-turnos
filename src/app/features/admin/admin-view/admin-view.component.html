@@ -1,0 +1,111 @@
+<div class="admin-view" data-testid="admin-view">
+  <div class="admin-header mb-4">
+    <div class="admin-header-icon">
+      <i class="bi bi-shield-lock"></i>
+    </div>
+    <div>
+      <h2 class="fw-bold mb-0">Panel superadmin</h2>
+      <p class="text-muted mb-0">Organizaciones del sistema: plan, módulos contratados y usuarios.</p>
+    </div>
+  </div>
+
+  <div class="admin-toolbar">
+    <span class="admin-count">
+      {{ organizations.length }}
+      {{ organizations.length === 1 ? 'organización' : 'organizaciones' }}
+    </span>
+  </div>
+
+  <div class="admin-org-list" *ngIf="organizations.length > 0">
+    <div *ngFor="let org of organizations" class="admin-org-row"
+      [ngClass]="{ 'admin-org-inactive': !org.activa }"
+      [attr.data-testid]="'admin-org-row-' + org.id">
+
+      <div class="admin-org-icon">
+        <i class="bi bi-building"></i>
+      </div>
+
+      <div class="admin-org-info">
+        <div class="admin-org-name" [attr.data-testid]="'admin-org-name-' + org.id">
+          {{ org.nombre }}
+          <span class="badge badge-soft badge-role text-nowrap"
+            [attr.data-testid]="'admin-org-status-badge-' + org.id">
+            {{ org.activa ? 'Activa' : 'Inactiva' }}
+          </span>
+        </div>
+        <div class="admin-org-detail">
+          <span [attr.data-testid]="'admin-org-slug-' + org.id">{{ org.slug }}</span>
+          <span class="admin-org-sep">•</span>
+          <span [attr.data-testid]="'admin-org-country-' + org.id">{{ paisNombre(org.pais) }}</span>
+        </div>
+        <div class="admin-org-plan" [attr.data-testid]="'admin-org-plan-summary-' + org.id">
+          {{ planResumen(org) }}
+        </div>
+      </div>
+
+      <div class="admin-org-stats">
+        <span class="stat-chip" title="Usuarios" [attr.data-testid]="'admin-org-stat-users-' + org.id">
+          <i class="bi bi-people"></i> {{ org.userCount }}
+        </span>
+        <span class="stat-chip" title="Pacientes" [attr.data-testid]="'admin-org-stat-patients-' + org.id">
+          <i class="bi bi-person-heart"></i> {{ org.patientCount }}
+        </span>
+        <span class="stat-chip" title="Turnos" [attr.data-testid]="'admin-org-stat-appointments-' + org.id">
+          <i class="bi bi-calendar-check"></i> {{ org.appointmentCount }}
+        </span>
+      </div>
+
+      <div class="admin-org-actions">
+        <button type="button" class="btn btn-action btn-action-flag"
+          (click)="toggleOrgActive(org)" title="Activar / desactivar"
+          [attr.data-testid]="'admin-org-toggle-active-btn-' + org.id">
+          <i class="bi" [ngClass]="org.activa ? 'bi-toggle-on' : 'bi-toggle-off'"></i>
+        </button>
+        <button type="button" class="btn btn-action btn-action-edit"
+          (click)="openPlanDialog(org)" title="Editar plan"
+          [attr.data-testid]="'admin-org-edit-plan-btn-' + org.id">
+          <i class="bi bi-cash-coin"></i>
+        </button>
+        <button type="button" class="btn btn-action btn-action-modules"
+          (click)="openModulesDialog(org)" title="Editar módulos"
+          [attr.data-testid]="'admin-org-edit-modules-btn-' + org.id">
+          <i class="bi bi-grid-3x3-gap"></i>
+        </button>
+        <button type="button" class="btn btn-action btn-action-users"
+          (click)="openUsersDialog(org)" title="Ver usuarios"
+          [attr.data-testid]="'admin-org-users-btn-' + org.id">
+          <i class="bi bi-people"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="organizations.length === 0" class="admin-empty text-center text-muted">
+    <i class="bi bi-building fs-1 d-block mb-2 opacity-50"></i>
+    <p class="mb-0">No hay organizaciones registradas</p>
+  </div>
+</div>
+
+<app-admin-organization-plan-dialog
+  [open]="showPlanDialog"
+  (openChange)="closePlanDialog()"
+  [organization]="editingOrgForPlan"
+  [isSaving]="isSavingPlan"
+  [saveError]="savePlanError"
+  (save)="onSavePlan($event)">
+</app-admin-organization-plan-dialog>
+
+<app-admin-organization-modules-dialog
+  [open]="showModulesDialog"
+  (openChange)="closeModulesDialog()"
+  [organization]="editingOrgForModules"
+  [isSaving]="isSavingModules"
+  [saveError]="saveModulesError"
+  (save)="onSaveModules($event)">
+</app-admin-organization-modules-dialog>
+
+<app-admin-organization-users-dialog
+  [open]="showUsersDialog"
+  [organization]="usersDialogOrg"
+  (openChange)="closeUsersDialog()">
+</app-admin-organization-users-dialog>

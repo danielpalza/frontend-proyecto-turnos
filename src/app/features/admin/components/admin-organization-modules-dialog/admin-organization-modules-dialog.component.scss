@@ -1,0 +1,149 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+:host {
+  display: contents;
+}
+
+.modal-backdrop {
+  @include modal-backdrop;
+}
+
+.modal {
+  @include modal-centering;
+}
+
+.modal-dialog-admin-modules {
+  @include modal-dialog(38rem);
+}
+
+.modal-content {
+  @include modal-content;
+}
+
+.modal-header {
+  @include modal-header;
+}
+
+.title-block {
+  @include modal-title-block;
+}
+
+.icon-circle {
+  @include icon-wrapper-circle-sm;
+}
+
+.modal-title {
+  @include modal-title;
+}
+
+.modal-subtitle {
+  @include modal-subtitle;
+}
+
+.btn-modal-close {
+  @include btn-modal-close;
+}
+
+.modal-body {
+  @include modal-body;
+}
+
+.modules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: $spacing-md;
+}
+
+.module-card {
+  border: 2px solid $border-color;
+  border-radius: $radius-md;
+  padding: $spacing-md 0.6rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  transition: all $transition-base;
+  background: $card-background;
+  text-align: center;
+
+  i {
+    font-size: 1.15rem;
+    color: $text-muted;
+    transition: color $transition-base;
+  }
+
+  span {
+    font-size: 0.78rem;
+    color: $text-secondary;
+    font-weight: 500;
+  }
+
+  &.selected {
+    border-color: $primary-color;
+    background: rgba($primary-color, 0.06);
+    box-shadow: $shadow-primary;
+
+    i,
+    span {
+      color: $primary-color;
+    }
+  }
+}
+
+.alert-danger {
+  background-color: rgba($danger-light, 0.1);
+  border: 1px solid rgba($danger-light, 0.25);
+  color: $danger-dark;
+  border-radius: $radius-md;
+  font-size: 0.875rem;
+}
+
+.modal-footer {
+  @include modal-footer;
+
+  .btn {
+    @include modal-btn-base;
+  }
+
+  .btn-outline-secondary {
+    @include modal-btn-outline-secondary;
+  }
+
+  .btn-primary {
+    @include button-gradient-primary();
+  }
+}
+
+@include mobile {
+  .modal {
+    align-items: flex-end;
+    padding: $spacing-md;
+  }
+
+  .modal-dialog-admin-modules {
+    margin: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .modal-content {
+    border-radius: $radius-lg $radius-lg 0 0;
+  }
+
+  .modal-header,
+  .modal-body {
+    padding: $spacing-lg;
+  }
+
+  .modal-footer {
+    flex-direction: column-reverse;
+    padding: $spacing-lg;
+
+    .btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}

@@ -157,12 +157,12 @@ export class OdontogramaStateService {
     );
   }
 
-  saveTurnoCompleto(pago?: OdontogramaPagoDelta): Observable<TurnoCompletoResponse> {
+  saveTurnoCompleto(pago?: OdontogramaPagoDelta, observacionesTurno?: string): Observable<TurnoCompletoResponse> {
     if (!this.appointmentId) {
       throw new Error('No hay turno cargado');
     }
 
-    const odontoDelta = this.odontoState.buildOdontogramDelta(pago);
+    const odontoDelta = this.odontoState.buildOdontogramDelta(pago, observacionesTurno);
     const perioDelta = this.perioState.buildPeriodontogramDelta();
 
     const combined: TurnoCompletoDeltaRequest = {

@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { Router, type CanActivateFn } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-import { resolveHomeRoute } from '../auth/home-route';
+import { resolveHomeRouteForUser } from '../auth/home-route';
 
 export const authGuard: CanActivateFn = (route) => {
   const authService = inject(AuthService);
@@ -18,6 +18,12 @@ export const authGuard: CanActivateFn = (route) => {
     return false;
   }
 
+  const requiredRole = route.data?.['role'] as string | undefined;
+  if (requiredRole && !authService.hasRole(requiredRole)) {
+    router.navigate(['/403']);
+    return false;
+  }
+
   return true;
 };
 
@@ -27,5 +33,5 @@ export const homeRedirect = (): string => {
   if (!authService.isAuthenticated()) {
     return '/login';
   }
-  return resolveHomeRoute(c => authService.hasCapability(c));
+  return resolveHomeRouteForUser(authService);
 };

@@ -15,7 +15,10 @@ interface NavItem {
   icon: string;
   route?: string;
   /** Capacidad que habilita esta pestaña. Ver `docs/PERMISOS.md`. */
-  capability: string;
+  capability?: string;
+  /** Rol puro que habilita esta pestaña (hoy solo `ADMIN`, panel superadmin) — mecanismo paralelo
+   * a `capability`, no derivado de módulos. Ver `docs/PERMISOS.md § 6.3`. */
+  role?: string;
   /** Requiere un turno cargado; no navega a una ruta fija. */
   requiresAppointment?: boolean;
 }
@@ -31,8 +34,15 @@ const STATIC_MENU_ITEMS: NavItem[] = [
 const ATENCION_ITEM: NavItem = {
   title: 'Atención',
   icon: 'bi-person-badge',
-  requiresAppointment: true,
-  capability: '' // se resuelve aparte: "cualquiera de" los módulos clínicos, no una sola capacidad fija
+  requiresAppointment: true
+  // se resuelve aparte: "cualquiera de" los módulos clínicos, no una sola capacidad fija
+};
+
+const ADMIN_ITEM: NavItem = {
+  title: 'Superadmin',
+  icon: 'bi-shield-lock',
+  route: '/admin',
+  role: 'ADMIN'
 };
 
 @Component({
@@ -80,6 +90,7 @@ export class NavbarComponent implements OnInit {
     push(STATIC_MENU_ITEMS[2], this.authService.hasCapability(Capability.SEGUIMIENTO_VIEW)); // Seguimiento
     push(STATIC_MENU_ITEMS[3], this.authService.hasCapability(Capability.COBERTURA_VIEW)); // Cobertura
     push(STATIC_MENU_ITEMS[4], this.authService.hasCapability(Capability.CONFIGURACIONES_VIEW)); // Configuraciones
+    push(ADMIN_ITEM, this.authService.hasRole('ADMIN')); // Superadmin
 
     return items;
   }

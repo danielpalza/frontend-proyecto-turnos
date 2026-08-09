@@ -1,0 +1,66 @@
+<div class="modal fade show d-block" tabindex="-1" role="dialog" *ngIf="open" appBodyPortal appScrollLock data-testid="admin-plan-dialog">
+  <div class="modal-backdrop fade show" (click)="close()"></div>
+
+  <div class="modal-dialog modal-dialog-admin-plan" role="document">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <div class="title-block">
+          <div class="icon-circle"><i class="bi bi-cash-coin"></i></div>
+          <div>
+            <h5 class="modal-title">Editar plan</h5>
+            <p class="modal-subtitle">{{ organization?.nombre }}</p>
+          </div>
+        </div>
+        <button type="button" class="btn-modal-close" aria-label="Close" (click)="close()"
+          data-testid="admin-plan-close-btn">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="handleSubmit()" data-testid="admin-plan-form">
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Nombre del plan</label>
+              <input type="text" class="form-control" formControlName="planNombre" placeholder="Ej. Pro"
+                data-testid="admin-plan-name-input" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Precio</label>
+              <input type="number" min="0" step="0.01" class="form-control" formControlName="planPrecio"
+                placeholder="0.00"
+                [class.is-invalid]="form.get('planPrecio')?.invalid && form.get('planPrecio')?.touched"
+                data-testid="admin-plan-price-input" />
+              <div class="invalid-feedback"
+                [class.show]="form.get('planPrecio')?.invalid && form.get('planPrecio')?.touched">
+                El precio no puede ser negativo
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Fecha de contratación</label>
+              <input type="date" class="form-control" formControlName="fechaContratacion"
+                data-testid="admin-plan-contract-date-input" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Fecha de último pago</label>
+              <input type="date" class="form-control" formControlName="fechaUltimoPago"
+                data-testid="admin-plan-last-payment-input" />
+            </div>
+          </div>
+
+          <div *ngIf="saveError" class="alert alert-danger py-2 mt-3" data-testid="admin-plan-save-error">{{ saveError }}</div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" (click)="close()"
+            data-testid="admin-plan-cancel-btn">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="form.invalid || isSaving"
+            data-testid="admin-plan-save-btn">
+            {{ isSaving ? 'Guardando...' : 'Guardar plan' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

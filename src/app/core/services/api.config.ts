@@ -15,6 +15,7 @@ export const API_CONFIG = {
     configuration: '/configuration',
     coberturas: '/coberturas',
     intermediarios: '/intermediarios',
-    invitations: '/invitations'
+    invitations: '/invitations',
+    admin: '/admin'
   }
 };

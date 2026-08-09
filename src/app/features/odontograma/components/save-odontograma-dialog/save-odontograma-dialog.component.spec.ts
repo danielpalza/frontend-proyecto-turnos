@@ -23,7 +23,7 @@ function makeMocks(overrides: { canCobrar?: boolean; snapshot?: Partial<Record<s
       historiaClinica$: of(EMPTY_ANAMNESIS),
       refreshAppointmentPaymentSnapshot: vi.fn(() => of(void 0)),
       appointmentPaymentSnapshot: snapshot,
-      saveTurnoCompleto: vi.fn((_pago: OdontogramaPagoDelta) => of(void 0))
+      saveTurnoCompleto: vi.fn((_pago?: OdontogramaPagoDelta, _observacionesTurno?: string) => of(void 0))
     },
     notification: { showSuccess: vi.fn(), showError: vi.fn() },
     authService: {
@@ -95,16 +95,16 @@ describe('SaveOdontogramaDialogComponent', () => {
       expect(sentPago).toEqual(expect.objectContaining({ precioBono: 100, montoPago: 50 }));
     });
 
-    it('sin TURNOS_COBRAR, el pago solo lleva observacionesTurno (ni siquiera los montos en 0)', async () => {
+    it('sin TURNOS_COBRAR, no manda bloque de pago; observacionesTurno viaja aparte', async () => {
       const mocks = makeMocks({ canCobrar: false });
       const { fixture } = await renderDialog(mocks, { open: true });
       fixture.componentInstance.updateField('observacionesTurno', 'Todo bien');
 
       fixture.componentInstance.handleSubmit();
 
-      const sentPago = mocks.stateService.saveTurnoCompleto.mock.calls[0][0];
-      expect(sentPago).toEqual({ observacionesTurno: 'Todo bien' });
-      expect(sentPago).not.toHaveProperty('precioBono');
+      const [sentPago, sentObservacionesTurno] = mocks.stateService.saveTurnoCompleto.mock.calls[0];
+      expect(sentPago).toBeUndefined();
+      expect(sentObservacionesTurno).toBe('Todo bien');
     });
   });
 

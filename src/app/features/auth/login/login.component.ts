@@ -8,6 +8,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { LoginRequest, RegisterRequest, ForgotPasswordRequest } from '../../../core/models/auth.model';
 import { DOCUMENT_NUMBER_PATTERN, PERSON_NAME_PATTERN, PHONE_PATTERN } from '../../../shared/validators/custom-validators';
 import { PAISES_LATAM } from '../../../shared/constants/paises-latam';
+import { resolveHomeRouteForUser } from '../../../core/auth/home-route';
 
 type RegisterStep = 'org' | 'account';
 
@@ -71,7 +72,7 @@ export class LoginComponent {
     private cdr: ChangeDetectorRef
   ) {
     if (this.authService.isAuthenticated()) {
-      this.router.navigate(['/turnos']);
+      this.router.navigateByUrl(resolveHomeRouteForUser(this.authService));
     }
   }
 
@@ -158,7 +159,7 @@ export class LoginComponent {
 
     this.authService.login(this.loginData).subscribe({
       next: () => {
-        this.router.navigate(['/turnos']);
+        this.router.navigateByUrl(resolveHomeRouteForUser(this.authService));
       },
       error: (err: HttpErrorResponse) => {
         this.loading = false;

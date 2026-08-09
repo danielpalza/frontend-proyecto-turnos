@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { resolveHomeRoute } from '../../../core/auth/home-route';
+import { resolveHomeRouteForUser } from '../../../core/auth/home-route';
 
 /**
  * Pantalla 403. Reemplaza al redirect mudo a `/panel` que hacía el guard, y que terminaba en
@@ -20,11 +20,11 @@ export class ForbiddenComponent {
   private readonly auth = inject(AuthService);
 
   goHome(): void {
-    this.router.navigateByUrl(resolveHomeRoute(c => this.auth.hasCapability(c)));
+    this.router.navigateByUrl(resolveHomeRouteForUser(this.auth));
   }
 
   get hasSomewhereToGo(): boolean {
-    return resolveHomeRoute(c => this.auth.hasCapability(c)) !== '/403';
+    return resolveHomeRouteForUser(this.auth) !== '/403';
   }
 
   logout(): void {

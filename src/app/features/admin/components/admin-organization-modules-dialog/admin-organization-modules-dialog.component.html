@@ -1,0 +1,45 @@
+<div class="modal fade show d-block" tabindex="-1" role="dialog" *ngIf="open" appBodyPortal appScrollLock data-testid="admin-modules-dialog">
+  <div class="modal-backdrop fade show" (click)="close()"></div>
+
+  <div class="modal-dialog modal-dialog-admin-modules" role="document">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <div class="title-block">
+          <div class="icon-circle"><i class="bi bi-grid-3x3-gap"></i></div>
+          <div>
+            <h5 class="modal-title">Módulos contratados</h5>
+            <p class="modal-subtitle">{{ organization?.nombre }}</p>
+          </div>
+        </div>
+        <button type="button" class="btn-modal-close" aria-label="Close" (click)="close()"
+          data-testid="admin-modules-close-btn">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="modules-grid" data-testid="admin-modules-grid">
+          <div class="module-card" *ngFor="let opt of moduleOptions"
+            [class.selected]="isModuleSelected(opt.code)"
+            (click)="toggleModule(opt.code)"
+            [attr.data-testid]="'admin-modules-module-' + opt.code">
+            <i class="bi" [ngClass]="moduleIcon(opt.code)"></i>
+            <span>{{ opt.label }}</span>
+          </div>
+        </div>
+
+        <div *ngIf="saveError" class="alert alert-danger py-2 mt-3" data-testid="admin-modules-save-error">{{ saveError }}</div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="close()"
+          data-testid="admin-modules-cancel-btn">Cancelar</button>
+        <button type="button" class="btn btn-primary" [disabled]="isSaving" (click)="handleSubmit()"
+          data-testid="admin-modules-save-btn">
+          {{ isSaving ? 'Guardando...' : 'Guardar módulos' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

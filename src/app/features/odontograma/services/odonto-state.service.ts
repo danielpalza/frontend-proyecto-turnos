@@ -271,7 +271,7 @@ export class OdontoStateService {
     this.toothIconsSubject.next(icons);
   }
 
-  buildOdontogramDelta(pago?: OdontogramaPagoDelta): OdontogramaDeltaRequest {
+  buildOdontogramDelta(pago?: OdontogramaPagoDelta, observacionesTurno?: string): OdontogramaDeltaRequest {
     const current = this.snapshotCurrentOdonto();
     const delta: OdontogramaDeltaRequest = {};
 
@@ -303,6 +303,10 @@ export class OdontoStateService {
 
     if (pago) {
       delta.pago = pago;
+    }
+
+    if (observacionesTurno !== undefined) {
+      delta.observacionesTurno = observacionesTurno;
     }
 
     return delta;

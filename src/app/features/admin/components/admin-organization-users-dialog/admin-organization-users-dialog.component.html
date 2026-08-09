@@ -1,0 +1,60 @@
+<div class="modal fade show d-block" tabindex="-1" role="dialog" *ngIf="open" appBodyPortal appScrollLock data-testid="admin-users-dialog">
+  <div class="modal-backdrop fade show" (click)="close()"></div>
+
+  <div class="modal-dialog modal-dialog-admin-users" role="document">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <div class="title-block">
+          <div class="icon-circle"><i class="bi bi-people"></i></div>
+          <div>
+            <h5 class="modal-title">Usuarios</h5>
+            <p class="modal-subtitle">{{ organization?.nombre }}</p>
+          </div>
+        </div>
+        <button type="button" class="btn-modal-close" aria-label="Close" (click)="close()"
+          data-testid="admin-users-close-btn">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="admin-users-list" *ngIf="users.length > 0">
+          <div *ngFor="let user of users" class="admin-user-row"
+            [ngClass]="{ 'admin-user-inactive': !user.activo }"
+            [attr.data-testid]="'admin-users-row-' + user.id">
+
+            <div class="admin-user-info">
+              <div class="admin-user-name" [attr.data-testid]="'admin-users-name-' + user.id">
+                {{ user.nombre }} {{ user.apellido }}
+                <span class="badge badge-soft badge-role text-nowrap">
+                  {{ user.activo ? 'Activo' : 'Inactivo' }}
+                </span>
+              </div>
+              <div class="admin-user-detail">{{ user.username }} • {{ user.email }}</div>
+            </div>
+
+            <select class="form-select role-select" [value]="user.role"
+              [disabled]="updatingRoleUserId === user.id"
+              (change)="onRoleChange(user, $event)"
+              [attr.data-testid]="'admin-users-role-select-' + user.id">
+              <option *ngFor="let opt of roleOptions" [value]="opt.code">{{ opt.label }}</option>
+            </select>
+
+            <button type="button" class="btn btn-action btn-action-flag"
+              (click)="toggleUserActive(user)" title="Activar / desactivar"
+              [disabled]="togglingUserId === user.id"
+              [attr.data-testid]="'admin-users-toggle-active-btn-' + user.id">
+              <i class="bi" [ngClass]="user.activo ? 'bi-toggle-on' : 'bi-toggle-off'"></i>
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="!isLoading && users.length === 0" class="admin-users-empty text-center text-muted">
+          <i class="bi bi-people fs-1 d-block mb-2 opacity-50"></i>
+          <p class="mb-0">Esta organización no tiene usuarios</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

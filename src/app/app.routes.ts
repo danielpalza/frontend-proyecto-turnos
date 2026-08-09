@@ -100,6 +100,13 @@ export const routes: Routes = [
       )
   },
   {
+    path: 'admin',
+    canActivate: [authGuard],
+    data: { role: 'ADMIN' },
+    loadComponent: () =>
+      import('./features/admin/admin-view/admin-view.component').then(m => m.AdminViewComponent)
+  },
+  {
     path: '**',
     redirectTo: homeRedirect
   }

@@ -135,18 +135,17 @@ export class SaveOdontogramaDialogComponent {
 
     // Sin TURNOS:COBRAR solo viaja lo clínico. El backend rechaza igual los montos si llegaran,
     // así que esto es UX, no la barrera. Ver `docs/PERMISOS.md § 6.1`.
-    const pago: OdontogramaPagoDelta = this.puedeCobrar
+    const pago: OdontogramaPagoDelta | undefined = this.puedeCobrar
       ? {
           precioBono: parseFloat(d.precioBono || '0'),
           precioTratamiento: parseFloat(d.precioTratamiento || '0'),
           extras: parseFloat(d.extras || '0'),
           montoPago: parseFloat(d.montoPago || '0'),
-          observaciones: d.observacionesPago || undefined,
-          observacionesTurno: d.observacionesTurno || undefined
+          observaciones: d.observacionesPago || undefined
         }
-      : { observacionesTurno: d.observacionesTurno || undefined };
+      : undefined;
 
-    if (this.puedeCobrar
+    if (pago
       && [pago.precioBono, pago.precioTratamiento, pago.extras, pago.montoPago]
         .some(v => v === undefined || isNaN(v) || v < 0)) {
       this.saveError.set('Los montos no pueden ser negativos.');
@@ -155,7 +154,7 @@ export class SaveOdontogramaDialogComponent {
 
     this.saving = true;
     this.saveError.set(null);
-    this.stateService.saveTurnoCompleto(pago).subscribe({
+    this.stateService.saveTurnoCompleto(pago, d.observacionesTurno || undefined).subscribe({
       next: () => {
         this.notification.showSuccess('Cambios guardados correctamente');
         this.saving = false;

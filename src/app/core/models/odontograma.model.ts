@@ -46,7 +46,6 @@ export interface OdontogramaPagoDelta {
   extras?: number;
   montoPago?: number;
   observaciones?: string;
-  observacionesTurno?: string;
 }
 
 export interface OdontogramaDeltaRequest {
@@ -55,6 +54,7 @@ export interface OdontogramaDeltaRequest {
   caras?: CaraDelta[];
   leyendas?: LeyendaDelta[];
   pago?: OdontogramaPagoDelta;
+  observacionesTurno?: string;
 }
 
 export interface OdontogramaResponse {
