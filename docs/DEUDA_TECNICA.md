@@ -3,7 +3,9 @@
 > Alcance: deuda del frontend Angular. Complementa [UI_RULES.md](./UI_RULES.md) (convenciones vigentes)
 > y, del lado del backend, `docs/DEUDA_TECNICA_PERMISOS.md`, que cubre la deuda del sistema de permisos.
 >
-> Última actualización: 2026-08-09, se agregó la § 9 documentando el panel superadmin nuevo
+> Última actualización: 2026-08-10, se agregó la § 9.3 tras una auditoría de bugs del panel superadmin
+> (dos condiciones de carrera del tipo "respuesta stale pisa estado nuevo", ver detalle abajo).
+> Anteriormente, 2026-08-09, se agregó la § 9 documentando el panel superadmin nuevo
 > (`features/admin/`): ninguna acción destructiva pide confirmación, y no tiene tests en ningún nivel
 > (ni unitarios ni E2E), aunque sí tiene los `data-testid` puestos.
 > Anteriormente, 2026-08-08, tras la paginación real de Seguimiento (reemplazo de los filtros
@@ -655,3 +657,31 @@ Coberturas — no hace falta un componente nuevo, solo cablearlo acá también.
 - Los `data-testid` **sí** están puestos en los cuatro componentes (confirmado — ver
   [COMPONENTS.md](./COMPONENTS.md#admin-featuresadmin--panel-superadmin-nuevo-2026-08-09)), así que no
   falta esa parte para que alguien escriba las pruebas — falta directamente escribirlas.
+
+### 9.3 Dos bugs de carrera encontrados en auditoría (2026-08-10), mismo patrón que F5/F9/S17
+
+Confirmado por lectura completa del feature — 9.1 y 9.2 arriba siguen vigentes tal cual. Además, dos bugs
+reales de la familia "respuesta HTTP stale pisa estado más nuevo", ya recurrente en el resto de este
+frontend:
+
+**a) Diálogo de usuarios: cambiar de organización rápido puede mostrar el personal de la organización
+equivocada.**
+`admin-organization-users-dialog.component.ts:36-53` — `loadUsers()` no usa `switchMap` ni cancela la
+request anterior, y `this.users` no se limpia antes de la nueva carga. Abrir el diálogo para la Org A
+(respuesta lenta), cerrarlo, y abrirlo para la Org B antes de que A responda: si la respuesta de A llega
+después de que se disparó la de B, pisa `this.users` con la lista de A mientras el header del diálogo ya
+muestra "Org B" — el operador puede terminar tocando el acceso de un usuario de otra organización creyendo
+que es de la que está mirando. **Fix:** limpiar `this.users = []` al iniciar la carga y reemplazar el
+`subscribe` plano por un `Subject<string>` + `switchMap`, mismo fix que ya se aplicó para F5/F9.
+
+**b) Diálogos de plan/módulos: guardar y cancelar rápido puede cerrar por sorpresa el diálogo de otra
+organización y descartar ediciones sin guardar.**
+`admin-view.component.ts:118-174` — `onSavePlan`/`onSaveModules` llaman a `closePlanDialog()`/
+`closeModulesDialog()` de forma incondicional en su callback de éxito, y ni el backdrop ni "Cancelar" ni
+la X de esos diálogos chequean `isSaving` (solo el botón de submit lo hace). Guardar el plan de la Org A,
+cerrar el diálogo mientras el request sigue en vuelo (nada lo impide), abrir el diálogo para la Org B y
+empezar a editar — cuando la respuesta de A llega tarde, `closePlanDialog()` se ejecuta igual y cierra el
+diálogo que ahora está abierto para B, descartando sus ediciones sin guardar, con un toast de éxito que
+visualmente parece ser sobre B pero es sobre A. **Fix:** deshabilitar backdrop/Cancelar/X mientras
+`isSaving` (igual que ya hace F11), y/o solo cerrar el diálogo en el callback si sigue abierto para la
+misma organización cuya respuesta llegó.
