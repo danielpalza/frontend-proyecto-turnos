@@ -7,37 +7,14 @@
         </h1>
         <p class="text-muted mb-0">Ajustes de la cuenta y preferencias</p>
       </div>
-
-      <div class="plan-summary-card" data-testid="settings-plan-summary">
-        <div class="plan-summary-info">
-          <div class="plan-summary-icon">
-            <i class="bi bi-box-seam"></i>
-          </div>
-          <div>
-            <div class="plan-summary-name">Plan Pro</div>
-            <div class="plan-summary-limit">Hasta 5 usuarios activos</div>
-          </div>
-        </div>
-
-        <div class="plan-summary-usage">
-          <span class="plan-summary-usage-label">Cupos utilizados</span>
-          <div class="plan-summary-progress-wrap">
-            <div class="plan-summary-progress">
-              <div class="plan-summary-progress-bar" style="width: 60%"></div>
-            </div>
-            <span class="plan-summary-count">3 / 5</span>
-          </div>
-        </div>
-
-        <button type="button" class="btn btn-plan-upgrade" data-testid="settings-plan-upgrade-btn">
-          <i class="bi bi-arrow-down-up"></i>
-          Mejorar plan
-        </button>
-      </div>
     </div>
 
     <div class="settings-panels-scale">
     <div class="row g-4">
+      <div class="col-12">
+        <app-suscripcion-panel></app-suscripcion-panel>
+      </div>
+
       <div class="col-12">
         <app-profesionales-panel></app-profesionales-panel>
       </div>

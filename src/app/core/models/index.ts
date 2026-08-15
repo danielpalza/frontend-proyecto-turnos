@@ -8,3 +8,4 @@ export * from './dashboard.model';
 export * from './configuration.model';
 export * from './invitation.model';
 export * from './documento.model';
+export * from './subscription.model';

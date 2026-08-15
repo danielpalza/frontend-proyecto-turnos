@@ -1,0 +1,188 @@
+<div class="suscripcion-panel" data-testid="settings-suscripcion-panel" *ngIf="subscription as sub">
+
+  <div class="suscripcion-header mb-4">
+    <div class="suscripcion-header-icon">
+      <i class="bi bi-box-seam"></i>
+    </div>
+    <div>
+      <h2 class="fw-bold mb-0">Suscripción y pagos</h2>
+      <p class="text-muted mb-0">Tu plan, los cupos que estás usando y el estado de tus pagos.</p>
+    </div>
+  </div>
+
+  <!-- Plan vigente -->
+  <div class="suscripcion-plan-row">
+    <div class="suscripcion-plan-info">
+      <div class="suscripcion-plan-name">
+        <span class="suscripcion-plan-title">Plan {{ planLabel }}</span>
+        <span class="badge-soft" [ngClass]="estadoPagoBadgeClass" data-testid="settings-payment-status-badge">
+          {{ estadoPagoLabel }}
+        </span>
+      </div>
+      <div class="suscripcion-plan-vencimiento" *ngIf="sub.fechaVencimiento">
+        <i class="bi bi-calendar-event"></i>
+        Próximo vencimiento: <strong>{{ sub.fechaVencimiento | date: 'dd/MM/yyyy' }}</strong>
+      </div>
+    </div>
+
+    <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-2"
+      [appCan]="Capability.CONFIGURACIONES_PLAN" (click)="openPlanesDialog()"
+      data-testid="settings-open-planes-btn">
+      <i class="bi bi-arrow-left-right"></i>
+      Cambiar de plan
+    </button>
+  </div>
+
+  <!-- Cambio de plan agendado -->
+  <div class="suscripcion-agendado" *ngIf="tieneCambioAgendado"
+    [class.suscripcion-agendado-bloqueado]="sub.downgradePendienteBloqueado"
+    data-testid="settings-plan-pendiente">
+    <i class="bi" [ngClass]="sub.downgradePendienteBloqueado ? 'bi-exclamation-triangle-fill' : 'bi-clock-history'"></i>
+
+    <div class="suscripcion-agendado-texto">
+      <ng-container *ngIf="!sub.downgradePendienteBloqueado; else bloqueado">
+        Tu plan cambiará a <strong>{{ planPendienteLabel }}</strong>
+        <ng-container *ngIf="sub.planPendienteDesde">
+          el <strong>{{ sub.planPendienteDesde | date: 'dd/MM/yyyy' }}</strong>
+        </ng-container>.
+        Hasta entonces seguís con el plan {{ planLabel }} y sus beneficios.
+      </ng-container>
+      <ng-template #bloqueado>
+        El cambio a <strong>{{ planPendienteLabel }}</strong> no se pudo aplicar porque superás los
+        límites de ese plan. Dá de baja profesionales o usuarios para que se aplique, o cancelá el cambio.
+      </ng-template>
+    </div>
+
+    <button type="button" class="btn-cancelar-cambio" [appCan]="Capability.CONFIGURACIONES_PLAN"
+      (click)="cancelarCambioPendiente()" [disabled]="isCancelandoCambio"
+      data-testid="settings-cancel-plan-pendiente-btn">
+      <span class="spinner-border spinner-border-sm me-1" *ngIf="isCancelandoCambio"></span>
+      Cancelar cambio
+    </button>
+  </div>
+
+  <!-- Cupos -->
+  <div class="suscripcion-usos">
+    <div class="suscripcion-uso" data-testid="settings-uso-profesionales">
+      <div class="suscripcion-uso-top">
+        <span class="suscripcion-uso-label">
+          <i class="bi bi-person-badge"></i>
+          Profesionales
+        </span>
+        <span class="suscripcion-uso-count">
+          {{ sub.profesionalesActuales }} <span class="text-muted">/ {{ maxLabel(sub.maxProfesionales) }}</span>
+        </span>
+      </div>
+      <div class="suscripcion-progress">
+        <div class="suscripcion-progress-bar"
+          [ngClass]="usoClase(sub.profesionalesActuales, sub.maxProfesionales)"
+          [style.width.%]="porcentaje(sub.profesionalesActuales, sub.maxProfesionales)"></div>
+      </div>
+    </div>
+
+    <div class="suscripcion-uso" data-testid="settings-uso-usuarios">
+      <div class="suscripcion-uso-top">
+        <span class="suscripcion-uso-label">
+          <i class="bi bi-people"></i>
+          Usuarios
+        </span>
+        <span class="suscripcion-uso-count">
+          {{ sub.usuariosActuales }} <span class="text-muted">/ {{ maxLabel(sub.maxUsuarios) }}</span>
+        </span>
+      </div>
+      <div class="suscripcion-progress">
+        <div class="suscripcion-progress-bar"
+          [ngClass]="usoClase(sub.usuariosActuales, sub.maxUsuarios)"
+          [style.width.%]="porcentaje(sub.usuariosActuales, sub.maxUsuarios)"></div>
+      </div>
+    </div>
+  </div>
+
+  <p class="suscripcion-uso-nota">
+    <i class="bi bi-info-circle"></i>
+    Los profesionales desactivados siguen ocupando cupo. Para liberarlo hay que darlos de baja.
+  </p>
+
+  <!-- Cómo pagar -->
+  <div class="suscripcion-pago">
+    <h3 class="suscripcion-subtitulo">
+      <i class="bi bi-bank"></i>
+      Cómo pagar
+    </h3>
+    <p class="suscripcion-pago-desc">
+      Transferí el importe de tu plan al alias de abajo. El pago lo confirmamos manualmente, así que
+      puede tardar un rato en verse reflejado acá.
+    </p>
+
+    <div class="suscripcion-alias">
+      <span class="suscripcion-alias-label">Alias para transferir el pago mensual</span>
+      <div class="suscripcion-alias-value">
+        <code data-testid="settings-payment-alias">{{ aliasEnMayuscula }}</code>
+        <button type="button" class="btn-copy-alias" (click)="copyPaymentAlias()"
+          data-testid="settings-copy-alias-btn">
+          <i class="bi" [ngClass]="aliasCopied ? 'bi-check2' : 'bi-clipboard'"></i>
+          {{ aliasCopied ? 'Copiado' : 'Copiar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Historial -->
+  <div class="suscripcion-historial">
+    <button type="button" class="suscripcion-historial-toggle" (click)="toggleHistorial()"
+      [attr.aria-expanded]="historialAbierto" data-testid="settings-toggle-historial-btn">
+      <span>
+        <i class="bi bi-receipt"></i>
+        Historial de pagos
+      </span>
+      <i class="bi" [ngClass]="historialAbierto ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+    </button>
+
+    <div class="suscripcion-historial-body" *ngIf="historialAbierto" data-testid="settings-historial-body">
+      <div class="suscripcion-historial-loading" *ngIf="isLoadingHistorial">
+        <span class="spinner-border spinner-border-sm"></span>
+        Cargando historial…
+      </div>
+
+      <div class="suscripcion-historial-empty" *ngIf="!isLoadingHistorial && historial.length === 0">
+        Todavía no hay períodos registrados.
+      </div>
+
+      <div class="suscripcion-historial-tabla-wrap" *ngIf="!isLoadingHistorial && historial.length > 0">
+        <table class="suscripcion-historial-tabla">
+          <thead>
+            <tr>
+              <th>Período</th>
+              <th>Plan</th>
+              <th>Vencimiento</th>
+              <th>Estado</th>
+              <th>Fecha de pago</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let fila of historial; trackBy: trackByPeriodo"
+              [attr.data-testid]="'settings-historial-row-' + fila.id">
+              <td>{{ fila.periodo | date: 'MM/yyyy' }}</td>
+              <td>
+                {{ planLabelDe(fila.plan) }}
+                <span class="suscripcion-historial-precio" *ngIf="fila.precio != null">
+                  · {{ fila.precio | currency: (fila.moneda || 'ARS') : 'symbol' : '1.0-0' }}
+                </span>
+              </td>
+              <td>{{ fila.fechaVencimiento | date: 'dd/MM/yyyy' }}</td>
+              <td>
+                <span class="badge-soft" [ngClass]="estadoPeriodoBadgeClass(fila.estado)">
+                  {{ estadoPeriodoLabel(fila.estado) }}
+                </span>
+              </td>
+              <td>{{ fila.fechaPago ? (fila.fechaPago | date: 'dd/MM/yyyy') : '—' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-planes-dialog [open]="showPlanesDialog" [subscription]="subscription"
+  (closed)="onPlanesDialogClosed()"></app-planes-dialog>

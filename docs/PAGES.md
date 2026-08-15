@@ -142,13 +142,24 @@ Una entrada por cada componente enrutado en [`app.routes.ts`](../src/app/app.rou
 
 - **Ruta**: `/configuraciones`
 - **Componente**: `ConfiguracionesViewComponent` — [`src/app/features/configuraciones/configuraciones-view/configuraciones-view.component.ts`](../src/app/features/configuraciones/configuraciones-view/configuraciones-view.component.ts)
-- **Permisos**: `authGuard`, requiere capacidad `CONFIGURACIONES:VIEW`.
-- **Propósito**: **hoy solo contiene** el editor de la plantilla de mensaje de WhatsApp que se usa para recordatorios de turno (con vista previa en vivo, contador de caracteres y botones para insertar variables `{paciente}`, `{fecha}`, `{hora}`, `{profesional}`).
-- **Componentes que renderiza**: ninguno de features — es un panel único autocontenido.
+- **Permisos**: `authGuard`, requiere módulo `CONFIGURACIONES`.
+- **Propósito**: lista vertical de paneles de ajustes de la cuenta. El header es solo el título; todas las tarjetas viven dentro de `.settings-panels-scale > .row.g-4`, una por `<div class="col-12">`.
+- **Componentes que renderiza**, en orden:
+  1. `SuscripcionPanelComponent` — plan vigente, cupos, alias de pago e historial (ver abajo).
+  2. `ProfesionalesPanelComponent` — altas, accesos y módulos habilitados.
+  3. Panel de WhatsApp, inline en el template: editor de la plantilla de recordatorio con vista previa en vivo, contador de caracteres y botones para insertar `{paciente}`, `{fecha}`, `{hora}`, `{profesional}`.
 - **Datos que carga / endpoints**:
   - `ConfigurationService.getConfig()` (caché reactiva, poblada automáticamente al loguearse vía `GET /api/configuration`; si falla, cae a una plantilla por defecto hardcodeada).
   - Guardar: `PUT /api/configuration` con `{ mensajeWhatsapp }`.
-- La tarjeta "Plan Pro / 3 de 5 cupos utilizados" en el header es **contenido estático hardcodeado en el HTML** (no viene de ningún endpoint) — ver "Pendiente" abajo.
+
+### Panel de suscripción
+
+- **Componentes**: [`SuscripcionPanelComponent`](../src/app/features/configuraciones/components/suscripcion-panel/suscripcion-panel.component.ts) y el modal [`PlanesDialogComponent`](../src/app/features/configuraciones/components/planes-dialog/planes-dialog.component.ts).
+- Muestra plan vigente + badge de estado de pago, próximo vencimiento, aviso de baja de plan agendada (con "Cancelar cambio"), barras de cupos de profesionales/usuarios (que viran a amarillo al 80% y a rojo al 100%), el alias de pago **siempre en mayúscula** (se copia también en mayúscula) e historial de pagos expandible.
+- "Cambiar de plan" abre el modal comparativo, gateado con `[appCan]="Capability.CONFIGURACIONES_PLAN"` — capacidad **OWNER-only**. Mejorar de plan se aplica al instante; bajar de plan pide confirmación explícita y queda agendado al cierre del período.
+- **Endpoints** (`SubscriptionService`): `GET /api/subscription`, `GET /api/subscription/planes` (cacheado), `GET /api/subscription/pagos` (on demand al expandir), `PUT /api/subscription/plan`, `DELETE /api/subscription/plan-pendiente`.
+- Los precios del catálogo son **de demo** (30.000 / 40.000 / 50.000 ARS), provisorios. Si un plan viene con `precioMensual: null`, la UI oculta el importe.
+- ⚠️ El modal **necesita** `appBodyPortal`: `.settings-panels-scale` aplica `zoom: 0.88` y eso rompe `position: fixed` en los descendientes. Ver [DEUDA_TECNICA.md](./DEUDA_TECNICA.md).
 
 ---
 
@@ -185,6 +196,8 @@ Una entrada por cada componente enrutado en [`app.routes.ts`](../src/app/app.rou
 
 ## Pendiente de completar por el desarrollador
 
-- La tarjeta de plan/cupos de usuarios en Configuraciones (`"Plan Pro"`, `"3 / 5"`) sigue siendo estática. **Ya no es una incógnita si existe un endpoint de plan/facturación real** — existe (`PUT /api/admin/organizations/{orgId}/plan`, ver arriba) — pero es exclusivo del panel superadmin (`ADMIN`), cross-organización; no hay ningún endpoint para que una organización lea/muestre **su propio** plan desde Configuraciones. Conectar esta tarjeta a datos reales requeriría un endpoint nuevo del lado del `OWNER`, no reutilizar el del panel admin.
+- ~~La tarjeta de plan/cupos de usuarios en Configuraciones es estática.~~ **Resuelto (2026-08-14)**: hay un modelo de suscripción real detrás (`/api/subscription`) y la tarjeta pasó a ser el `SuscripcionPanelComponent` descripto arriba.
+- No hay pantalla de superadmin para confirmar pagos ni para editar precios/límites del catálogo de planes. El backend ya expone los endpoints (`PUT /api/subscription/{orgId}/confirmar-pago`, `GET /api/subscription/{orgId}/pagos`) pero hoy son inalcanzables porque ningún usuario tiene el rol `SUPERADMIN`.
+- Los precios de los planes en la tabla `plans` son provisorios (demo): falta la definición comercial real.
 - No hay página de "perfil de usuario" propio (cambiar contraseña, editar datos personales del usuario logueado) detectada en las rutas.
 - Agregar confirmación (`ConfirmDialogComponent`, ya usado en otras páginas) antes de desactivar una organización o un usuario, o cambiarle el rol, desde el panel superadmin — hoy esas acciones son inmediatas, sin paso intermedio.

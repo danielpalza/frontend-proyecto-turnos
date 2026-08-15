@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router, NavigationEnd, RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './layout/navbar/navbar.component';
+import { SuscripcionBannerComponent } from './shared/components/suscripcion-banner/suscripcion-banner.component';
 import { filter } from 'rxjs';
 
 /** Rutas públicas, alcanzables sin sesión — el navbar no debe renderizarse ahí: dispara un fetch
@@ -15,7 +16,7 @@ function isPublicRoute(url: string): boolean {
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, NavbarComponent],
+  imports: [RouterOutlet, NavbarComponent, SuscripcionBannerComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })

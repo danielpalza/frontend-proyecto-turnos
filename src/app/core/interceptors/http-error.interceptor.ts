@@ -1,10 +1,11 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
-import { inject } from '@angular/core';
+import { Injector, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { ErrorHandlerService } from '../services/error-handler.service';
 import { NotificationService } from '../services/notification.service';
 import { AuthService } from '../services/auth.service';
+import { SubscriptionService } from '../services/subscription.service';
 import { SKIP_GLOBAL_ERROR_HANDLER } from './http-context';
 
 /**
@@ -21,6 +22,7 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
   const notification = inject(NotificationService);
   const authService = inject(AuthService);
   const router = inject(Router);
+  const injector = inject(Injector);
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
@@ -35,6 +37,19 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
       if (error.status === 401 && !isAuthEndpoint) {
         authService.logout();
         router.navigate(['/login']);
+        return throwError(() => error);
+      }
+
+      // 402: la organización quedó en solo lectura por falta de pago. No es un problema de permisos
+      // ni de sesión, así que no se cierra nada — se avisa y se refresca el estado para que el
+      // banner y el panel de Configuraciones queden al día.
+      if (error.status === 402 && !isAuthEndpoint) {
+        const message: string = error.error?.message
+          || 'Tu suscripción está impaga. Regularizá el pago para volver a cargar datos.';
+        notification.showError(message);
+        // Se resuelve acá y no arriba: SubscriptionService depende de HttpClient, y pedirlo al
+        // construir el interceptor cerraría el ciclo HttpClient → interceptor → HttpClient.
+        injector.get(SubscriptionService).loadSubscription().subscribe();
         return throwError(() => error);
       }
 

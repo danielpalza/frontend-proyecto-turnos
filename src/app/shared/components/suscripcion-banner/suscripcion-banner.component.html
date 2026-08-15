@@ -1,0 +1,27 @@
+<div class="suscripcion-banner" *ngIf="visible" [class.suscripcion-banner-bloqueo]="esSoloLectura"
+  role="status" data-testid="suscripcion-banner">
+
+  <i class="bi" [ngClass]="esSoloLectura ? 'bi-lock-fill' : 'bi-exclamation-triangle-fill'"></i>
+
+  <span class="suscripcion-banner-texto">
+    <ng-container *ngIf="esSoloLectura; else enGracia">
+      <strong>Tu cuenta está en modo solo lectura.</strong>
+      Podés consultar toda tu información, pero no cargar ni modificar datos hasta que se acredite el pago.
+    </ng-container>
+    <ng-template #enGracia>
+      <strong>Tu pago está vencido.</strong>
+      <ng-container *ngIf="fechaCorte">
+        A partir del {{ fechaCorte | date: 'dd/MM/yyyy' }} vas a poder consultar información pero no cargar datos nuevos.
+      </ng-container>
+    </ng-template>
+  </span>
+
+  <a class="suscripcion-banner-cta" routerLink="/configuraciones" data-testid="suscripcion-banner-cta">
+    Ver cómo pagar
+  </a>
+
+  <button type="button" class="suscripcion-banner-close" *ngIf="!esSoloLectura" (click)="dismiss()"
+    aria-label="Ocultar aviso" data-testid="suscripcion-banner-close">
+    <i class="bi bi-x-lg"></i>
+  </button>
+</div>

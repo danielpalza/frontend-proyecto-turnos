@@ -1,0 +1,82 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+:host {
+  display: contents;
+}
+
+.suscripcion-banner {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  flex-wrap: wrap;
+  padding: $spacing-md $spacing-xl;
+  background-color: rgba($warning, 0.14);
+  border-bottom: 1px solid rgba($warning, 0.4);
+  color: $text-primary;
+  font-size: 0.875rem;
+  line-height: 1.4;
+
+  > i {
+    color: #b58900;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+}
+
+.suscripcion-banner-bloqueo {
+  background-color: rgba($danger, 0.12);
+  border-bottom-color: rgba($danger, 0.4);
+
+  > i {
+    color: $danger;
+  }
+}
+
+.suscripcion-banner-texto {
+  flex: 1;
+  min-width: 12rem;
+}
+
+.suscripcion-banner-cta {
+  padding: 0.35rem 0.9rem;
+  border: 1px solid currentColor;
+  border-radius: $radius-md;
+  color: $text-primary;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all $transition-base;
+
+  &:hover {
+    background-color: rgba($text-primary, 0.06);
+    color: $text-primary;
+  }
+}
+
+.suscripcion-banner-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: none;
+  border-radius: $radius-full;
+  background: transparent;
+  color: $text-secondary;
+  flex-shrink: 0;
+  transition: all $transition-base;
+
+  &:hover {
+    background-color: rgba($text-primary, 0.08);
+    color: $text-primary;
+  }
+}
+
+@include mobile {
+  .suscripcion-banner {
+    padding: $spacing-md $spacing-lg;
+    font-size: 0.8125rem;
+  }
+}

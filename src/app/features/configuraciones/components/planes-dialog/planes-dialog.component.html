@@ -1,0 +1,113 @@
+<div class="modal fade show d-block" tabindex="-1" role="dialog" *ngIf="open" appBodyPortal appScrollLock
+  data-testid="settings-planes-dialog">
+  <div class="modal-backdrop fade show" (click)="close()"></div>
+
+  <div class="modal-dialog modal-dialog-planes" role="document">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <div class="title-block">
+          <div class="icon-circle"><i class="bi bi-box-seam"></i></div>
+          <div>
+            <h5 class="modal-title">Elegí tu plan</h5>
+            <p class="modal-subtitle">Mejorar de plan se aplica al instante. Bajar de plan se aplica al cierre del período.</p>
+          </div>
+        </div>
+        <button type="button" class="btn-modal-close" aria-label="Cerrar" (click)="close()"
+          data-testid="settings-planes-close-btn">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+
+        <div class="planes-alert planes-alert-danger" *ngIf="errorMessage" data-testid="settings-planes-error">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <span>{{ errorMessage }}</span>
+        </div>
+
+        <div class="planes-loading" *ngIf="isLoading">
+          <span class="spinner-border spinner-border-sm"></span>
+          Cargando planes…
+        </div>
+
+        <!-- Confirmación de baja: se aplica recién al cierre del período, conviene que quede claro. -->
+        <div class="baja-confirm" *ngIf="bajaPendienteDeConfirmar as baja" data-testid="settings-planes-confirm-baja">
+          <div class="baja-confirm-icon"><i class="bi bi-clock-history"></i></div>
+          <div class="baja-confirm-body">
+            <h6>Vas a bajar al plan {{ baja.nombre }}</h6>
+            <p *ngIf="fechaEfecto; else sinFecha">
+              Seguís con tu plan actual y sus beneficios hasta el
+              <strong>{{ fechaEfecto | date: 'dd/MM/yyyy' }}</strong>. Ese día pasás a
+              {{ baja.nombre }} y se factura el nuevo precio. Podés cancelar el cambio en cualquier
+              momento antes de esa fecha.
+            </p>
+            <ng-template #sinFecha>
+              <p>El cambio se aplica al cierre de tu período de facturación actual.</p>
+            </ng-template>
+          </div>
+          <div class="baja-confirm-actions">
+            <button type="button" class="btn btn-light" (click)="cancelarBaja()" [disabled]="isSaving">
+              Volver
+            </button>
+            <button type="button" class="btn btn-warning" (click)="confirmarBaja()" [disabled]="isSaving"
+              data-testid="settings-planes-confirm-baja-btn">
+              <span class="spinner-border spinner-border-sm me-1" *ngIf="isSaving"></span>
+              Confirmar cambio
+            </button>
+          </div>
+        </div>
+
+        <div class="planes-grid" *ngIf="!isLoading && !bajaPendienteDeConfirmar">
+          <div class="plan-card" *ngFor="let plan of planes; trackBy: trackByCodigo"
+            [class.plan-card-actual]="relacionCon(plan) === 'actual'"
+            [attr.data-testid]="'settings-plan-card-' + plan.codigo">
+
+            <div class="plan-card-badges">
+              <span class="plan-badge plan-badge-actual" *ngIf="relacionCon(plan) === 'actual'">Plan actual</span>
+              <span class="plan-badge plan-badge-agendado" *ngIf="esBajaAgendada(plan)">Agendado</span>
+            </div>
+
+            <h6 class="plan-card-name">{{ plan.nombre }}</h6>
+            <p class="plan-card-desc">{{ plan.descripcion }}</p>
+
+            <div class="plan-card-precio" *ngIf="plan.precioMensual != null">
+              <span class="plan-card-precio-monto">
+                {{ plan.precioMensual | currency: (plan.moneda || 'ARS') : 'symbol' : '1.0-0' }}
+              </span>
+              <span class="plan-card-precio-periodo">por mes</span>
+            </div>
+
+            <ul class="plan-card-features">
+              <li>
+                <i class="bi bi-check2"></i>
+                {{ limiteTexto(plan.maxProfesionales, 'profesional', 'profesionales') }}
+              </li>
+              <li>
+                <i class="bi bi-check2"></i>
+                {{ limiteTexto(plan.maxUsuarios, 'usuario', 'usuarios') }}
+              </li>
+              <li><i class="bi bi-check2"></i>Todos los módulos incluidos</li>
+            </ul>
+
+            <button type="button" class="plan-card-btn"
+              [class.plan-card-btn-mejora]="relacionCon(plan) === 'mejora'"
+              [class.plan-card-btn-baja]="relacionCon(plan) === 'baja'"
+              [disabled]="relacionCon(plan) === 'actual' || isSaving"
+              (click)="onElegir(plan)"
+              [attr.data-testid]="'settings-plan-choose-' + plan.codigo">
+              <span class="spinner-border spinner-border-sm me-1" *ngIf="isSaving"></span>
+              {{ accionDe(plan) }}
+            </button>
+          </div>
+        </div>
+
+        <p class="planes-nota" *ngIf="!isLoading && !bajaPendienteDeConfirmar">
+          <i class="bi bi-info-circle"></i>
+          Para bajar de plan tenés que estar dentro de los límites del plan destino. Si tenés más
+          profesionales o usuarios de los que permite, dalos de baja antes.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

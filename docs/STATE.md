@@ -33,6 +33,12 @@ Vale la pena una pasada por el resto de los componentes con `subscribe()` + `OnP
 | `HistoriaClinicaService` | sin estado propio (wrapper HTTP: `GET`/`PATCH .../historia-clinica`, `PATCH .../historia-clinica/firmar`) | — | Consumido por `HistoriaClinicaStateService` | — |
 | `ModuleRulesService` | `rules$` (`Observable`, no `BehaviorSubject`: se memoiza con `shareReplay(1)` sobre `GET /api/modules/rules`, una sola request para toda la sesión) | Se puebla en la primera llamada a `getRules()`/`getClinicalModules()` | `NavbarComponent`, `AppointmentDialogComponent` (selector de módulo clínico del alta de turno), `AppointmentsPanelComponent`/`TurnClinicalModalComponent` (resuelven `rutaClinica`/capacidad a partir de `moduloClinicoCodigo`) | No se resetea en logout (no está suscrito a `loggedOut$`) — describe el sistema de permisos, no datos de la organización, así que no hace falta invalidar la caché entre sesiones. |
 | `ClinicalAttentionService` | sin `Subject` propio; persiste directo en `sessionStorage` | `record(appointmentId, rutaClinica)`, llamado por `HistoriaClinicaStateService`/`OdontogramaStateService` al cargar un turno | `getLast()`, leído por `NavbarComponent` (pestaña "Atención") | No se resetea explícitamente (vive en `sessionStorage`, se pierde solo al cerrar la pestaña) |
+| `SubscriptionService` | `subscription$` (`BehaviorSubject<Subscription\|null>`), más dos caches de request: `enVuelo$` (GET en curso) y `planes$` (catálogo) | Auto-carga en `auth.currentUser$`; `changePlan()` / `cancelarCambioPendiente()` la actualizan con la respuesta; el interceptor HTTP la refresca ante un **402** | `SuscripcionPanelComponent`, `PlanesDialogComponent`, `SuscripcionBannerComponent` (montado en el shell, visible en toda la app) | `auth.loggedOut$` → `null`, y limpia `planes$` |
+
+> `GET /api/subscription` **tiene efectos secundarios** en el backend (crea la suscripción si falta y
+> avanza los períodos vencidos de forma perezosa). Por eso `loadSubscription()` comparte el request en
+> vuelo con `shareReplay`: al iniciar sesión lo piden a la vez el servicio y la vista de Configuraciones,
+> y dos llamadas en paralelo de una organización nueva chocaban contra los unique de la base.
 
 > Nota importante: `DashboardService` **no reutiliza** la caché de `AppointmentsService` — llama a `findByDateRange` directamente, así que el Panel y Turnos pueden hacer requests redundantes del mismo rango de fechas si se navega entre ambas páginas.
 

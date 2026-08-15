@@ -4,13 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { ConfigurationService } from '../../../core/services/configuration.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
-import { Subscription } from 'rxjs';
+import { Subscription as RxSubscription } from 'rxjs';
 import { ProfesionalesPanelComponent } from '../components/profesionales-panel/profesionales-panel.component';
+import { SuscripcionPanelComponent } from '../components/suscripcion-panel/suscripcion-panel.component';
 
 @Component({
   selector: 'app-configuraciones-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProfesionalesPanelComponent],
+  imports: [CommonModule, FormsModule, ProfesionalesPanelComponent, SuscripcionPanelComponent],
   templateUrl: './configuraciones-view.component.html',
   styleUrls: ['./configuraciones-view.component.scss']
 })
@@ -34,7 +35,7 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
 
   @ViewChild('whatsappTemplateInput') whatsappTemplateInput?: ElementRef<HTMLTextAreaElement>;
 
-  private subscriptions = new Subscription();
+  private subscriptions = new RxSubscription();
 
   constructor(
     private configurationService: ConfigurationService,
@@ -137,4 +138,5 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
       }
     });
   }
+
 }
