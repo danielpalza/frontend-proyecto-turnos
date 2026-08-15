@@ -113,6 +113,35 @@
   color: $danger-dark;
 }
 
+.badge-pago-baja {
+  background-color: rgba($text-secondary, 0.14);
+  color: $text-secondary;
+}
+
+// Dar de baja es una salida, no una acción de uso normal: va al pie y sin peso visual.
+.suscripcion-baja-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: $spacing-lg;
+  padding-top: $spacing-md;
+  border-top: 1px solid $border-color;
+}
+
+.btn-dar-de-baja {
+  padding: 0.35rem 0.75rem;
+  border: none;
+  border-radius: $radius-md;
+  background: none;
+  color: $text-muted;
+  font-size: 0.8125rem;
+  text-decoration: underline;
+  transition: color $transition-base;
+
+  &:hover {
+    color: $danger;
+  }
+}
+
 // --- Cambio agendado ----------------------------------------------------------------------
 
 .suscripcion-agendado {

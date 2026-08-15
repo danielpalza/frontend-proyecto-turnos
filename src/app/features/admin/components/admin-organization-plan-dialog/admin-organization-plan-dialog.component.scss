@@ -49,34 +49,130 @@
   @include modal-body;
 }
 
-.form-label {
-  display: block;
-  font-weight: 500;
+.plan-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  padding: $spacing-2xl;
   color: $text-secondary;
-  font-size: 0.875rem;
-  margin-bottom: $spacing-sm;
+  font-size: 0.9375rem;
 }
 
-.form-control {
-  @include input-focus($radius-sm, 3px);
-  width: 100%;
-  padding: 0.625rem 0.875rem;
-  font-size: 0.9375rem;
-  color: $text-primary;
+.plan-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: $spacing-md;
 
-  &.is-invalid {
-    border-color: $danger-light;
+  @include mobile {
+    grid-template-columns: 1fr;
   }
 }
 
-.invalid-feedback {
-  display: none;
-  color: $danger-light;
-  font-size: 0.78rem;
-  margin-top: 0.3rem;
+.plan-option {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-lg;
+  border: 1px solid $border-color;
+  border-radius: $radius-lg;
+  background-color: $card-background;
+  text-align: left;
+  transition: all $transition-base;
 
-  &.show {
-    display: block;
+  &:hover {
+    border-color: rgba($primary-color, 0.5);
+  }
+
+  &.selected {
+    border-color: $primary-color;
+    box-shadow: 0 0 0 1px $primary-color inset;
+  }
+}
+
+.plan-option-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+}
+
+.plan-option-name {
+  font-weight: 700;
+  font-size: 1.0625rem;
+  color: $text-primary;
+}
+
+.badge-soft {
+  font-weight: 500;
+  font-size: 0.6875rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: $radius-full;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.badge-actual {
+  background-color: rgba($primary-color, 0.12);
+  color: $primary-color;
+}
+
+.plan-option-precio {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+.plan-option-periodo {
+  color: $text-secondary;
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+
+.plan-option-limites {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  color: $text-secondary;
+  font-size: 0.8125rem;
+
+  li + li {
+    margin-top: 0.2rem;
+  }
+}
+
+.plan-aviso,
+.plan-baja {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-sm;
+  margin-top: $spacing-lg;
+  padding: $spacing-md $spacing-lg;
+  border-radius: $radius-md;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+
+  i {
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+}
+
+.plan-aviso {
+  background-color: rgba($warning, 0.1);
+  border: 1px solid rgba($warning, 0.3);
+  color: $text-primary;
+}
+
+.plan-baja {
+  margin-top: 0;
+  margin-bottom: $spacing-lg;
+  background-color: rgba($danger, 0.08);
+  border: 1px solid rgba($danger, 0.25);
+  color: $text-primary;
+
+  i {
+    color: $danger;
   }
 }
 

@@ -4,20 +4,32 @@
   <i class="bi" [ngClass]="esSoloLectura ? 'bi-lock-fill' : 'bi-exclamation-triangle-fill'"></i>
 
   <span class="suscripcion-banner-texto">
-    <ng-container *ngIf="esSoloLectura; else enGracia">
-      <strong>Tu cuenta está en modo solo lectura.</strong>
-      Podés consultar toda tu información, pero no cargar ni modificar datos hasta que se acredite el pago.
+    <ng-container *ngIf="estaDadaDeBaja">
+      <strong>Tu suscripción está dada de baja.</strong>
+      Podés consultar toda tu información, pero no cargar ni modificar datos hasta reactivar un plan.
     </ng-container>
-    <ng-template #enGracia>
-      <strong>Tu pago está vencido.</strong>
-      <ng-container *ngIf="fechaCorte">
-        A partir del {{ fechaCorte | date: 'dd/MM/yyyy' }} vas a poder consultar información pero no cargar datos nuevos.
+
+    <ng-container *ngIf="tieneBajaAgendada">
+      <strong>Tu suscripción termina el {{ fechaBaja | date: 'dd/MM/yyyy' }}.</strong>
+      Hasta esa fecha no cambia nada. Después vas a poder consultar tu información pero no cargar datos nuevos.
+    </ng-container>
+
+    <ng-container *ngIf="!estaDadaDeBaja && !tieneBajaAgendada">
+      <ng-container *ngIf="esSoloLectura; else enGracia">
+        <strong>Tu cuenta está en modo solo lectura.</strong>
+        Podés consultar toda tu información, pero no cargar ni modificar datos hasta que se acredite el pago.
       </ng-container>
-    </ng-template>
+      <ng-template #enGracia>
+        <strong>Tu pago está vencido.</strong>
+        <ng-container *ngIf="fechaCorte">
+          A partir del {{ fechaCorte | date: 'dd/MM/yyyy' }} vas a poder consultar información pero no cargar datos nuevos.
+        </ng-container>
+      </ng-template>
+    </ng-container>
   </span>
 
   <a class="suscripcion-banner-cta" routerLink="/configuraciones" data-testid="suscripcion-banner-cta">
-    Ver cómo pagar
+    {{ estaDadaDeBaja ? 'Reactivar plan' : 'Ver cómo pagar' }}
   </a>
 
   <button type="button" class="suscripcion-banner-close" *ngIf="!esSoloLectura" (click)="dismiss()"

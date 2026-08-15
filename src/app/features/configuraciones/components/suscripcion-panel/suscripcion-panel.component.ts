@@ -8,11 +8,12 @@ import { PlanType, Subscription, SubscriptionPaymentRow } from '../../../../core
 import { Capability } from '../../../../core/auth/capabilities';
 import { CanDirective } from '../../../../shared/directives/can.directive';
 import { PlanesDialogComponent } from '../planes-dialog/planes-dialog.component';
+import { ConfirmDialogComponent } from '../../../appointments/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-suscripcion-panel',
   standalone: true,
-  imports: [CommonModule, CanDirective, PlanesDialogComponent],
+  imports: [CommonModule, CanDirective, PlanesDialogComponent, ConfirmDialogComponent],
   templateUrl: './suscripcion-panel.component.html',
   styleUrls: ['./suscripcion-panel.component.scss']
 })
@@ -31,6 +32,10 @@ export class SuscripcionPanelComponent implements OnInit, OnDestroy {
 
   aliasCopied = false;
   isCancelandoCambio = false;
+
+  /** Confirmación de la baja de la suscripción entera (no confundir con la baja de plan). */
+  showCancelarSuscripcion = false;
+  isCancelandoSuscripcion = false;
 
   private readonly planLabels: Record<PlanType, string> = {
     BASICO: 'Básico',
@@ -105,6 +110,80 @@ export class SuscripcionPanelComponent implements OnInit, OnDestroy {
         this.cdr.markForCheck();
       }
     });
+  }
+
+  // --- Baja de la suscripción -------------------------------------------------------------
+
+  get estaDadaDeBaja(): boolean {
+    return this.subscription?.estadoSuscripcion === 'CANCELADA';
+  }
+
+  get tieneBajaAgendada(): boolean {
+    return !this.estaDadaDeBaja && !!this.subscription?.cancelacionDesde;
+  }
+
+  /** El corte no es inmediato: conviene que la fecha exacta esté en la confirmación. */
+  get mensajeConfirmacionBaja(): string {
+    const hasta = this.subscription?.fechaVencimiento;
+    if (!hasta) {
+      return 'Tu suscripción se dará de baja al cerrar el período de facturación en curso.';
+    }
+    const fecha = new Date(hasta).toLocaleDateString('es-AR');
+    return `Vas a seguir con tu plan ${this.planLabel} y todos sus beneficios hasta el ${fecha}, `
+      + 'que es el período que ya tenés pago. A partir de esa fecha vas a poder consultar tu '
+      + 'información pero no cargar datos nuevos.';
+  }
+
+  pedirCancelarSuscripcion(): void {
+    this.showCancelarSuscripcion = true;
+  }
+
+  cerrarCancelarSuscripcion(): void {
+    if (this.isCancelandoSuscripcion) return;
+    this.showCancelarSuscripcion = false;
+  }
+
+  confirmarCancelarSuscripcion(): void {
+    if (this.isCancelandoSuscripcion) return;
+    this.isCancelandoSuscripcion = true;
+
+    this.subscriptionService.cancelarSuscripcion().subscribe({
+      next: () => {
+        this.isCancelandoSuscripcion = false;
+        this.showCancelarSuscripcion = false;
+        this.cdr.markForCheck();
+      },
+      error: (err: unknown) => {
+        this.isCancelandoSuscripcion = false;
+        this.showCancelarSuscripcion = false;
+        this.mostrarError(err, 'dar de baja la suscripción');
+      }
+    });
+  }
+
+  /** Deshace la baja agendada, antes de que se haga efectiva. */
+  revertirCancelacion(): void {
+    if (this.isCancelandoSuscripcion) return;
+    this.isCancelandoSuscripcion = true;
+
+    this.subscriptionService.revertirCancelacion().subscribe({
+      next: () => {
+        this.isCancelandoSuscripcion = false;
+        this.cdr.markForCheck();
+      },
+      error: (err: unknown) => {
+        this.isCancelandoSuscripcion = false;
+        this.mostrarError(err, 'reactivar la suscripción');
+      }
+    });
+  }
+
+  private mostrarError(err: unknown, accion: string): void {
+    const message = this.errorHandler.getErrorMessage(err, accion);
+    if (!this.errorHandler.isNetworkError(err as any)) {
+      this.notification.showError(message);
+    }
+    this.cdr.markForCheck();
   }
 
   // --- Estado de pago ---------------------------------------------------------------------

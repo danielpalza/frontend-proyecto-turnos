@@ -7,6 +7,7 @@ import { ErrorHandlerService } from '../../../core/services/error-handler.servic
 import { ProfesionalService } from '../../../core/services/profesional.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { InvitationService } from '../../../core/services/invitation.service';
+import { SubscriptionService } from '../../../core/services/subscription.service';
 
 function makeMocks(overrides: { configPatch?: { mensajeWhatsapp?: string } | null } = {}) {
   return {
@@ -27,7 +28,14 @@ function makeMocks(overrides: { configPatch?: { mensajeWhatsapp?: string } | nul
       grantedModules: vi.fn(() => [] as string[]),
       currentUser$: of({})
     },
-    invitationService: { findAll: vi.fn(() => of([])) }
+    invitationService: { findAll: vi.fn(() => of([])) },
+    // La vista renderiza <app-suscripcion-panel>, que inyecta SubscriptionService. Sin este mock
+    // se instancia el real, que se suscribe a auth.loggedOut$ (ausente en el mock) y revienta.
+    subscriptionService: {
+      getSubscription: vi.fn(() => of(null)),
+      getPlanes: vi.fn(() => of([])),
+      getHistorialPagos: vi.fn(() => of([]))
+    }
   };
 }
 
@@ -39,7 +47,8 @@ async function renderView(mocks: ReturnType<typeof makeMocks>) {
       { provide: ErrorHandlerService, useValue: mocks.errorHandler },
       { provide: ProfesionalService, useValue: mocks.profesionalService },
       { provide: AuthService, useValue: mocks.authService },
-      { provide: InvitationService, useValue: mocks.invitationService }
+      { provide: InvitationService, useValue: mocks.invitationService },
+      { provide: SubscriptionService, useValue: mocks.subscriptionService }
     ]
   });
 }

@@ -3,13 +3,23 @@ import { CommonModule } from '@angular/common';
 import { finalize } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { AdminService } from '../admin.service';
-import { OrganizationAdminDTO, OrganizationPlanUpdateDTO } from '../admin.models';
+import { OrganizationAdminDTO } from '../admin.models';
+import { PlanType } from '../../../core/models';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ErrorHandlerService } from '../../../core/services/error-handler.service';
 import { PAISES_LATAM } from '../../../shared/constants/paises-latam';
 import { AdminOrganizationPlanDialogComponent } from '../components/admin-organization-plan-dialog/admin-organization-plan-dialog.component';
 import { AdminOrganizationModulesDialogComponent } from '../components/admin-organization-modules-dialog/admin-organization-modules-dialog.component';
 import { AdminOrganizationUsersDialogComponent } from '../components/admin-organization-users-dialog/admin-organization-users-dialog.component';
+import { AdminPagosPanelComponent } from '../components/admin-pagos-panel/admin-pagos-panel.component';
+
+type AdminTab = 'organizaciones' | 'pagos';
+
+const PLAN_LABELS: Record<PlanType, string> = {
+  BASICO: 'Básico',
+  MEDIO: 'Medio',
+  PRO: 'Pro'
+};
 
 @Component({
   selector: 'app-admin-view',
@@ -18,12 +28,15 @@ import { AdminOrganizationUsersDialogComponent } from '../components/admin-organ
     CommonModule,
     AdminOrganizationPlanDialogComponent,
     AdminOrganizationModulesDialogComponent,
-    AdminOrganizationUsersDialogComponent
+    AdminOrganizationUsersDialogComponent,
+    AdminPagosPanelComponent
   ],
   templateUrl: './admin-view.component.html',
   styleUrls: ['./admin-view.component.scss']
 })
 export class AdminViewComponent implements OnInit, OnDestroy {
+  activeTab: AdminTab = 'organizaciones';
+
   organizations: OrganizationAdminDTO[] = [];
   isTogglingActive = false;
 
@@ -65,18 +78,22 @@ export class AdminViewComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
+  setTab(tab: AdminTab): void {
+    this.activeTab = tab;
+  }
+
   paisNombre(codigo: string): string {
     return PAISES_LATAM.find(p => p.codigo === codigo)?.nombre ?? codigo;
   }
 
   planResumen(org: OrganizationAdminDTO): string {
-    if (!org.planNombre && org.planPrecio == null) {
-      return 'Sin plan asignado';
+    if (!org.plan) {
+      return 'Sin suscripción';
     }
-    const partes: string[] = [];
-    if (org.planNombre) partes.push(org.planNombre);
-    if (org.planPrecio != null) partes.push(`$${org.planPrecio}`);
-    return partes.join(' • ');
+    const nombre = PLAN_LABELS[org.plan] ?? org.plan;
+    return org.estadoSuscripcion === 'CANCELADA'
+      ? `Plan ${nombre} • dada de baja`
+      : `Plan ${nombre}`;
   }
 
   private replaceOrg(updated: OrganizationAdminDTO): void {
@@ -121,11 +138,11 @@ export class AdminViewComponent implements OnInit, OnDestroy {
     this.isSavingPlan = false;
   }
 
-  onSavePlan(dto: OrganizationPlanUpdateDTO): void {
+  onSavePlan(plan: PlanType): void {
     if (this.isSavingPlan || !this.editingOrgForPlan) return;
     this.isSavingPlan = true;
     this.savePlanError = '';
-    this.adminService.actualizarPlan(this.editingOrgForPlan.id, dto).subscribe({
+    this.adminService.actualizarPlan(this.editingOrgForPlan.id, plan).subscribe({
       next: (updated) => {
         this.isSavingPlan = false;
         this.replaceOrg(updated);

@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_CONFIG } from '../../core/services/api.config';
-import { AdminUserDTO, OrganizationAdminDTO, OrganizationPlanUpdateDTO } from './admin.models';
+import { PlanType, Subscription, SubscriptionPaymentRow } from '../../core/models';
+import { AdminUserDTO, OrganizationAdminDTO, OrganizationBillingDTO } from './admin.models';
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
@@ -22,8 +23,9 @@ export class AdminService {
     return this.http.patch<OrganizationAdminDTO>(`${this.apiUrl}/organizations/${orgId}/toggle-active`, {});
   }
 
-  actualizarPlan(orgId: string, dto: OrganizationPlanUpdateDTO): Observable<OrganizationAdminDTO> {
-    return this.http.put<OrganizationAdminDTO>(`${this.apiUrl}/organizations/${orgId}/plan`, dto);
+  /** Mejorar de plan se aplica al instante; bajar queda agendado al cierre del período. */
+  actualizarPlan(orgId: string, plan: PlanType): Observable<OrganizationAdminDTO> {
+    return this.http.put<OrganizationAdminDTO>(`${this.apiUrl}/organizations/${orgId}/plan`, { plan });
   }
 
   actualizarModulos(orgId: string, moduleCodes: string[]): Observable<OrganizationAdminDTO> {
@@ -40,5 +42,22 @@ export class AdminService {
 
   actualizarRolUsuario(orgId: string, userId: string, role: string): Observable<AdminUserDTO> {
     return this.http.put<AdminUserDTO>(`${this.apiUrl}/organizations/${orgId}/users/${userId}/role`, { role });
+  }
+
+  // --- Cobranza ---------------------------------------------------------------------------
+
+  /** Estado de cobro de todas las organizaciones. */
+  listarPagos(): Observable<OrganizationBillingDTO[]> {
+    return this.http.get<OrganizationBillingDTO[]>(`${this.apiUrl}/pagos`);
+  }
+
+  listarPagosDeOrganizacion(orgId: string): Observable<SubscriptionPaymentRow[]> {
+    return this.http.get<SubscriptionPaymentRow[]>(`${this.apiUrl}/organizations/${orgId}/pagos`);
+  }
+
+  /** Marca un período como pagado, al recibir la transferencia. */
+  confirmarPago(orgId: string, periodoPagoId: string): Observable<Subscription> {
+    return this.http.put<Subscription>(
+      `${this.apiUrl}/organizations/${orgId}/pagos/${periodoPagoId}/confirmar`, {});
   }
 }

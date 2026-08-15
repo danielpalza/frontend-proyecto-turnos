@@ -40,6 +40,41 @@
   font-size: 1.35rem;
 }
 
+.admin-tabs {
+  display: flex;
+  gap: $spacing-xs;
+  margin-bottom: $spacing-xl;
+  border-bottom: 1px solid $border-color;
+}
+
+.admin-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: $spacing-sm $spacing-lg;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: $text-secondary;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  transition: all $transition-base;
+
+  i {
+    font-size: 1rem;
+  }
+
+  &:hover {
+    color: $primary-color;
+  }
+
+  &.active {
+    color: $primary-color;
+    border-bottom-color: $primary-color;
+    font-weight: 600;
+  }
+}
+
 .admin-toolbar {
   display: flex;
   align-items: center;

@@ -8,7 +8,7 @@
         <div class="title-block">
           <div class="icon-circle"><i class="bi bi-cash-coin"></i></div>
           <div>
-            <h5 class="modal-title">Editar plan</h5>
+            <h5 class="modal-title">Cambiar plan</h5>
             <p class="modal-subtitle">{{ organization?.nombre }}</p>
           </div>
         </div>
@@ -18,49 +18,64 @@
         </button>
       </div>
 
-      <form [formGroup]="form" (ngSubmit)="handleSubmit()" data-testid="admin-plan-form">
-        <div class="modal-body">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label">Nombre del plan</label>
-              <input type="text" class="form-control" formControlName="planNombre" placeholder="Ej. Pro"
-                data-testid="admin-plan-name-input" />
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Precio</label>
-              <input type="number" min="0" step="0.01" class="form-control" formControlName="planPrecio"
-                placeholder="0.00"
-                [class.is-invalid]="form.get('planPrecio')?.invalid && form.get('planPrecio')?.touched"
-                data-testid="admin-plan-price-input" />
-              <div class="invalid-feedback"
-                [class.show]="form.get('planPrecio')?.invalid && form.get('planPrecio')?.touched">
-                El precio no puede ser negativo
-              </div>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Fecha de contratación</label>
-              <input type="date" class="form-control" formControlName="fechaContratacion"
-                data-testid="admin-plan-contract-date-input" />
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Fecha de último pago</label>
-              <input type="date" class="form-control" formControlName="fechaUltimoPago"
-                data-testid="admin-plan-last-payment-input" />
-            </div>
-          </div>
-
-          <div *ngIf="saveError" class="alert alert-danger py-2 mt-3" data-testid="admin-plan-save-error">{{ saveError }}</div>
+      <div class="modal-body">
+        <div class="alert alert-danger py-2" *ngIf="loadError" data-testid="admin-plan-load-error">
+          {{ loadError }}
         </div>
 
-        <div class="modal-footer">
-          <button type="button" class="btn btn-outline-secondary" (click)="close()"
-            data-testid="admin-plan-cancel-btn">Cancelar</button>
-          <button type="submit" class="btn btn-primary" [disabled]="form.invalid || isSaving"
-            data-testid="admin-plan-save-btn">
-            {{ isSaving ? 'Guardando...' : 'Guardar plan' }}
+        <div class="plan-loading" *ngIf="isLoadingPlanes">
+          <span class="spinner-border spinner-border-sm"></span>
+          Cargando planes…
+        </div>
+
+        <div class="plan-baja" *ngIf="organization?.estadoSuscripcion === 'CANCELADA'"
+          data-testid="admin-plan-cancelada">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          Esta organización tiene la suscripción dada de baja. Elegir un plan acá la deja contratada,
+          pero la reactivación la hace la propia clínica desde Configuraciones.
+        </div>
+
+        <div class="plan-options" *ngIf="!isLoadingPlanes">
+          <button type="button" class="plan-option" *ngFor="let plan of planes; trackBy: trackByCodigo"
+            [class.selected]="seleccionado === plan.codigo"
+            [class.actual]="esActual(plan)"
+            (click)="seleccionar(plan)"
+            [attr.data-testid]="'admin-plan-option-' + plan.codigo">
+
+            <div class="plan-option-head">
+              <span class="plan-option-name">{{ plan.nombre }}</span>
+              <span class="badge-soft badge-actual" *ngIf="esActual(plan)">Actual</span>
+            </div>
+
+            <div class="plan-option-precio" *ngIf="plan.precioMensual != null">
+              {{ plan.precioMensual | currency: (plan.moneda || 'ARS') : 'symbol' : '1.0-0' }}
+              <span class="plan-option-periodo">/ mes</span>
+            </div>
+
+            <ul class="plan-option-limites">
+              <li>{{ limiteTexto(plan.maxProfesionales, 'profesional', 'profesionales') }}</li>
+              <li>{{ limiteTexto(plan.maxUsuarios, 'usuario', 'usuarios') }}</li>
+            </ul>
           </button>
         </div>
-      </form>
+
+        <div class="plan-aviso" *ngIf="esBaja" data-testid="admin-plan-aviso-baja">
+          <i class="bi bi-clock-history"></i>
+          Bajar de plan no se aplica al instante: entra en vigencia al cerrar el período de
+          facturación en curso, igual que si lo hiciera la propia clínica.
+        </div>
+
+        <div *ngIf="saveError" class="alert alert-danger py-2 mt-3" data-testid="admin-plan-save-error">{{ saveError }}</div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="close()"
+          data-testid="admin-plan-cancel-btn">Cancelar</button>
+        <button type="button" class="btn btn-primary" [disabled]="!hayCambio || isSaving"
+          (click)="handleSubmit()" data-testid="admin-plan-save-btn">
+          {{ isSaving ? 'Guardando...' : 'Cambiar plan' }}
+        </button>
+      </div>
     </div>
   </div>
 </div>

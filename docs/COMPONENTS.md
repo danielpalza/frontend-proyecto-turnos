@@ -265,10 +265,17 @@ Cross-organización, exclusivo del rol `ADMIN` (no del sistema de capacidades) �
 
 ### `AdminOrganizationPlanDialogComponent` (`app-admin-organization-plan-dialog`)
 - **Archivo**: [`features/admin/components/admin-organization-plan-dialog/admin-organization-plan-dialog.component.ts`](../src/app/features/admin/components/admin-organization-plan-dialog/admin-organization-plan-dialog.component.ts)
-- **Propósito**: formulario Reactive Forms de los 4 campos de plan/facturación (`planNombre`, `planPrecio`, `fechaContratacion`, `fechaUltimoPago`), pre-cargado desde la organización recibida. Sin lógica de cobro — son campos administrativos que un `ADMIN` completa a mano. Única validación: `Validators.min(0)` en el precio.
-- **Inputs**: `open`, `organization`.
-- **Outputs**: `openChange`, `save` (`OrganizationPlanUpdateDTO`) — el padre (`AdminViewComponent`) hace el `PUT` real y cierra el diálogo.
+- **Propósito**: selector del plan real contra el catálogo (`GET /api/subscription/planes`), marcando el vigente y mostrando precio y cupos de cada uno. Avisa cuando la elección es una **baja** (se aplica al cierre del período, no al instante) y cuando la organización está dada de baja. Hasta 2026-08-15 era un formulario de 4 campos de texto libre (`planNombre`, `planPrecio`, `fechaContratacion`, `fechaUltimoPago`) que no estaban conectados con nada: se editaban y no afectaban ni cupos ni facturación.
+- **Inputs**: `open`, `organization`, `isSaving`, `saveError`.
+- **Outputs**: `openChange`, `save` (`PlanType`) — el padre (`AdminViewComponent`) hace el `PUT` real y cierra el diálogo.
 - **Dónde aparece**: `AdminViewComponent`.
+
+### `AdminPagosPanelComponent` (`app-admin-pagos-panel`)
+- **Archivo**: [`features/admin/components/admin-pagos-panel/admin-pagos-panel.component.ts`](../src/app/features/admin/components/admin-pagos-panel/admin-pagos-panel.component.ts)
+- **Propósito**: contenido de la pestaña "Pagos" de `/admin`. Tabla cross-organización con plan, importe, período, vencimiento y estado de cobro; permite confirmar el pago de un período al recibir la transferencia (con `ConfirmDialogComponent` de por medio) y desplegar el historial de cada clínica on demand.
+- **Inputs/Outputs**: ninguno — se autoabastece vía `AdminService`.
+- **Dónde aparece**: `AdminViewComponent`, pestaña "Pagos".
+- **Tests**: `admin-pagos-panel.component.spec.ts` (7 casos).
 
 ### `AdminOrganizationModulesDialogComponent` (`app-admin-organization-modules-dialog`)
 - **Archivo**: [`features/admin/components/admin-organization-modules-dialog/admin-organization-modules-dialog.component.ts`](../src/app/features/admin/components/admin-organization-modules-dialog/admin-organization-modules-dialog.component.ts)

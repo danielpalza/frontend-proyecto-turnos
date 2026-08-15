@@ -3,6 +3,8 @@
  */
 export type PlanType = 'BASICO' | 'MEDIO' | 'PRO';
 export type PaymentStatus = 'PENDIENTE' | 'PAGADO' | 'VENCIDO';
+/** Estado de vida de la suscripción, independiente del estado de pago. */
+export type SubscriptionStatus = 'ACTIVA' | 'CANCELADA';
 
 export interface Subscription {
   organizationId?: string;
@@ -15,6 +17,13 @@ export interface Subscription {
   planPendienteDesde?: string | null;
   /** La baja agendada ya venció pero la organización no entra en el plan destino. */
   downgradePendienteBloqueado?: boolean;
+
+  /** ACTIVA o CANCELADA. Independiente del estado de pago. */
+  estadoSuscripcion?: SubscriptionStatus;
+  /** Baja de la suscripción agendada: hasta esa fecha no cambia nada. */
+  cancelacionDesde?: string | null;
+  /** Cuándo se hizo efectiva la baja. */
+  fechaCancelacion?: string | null;
 
   estadoPago: PaymentStatus;
   periodoActual?: string;

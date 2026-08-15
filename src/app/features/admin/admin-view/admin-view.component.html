@@ -5,10 +5,30 @@
     </div>
     <div>
       <h2 class="fw-bold mb-0">Panel superadmin</h2>
-      <p class="text-muted mb-0">Organizaciones del sistema: plan, módulos contratados y usuarios.</p>
+      <p class="text-muted mb-0">Organizaciones del sistema: plan, módulos contratados, usuarios y cobranza.</p>
     </div>
   </div>
 
+  <div class="admin-tabs" role="tablist">
+    <button type="button" class="admin-tab" role="tab"
+      [class.active]="activeTab === 'organizaciones'"
+      [attr.aria-selected]="activeTab === 'organizaciones'"
+      (click)="setTab('organizaciones')" data-testid="admin-tab-organizaciones">
+      <i class="bi bi-building"></i>
+      Organizaciones
+    </button>
+    <button type="button" class="admin-tab" role="tab"
+      [class.active]="activeTab === 'pagos'"
+      [attr.aria-selected]="activeTab === 'pagos'"
+      (click)="setTab('pagos')" data-testid="admin-tab-pagos">
+      <i class="bi bi-cash-coin"></i>
+      Pagos
+    </button>
+  </div>
+
+  <app-admin-pagos-panel *ngIf="activeTab === 'pagos'"></app-admin-pagos-panel>
+
+  <ng-container *ngIf="activeTab === 'organizaciones'">
   <div class="admin-toolbar">
     <span class="admin-count">
       {{ organizations.length }}
@@ -84,6 +104,7 @@
     <i class="bi bi-building fs-1 d-block mb-2 opacity-50"></i>
     <p class="mb-0">No hay organizaciones registradas</p>
   </div>
+  </ng-container>
 </div>
 
 <app-admin-organization-plan-dialog

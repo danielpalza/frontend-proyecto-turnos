@@ -1,0 +1,139 @@
+<div class="pagos-panel" data-testid="admin-pagos-panel">
+
+  <div class="pagos-toolbar">
+    <span class="admin-count">
+      {{ pagos.length }}
+      {{ pagos.length === 1 ? 'organización' : 'organizaciones' }}
+    </span>
+    <span class="pagos-hint">
+      <i class="bi bi-info-circle"></i>
+      Confirmá el pago cuando recibas la transferencia al alias.
+    </span>
+  </div>
+
+  <div class="pagos-loading" *ngIf="isLoading" data-testid="admin-pagos-loading">
+    <span class="spinner-border spinner-border-sm"></span>
+    Cargando estado de pagos…
+  </div>
+
+  <div class="pagos-tabla-wrap" *ngIf="!isLoading && pagos.length > 0">
+    <table class="pagos-tabla">
+      <thead>
+        <tr>
+          <th>Organización</th>
+          <th>Plan</th>
+          <th>Importe</th>
+          <th>Período</th>
+          <th>Vencimiento</th>
+          <th>Estado</th>
+          <th class="text-end">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let pago of pagos; trackBy: trackByOrg">
+          <tr [class.pagos-fila-baja]="pago.estadoSuscripcion === 'CANCELADA'"
+            [attr.data-testid]="'admin-pago-row-' + pago.organizationId">
+            <td>
+              <div class="pagos-org-nombre">{{ pago.nombre }}</div>
+              <div class="pagos-org-slug">{{ pago.slug }}</div>
+            </td>
+            <td>{{ planLabel(pago.plan) }}</td>
+            <td>
+              <ng-container *ngIf="pago.precio != null; else sinPrecio">
+                {{ pago.precio | currency: (pago.moneda || 'ARS') : 'symbol' : '1.0-0' }}
+              </ng-container>
+              <ng-template #sinPrecio><span class="text-muted">—</span></ng-template>
+            </td>
+            <td>{{ pago.periodoActual ? (pago.periodoActual | date: 'MM/yyyy') : '—' }}</td>
+            <td>{{ pago.fechaVencimiento ? (pago.fechaVencimiento | date: 'dd/MM/yyyy') : '—' }}</td>
+            <td>
+              <span class="badge-soft" [ngClass]="estadoBadgeClass(pago)"
+                [attr.data-testid]="'admin-pago-estado-' + pago.organizationId">
+                {{ estadoLabel(pago) }}
+              </span>
+              <span class="pagos-solo-lectura" *ngIf="pago.soloLectura" title="La organización está restringida a solo lectura">
+                <i class="bi bi-lock-fill"></i>
+              </span>
+            </td>
+            <td class="text-end">
+              <button type="button" class="btn btn-sm btn-outline-success"
+                *ngIf="puedeConfirmar(pago)" (click)="pedirConfirmacion(pago)"
+                [attr.data-testid]="'admin-pago-confirmar-btn-' + pago.organizationId">
+                <i class="bi bi-check2-circle"></i> Confirmar pago
+              </button>
+              <button type="button" class="btn btn-action" (click)="toggleHistorial(pago)"
+                [title]="historialAbiertoDe === pago.organizationId ? 'Ocultar historial' : 'Ver historial'"
+                [attr.data-testid]="'admin-pago-historial-btn-' + pago.organizationId">
+                <i class="bi" [ngClass]="historialAbiertoDe === pago.organizationId ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+              </button>
+            </td>
+          </tr>
+
+          <tr class="pagos-historial-row" *ngIf="historialAbiertoDe === pago.organizationId"
+            [attr.data-testid]="'admin-pago-historial-' + pago.organizationId">
+            <td colspan="7">
+              <div class="pagos-historial-loading" *ngIf="isLoadingHistorial">
+                <span class="spinner-border spinner-border-sm"></span>
+                Cargando historial…
+              </div>
+
+              <div class="pagos-historial-empty" *ngIf="!isLoadingHistorial && historial.length === 0">
+                Todavía no hay períodos registrados.
+              </div>
+
+              <table class="pagos-historial-tabla" *ngIf="!isLoadingHistorial && historial.length > 0">
+                <thead>
+                  <tr>
+                    <th>Período</th>
+                    <th>Plan</th>
+                    <th>Importe</th>
+                    <th>Vencimiento</th>
+                    <th>Estado</th>
+                    <th>Fecha de pago</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let fila of historial; trackBy: trackByPeriodo">
+                    <td>{{ fila.periodo | date: 'MM/yyyy' }}</td>
+                    <td>{{ planLabel(fila.plan) }}</td>
+                    <td>
+                      <ng-container *ngIf="fila.precio != null; else sinImporte">
+                        {{ fila.precio | currency: (fila.moneda || 'ARS') : 'symbol' : '1.0-0' }}
+                      </ng-container>
+                      <ng-template #sinImporte><span class="text-muted">—</span></ng-template>
+                    </td>
+                    <td>{{ fila.fechaVencimiento | date: 'dd/MM/yyyy' }}</td>
+                    <td>
+                      <span class="badge-soft" [ngClass]="estadoPeriodoBadgeClass(fila.estado)">
+                        {{ estadoPeriodoLabel(fila.estado) }}
+                      </span>
+                    </td>
+                    <td>{{ fila.fechaPago ? (fila.fechaPago | date: 'dd/MM/yyyy') : '—' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="!isLoading && pagos.length === 0" class="admin-empty text-center text-muted">
+    <i class="bi bi-cash-coin fs-1 d-block mb-2 opacity-50"></i>
+    <p class="mb-0">No hay suscripciones registradas</p>
+  </div>
+</div>
+
+<app-confirm-dialog
+  [open]="confirmandoPago !== null"
+  title="Confirmar pago recibido"
+  message="Vas a marcar el período como pagado. Esta acción no se puede deshacer desde el panel."
+  [summary]="resumenConfirmacion"
+  [isLoading]="isConfirmandoPago"
+  confirmText="Confirmar pago"
+  confirmButtonClass="btn-success"
+  dialogId="adminConfirmarPagoDialog"
+  (confirm)="confirmarPago()"
+  (cancel)="cancelarConfirmacion()">
+</app-confirm-dialog>

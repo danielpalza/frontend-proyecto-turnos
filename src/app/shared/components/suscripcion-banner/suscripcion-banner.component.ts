@@ -47,13 +47,29 @@ export class SuscripcionBannerComponent implements OnInit, OnDestroy {
   }
 
   get visible(): boolean {
-    if (!this.subscription || this.subscription.estadoPago !== 'VENCIDO') return false;
+    if (!this.subscription) return false;
+    // Tres motivos distintos para avisar: baja efectiva, baja agendada y deuda.
+    if (!this.estaDadaDeBaja && !this.tieneBajaAgendada && this.subscription.estadoPago !== 'VENCIDO') {
+      return false;
+    }
     // En solo lectura no se puede ocultar: el usuario necesita saber por qué no puede guardar nada.
     return this.esSoloLectura || !this.dismissed;
   }
 
   get esSoloLectura(): boolean {
     return !!this.subscription?.soloLectura;
+  }
+
+  get estaDadaDeBaja(): boolean {
+    return this.subscription?.estadoSuscripcion === 'CANCELADA';
+  }
+
+  get tieneBajaAgendada(): boolean {
+    return !this.estaDadaDeBaja && !!this.subscription?.cancelacionDesde;
+  }
+
+  get fechaBaja(): string | null {
+    return this.subscription?.cancelacionDesde ?? null;
   }
 
   get fechaCorte(): string | null {

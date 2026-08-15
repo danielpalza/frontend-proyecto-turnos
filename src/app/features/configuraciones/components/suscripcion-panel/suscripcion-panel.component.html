@@ -14,22 +14,60 @@
   <div class="suscripcion-plan-row">
     <div class="suscripcion-plan-info">
       <div class="suscripcion-plan-name">
-        <span class="suscripcion-plan-title">Plan {{ planLabel }}</span>
-        <span class="badge-soft" [ngClass]="estadoPagoBadgeClass" data-testid="settings-payment-status-badge">
+        <span class="suscripcion-plan-title">
+          {{ estaDadaDeBaja ? 'Sin plan activo' : 'Plan ' + planLabel }}
+        </span>
+        <span class="badge-soft" *ngIf="!estaDadaDeBaja" [ngClass]="estadoPagoBadgeClass"
+          data-testid="settings-payment-status-badge">
           {{ estadoPagoLabel }}
         </span>
+        <span class="badge-soft badge-pago-baja" *ngIf="estaDadaDeBaja"
+          data-testid="settings-subscription-status-badge">
+          Dada de baja
+        </span>
       </div>
-      <div class="suscripcion-plan-vencimiento" *ngIf="sub.fechaVencimiento">
+      <div class="suscripcion-plan-vencimiento" *ngIf="!estaDadaDeBaja && sub.fechaVencimiento">
         <i class="bi bi-calendar-event"></i>
         Próximo vencimiento: <strong>{{ sub.fechaVencimiento | date: 'dd/MM/yyyy' }}</strong>
+      </div>
+      <div class="suscripcion-plan-vencimiento" *ngIf="estaDadaDeBaja && sub.fechaCancelacion">
+        <i class="bi bi-slash-circle"></i>
+        Dada de baja el <strong>{{ sub.fechaCancelacion | date: 'dd/MM/yyyy' }}</strong>
       </div>
     </div>
 
     <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-2"
       [appCan]="Capability.CONFIGURACIONES_PLAN" (click)="openPlanesDialog()"
       data-testid="settings-open-planes-btn">
-      <i class="bi bi-arrow-left-right"></i>
-      Cambiar de plan
+      <i class="bi" [ngClass]="estaDadaDeBaja ? 'bi-arrow-clockwise' : 'bi-arrow-left-right'"></i>
+      {{ estaDadaDeBaja ? 'Reactivar suscripción' : 'Cambiar de plan' }}
+    </button>
+  </div>
+
+  <!-- Baja de la suscripción, ya efectiva -->
+  <div class="suscripcion-agendado suscripcion-agendado-bloqueado" *ngIf="estaDadaDeBaja"
+    data-testid="settings-suscripcion-baja">
+    <i class="bi bi-lock-fill"></i>
+    <div class="suscripcion-agendado-texto">
+      Tu cuenta está en <strong>modo solo lectura</strong>. Podés consultar toda tu información
+      —pacientes, turnos e historias clínicas— pero no cargar ni modificar datos.
+      Reactivá un plan para volver a operar.
+    </div>
+  </div>
+
+  <!-- Baja agendada, todavía no efectiva -->
+  <div class="suscripcion-agendado" *ngIf="tieneBajaAgendada" data-testid="settings-baja-agendada">
+    <i class="bi bi-clock-history"></i>
+    <div class="suscripcion-agendado-texto">
+      Tu suscripción termina el <strong>{{ sub.cancelacionDesde | date: 'dd/MM/yyyy' }}</strong>.
+      Hasta esa fecha no cambia nada: seguís con el plan {{ planLabel }} y todos sus beneficios.
+      Después vas a poder seguir consultando tu información, pero no cargar datos nuevos.
+    </div>
+    <button type="button" class="btn-cancelar-cambio" [appCan]="Capability.CONFIGURACIONES_PLAN"
+      (click)="revertirCancelacion()" [disabled]="isCancelandoSuscripcion"
+      data-testid="settings-revertir-baja-btn">
+      <span class="spinner-border spinner-border-sm me-1" *ngIf="isCancelandoSuscripcion"></span>
+      Reactivar suscripción
     </button>
   </div>
 
@@ -182,7 +220,28 @@
       </div>
     </div>
   </div>
+
+  <!-- Dar de baja: discreto y al pie, no compite con las acciones de uso normal -->
+  <div class="suscripcion-baja-footer" *ngIf="!estaDadaDeBaja && !tieneBajaAgendada">
+    <button type="button" class="btn-dar-de-baja" [appCan]="Capability.CONFIGURACIONES_PLAN"
+      (click)="pedirCancelarSuscripcion()" data-testid="settings-cancelar-suscripcion-btn">
+      Dar de baja la suscripción
+    </button>
+  </div>
 </div>
 
 <app-planes-dialog [open]="showPlanesDialog" [subscription]="subscription"
   (closed)="onPlanesDialogClosed()"></app-planes-dialog>
+
+<app-confirm-dialog
+  [open]="showCancelarSuscripcion"
+  title="Dar de baja la suscripción"
+  [message]="mensajeConfirmacionBaja"
+  summary="Vas a conservar el acceso a toda tu información. Podés reactivar un plan cuando quieras."
+  [isLoading]="isCancelandoSuscripcion"
+  confirmText="Dar de baja"
+  confirmButtonClass="btn-danger"
+  dialogId="cancelarSuscripcionDialog"
+  (confirm)="confirmarCancelarSuscripcion()"
+  (cancel)="cerrarCancelarSuscripcion()">
+</app-confirm-dialog>

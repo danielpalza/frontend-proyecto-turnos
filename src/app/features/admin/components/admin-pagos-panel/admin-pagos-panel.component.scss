@@ -1,0 +1,180 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+:host {
+  display: contents;
+}
+
+.pagos-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-lg;
+  flex-wrap: wrap;
+  margin-bottom: $spacing-lg;
+}
+
+.admin-count {
+  color: $text-secondary;
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.pagos-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: $text-muted;
+  font-size: 0.8125rem;
+}
+
+.pagos-loading,
+.pagos-historial-loading,
+.pagos-historial-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  padding: $spacing-xl;
+  color: $text-secondary;
+  font-size: 0.875rem;
+}
+
+// La tabla scrollea sola: el panel nunca desborda la página.
+.pagos-tabla-wrap {
+  overflow-x: auto;
+  @include scrollbar-thin;
+}
+
+.pagos-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+
+  th {
+    text-align: left;
+    padding: $spacing-sm $spacing-md;
+    color: $text-secondary;
+    font-weight: 500;
+    font-size: 0.8125rem;
+    white-space: nowrap;
+    border-bottom: 1px solid $border-color;
+  }
+
+  td {
+    padding: $spacing-md;
+    color: $text-primary;
+    white-space: nowrap;
+    border-bottom: 1px solid rgba($border-color, 0.6);
+    vertical-align: middle;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+}
+
+// Mismo criterio visual que .admin-org-inactive en la lista de organizaciones.
+.pagos-fila-baja {
+  opacity: 0.65;
+}
+
+.pagos-org-nombre {
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.pagos-org-slug {
+  color: $text-muted;
+  font-size: 0.75rem;
+}
+
+.pagos-solo-lectura {
+  margin-left: 0.4rem;
+  color: $danger;
+  font-size: 0.8125rem;
+}
+
+.badge-soft {
+  display: inline-block;
+  font-weight: 500;
+  font-size: 0.75rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: $radius-full;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+// Mismos colores que el panel de suscripción de Configuraciones, para que un estado se lea igual
+// en los dos lados de la app.
+.badge-pago-pagado {
+  background-color: rgba($success, 0.12);
+  color: $success-dark;
+}
+
+.badge-pago-pendiente {
+  background-color: rgba($warning, 0.18);
+  color: #8a6d00;
+}
+
+.badge-pago-vencido {
+  background-color: rgba($danger, 0.12);
+  color: $danger-dark;
+}
+
+.badge-pago-baja {
+  background-color: rgba($text-secondary, 0.14);
+  color: $text-secondary;
+}
+
+.btn-action {
+  padding: 0.3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: $radius-sm;
+  background-color: transparent;
+  transition: all $transition-base;
+
+  i {
+    font-size: 0.95rem;
+    color: $text-secondary;
+  }
+
+  &:hover {
+    background-color: $hover-bg;
+  }
+}
+
+.pagos-historial-row > td {
+  padding: 0 $spacing-md $spacing-lg;
+  background-color: rgba($hover-bg, 0.5);
+  white-space: normal;
+}
+
+.pagos-historial-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+
+  th {
+    text-align: left;
+    padding: $spacing-sm;
+    color: $text-muted;
+    font-weight: 500;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: $spacing-sm;
+    color: $text-secondary;
+    white-space: nowrap;
+    border-top: 1px solid rgba($border-color, 0.5);
+  }
+}
+
+.admin-empty {
+  padding: $spacing-3xl $spacing-lg;
+}

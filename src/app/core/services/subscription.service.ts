@@ -78,8 +78,33 @@ export class SubscriptionService {
     );
   }
 
+  /** Cancela una BAJA DE PLAN agendada. No confunde con dar de baja la suscripción entera. */
   cancelarCambioPendiente(): Observable<Subscription> {
     return this.http.delete<Subscription>(`${this.apiUrl}/plan-pendiente`).pipe(
+      tap(s => this.subscription$.next(s))
+    );
+  }
+
+  /**
+   * Da de baja la suscripción al cierre del período en curso. Hasta esa fecha no cambia nada:
+   * el mes ya está pagado y se usa entero.
+   */
+  cancelarSuscripcion(): Observable<Subscription> {
+    return this.http.post<Subscription>(`${this.apiUrl}/cancelar`, {}).pipe(
+      tap(s => this.subscription$.next(s))
+    );
+  }
+
+  /** Deshace una baja agendada que todavía no se hizo efectiva. */
+  revertirCancelacion(): Observable<Subscription> {
+    return this.http.delete<Subscription>(`${this.apiUrl}/cancelacion`).pipe(
+      tap(s => this.subscription$.next(s))
+    );
+  }
+
+  /** Reactiva una suscripción dada de baja con el plan elegido. */
+  reactivarSuscripcion(plan: PlanType): Observable<Subscription> {
+    return this.http.post<Subscription>(`${this.apiUrl}/reactivar`, { plan }).pipe(
       tap(s => this.subscription$.next(s))
     );
   }

@@ -66,8 +66,13 @@ export class PlanesDialogComponent implements OnChanges {
     this.closed.emit();
   }
 
+  /** Con la suscripción dada de baja no hay plan vigente: elegir cualquiera es reactivar. */
+  get estaDadaDeBaja(): boolean {
+    return this.subscription?.estadoSuscripcion === 'CANCELADA';
+  }
+
   relacionCon(plan: PlanCatalogItem): PlanRelacion {
-    if (!this.subscription) return 'mejora';
+    if (!this.subscription || this.estaDadaDeBaja) return 'mejora';
     if (plan.codigo === this.subscription.plan) return 'actual';
     return this.ordenDe(plan.codigo) > this.ordenDe(this.subscription.plan) ? 'mejora' : 'baja';
   }
@@ -105,7 +110,13 @@ export class PlanesDialogComponent implements OnChanges {
   private aplicar(plan: PlanType): void {
     this.isSaving = true;
     this.errorMessage = '';
-    this.subscriptionService.changePlan(plan).subscribe({
+
+    // Estando dada de baja no hay "cambio de plan": lo que corresponde es reabrir la suscripción.
+    const operacion$ = this.estaDadaDeBaja
+      ? this.subscriptionService.reactivarSuscripcion(plan)
+      : this.subscriptionService.changePlan(plan);
+
+    operacion$.subscribe({
       next: () => {
         this.isSaving = false;
         this.bajaPendienteDeConfirmar = null;
@@ -115,7 +126,8 @@ export class PlanesDialogComponent implements OnChanges {
       error: (err: unknown) => {
         this.isSaving = false;
         this.bajaPendienteDeConfirmar = null;
-        this.errorMessage = this.errorHandler.getErrorMessage(err, 'cambiar el plan');
+        this.errorMessage = this.errorHandler.getErrorMessage(
+          err, this.estaDadaDeBaja ? 'reactivar la suscripción' : 'cambiar el plan');
         this.cdr.markForCheck();
       }
     });
@@ -123,11 +135,22 @@ export class PlanesDialogComponent implements OnChanges {
 
   /** Texto del botón según lo que implique el cambio. */
   accionDe(plan: PlanCatalogItem): string {
+    if (this.estaDadaDeBaja) return 'Reactivar con este plan';
     switch (this.relacionCon(plan)) {
       case 'actual': return 'Tu plan actual';
       case 'mejora': return 'Mejorar a este plan';
       case 'baja': return 'Bajar a este plan';
     }
+  }
+
+  get titulo(): string {
+    return this.estaDadaDeBaja ? 'Reactivá tu suscripción' : 'Elegí tu plan';
+  }
+
+  get subtitulo(): string {
+    return this.estaDadaDeBaja
+      ? 'Elegí un plan para volver a operar. La facturación arranca hoy mismo.'
+      : 'Mejorar de plan se aplica al instante. Bajar de plan se aplica al cierre del período.';
   }
 
   limiteTexto(valor: number, singular: string, plural: string): string {

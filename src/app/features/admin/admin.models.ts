@@ -1,3 +1,5 @@
+import { PaymentStatus, PlanType, SubscriptionStatus } from '../../core/models';
+
 export interface ModuleGrantDTO {
   codigo: string;
   nombre: string;
@@ -12,21 +14,43 @@ export interface OrganizationAdminDTO {
   pais: string;
   activa: boolean;
   createdAt: string;
-  planNombre: string | null;
-  planPrecio: number | null;
-  fechaContratacion: string | null;
-  fechaUltimoPago: string | null;
+  /** Plan real de la suscripción. Null si la organización todavía no tiene suscripción creada. */
+  plan: PlanType | null;
+  estadoSuscripcion: SubscriptionStatus | null;
   userCount: number;
   patientCount: number;
   appointmentCount: number;
   modules: ModuleGrantDTO[];
 }
 
-export interface OrganizationPlanUpdateDTO {
-  planNombre?: string | null;
-  planPrecio?: number | null;
-  fechaContratacion?: string | null;
-  fechaUltimoPago?: string | null;
+/**
+ * Estado de cobro de una organización — coincide con `OrganizationBillingDTO` del backend.
+ *
+ * `estadoPago` viene calculado desde las fechas, no del crudo de la fila: el ciclo de facturación
+ * avanza solo cuando alguien de esa clínica entra, así que un período todavía en PENDIENTE puede
+ * estar vencido hace meses.
+ */
+export interface OrganizationBillingDTO {
+  organizationId: string;
+  nombre: string;
+  slug: string;
+
+  estadoSuscripcion: SubscriptionStatus;
+  cancelacionDesde: string | null;
+  fechaCancelacion: string | null;
+
+  plan: PlanType;
+  precio: number | null;
+  moneda: string | null;
+
+  /** Período impago más antiguo; null si está al día. Es lo que confirma el botón de cobro. */
+  periodoPagoId: string | null;
+  periodoActual: string | null;
+  fechaVencimiento: string | null;
+  estadoPago: PaymentStatus | null;
+  diasVencido: number;
+
+  soloLectura: boolean;
 }
 
 export interface AdminUserDTO {
