@@ -647,14 +647,16 @@ accidental es mayor que en cualquier otra pantalla de la app.
 rol en `AdminOrganizationUsersDialogComponent` con el mismo `ConfirmDialogComponent` ya usado en Turnos/
 Coberturas — no hace falta un componente nuevo, solo cablearlo acá también.
 
-### 9.2 Cero cobertura de tests, en ambos niveles
+### 9.2 Casi cero cobertura de tests, en ambos niveles
 
-- **Unitarios**: no existe ningún `*.spec.ts` bajo `src/app/features/admin/` — ninguno de los cuatro
-  componentes ni `admin.service.ts` tienen test.
+- **Unitarios**: de los cinco componentes de `src/app/features/admin/` (los cuatro originales del
+  2026-08-09 más `AdminPagosPanelComponent` de la pantalla de pagos, 2026-08-15), solo este último tiene
+  spec (`admin-pagos-panel.component.spec.ts`, 7 casos). `AdminViewComponent`, los tres diálogos y
+  `admin.service.ts` siguen sin ningún `*.spec.ts`. Ver [TESTING.md § 8](./TESTING.md#8-huecos-conocidos).
 - **E2E**: `frontend-proyecto-tests` no tiene ningún spec para `/admin` — no hay ni siquiera un
   `test.skip` placeholder que deje el hueco visible en el reporte (a diferencia de otros huecos ya
   documentados en ese repo). Ver `frontend-proyecto-tests/docs/PLAN_DE_PRUEBAS.md` y `ESTRUCTURA.md`.
-- Los `data-testid` **sí** están puestos en los cuatro componentes (confirmado — ver
+- Los `data-testid` **sí** están puestos en los cinco componentes (confirmado — ver
   [COMPONENTS.md](./COMPONENTS.md#admin-featuresadmin--panel-superadmin-nuevo-2026-08-09)), así que no
   falta esa parte para que alguien escriba las pruebas — falta directamente escribirlas.
 

@@ -251,9 +251,16 @@ Módulo clínico `HISTORIA_CLINICA_FREE`, hermano de Odontograma: es el segundo 
 - **Servicios que usa**: `HistoriaClinicaStateService`, `AuthService`.
 - **Dónde aparece**: `HistoriaClinicaViewComponent`.
 
+### `SuscripcionBannerComponent` (`app-suscripcion-banner`)
+- **Archivo**: [`shared/components/suscripcion-banner/suscripcion-banner.component.ts`](../src/app/shared/components/suscripcion-banner/suscripcion-banner.component.ts)
+- **Propósito**: aviso persistente montado directo en `app.html` (shell raíz, no en una feature) para que se vea en toda la app cuando la suscripción de la organización tiene un problema — tres motivos distintos y mutuamente excluyentes: baja efectiva (`estadoSuscripcion === 'CANCELADA'`), baja agendada (`cancelacionDesde` seteado) o pago vencido (`estadoPago === 'VENCIDO'`). Dos tonos: advertencia mientras quedan días de gracia, error una vez que ya está en solo lectura (`soloLectura`) — en ese caso el botón de cerrar (`dismiss()`) se oculta, porque el usuario necesita saber por qué no puede guardar nada.
+- **Inputs/Outputs**: ninguno — se autoabastece vía `SubscriptionService.getSubscription()`.
+- **Servicios que usa**: `SubscriptionService`.
+- **Dónde aparece**: `AppComponent` (`app.html`), visible en toda la aplicación mientras haya sesión.
+
 ## Admin (`features/admin`) — panel superadmin, nuevo 2026-08-09
 
-Cross-organización, exclusivo del rol `ADMIN` (no del sistema de capacidades) — ver [PERMISOS.md § 9](./PERMISOS.md#9-rol-admin--panel-superadmin-mecanismo-aparte) y [PAGES.md](./PAGES.md#panel-superadmin). Ninguno de los cuatro componentes tiene spec unitario (`*.spec.ts`) ni cobertura E2E — ver [DEUDA_TECNICA.md](./DEUDA_TECNICA.md).
+Cross-organización, exclusivo del rol `ADMIN` (no del sistema de capacidades) — ver [PERMISOS.md § 9](./PERMISOS.md#9-rol-admin--panel-superadmin-mecanismo-aparte) y [PAGES.md](./PAGES.md#panel-superadmin). De los cinco componentes (los cuatro originales del 2026-08-09 más `AdminPagosPanelComponent` de la pantalla de pagos, 2026-08-15), solo este último tiene spec unitario — ver [TESTING.md § 8](./TESTING.md#8-huecos-conocidos). Ninguno tiene cobertura E2E — ver [DEUDA_TECNICA.md](./DEUDA_TECNICA.md).
 
 ### `AdminViewComponent` (`app-admin-view`)
 - **Archivo**: [`features/admin/admin-view/admin-view.component.ts`](../src/app/features/admin/admin-view/admin-view.component.ts)
