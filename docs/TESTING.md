@@ -1,6 +1,32 @@
 # Testing — turnos-app (frontend)
 
-> Estado al 2026-08-08: **839 tests** en **70 archivos `*.spec.ts`** — implementación completa de
+> **Estado al 2026-08-17 — ⚠️ 15 de 846 tests están en rojo ahora mismo, no en verde.**
+> `admin-pagos-panel.component.spec.ts` (2026-08-15, pantalla de pagos) sumó 7 casos nuevos, sin tocar
+> ningún otro archivo: 839 → 846 tests, 69 → 70 archivos `*.spec.ts`. Pero al correr `npm test` hoy,
+> 4 de esos 70 archivos fallan (15 casos), por un problema preexistente **no relacionado con pagos**,
+> introducido el 2026-08-09 (`feat(admin): agregar panel superadmin`) y nunca detectado ni documentado
+> desde entonces:
+> - **`AuthService.hasRole` no está en el mock manual de tres specs** (`auth.guard.spec.ts`,
+>   `navbar.component.spec.ts`, `login.component.spec.ts` — 14 casos) — ese commit cableó
+>   `resolveHomeRouteForUser()` (llamada por el guard, el navbar y el login) para que revise primero
+>   `hasRole('ADMIN')`, pero los mocks de `authService` de esos tres specs solo tipan
+>   `isAuthenticated`/`hasCapability`, así que `authService.hasRole` es `undefined` y explota con
+>   `TypeError: authService.hasRole is not a function` apenas se ejecuta cualquier código que pase por
+>   esa función.
+> - **Un test quedó afirmando el comportamiento viejo que el mismo commit cambió a propósito**
+>   (`http-error.interceptor.spec.ts` línea 69, *"403 sin requiredCapability en el body: fallback
+>   conservador, fuerza logout igual"* — 1 caso): el código de `handleCapabilityForbidden` se reescribió
+>   ex profeso para que un 403 sin `requiredCapability` **ya no** fuerce logout (así lo dice el comentario
+>   en la fuente, `http-error.interceptor.ts:176-179`, y el propio mensaje del commit), pero el test
+>   sigue esperando `authService.logout` llamado — nadie lo actualizó junto con el código.
+>
+> Verificado corriendo `npm test` de punta a punta en este entorno el 2026-08-17 (no `npm run
+> test:coverage`, ver la nota debajo sobre por qué no se remidió cobertura). Ninguno de los dos huecos
+> tiene que ver con la pantalla de pagos — son mock drift y un test-código desincronizados de una ronda
+> anterior — pero seguían sin corregirse ni mencionarse en ningún documento antes de esta entrada. Ver
+> el detalle ampliado en § 8.
+>
+> Estado previo (2026-08-08): **839 tests** en **70 archivos `*.spec.ts`** — implementación completa de
 > [PLAN_DE_TESTING.md](./PLAN_DE_TESTING.md) (70/70 archivos planificados, los 7 tiers). Arrancó el
 > 2026-08-07 desde cero (antes de esa fecha el repo no tenía ningún test unitario ni target `test`
 > configurado — ver historial de [ARCHITECTURE.md](./ARCHITECTURE.md) y
@@ -8,7 +34,10 @@
 > 79.62 % branches / 86.66 % funciones / 89.9 % líneas, medida sobre los 70 archivos en
 > `coverageInclude` — **no** es la cobertura de los ~11 archivos fuera de alcance (§ 6, § 8, y
 > [PLAN_DE_TESTING.md § 13](./PLAN_DE_TESTING.md#13-fuera-de-alcance)). Se corre con `npm test`
-> (rápido, sin cobertura) o `npm run test:coverage` (con el gate del 75 %).
+> (rápido, sin cobertura) o `npm run test:coverage` (con el gate del 75 %). **Esta cifra de cobertura no
+> se remidió en la entrada 2026-08-17**: con 15 tests en rojo, `npm run test:coverage` no produce un
+> número representativo hasta que se arreglen — no tiene sentido citar un % nuevo mientras la suite no
+> está en verde.
 
 ## 1. Cómo se corre
 
@@ -219,7 +248,8 @@ ejecutan una a la otra. Ver [ARCHITECTURE.md § Testing e2e](./ARCHITECTURE.md#t
 | **Sin ESLint** | El repo no tiene `.eslintrc`/`eslint.config.*` ni el paquete instalado (ver [DEPENDENCIES.md](./DEPENDENCIES.md)) — los specs nuevos no pasan por ningún lint, solo por el estilo de Prettier declarado en `package.json`. | Fuera de alcance de esta ronda; si se agrega ESLint al repo, sumar `eslint-plugin-testing-library` para reglas específicas de specs (evita antipatrones como `container.querySelector` en vez de `getByTestId`). |
 | **`ng-mocks` y MSW evaluados y descartados por ahora** | Ver § 2. | Reconsiderar si un componente con árbol de dependencias grande hace doloroso el mock manual, o si se quiere compartir mocks de HTTP con Storybook/desarrollo local (hoy no existe Storybook en el repo). |
 | **`@testing-library/angular` en un release muy reciente de Angular** | Se instaló `@testing-library/angular@^19.4.2` contra Angular `^21.0.0`; el peer range (`>= 21.0.0`) ya lo declara compatible y `npm install` no reportó conflictos, pero es una combinación con poco tiempo de rodaje en el ecosistema. | Ninguna acción — solo prestar atención a este punto si aparecen fallos de tipo raros al actualizar cualquiera de los dos paquetes. |
-| **`features/admin/` (panel superadmin, 2026-08-09) sin ningún spec** | Feature nueva, cuatro componentes + service, cero `*.spec.ts`. Detalle y por qué importa más que el resto de los huecos en [DEUDA_TECNICA.md § 9](./DEUDA_TECNICA.md#9-panel-superadmin-featuresadmin--sin-confirmación-en-acciones-destructivas-sin-tests-2026-08-09). | Escribir specs para `AdminViewComponent` y los tres diálogos — los `data-testid` ya están puestos, no falta esa parte. |
+| **`features/admin/` (panel superadmin, 2026-08-09) casi sin specs** | De los cinco componentes + service de la feature, solo `AdminPagosPanelComponent` tiene spec (`admin-pagos-panel.component.spec.ts`, 7 casos, agregado 2026-08-15 junto con la pantalla de pagos). `AdminViewComponent` y los tres diálogos (organización/plan, módulos, usuarios) siguen en cero. Detalle y por qué importa más que el resto de los huecos en [DEUDA_TECNICA.md § 9](./DEUDA_TECNICA.md#9-panel-superadmin-featuresadmin--sin-confirmación-en-acciones-destructivas-sin-tests-2026-08-09). | Escribir specs para `AdminViewComponent` y los tres diálogos que faltan — los `data-testid` ya están puestos, no falta esa parte. |
+| **15 tests en rojo ahora mismo, en 4 archivos, sin relación con pagos** | Ver el detalle completo en el encabezado de este documento (entrada 2026-08-17). Dos causas distintas, las dos originadas el 2026-08-09 y nunca corregidas: (1) el mock manual de `authService` en `auth.guard.spec.ts`/`navbar.component.spec.ts`/`login.component.spec.ts` no declara `hasRole`, que `resolveHomeRouteForUser()` empezó a usar ese mismo día (14 casos); (2) `http-error.interceptor.spec.ts:69` quedó afirmando el comportamiento de logout forzado que el propio commit reescribió a propósito para que no pasara más (1 caso). | Agregar `hasRole: vi.fn(() => false)` a los tres mocks manuales de `authService`, y actualizar la aserción de `http-error.interceptor.spec.ts:72-73` para reflejar que un 403 sin `requiredCapability` ya no fuerza logout (cambiar el `expect` a `not.toHaveBeenCalled()`, igual que el caso de la línea 60 de al lado). |
 
 ## 9. Historial
 
