@@ -649,16 +649,27 @@ Coberturas — no hace falta un componente nuevo, solo cablearlo acá también.
 
 ### 9.2 Casi cero cobertura de tests, en ambos niveles
 
-- **Unitarios**: de los cinco componentes de `src/app/features/admin/` (los cuatro originales del
-  2026-08-09 más `AdminPagosPanelComponent` de la pantalla de pagos, 2026-08-15), solo este último tiene
-  spec (`admin-pagos-panel.component.spec.ts`, 7 casos). `AdminViewComponent`, los tres diálogos y
-  `admin.service.ts` siguen sin ningún `*.spec.ts`. Ver [TESTING.md § 8](./TESTING.md#8-huecos-conocidos).
-- **E2E**: `frontend-proyecto-tests` no tiene ningún spec para `/admin` — no hay ni siquiera un
-  `test.skip` placeholder que deje el hueco visible en el reporte (a diferencia de otros huecos ya
-  documentados en ese repo). Ver `frontend-proyecto-tests/docs/PLAN_DE_PRUEBAS.md` y `ESTRUCTURA.md`.
+- **Unitarios**: **parcialmente resuelto (2026-08-18).** `AdminPagosPanelComponent`
+  (`admin-pagos-panel.component.spec.ts`, 7 → 16 casos: error de `confirmarPago`/`cargarHistorial`,
+  colapso de historial, refresh post-confirmación, cancelar confirmación, rama de red que suprime el
+  toast), `AdminViewComponent` (`admin-view.component.spec.ts`, nuevo, 3 casos: el panel de pagos solo
+  se monta y pide datos al entrar a esa pestaña) y `admin.service.ts` (`admin.service.spec.ts`, nuevo,
+  11 casos, los tres de cobranza y los ocho de organizaciones/usuarios) ya tienen spec. **Sigue
+  pendiente**: los tres diálogos (`admin-organization-plan-dialog`, `-modules-dialog`,
+  `-users-dialog`) todavía sin ningún `*.spec.ts` — el de usuarios es el que tiene la carrera de § 9.3
+  sin cubrir. Ver [TESTING.md § 8](./TESTING.md#8-huecos-conocidos).
+- **E2E**: **resuelto para la pestaña de pagos (2026-08-18).** `frontend-proyecto-test/tests/admin/`
+  (nuevo, 5 specs, 9 casos): listado cross-organización, confirmar pago, cambio de plan (mejora
+  inmediata + baja agendada), modo de solo lectura por deuda vencida, y la regresión de la Adenda 3
+  (`AUDITORIA_BUGS.md` del backend). Requirió infraestructura nueva: persona `ADMIN` (rol de sistema,
+  no capacidad — `tests/auth/admin.setup.ts` + `db.helper.ts#promoteToAdmin`) y seis organizaciones
+  semilla de cobranza (`tests/auth/billing-seed.setup.ts`). **Sigue pendiente**: el resto del panel
+  (organizaciones/usuarios/módulos) — la pestaña de pagos era el foco de esta ronda. Ver
+  `frontend-proyecto-test/docs/PLAN_DE_PRUEBAS.md` y `ESTRUCTURA.md`.
 - Los `data-testid` **sí** están puestos en los cinco componentes (confirmado — ver
   [COMPONENTS.md](./COMPONENTS.md#admin-featuresadmin--panel-superadmin-nuevo-2026-08-09)), así que no
-  falta esa parte para que alguien escriba las pruebas — falta directamente escribirlas.
+  falta esa parte para que alguien escriba las pruebas de los diálogos que quedan — falta directamente
+  escribirlas.
 
 ### 9.3 Dos bugs de carrera encontrados en auditoría (2026-08-10), mismo patrón que F5/F9/S17
 
@@ -687,3 +698,19 @@ diálogo que ahora está abierto para B, descartando sus ediciones sin guardar, 
 visualmente parece ser sobre B pero es sobre A. **Fix:** deshabilitar backdrop/Cancelar/X mientras
 `isSaving` (igual que ya hace F11), y/o solo cerrar el diálogo en el callback si sigue abierto para la
 misma organización cuya respuesta llegó.
+
+### 9.4 `toggleOrgActive`/`onSavePlan`/`onSaveModules` sin `markForCheck()` — mismo patrón que PRO-008/TUR-074
+
+**✅ Resuelto (2026-08-18).** Los tres métodos mutaban `organizations` (vía `replaceOrg`),
+`showPlanDialog`/`showModulesDialog` y `isTogglingActive`/`isSavingPlan`/`isSavingModules` dentro del
+callback `next`/`error` de su `.subscribe()`, sin `this.cdr.markForCheck()` — bajo
+`provideZonelessChangeDetection()`, la respuesta llegaba y el estado cambiaba, pero la vista no se
+repintaba sola. Encontrado escribiendo `tests/admin/pagos-cambio-plan.spec.ts` (E2E, backend real): tras
+guardar un cambio de plan, el diálogo se quedaba visualmente abierto y la fila de la organización seguía
+mostrando el plan viejo, aunque el backend ya había aplicado el cambio — mismo síntoma exacto que PRO-008
+(formulario de profesional) y la misma familia que TUR-074 (aviso de horario ocupado), ambos ya
+documentados en este archivo. A diferencia de PRO-008 (documentado con `test.fail()` sin arreglar), acá sí
+se corrigió: se agregó `this.cdr.markForCheck()` al final de los tres callbacks `next` y `error`.
+No detectado por los tests unitarios existentes de este componente (`render()` de
+`@testing-library/angular` no reproduce el bug si el `TestBed` no está configurado zoneless) — la
+regresión real quedó cubierta por el E2E, no por un test unitario nuevo.

@@ -1,6 +1,18 @@
 # Testing — turnos-app (frontend)
 
-> **Estado al 2026-08-17 — ⚠️ 15 de 846 tests están en rojo ahora mismo, no en verde.**
+> **Estado al 2026-08-18 — 868 tests en 72 archivos `*.spec.ts`. Los mismos 15 de siempre siguen en
+> rojo** (ver el bloque de abajo, sin cambios — no se tocó ese hueco en esta ronda). Subieron desde
+> 846 (2026-08-17) por tests nuevos de la pantalla de pagos del panel superadmin, para cerrar el hueco
+> que documentaba [DEUDA_TECNICA.md § 9.2](./DEUDA_TECNICA.md#92-casi-cero-cobertura-de-tests-en-ambos-niveles):
+> `admin.service.spec.ts` (+11, archivo nuevo — antes `AdminService` no tenía ningún test propio),
+> `admin-pagos-panel.component.spec.ts` (7 → 16, casos de error de `confirmarPago`/`cargarHistorial`,
+> colapso de historial, refresh post-confirmación, cancelar confirmación, y la rama de red que suprime
+> el toast), `admin-view.component.spec.ts` (+3, archivo nuevo — confirma que el panel de pagos solo se
+> monta y pide datos al entrar a esa pestaña, por el `*ngIf` estructural). Verificado corriendo
+> `npx ng test --watch=false` de punta a punta: 853 pasan, los mismos 15 de antes siguen rojos (853 + 15
+> = 868), 0 tests nuevos rotos.
+>
+> Estado previo (2026-08-17) — ⚠️ 15 de 846 tests estaban en rojo, no en verde.
 > `admin-pagos-panel.component.spec.ts` (2026-08-15, pantalla de pagos) sumó 7 casos nuevos, sin tocar
 > ningún otro archivo: 839 → 846 tests, 69 → 70 archivos `*.spec.ts`. Pero al correr `npm test` hoy,
 > 4 de esos 70 archivos fallan (15 casos), por un problema preexistente **no relacionado con pagos**,
