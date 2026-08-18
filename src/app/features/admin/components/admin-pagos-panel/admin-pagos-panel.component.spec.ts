@@ -120,4 +120,99 @@ describe('AdminPagosPanelComponent', () => {
 
     expect(mocks.notification.showError).toHaveBeenCalled();
   });
+
+  it('avisa si falla el historial', async () => {
+    const mocks = makeMocks();
+    mocks.adminService.listarPagosDeOrganizacion = vi.fn(() => throwError(() => new Error('boom')));
+    await renderPanel(mocks);
+
+    await userEvent.click(screen.getByTestId('admin-pago-historial-btn-org-1'));
+
+    expect(mocks.notification.showError).toHaveBeenCalled();
+  });
+
+  it('avisa si falla confirmar el pago, y cierra el diálogo igual', async () => {
+    const mocks = makeMocks();
+    mocks.adminService.confirmarPago = vi.fn(() => throwError(() => new Error('boom')));
+    await renderPanel(mocks);
+
+    await userEvent.click(screen.getByTestId('admin-pago-confirmar-btn-org-1'));
+    await userEvent.click(screen.getByTestId('confirm-dialog-confirm-btn'));
+
+    expect(mocks.notification.showError).toHaveBeenCalled();
+    expect(screen.queryByText('Confirmar pago recibido')).toBeNull();
+  });
+
+  it('volver a togglear el historial lo colapsa', async () => {
+    const mocks = makeMocks();
+    await renderPanel(mocks);
+
+    await userEvent.click(screen.getByTestId('admin-pago-historial-btn-org-1'));
+    expect(screen.getByTestId('admin-pago-historial-org-1')).toBeTruthy();
+
+    await userEvent.click(screen.getByTestId('admin-pago-historial-btn-org-1'));
+    expect(screen.queryByTestId('admin-pago-historial-org-1')).toBeNull();
+  });
+
+  it('si el historial ya estaba abierto, confirmar el pago lo recarga', async () => {
+    const mocks = makeMocks();
+    await renderPanel(mocks);
+
+    await userEvent.click(screen.getByTestId('admin-pago-historial-btn-org-1'));
+    expect(mocks.adminService.listarPagosDeOrganizacion).toHaveBeenCalledTimes(1);
+
+    await userEvent.click(screen.getByTestId('admin-pago-confirmar-btn-org-1'));
+    await userEvent.click(screen.getByTestId('confirm-dialog-confirm-btn'));
+
+    expect(mocks.adminService.listarPagosDeOrganizacion).toHaveBeenCalledTimes(2);
+  });
+
+  it('cancelar la confirmación no llama al backend y cierra el diálogo', async () => {
+    const mocks = makeMocks();
+    await renderPanel(mocks);
+
+    await userEvent.click(screen.getByTestId('admin-pago-confirmar-btn-org-1'));
+    await userEvent.click(screen.getByTestId('confirm-dialog-cancel-btn'));
+
+    expect(mocks.adminService.confirmarPago).not.toHaveBeenCalled();
+    expect(screen.queryByText('Confirmar pago recibido')).toBeNull();
+  });
+
+  describe('errores de red: se resuelve el mensaje pero no se muestra el toast', () => {
+    it('al cargar el listado', async () => {
+      const mocks = makeMocks();
+      mocks.adminService.listarPagos = vi.fn(() => throwError(() => new Error('sin conexión')));
+      mocks.errorHandler.isNetworkError = vi.fn(() => true);
+
+      await renderPanel(mocks);
+
+      expect(mocks.errorHandler.getErrorMessage).toHaveBeenCalled();
+      expect(mocks.notification.showError).not.toHaveBeenCalled();
+    });
+
+    it('al confirmar un pago', async () => {
+      const mocks = makeMocks();
+      mocks.adminService.confirmarPago = vi.fn(() => throwError(() => new Error('sin conexión')));
+      mocks.errorHandler.isNetworkError = vi.fn(() => true);
+      await renderPanel(mocks);
+
+      await userEvent.click(screen.getByTestId('admin-pago-confirmar-btn-org-1'));
+      await userEvent.click(screen.getByTestId('confirm-dialog-confirm-btn'));
+
+      expect(mocks.errorHandler.getErrorMessage).toHaveBeenCalled();
+      expect(mocks.notification.showError).not.toHaveBeenCalled();
+    });
+
+    it('al cargar el historial', async () => {
+      const mocks = makeMocks();
+      mocks.adminService.listarPagosDeOrganizacion = vi.fn(() => throwError(() => new Error('sin conexión')));
+      mocks.errorHandler.isNetworkError = vi.fn(() => true);
+      await renderPanel(mocks);
+
+      await userEvent.click(screen.getByTestId('admin-pago-historial-btn-org-1'));
+
+      expect(mocks.errorHandler.getErrorMessage).toHaveBeenCalled();
+      expect(mocks.notification.showError).not.toHaveBeenCalled();
+    });
+  });
 });
