@@ -118,10 +118,12 @@ export class AdminViewComponent implements OnInit, OnDestroy {
           this.notification.showSuccess(
             updated.activa ? 'Organización activada correctamente.' : 'Organización desactivada correctamente.'
           );
+          this.cdr.markForCheck();
         },
         error: (err: unknown) => {
           const message = this.errorHandler.getErrorMessage(err as any, 'cambiar el estado de la organización');
           if (!this.errorHandler.isNetworkError(err as any)) this.notification.showError(message);
+          this.cdr.markForCheck();
         }
       });
   }
@@ -148,12 +150,14 @@ export class AdminViewComponent implements OnInit, OnDestroy {
         this.replaceOrg(updated);
         this.closePlanDialog();
         this.notification.showSuccess('Plan actualizado correctamente.');
+        this.cdr.markForCheck();
       },
       error: (err: unknown) => {
         this.isSavingPlan = false;
         const message = this.errorHandler.getErrorMessage(err as any, 'actualizar el plan');
         this.savePlanError = message;
         if (!this.errorHandler.isNetworkError(err as any)) this.notification.showError(message);
+        this.cdr.markForCheck();
       }
     });
   }
@@ -180,12 +184,14 @@ export class AdminViewComponent implements OnInit, OnDestroy {
         this.replaceOrg(updated);
         this.closeModulesDialog();
         this.notification.showSuccess('Módulos actualizados correctamente.');
+        this.cdr.markForCheck();
       },
       error: (err: unknown) => {
         this.isSavingModules = false;
         const message = this.errorHandler.getErrorMessage(err as any, 'actualizar los módulos');
         this.saveModulesError = message;
         if (!this.errorHandler.isNetworkError(err as any)) this.notification.showError(message);
+        this.cdr.markForCheck();
       }
     });
   }
