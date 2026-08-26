@@ -1,5 +1,10 @@
 # Deuda técnica — frontend
 
+> Ver también `bakend-proyecto-turnos/docs/AUDITORIA_TECNICA_FULLSTACK.md` (2026-08-26): auditoría
+> técnica de los 3 repos del sistema (arquitectura, SOLID, Clean Code, seguridad, priorización P0-P3),
+> que cruza este documento contra el código actual y contra los otros dos repos — no repite el detalle
+> de acá, lo cita.
+>
 > Alcance: deuda del frontend Angular. Complementa [UI_RULES.md](./UI_RULES.md) (convenciones vigentes)
 > y, del lado del backend, `docs/DEUDA_TECNICA_PERMISOS.md`, que cubre la deuda del sistema de permisos.
 >
