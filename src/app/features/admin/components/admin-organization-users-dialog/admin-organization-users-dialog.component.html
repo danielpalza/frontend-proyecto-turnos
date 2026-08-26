@@ -35,15 +35,15 @@
             </div>
 
             <select class="form-select role-select" [value]="user.role"
-              [disabled]="updatingRoleUserId === user.id"
+              [disabled]="updatingRoleUserId === user.id || pendingRoleChange?.user?.id === user.id"
               (change)="onRoleChange(user, $event)"
               [attr.data-testid]="'admin-users-role-select-' + user.id">
               <option *ngFor="let opt of roleOptions" [value]="opt.code">{{ opt.label }}</option>
             </select>
 
             <button type="button" class="btn btn-action btn-action-flag"
-              (click)="toggleUserActive(user)" title="Activar / desactivar"
-              [disabled]="togglingUserId === user.id"
+              (click)="requestToggleUserActive(user)" title="Activar / desactivar"
+              [disabled]="togglingUserId === user.id || pendingToggleUser?.id === user.id"
               [attr.data-testid]="'admin-users-toggle-active-btn-' + user.id">
               <i class="bi" [ngClass]="user.activo ? 'bi-toggle-on' : 'bi-toggle-off'"></i>
             </button>
@@ -58,3 +58,33 @@
     </div>
   </div>
 </div>
+
+<app-confirm-dialog
+  [open]="pendingToggleUser !== null"
+  title="Cambiar estado del usuario"
+  [message]="pendingToggleUser?.activo
+    ? 'Vas a desactivar a este usuario: pierde acceso al sistema hasta que lo reactives.'
+    : 'Vas a activar a este usuario: recupera el acceso al sistema.'"
+  [summary]="pendingToggleUser ? (pendingToggleUser.nombre + ' ' + pendingToggleUser.apellido) : null"
+  [isLoading]="togglingUserId === pendingToggleUser?.id"
+  [confirmText]="pendingToggleUser?.activo ? 'Desactivar' : 'Activar'"
+  [confirmButtonClass]="pendingToggleUser?.activo ? 'btn-danger' : 'btn-success'"
+  dialogId="adminToggleUserActiveDialog"
+  (confirm)="confirmToggleUserActive()"
+  (cancel)="cancelToggleUserActive()"
+  (openChange)="onToggleUserActiveOpenChange($event)">
+</app-confirm-dialog>
+
+<app-confirm-dialog
+  [open]="pendingRoleChange !== null"
+  title="Cambiar rol del usuario"
+  message="Vas a cambiar el rol de este usuario. Si lo degradás de Superadmin, puede perder acceso a funciones que hoy tiene."
+  [summary]="pendingRoleChangeSummary"
+  [isLoading]="updatingRoleUserId === pendingRoleChange?.user?.id"
+  confirmText="Cambiar rol"
+  confirmButtonClass="btn-primary"
+  dialogId="adminRoleChangeDialog"
+  (confirm)="confirmRoleChange()"
+  (cancel)="cancelRoleChange()"
+  (openChange)="onRoleChangeOpenChange($event)">
+</app-confirm-dialog>

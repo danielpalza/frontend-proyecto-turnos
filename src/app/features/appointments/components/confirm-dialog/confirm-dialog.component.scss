@@ -4,6 +4,7 @@
 
 .confirm-modal-backdrop {
   @include modal-backdrop-centered($blur: 6px, $padding: $spacing-lg);
+  z-index: $z-confirm-dialog; // por encima de $z-modal-dialog: puede anidarse dentro de otro modal
 }
 
 .confirm-modal {

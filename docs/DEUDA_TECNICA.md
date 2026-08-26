@@ -630,9 +630,10 @@ dependan de alguno de estos tres supuestos — hace falta revisar ese repo direc
 
 Feature nueva, cuatro componentes (`AdminViewComponent` + 3 diálogos, ver
 [COMPONENTS.md](./COMPONENTS.md#admin-featuresadmin--panel-superadmin-nuevo-2026-08-09)). Dos huecos
-reales, no solo ausencia de tests:
+reales, no solo ausencia de tests. **9.1, 9.2 y 9.3a resueltos el 2026-08-26** — ver detalle en cada
+sub-sección; queda abierto 9.3b (diálogos de plan/módulos, fuera de alcance de esta ronda).
 
-### 9.1 Ninguna acción destructiva pide confirmación
+### 9.1 Ninguna acción destructiva pide confirmación — ✅ Resuelto (2026-08-26)
 
 Desactivar una organización, desactivar un usuario, o cambiarle el rol a un usuario (incluido
 degradarlo de `ADMIN` a `USER`) dispara el `PATCH`/`PUT` correspondiente **de inmediato** al hacer
@@ -648,49 +649,58 @@ desactivación errónea puede dejar sin acceso a una organización cliente compl
 otro `ADMIN` con el que un operador cuenta para tareas puntuales — el radio de impacto de un click
 accidental es mayor que en cualquier otra pantalla de la app.
 
-**Arreglo sugerido:** envolver `toggleOrgActive`, el toggle de usuario y el `change` del `<select>` de
-rol en `AdminOrganizationUsersDialogComponent` con el mismo `ConfirmDialogComponent` ya usado en Turnos/
-Coberturas — no hace falta un componente nuevo, solo cablearlo acá también.
+**Arreglo aplicado:** `toggleOrgActive` (`AdminViewComponent`), `toggleUserActive` y el `change` del
+`<select>` de rol (`AdminOrganizationUsersDialogComponent`) ahora abren un candidato pendiente
+(`pendingToggleOrg`/`pendingToggleUser`/`pendingRoleChange`) y solo ejecutan el PATCH/PUT real al
+confirmar en el mismo `ConfirmDialogComponent` ya usado en Turnos/Coberturas — mismo patrón que
+`admin-pagos-panel.component.ts` ya usaba para "confirmar pago", extendido acá con `openChange`
+cableado (cierre por X/backdrop limpia el candidato, no lo deja huérfano). El cambio de rol deja
+visible el valor nuevo en el `<select>` mientras se confirma (decisión de diseño: el navegador ya
+lo actualiza antes de que corra el handler `change`, revertirlo de inmediato solo generaría
+parpadeo) y revierte al valor anterior si se cancela o si falla el PUT, reutilizando el mismo
+mecanismo que ya existía para el caso de error. **Hallazgo no obvio del propio fix:** anidar
+`ConfirmDialogComponent` dentro de un diálogo ya abierto (el de usuarios) es la primera vez que
+pasa en el proyecto — su `z-index` (`$z-modal`, 1050) quedaba **por debajo** del diálogo contenedor
+(`$z-modal-dialog`, 1055), así que el confirm-dialog se hubiera visto tapado; se agregó
+`$z-confirm-dialog: 1060` en `src/_variables.scss`.
 
-### 9.2 Casi cero cobertura de tests, en ambos niveles
+### 9.2 Casi cero cobertura de tests, en ambos niveles — ✅ Resuelto (2026-08-26)
 
-- **Unitarios**: **parcialmente resuelto (2026-08-18).** `AdminPagosPanelComponent`
-  (`admin-pagos-panel.component.spec.ts`, 7 → 16 casos: error de `confirmarPago`/`cargarHistorial`,
-  colapso de historial, refresh post-confirmación, cancelar confirmación, rama de red que suprime el
-  toast), `AdminViewComponent` (`admin-view.component.spec.ts`, nuevo, 3 casos: el panel de pagos solo
-  se monta y pide datos al entrar a esa pestaña) y `admin.service.ts` (`admin.service.spec.ts`, nuevo,
-  11 casos, los tres de cobranza y los ocho de organizaciones/usuarios) ya tienen spec. **Sigue
-  pendiente**: los tres diálogos (`admin-organization-plan-dialog`, `-modules-dialog`,
-  `-users-dialog`) todavía sin ningún `*.spec.ts` — el de usuarios es el que tiene la carrera de § 9.3
-  sin cubrir. Ver [TESTING.md § 8](./TESTING.md#8-huecos-conocidos).
-- **E2E**: **resuelto para la pestaña de pagos (2026-08-18).** `frontend-proyecto-test/tests/admin/`
-  (nuevo, 5 specs, 9 casos): listado cross-organización, confirmar pago, cambio de plan (mejora
-  inmediata + baja agendada), modo de solo lectura por deuda vencida, y la regresión de la Adenda 3
-  (`AUDITORIA_BUGS.md` del backend). Requirió infraestructura nueva: persona `ADMIN` (rol de sistema,
-  no capacidad — `tests/auth/admin.setup.ts` + `db.helper.ts#promoteToAdmin`) y seis organizaciones
-  semilla de cobranza (`tests/auth/billing-seed.setup.ts`). **Sigue pendiente**: el resto del panel
-  (organizaciones/usuarios/módulos) — la pestaña de pagos era el foco de esta ronda. Ver
-  `frontend-proyecto-test/docs/PLAN_DE_PRUEBAS.md` y `ESTRUCTURA.md`.
+- **Unitarios**: **resuelto.** Además de lo ya cubierto el 2026-08-18 (`AdminPagosPanelComponent`,
+  `AdminViewComponent`, `admin.service.ts`), los tres diálogos que quedaban sin ningún `*.spec.ts`
+  ya tienen spec: `admin-organization-plan-dialog.component.spec.ts` (9 casos), `-modules-dialog`
+  (8 casos), `-users-dialog` (9 casos, incluida la carrera de § 9.3a reproducida con una `Promise`
+  controlada manualmente). 55/55 en verde corriendo todo `features/admin/`. Ver
+  [TESTING.md § 8](./TESTING.md#8-huecos-conocidos).
+- **E2E**: **resuelto para organizaciones/usuarios/módulos.** `frontend-proyecto-test/tests/admin/`
+  suma `organizaciones-toggle.spec.ts` (3 casos), `organizaciones-usuarios.spec.ts` (4 casos) y
+  `organizaciones-modulos.spec.ts` (2 casos), con seed nuevo (`tests/auth/admin-orgs-seed.setup.ts`,
+  project `setup-admin-orgs`) separado del de cobranza para no compartir estado mutable. **Escritos
+  y verificados por carga de módulos (`--list`, sin errores de import/sintaxis) pero no corridos de
+  punta a punta contra un backend real en esta sesión** (el puerto 8080 local estaba ocupado por
+  Jenkins, no por el backend Spring Boot) — pendiente correr `npx playwright test
+  --project=chromium-admin` contra backend+MySQL reales antes de dar este punto por cerrado del
+  todo. Ver `frontend-proyecto-test/docs/PLAN_DE_PRUEBAS.md § 21` para el detalle caso por caso.
 - Los `data-testid` **sí** están puestos en los cinco componentes (confirmado — ver
   [COMPONENTS.md](./COMPONENTS.md#admin-featuresadmin--panel-superadmin-nuevo-2026-08-09)), así que no
-  falta esa parte para que alguien escriba las pruebas de los diálogos que quedan — falta directamente
-  escribirlas.
+  faltaba esa parte para escribir las pruebas de los diálogos.
 
-### 9.3 Dos bugs de carrera encontrados en auditoría (2026-08-10), mismo patrón que F5/F9/S17
+### 9.3 Dos bugs de carrera encontrados en auditoría (2026-08-10), mismo patrón que F5/F9/S17 — 9.3a ✅ resuelto (2026-08-26), 9.3b abierto
 
 Confirmado por lectura completa del feature — 9.1 y 9.2 arriba siguen vigentes tal cual. Además, dos bugs
 reales de la familia "respuesta HTTP stale pisa estado más nuevo", ya recurrente en el resto de este
 frontend:
 
 **a) Diálogo de usuarios: cambiar de organización rápido puede mostrar el personal de la organización
-equivocada.**
-`admin-organization-users-dialog.component.ts:36-53` — `loadUsers()` no usa `switchMap` ni cancela la
-request anterior, y `this.users` no se limpia antes de la nueva carga. Abrir el diálogo para la Org A
-(respuesta lenta), cerrarlo, y abrirlo para la Org B antes de que A responda: si la respuesta de A llega
-después de que se disparó la de B, pisa `this.users` con la lista de A mientras el header del diálogo ya
-muestra "Org B" — el operador puede terminar tocando el acceso de un usuario de otra organización creyendo
-que es de la que está mirando. **Fix:** limpiar `this.users = []` al iniciar la carga y reemplazar el
-`subscribe` plano por un `Subject<string>` + `switchMap`, mismo fix que ya se aplicó para F5/F9.
+equivocada. — ✅ Resuelto (2026-08-26)**
+`admin-organization-users-dialog.component.ts` — `loadUsers()` no usaba `switchMap` ni cancelaba la
+request anterior, y `this.users` no se limpiaba antes de la nueva carga. Se reemplazó el `subscribe`
+plano por un `Subject<string>` (suscripto una sola vez en el constructor) + `switchMap`, mismo patrón
+ya aplicado en `turn-clinical-modal.component.ts` (F5/F9): `this.users = []` se limpia antes de
+disparar la carga nueva, y `switchMap` descarta la respuesta de la organización anterior si llega
+tarde. De paso se agregó `ChangeDetectorRef`/`markForCheck()` al componente (era el único de los 4
+del feature que no lo tenía) y `OnDestroy` para cerrar la suscripción. Caso de la carrera reproducido
+como test unitario controlando el timing con una `Promise` manual — ver § 9.2.
 
 **b) Diálogos de plan/módulos: guardar y cancelar rápido puede cerrar por sorpresa el diálogo de otra
 organización y descartar ediciones sin guardar.**

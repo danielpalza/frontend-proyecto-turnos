@@ -77,7 +77,8 @@
 
       <div class="admin-org-actions">
         <button type="button" class="btn btn-action btn-action-flag"
-          (click)="toggleOrgActive(org)" title="Activar / desactivar"
+          (click)="requestToggleOrgActive(org)" title="Activar / desactivar"
+          [disabled]="isTogglingActive"
           [attr.data-testid]="'admin-org-toggle-active-btn-' + org.id">
           <i class="bi" [ngClass]="org.activa ? 'bi-toggle-on' : 'bi-toggle-off'"></i>
         </button>
@@ -130,3 +131,19 @@
   [organization]="usersDialogOrg"
   (openChange)="closeUsersDialog()">
 </app-admin-organization-users-dialog>
+
+<app-confirm-dialog
+  [open]="pendingToggleOrg !== null"
+  title="Cambiar estado de la organización"
+  [message]="pendingToggleOrg?.activa
+    ? 'Vas a desactivar esta organización: pierde acceso al sistema hasta que la reactives.'
+    : 'Vas a activar esta organización: recupera el acceso al sistema.'"
+  [summary]="pendingToggleOrg?.nombre ?? null"
+  [isLoading]="isTogglingActive"
+  [confirmText]="pendingToggleOrg?.activa ? 'Desactivar' : 'Activar'"
+  [confirmButtonClass]="pendingToggleOrg?.activa ? 'btn-danger' : 'btn-success'"
+  dialogId="adminToggleOrgActiveDialog"
+  (confirm)="confirmToggleOrgActive()"
+  (cancel)="cancelToggleOrgActive()"
+  (openChange)="onToggleOrgActiveOpenChange($event)">
+</app-confirm-dialog>

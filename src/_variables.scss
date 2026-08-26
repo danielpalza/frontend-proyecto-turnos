@@ -92,6 +92,9 @@ $shadow-primary-hover: 0 6px 20px rgba($primary-color, 0.35);
 $z-modal-backdrop: 1040;
 $z-modal: 1050;
 $z-modal-dialog: 1055;
+// ConfirmDialogComponent puede anidarse dentro de otro modal ya abierto (ej. panel superadmin,
+// diálogo de usuarios) — necesita quedar por encima de $z-modal-dialog, no solo de $z-modal.
+$z-confirm-dialog: 1060;
 
 // Sombra grande para dialogs "pesados" (modales de confirmación/guardado).
 $shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.25);

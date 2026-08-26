@@ -12,6 +12,7 @@ import { AdminOrganizationPlanDialogComponent } from '../components/admin-organi
 import { AdminOrganizationModulesDialogComponent } from '../components/admin-organization-modules-dialog/admin-organization-modules-dialog.component';
 import { AdminOrganizationUsersDialogComponent } from '../components/admin-organization-users-dialog/admin-organization-users-dialog.component';
 import { AdminPagosPanelComponent } from '../components/admin-pagos-panel/admin-pagos-panel.component';
+import { ConfirmDialogComponent } from '../../appointments/components/confirm-dialog/confirm-dialog.component';
 
 type AdminTab = 'organizaciones' | 'pagos';
 
@@ -29,7 +30,8 @@ const PLAN_LABELS: Record<PlanType, string> = {
     AdminOrganizationPlanDialogComponent,
     AdminOrganizationModulesDialogComponent,
     AdminOrganizationUsersDialogComponent,
-    AdminPagosPanelComponent
+    AdminPagosPanelComponent,
+    ConfirmDialogComponent
   ],
   templateUrl: './admin-view.component.html',
   styleUrls: ['./admin-view.component.scss']
@@ -39,6 +41,7 @@ export class AdminViewComponent implements OnInit, OnDestroy {
 
   organizations: OrganizationAdminDTO[] = [];
   isTogglingActive = false;
+  pendingToggleOrg: OrganizationAdminDTO | null = null;
 
   showPlanDialog = false;
   editingOrgForPlan: OrganizationAdminDTO | null = null;
@@ -107,8 +110,23 @@ export class AdminViewComponent implements OnInit, OnDestroy {
     }
   }
 
-  toggleOrgActive(org: OrganizationAdminDTO): void {
+  requestToggleOrgActive(org: OrganizationAdminDTO): void {
     if (this.isTogglingActive) return;
+    this.pendingToggleOrg = org;
+  }
+
+  cancelToggleOrgActive(): void {
+    if (this.isTogglingActive) return;
+    this.pendingToggleOrg = null;
+  }
+
+  onToggleOrgActiveOpenChange(open: boolean): void {
+    if (!open) this.cancelToggleOrgActive();
+  }
+
+  confirmToggleOrgActive(): void {
+    const org = this.pendingToggleOrg;
+    if (!org || this.isTogglingActive) return;
     this.isTogglingActive = true;
     this.adminService.toggleOrganizacionActiva(org.id)
       .pipe(finalize(() => { this.isTogglingActive = false; }))
@@ -118,11 +136,13 @@ export class AdminViewComponent implements OnInit, OnDestroy {
           this.notification.showSuccess(
             updated.activa ? 'Organización activada correctamente.' : 'Organización desactivada correctamente.'
           );
+          this.pendingToggleOrg = null;
           this.cdr.markForCheck();
         },
         error: (err: unknown) => {
           const message = this.errorHandler.getErrorMessage(err as any, 'cambiar el estado de la organización');
           if (!this.errorHandler.isNetworkError(err as any)) this.notification.showError(message);
+          this.pendingToggleOrg = null;
           this.cdr.markForCheck();
         }
       });
