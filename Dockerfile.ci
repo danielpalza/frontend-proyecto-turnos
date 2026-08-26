@@ -1,0 +1,12 @@
+# =============================================================================
+# Dockerfile de CI: NO corre `npm run build`, solo copia el dist/ que ya
+# genero el runner de GitHub Actions. El Dockerfile original queda intacto
+# para builds locales.
+# =============================================================================
+FROM nginx:alpine
+
+COPY dist/turnos-app/browser /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
