@@ -260,11 +260,11 @@ Módulo clínico `HISTORIA_CLINICA_FREE`, hermano de Odontograma: es el segundo 
 
 ## Admin (`features/admin`) — panel superadmin, nuevo 2026-08-09
 
-Cross-organización, exclusivo del rol `ADMIN` (no del sistema de capacidades) — ver [PERMISOS.md § 9](./PERMISOS.md#9-rol-admin--panel-superadmin-mecanismo-aparte) y [PAGES.md](./PAGES.md#panel-superadmin). De los cinco componentes (los cuatro originales del 2026-08-09 más `AdminPagosPanelComponent` de la pantalla de pagos, 2026-08-15), solo este último tiene spec unitario — ver [TESTING.md § 8](./TESTING.md#8-huecos-conocidos). Ninguno tiene cobertura E2E — ver [DEUDA_TECNICA.md](./DEUDA_TECNICA.md).
+Cross-organización, exclusivo del rol `ADMIN` (no del sistema de capacidades) — ver [PERMISOS.md § 9](./PERMISOS.md#9-rol-admin--panel-superadmin-mecanismo-aparte) y [PAGES.md](./PAGES.md#panel-superadmin). De los cinco componentes (los cuatro originales del 2026-08-09 más `AdminPagosPanelComponent` de la pantalla de pagos, 2026-08-15), los cinco tienen spec unitario desde el 2026-08-26 (55/55 en verde) — ver [TESTING.md § 8](./TESTING.md#8-huecos-conocidos). Cobertura E2E: la pestaña de Pagos está corrida desde el 2026-08-18; los specs de organizaciones/usuarios/módulos se escribieron el 2026-08-26 pero todavía no se corrieron de punta a punta contra un backend real en este entorno — ver [DEUDA_TECNICA.md](./DEUDA_TECNICA.md).
 
 ### `AdminViewComponent` (`app-admin-view`)
 - **Archivo**: [`features/admin/admin-view/admin-view.component.ts`](../src/app/features/admin/admin-view/admin-view.component.ts)
-- **Propósito**: contenedor de ruta (`/admin`). Carga y lista **todas** las organizaciones (`AdminService.listarOrganizaciones()`, sin paginar — lista plana con scroll) con nombre, slug, país, estado activo/inactivo, resumen de plan, y tres chips de conteo (usuarios/pacientes/turnos). Por fila: activar/desactivar (dispara el `PATCH` directo, sin confirmación), y tres botones que abren cada uno de los diálogos hijos.
+- **Propósito**: contenedor de ruta (`/admin`). Carga y lista **todas** las organizaciones (`AdminService.listarOrganizaciones()`, sin paginar — lista plana con scroll) con nombre, slug, país, estado activo/inactivo, resumen de plan, y tres chips de conteo (usuarios/pacientes/turnos). Por fila: activar/desactivar (pide confirmación vía `ConfirmDialogComponent` desde el 2026-08-26, el `PATCH` real solo se dispara al confirmar), y tres botones que abren cada uno de los diálogos hijos.
 - **Inputs/Outputs**: ninguno (contenedor enrutado).
 - **Servicios que usa**: `AdminService`, `NotificationService`.
 - **Renderiza**: `AdminOrganizationPlanDialogComponent`, `AdminOrganizationModulesDialogComponent`, `AdminOrganizationUsersDialogComponent` — los tres montados como hermanos, alternados por flags booleanos (`*ngIf`), no ruteados.
@@ -282,7 +282,7 @@ Cross-organización, exclusivo del rol `ADMIN` (no del sistema de capacidades) �
 - **Propósito**: contenido de la pestaña "Pagos" de `/admin`. Tabla cross-organización con plan, importe, período, vencimiento y estado de cobro; permite confirmar el pago de un período al recibir la transferencia (con `ConfirmDialogComponent` de por medio) y desplegar el historial de cada clínica on demand.
 - **Inputs/Outputs**: ninguno — se autoabastece vía `AdminService`.
 - **Dónde aparece**: `AdminViewComponent`, pestaña "Pagos".
-- **Tests**: `admin-pagos-panel.component.spec.ts` (7 casos).
+- **Tests**: `admin-pagos-panel.component.spec.ts` (16 casos).
 
 ### `AdminOrganizationModulesDialogComponent` (`app-admin-organization-modules-dialog`)
 - **Archivo**: [`features/admin/components/admin-organization-modules-dialog/admin-organization-modules-dialog.component.ts`](../src/app/features/admin/components/admin-organization-modules-dialog/admin-organization-modules-dialog.component.ts)
@@ -293,7 +293,7 @@ Cross-organización, exclusivo del rol `ADMIN` (no del sistema de capacidades) �
 
 ### `AdminOrganizationUsersDialogComponent` (`app-admin-organization-users-dialog`)
 - **Archivo**: [`features/admin/components/admin-organization-users-dialog/admin-organization-users-dialog.component.ts`](../src/app/features/admin/components/admin-organization-users-dialog/admin-organization-users-dialog.component.ts)
-- **Propósito**: a diferencia de los otros dos diálogos (puramente presentacionales, emiten y dejan que el padre llame al backend), **este hace sus propias llamadas HTTP**: al abrirse carga los usuarios de la organización (`AdminService.listarUsuarios`), y cada fila tiene un `<select>` de rol (`ADMIN_ROLE_OPTIONS`: Dueño/Superadmin/Usuario) que hace `PUT` inmediato en `change`, y un botón de activar/desactivar que hace `PATCH` inmediato — ninguno de los dos con confirmación previa. Si el `PUT` de rol falla, revierte el `<select>` al valor anterior a mano. Sin guard del lado del cliente contra apuntarse a uno mismo — confía enteramente en `AdminGuard` del backend y muestra el mensaje de error que devuelva.
+- **Propósito**: a diferencia de los otros dos diálogos (puramente presentacionales, emiten y dejan que el padre llame al backend), **este hace sus propias llamadas HTTP**: al abrirse carga los usuarios de la organización (`AdminService.listarUsuarios`, vía un `Subject<string> + switchMap` desde el 2026-08-26 — cambiar de organización rápido ya no pisa la lista con datos de la anterior), y cada fila tiene un `<select>` de rol (`ADMIN_ROLE_OPTIONS`: Dueño/Superadmin/Usuario) y un botón de activar/desactivar, ambos con confirmación previa vía `ConfirmDialogComponent` desde el 2026-08-26 (antes disparaban `PUT`/`PATCH` de inmediato). Si el `PUT` de rol se cancela o falla, revierte el `<select>` al valor anterior a mano. Sin guard del lado del cliente contra apuntarse a uno mismo — confía enteramente en `AdminGuard` del backend y muestra el mensaje de error que devuelva.
 - **Inputs**: `open`, `organization`.
 - **Outputs**: `openChange`.
 - **Dónde aparece**: `AdminViewComponent`.

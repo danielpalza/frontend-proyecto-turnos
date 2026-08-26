@@ -197,9 +197,8 @@ Una entrada por cada componente enrutado en [`app.routes.ts`](../src/app/app.rou
   - `GET /organizations/{orgId}/users`, `PATCH /organizations/{orgId}/users/{userId}/toggle-active`, `PUT /organizations/{orgId}/users/{userId}/role`
   - `GET /pagos` (estado de cobro de todas las clínicas), `GET /organizations/{orgId}/pagos` (historial, on demand al desplegar), `PUT /organizations/{orgId}/pagos/{periodoPagoId}/confirmar`
 - El estado de pago que muestra la pestaña viene **derivado de las fechas** en el backend, no del crudo de la fila: el ciclo avanza de forma perezosa, así que una clínica sin actividad puede figurar `PENDIENTE` estando vencida hace meses.
-- **Confirmar un pago sí pide confirmación** (`ConfirmDialogComponent`), a diferencia del resto del panel — ver el punto siguiente.
-- **Sin confirmación en las otras acciones destructivas**: desactivar una organización, desactivar un usuario o cambiarle el rol dispara el `PATCH`/`PUT` **de inmediato** al hacer click/`change`. La única protección contra un error es del lado del backend (`AdminGuard`: no autodesactivarse, no dejar el sistema sin ningún `ADMIN` activo) — ver "Pendiente" abajo y [DEUDA_TECNICA.md](./DEUDA_TECNICA.md).
-- **Tests**: `admin-pagos-panel.component.spec.ts` cubre la pestaña de Pagos. Los otros cuatro componentes del panel siguen **sin specs** (los `data-testid` están puestos, listos para escribirlos).
+- **Todas las acciones destructivas piden confirmación** (`ConfirmDialogComponent`) desde el 2026-08-26: confirmar un pago, activar/desactivar una organización, activar/desactivar un usuario y cambiar su rol. La única protección adicional es del lado del backend (`AdminGuard`: no autodesactivarse, no dejar el sistema sin ningún `ADMIN` activo). Ver [DEUDA_TECNICA.md § 9.1](./DEUDA_TECNICA.md) (resuelto).
+- **Tests**: los cinco componentes del panel tienen spec (`admin-pagos-panel`, `admin-view`, y los tres diálogos de organización — 55/55 en verde en `features/admin/`). Cobertura E2E: la pestaña de Pagos está corrida y verificada desde el 2026-08-18; los specs de organizaciones/usuarios/módulos se escribieron el 2026-08-26 pero todavía no se corrieron de punta a punta contra un backend real en este entorno — ver [DEUDA_TECNICA.md § 9.2](./DEUDA_TECNICA.md).
 
 ## Pendiente de completar por el desarrollador
 
@@ -209,4 +208,4 @@ Una entrada por cada componente enrutado en [`app.routes.ts`](../src/app/app.rou
 - Los precios de los planes en la tabla `plans` son provisorios (demo): falta la definición comercial real.
 - La pestaña de Pagos **no permite revertir** un pago confirmado por error, ni registrar monto/fecha/nota reales de la transferencia (se toma el precio del período). Quedó fuera de alcance a propósito.
 - No hay página de "perfil de usuario" propio (cambiar contraseña, editar datos personales del usuario logueado) detectada en las rutas.
-- Agregar confirmación (`ConfirmDialogComponent`, ya usado en otras páginas) antes de desactivar una organización o un usuario, o cambiarle el rol, desde el panel superadmin — hoy esas acciones son inmediatas, sin paso intermedio.
+- ~~Agregar confirmación (`ConfirmDialogComponent`, ya usado en otras páginas) antes de desactivar una organización o un usuario, o cambiarle el rol, desde el panel superadmin.~~ **Resuelto (2026-08-26)**.
