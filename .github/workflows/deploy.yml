@@ -71,7 +71,7 @@ jobs:
         with:
           package-name: frontend-proyecto-turnos
           package-type: container
-          min-versions-to-keep: 3
+          min-versions-to-keep: 2
           delete-only-untagged-versions: false
 
       - name: Disparar deploy en Coolify
