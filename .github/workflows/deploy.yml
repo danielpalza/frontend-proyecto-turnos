@@ -70,14 +70,22 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Purgar versiones viejas de la imagen
+      # Mantiene el paquete privado bajo los 500 MB gratis del plan Free.
+      #
+      # delete-only-untagged-versions: true es OBLIGATORIO. En false esta accion borra
+      # tambien versiones ETIQUETADAS, y como cada push publica varias (el manifest de la
+      # imagen, el indice multi-arch y los attestations que agrega build-push-action@v6),
+      # un tope bajo termina borrando contenido que el tag `latest` todavia referencia.
+      # El sintoma es un tag colgado: `docker pull ...:latest` falla con
+      # "manifests/sha256:... not found" aunque el login a GHCR sea correcto.
+      - name: Purgar versiones huerfanas de la imagen
         uses: actions/delete-package-versions@v5
         continue-on-error: true
         with:
           package-name: frontend-proyecto-turnos
           package-type: container
-          min-versions-to-keep: 2
-          delete-only-untagged-versions: false
+          min-versions-to-keep: 10
+          delete-only-untagged-versions: true
 
       - name: Disparar deploy en Coolify
         run: |
