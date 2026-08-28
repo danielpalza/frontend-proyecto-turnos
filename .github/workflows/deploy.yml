@@ -81,5 +81,15 @@ jobs:
 
       - name: Disparar deploy en Coolify
         run: |
-          curl -fsS -X GET "${{ secrets.COOLIFY_WEBHOOK_URL }}" \
-               -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
+          # Sin -f: queremos VER el cuerpo de la respuesta cuando algo falla. Coolify explica
+          # el motivo ahi (uuid inexistente, token sin permiso Deploy, metodo incorrecto).
+          codigo=$(curl -sS -o /tmp/coolify.txt -w '%{http_code}' -X GET \
+            "${{ secrets.COOLIFY_WEBHOOK_URL }}" \
+            -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}")
+          echo "HTTP $codigo"
+          cat /tmp/coolify.txt; echo
+          if [ "$codigo" -lt 200 ] || [ "$codigo" -ge 300 ]; then
+            echo "::error::Coolify respondio $codigo. 405 = la URL no es /api/v1/deploy;" \
+                 "401 = token invalido; 404 = uuid incorrecto."
+            exit 1
+          fi
