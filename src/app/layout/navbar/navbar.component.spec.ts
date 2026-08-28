@@ -13,6 +13,7 @@ function makeMocks(overrides: { hasCapability?: (c: string) => boolean; clinical
   return {
     auth: {
       hasCapability: vi.fn(overrides.hasCapability ?? (() => true)),
+      hasRole: vi.fn(() => false),
       getCurrentUser: vi.fn(() => ({ organizationNombre: 'Clínica X', nombre: 'Ana', apellido: 'García' })),
       logout: vi.fn()
     },

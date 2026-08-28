@@ -5,11 +5,19 @@ import { AuthService } from '../services/auth.service';
 import { Capability } from '../auth/capabilities';
 
 describe('authGuard', () => {
-  let authService: { isAuthenticated: ReturnType<typeof vi.fn>; hasCapability: ReturnType<typeof vi.fn> };
+  let authService: {
+    isAuthenticated: ReturnType<typeof vi.fn>;
+    hasCapability: ReturnType<typeof vi.fn>;
+    hasRole: ReturnType<typeof vi.fn>;
+  };
   let router: { navigate: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
-    authService = { isAuthenticated: vi.fn(() => true), hasCapability: vi.fn(() => true) };
+    authService = {
+      isAuthenticated: vi.fn(() => true),
+      hasCapability: vi.fn(() => true),
+      hasRole: vi.fn(() => false)
+    };
     router = { navigate: vi.fn() };
     TestBed.configureTestingModule({
       providers: [
@@ -47,10 +55,18 @@ describe('authGuard', () => {
 });
 
 describe('homeRedirect', () => {
-  let authService: { isAuthenticated: ReturnType<typeof vi.fn>; hasCapability: ReturnType<typeof vi.fn> };
+  let authService: {
+    isAuthenticated: ReturnType<typeof vi.fn>;
+    hasCapability: ReturnType<typeof vi.fn>;
+    hasRole: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
-    authService = { isAuthenticated: vi.fn(() => true), hasCapability: vi.fn(() => false) };
+    authService = {
+      isAuthenticated: vi.fn(() => true),
+      hasCapability: vi.fn(() => false),
+      hasRole: vi.fn(() => false)
+    };
     TestBed.configureTestingModule({
       providers: [{ provide: AuthService, useValue: authService }]
     });

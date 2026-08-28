@@ -66,11 +66,16 @@ describe('httpErrorInterceptor', () => {
     expect(router.navigate).not.toHaveBeenCalled();
   });
 
-  it('403 sin requiredCapability en el body: fallback conservador, fuerza logout igual', () => {
+  it('403 sin requiredCapability en el body: avisa sin cerrar la sesión', () => {
+    // Sin ese campo no hay capacidad desactualizada: es una baranda de rol o de módulo, no una
+    // sesión vencida. Cerrar sesión ahí expulsaba a quien pisaba el panel superadmin.
     fireRequest('/api/turnos', 403, {})();
 
-    expect(authService.logout).toHaveBeenCalled();
-    expect(router.navigate).toHaveBeenCalledWith(['/login']);
+    expect(notification.showError).toHaveBeenCalledWith(
+      'No tenés permiso para realizar esta acción'
+    );
+    expect(authService.logout).not.toHaveBeenCalled();
+    expect(router.navigate).not.toHaveBeenCalled();
   });
 
   it('403 en un endpoint /auth/*: pasa de largo, sin logout ni notificación', () => {

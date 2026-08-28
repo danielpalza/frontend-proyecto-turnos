@@ -4,14 +4,17 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { LoginComponent } from './login.component';
 import { AuthService } from '../../../core/services/auth.service';
+import { Capability } from '../../../core/auth/capabilities';
 import { NotificationService } from '../../../core/services/notification.service';
 import { RegisterRequest } from '../../../core/models/auth.model';
 
 function makeMocks(overrides: { isAuthenticated?: boolean } = {}) {
   return {
-    router: { navigate: vi.fn() },
+    router: { navigate: vi.fn(), navigateByUrl: vi.fn() },
     auth: {
       isAuthenticated: vi.fn(() => overrides.isAuthenticated ?? false),
+      hasRole: vi.fn(() => false),
+      hasCapability: vi.fn((c: string) => c === Capability.TURNOS_VIEW),
       login: vi.fn(() => of({ token: 't' })),
       register: vi.fn((_req: RegisterRequest) => of({ message: 'Registro exitoso' })),
       forgotPassword: vi.fn(() => of({ message: 'Te enviamos un email' })),
@@ -36,14 +39,14 @@ describe('LoginComponent', () => {
     const mocks = makeMocks({ isAuthenticated: true });
     await renderLogin(mocks);
 
-    expect(mocks.router.navigate).toHaveBeenCalledWith(['/turnos']);
+    expect(mocks.router.navigateByUrl).toHaveBeenCalledWith('/turnos');
   });
 
   it('sin sesión, no redirige', async () => {
     const mocks = makeMocks({ isAuthenticated: false });
     await renderLogin(mocks);
 
-    expect(mocks.router.navigate).not.toHaveBeenCalled();
+    expect(mocks.router.navigateByUrl).not.toHaveBeenCalled();
   });
 
   describe('onLogin', () => {
@@ -75,7 +78,7 @@ describe('LoginComponent', () => {
 
       fixture.componentInstance.onLogin();
 
-      expect(mocks.router.navigate).toHaveBeenCalledWith(['/turnos']);
+      expect(mocks.router.navigateByUrl).toHaveBeenCalledWith('/turnos');
     });
 
     it('error con mensaje que menciona "verificar" (case-insensitive): activa emailNotVerified y NO dispara toast', async () => {
