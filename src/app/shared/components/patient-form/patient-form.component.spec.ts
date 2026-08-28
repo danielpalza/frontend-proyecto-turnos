@@ -4,6 +4,7 @@ import { of, throwError } from 'rxjs';
 import { PatientFormComponent, getPatientFormConfig, COBERTURA_PARTICULAR } from './patient-form.component';
 import { CoberturasService } from '../../../features/coberturas/coberturas.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { createAuthServiceMock } from '../../../../testing/auth-service.mock';
 
 function buildForm() {
   return new FormBuilder().group(getPatientFormConfig(new FormBuilder()));
@@ -14,9 +15,9 @@ function makeMocks(overrides: { coberturas?: unknown[]; organizationPais?: strin
     coberturasService: {
       listar: vi.fn(() => of(overrides.coberturas ?? []))
     },
-    authService: {
+    authService: createAuthServiceMock({
       getCurrentUser: vi.fn(() => ({ organizationPais: overrides.organizationPais ?? 'AR' }))
-    }
+    })
   };
 }
 

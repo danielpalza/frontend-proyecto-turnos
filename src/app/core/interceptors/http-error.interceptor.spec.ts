@@ -7,17 +7,19 @@ import { skipGlobalErrorHandler } from './http-context';
 import { AuthService } from '../services/auth.service';
 import { ErrorHandlerService } from '../services/error-handler.service';
 import { NotificationService } from '../services/notification.service';
+import { createAuthServiceMock } from '../../../testing/auth-service.mock';
+import type { Mocked } from 'vitest';
 
 describe('httpErrorInterceptor', () => {
   let httpClient: HttpClient;
   let httpMock: HttpTestingController;
-  let authService: { hasCapability: ReturnType<typeof vi.fn>; logout: ReturnType<typeof vi.fn> };
+  let authService: Mocked<AuthService>;
   let router: { navigate: ReturnType<typeof vi.fn> };
   let errorHandler: { getErrorMessage: ReturnType<typeof vi.fn>; isNetworkError: ReturnType<typeof vi.fn> };
   let notification: { showError: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
-    authService = { hasCapability: vi.fn(() => false), logout: vi.fn() };
+    authService = createAuthServiceMock({ hasCapability: vi.fn(() => false), logout: vi.fn() });
     router = { navigate: vi.fn() };
     errorHandler = { getErrorMessage: vi.fn(() => 'mensaje'), isNetworkError: vi.fn(() => false) };
     notification = { showError: vi.fn() };

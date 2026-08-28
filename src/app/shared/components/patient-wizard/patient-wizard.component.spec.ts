@@ -6,6 +6,7 @@ import { getPatientFormConfig } from '../patient-form/patient-form.component';
 import { CoberturasService } from '../../../features/coberturas/coberturas.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ReviewField } from './patient-wizard.config';
+import { createAuthServiceMock } from '../../../../testing/auth-service.mock';
 
 function buildWizardForm() {
   const fb = new FormBuilder();
@@ -41,7 +42,7 @@ async function renderWizard(overrides: { includeAppointmentStep?: boolean; form?
     inputs: { form, includeAppointmentStep: overrides.includeAppointmentStep ?? false },
     providers: [
       { provide: CoberturasService, useValue: { listar: vi.fn(() => of([])) } },
-      { provide: AuthService, useValue: { getCurrentUser: vi.fn(() => ({ organizationPais: 'AR' })) } }
+      { provide: AuthService, useValue: createAuthServiceMock({ getCurrentUser: vi.fn(() => ({ organizationPais: 'AR' })) }) }
     ]
   });
   return { ...result, form };
@@ -263,7 +264,7 @@ describe('PatientWizardComponent', () => {
       on: { patientSelect, clearPatient },
       providers: [
         { provide: CoberturasService, useValue: { listar: vi.fn(() => of([])) } },
-        { provide: AuthService, useValue: { getCurrentUser: vi.fn(() => ({ organizationPais: 'AR' })) } }
+        { provide: AuthService, useValue: createAuthServiceMock({ getCurrentUser: vi.fn(() => ({ organizationPais: 'AR' })) }) }
       ]
     });
 

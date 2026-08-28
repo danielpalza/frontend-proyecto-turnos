@@ -3,14 +3,15 @@ import { ProfesionalDialogComponent } from './profesional-dialog.component';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Profesional } from '../../../../core/models';
 import { Capability, MODULE_PRESETS } from '../../../../core/auth/capabilities';
+import { createAuthServiceMock } from '../../../../../testing/auth-service.mock';
 
 function makeMocks(overrides: { hasRole?: boolean; grantedModules?: string[]; hasCapability?: boolean } = {}) {
   return {
-    authService: {
+    authService: createAuthServiceMock({
       hasCapability: vi.fn(() => overrides.hasCapability ?? true),
       hasRole: vi.fn(() => overrides.hasRole ?? false),
       grantedModules: vi.fn(() => overrides.grantedModules ?? [])
-    }
+    })
   };
 }
 

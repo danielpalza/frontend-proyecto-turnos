@@ -8,11 +8,12 @@ import { NotificationService } from './notification.service';
 import { ErrorHandlerService } from './error-handler.service';
 import { API_CONFIG } from './api.config';
 import { Patient } from '../models';
+import { createAuthServiceMock } from '../../../testing/auth-service.mock';
 
 const apiUrl = `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.patients}`;
 
 function makeAuthMock() {
-  return { currentUser$: new Subject<unknown>(), loggedOut$: new Subject<void>() };
+  return createAuthServiceMock({ currentUser$: new Subject<unknown>(), loggedOut$: new Subject<void>() });
 }
 
 describe('PatientService', () => {

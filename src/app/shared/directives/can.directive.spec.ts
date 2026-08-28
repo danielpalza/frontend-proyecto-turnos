@@ -3,12 +3,13 @@ import { Subject } from 'rxjs';
 import { CanDirective, CanShowDirective } from './can.directive';
 import { AuthService } from '../../core/services/auth.service';
 import { capabilityDeniedMessage } from '../../core/auth/capabilities';
+import { createAuthServiceMock } from '../../../testing/auth-service.mock';
 
 function mockAuth(initialAllowed: boolean) {
-  return {
+  return createAuthServiceMock({
     currentUser$: new Subject<unknown>(),
     hasCapability: vi.fn(() => initialAllowed)
-  };
+  });
 }
 
 describe('CanDirective', () => {

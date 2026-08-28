@@ -9,15 +9,16 @@ import { ErrorHandlerService } from './error-handler.service';
 import { API_CONFIG } from './api.config';
 import { Capability } from '../auth/capabilities';
 import { Profesional } from '../models';
+import { createAuthServiceMock } from '../../../testing/auth-service.mock';
 
 const apiUrl = `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.profesionales}`;
 
 function makeAuthMock(hasCapability = false) {
-  return {
+  return createAuthServiceMock({
     currentUser$: new Subject<unknown>(),
     loggedOut$: new Subject<void>(),
     hasCapability: vi.fn(() => hasCapability)
-  };
+  });
 }
 
 describe('ProfesionalService', () => {

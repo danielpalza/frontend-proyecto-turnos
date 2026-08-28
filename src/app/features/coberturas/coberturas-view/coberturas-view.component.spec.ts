@@ -8,6 +8,7 @@ import { ErrorHandlerService } from '../../../core/services/error-handler.servic
 import { CoberturasService } from '../coberturas.service';
 import { IntermediariosService } from '../intermediarios.service';
 import { Cobertura, Intermediario } from '../coberturas.models';
+import { createAuthServiceMock } from '../../../../testing/auth-service.mock';
 
 function cobertura(overrides: Partial<Cobertura> = {}): Cobertura {
   return {
@@ -26,14 +27,14 @@ function intermediario(overrides: Partial<Intermediario> = {}): Intermediario {
 
 function makeMocks(overrides: { organizationId?: string; organizationPais?: string } = {}) {
   return {
-    authService: {
+    authService: createAuthServiceMock({
       getCurrentUser: vi.fn(() => ({
         organizationId: overrides.organizationId ?? 'org1',
         organizationPais: overrides.organizationPais ?? 'AR'
       })),
       hasCapability: vi.fn(() => true),
       currentUser$: of({})
-    },
+    }),
     notification: { showSuccess: vi.fn(), showError: vi.fn() },
     errorHandler: { getErrorMessage: vi.fn((_e: unknown, ctx: string) => `Error al ${ctx}`) },
     coberturasService: {

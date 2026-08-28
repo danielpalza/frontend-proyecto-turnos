@@ -7,6 +7,7 @@ import { ErrorHandlerService } from '../../../../core/services/error-handler.ser
 import { CoberturasService } from '../../../coberturas/coberturas.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Patient } from '../../../../core/models';
+import { createAuthServiceMock } from '../../../../../testing/auth-service.mock';
 
 function patient(overrides: Partial<Patient> = {}): Patient {
   return {
@@ -27,7 +28,7 @@ function makeMocks() {
       isNetworkError: vi.fn(() => false)
     },
     coberturasService: { listar: vi.fn(() => of([])) },
-    authService: { getCurrentUser: vi.fn(() => ({ organizationPais: 'AR' })) }
+    authService: createAuthServiceMock({ getCurrentUser: vi.fn(() => ({ organizationPais: 'AR' })) })
   };
 }
 

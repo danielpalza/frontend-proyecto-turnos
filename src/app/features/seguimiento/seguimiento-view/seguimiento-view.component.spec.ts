@@ -14,6 +14,7 @@ import { PeriodontogramaService } from '../../../core/services/periodontograma.s
 import { ModuleRulesService } from '../../../core/services/module-rules.service';
 import { AppointmentsService } from '../../../core/services/appointments.service';
 import { Appointment, Patient, SeguimientoPatientGroup } from '../../../core/models';
+import { createAuthServiceMock } from '../../../../testing/auth-service.mock';
 
 function patient(overrides: Partial<Patient> = {}): Patient {
   return { id: 'p1', nombre: 'Ana', apellido: 'García', identificacion: '12345678', ...overrides } as Patient;
@@ -62,11 +63,11 @@ function makeMocks() {
       getErrorMessage: vi.fn((_e: unknown, ctx: string) => `Error al ${ctx}`),
       isNetworkError: vi.fn(() => false)
     },
-    authService: {
+    authService: createAuthServiceMock({
       hasCapability: vi.fn(() => true),
       currentUser$: of({}),
       getCurrentUser: vi.fn(() => ({ organizationPais: 'AR' }))
-    },
+    }),
     configurationService: { buildWhatsAppLink: vi.fn(() => 'https://wa.me/123') },
     coberturasService: { listar: vi.fn(() => of([])) },
     odontogramaService: { getByAppointment: vi.fn(() => of(null)) },

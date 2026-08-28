@@ -4,6 +4,11 @@ import { of } from 'rxjs';
 import { AppointmentListOverflowComponent } from './appointment-list-overflow.component';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Appointment } from '../../../../core/models';
+import { createAuthServiceMock } from '../../../../../testing/auth-service.mock';
+
+function authProvider() {
+  return { provide: AuthService, useValue: createAuthServiceMock({ hasCapability: vi.fn(() => true), currentUser$: of({}) }) };
+}
 
 class FakeResizeObserver {
   static instances: FakeResizeObserver[] = [];
@@ -23,9 +28,7 @@ function appt(overrides: Partial<Appointment> = {}): Appointment {
 async function renderList(appointments: Appointment[]) {
   return render(AppointmentListOverflowComponent, {
     inputs: { appointments, identificacion: '12345678' },
-    providers: [
-      { provide: AuthService, useValue: { hasCapability: vi.fn(() => true), currentUser$: of({}) } }
-    ]
+    providers: [authProvider()]
   });
 }
 
@@ -120,7 +123,7 @@ describe('AppointmentListOverflowComponent', () => {
       const { fixture } = await render(AppointmentListOverflowComponent, {
         inputs: { appointments: [a], identificacion: '12345678' },
         on: { appointmentClick },
-        providers: [{ provide: AuthService, useValue: { hasCapability: vi.fn(() => true), currentUser$: of({}) } }]
+        providers: [authProvider()]
       });
 
       fixture.componentInstance.emitPayments(a);
@@ -135,7 +138,7 @@ describe('AppointmentListOverflowComponent', () => {
       const { fixture } = await render(AppointmentListOverflowComponent, {
         inputs: { appointments: [a], identificacion: '12345678' },
         on: { clinicalClick },
-        providers: [{ provide: AuthService, useValue: { hasCapability: vi.fn(() => true), currentUser$: of({}) } }]
+        providers: [authProvider()]
       });
 
       fixture.componentInstance.emitClinical(a);

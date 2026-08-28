@@ -4,14 +4,16 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { authInterceptor } from './auth.interceptor';
 import { AuthService } from '../services/auth.service';
 import { API_CONFIG } from '../services/api.config';
+import { createAuthServiceMock } from '../../../testing/auth-service.mock';
+import type { Mocked } from 'vitest';
 
 describe('authInterceptor', () => {
   let httpClient: HttpClient;
   let httpMock: HttpTestingController;
-  let authService: { getToken: ReturnType<typeof vi.fn> };
+  let authService: Mocked<AuthService>;
 
   beforeEach(() => {
-    authService = { getToken: vi.fn(() => 'fake-token') };
+    authService = createAuthServiceMock({ getToken: vi.fn(() => 'fake-token') });
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(withInterceptors([authInterceptor])),

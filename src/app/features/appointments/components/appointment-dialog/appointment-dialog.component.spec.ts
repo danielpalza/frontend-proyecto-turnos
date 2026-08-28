@@ -6,13 +6,14 @@ import { ModuleRulesService } from '../../../../core/services/module-rules.servi
 import { CoberturasService } from '../../../coberturas/coberturas.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Patient } from '../../../../core/models';
+import { createAuthServiceMock } from '../../../../../testing/auth-service.mock';
 
 function makeMocks(overrides: { checkAvailability?: boolean } = {}) {
   return {
     appointmentsService: { checkAvailability: vi.fn(() => of(overrides.checkAvailability ?? true)) },
     moduleRulesService: { getClinicalModules: vi.fn(() => of([])) },
     coberturasService: { listar: vi.fn(() => of([])) },
-    authService: { getCurrentUser: vi.fn(() => ({ organizationPais: 'AR' })) }
+    authService: createAuthServiceMock({ getCurrentUser: vi.fn(() => ({ organizationPais: 'AR' })) })
   };
 }
 

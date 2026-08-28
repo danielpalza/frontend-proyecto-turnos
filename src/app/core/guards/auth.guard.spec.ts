@@ -1,23 +1,21 @@
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
+import type { Mocked } from 'vitest';
 import { authGuard, homeRedirect } from './auth.guard';
 import { AuthService } from '../services/auth.service';
 import { Capability } from '../auth/capabilities';
+import { createAuthServiceMock } from '../../../testing/auth-service.mock';
 
 describe('authGuard', () => {
-  let authService: {
-    isAuthenticated: ReturnType<typeof vi.fn>;
-    hasCapability: ReturnType<typeof vi.fn>;
-    hasRole: ReturnType<typeof vi.fn>;
-  };
+  let authService: Mocked<AuthService>;
   let router: { navigate: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
-    authService = {
+    authService = createAuthServiceMock({
       isAuthenticated: vi.fn(() => true),
       hasCapability: vi.fn(() => true),
       hasRole: vi.fn(() => false)
-    };
+    });
     router = { navigate: vi.fn() };
     TestBed.configureTestingModule({
       providers: [
@@ -55,18 +53,14 @@ describe('authGuard', () => {
 });
 
 describe('homeRedirect', () => {
-  let authService: {
-    isAuthenticated: ReturnType<typeof vi.fn>;
-    hasCapability: ReturnType<typeof vi.fn>;
-    hasRole: ReturnType<typeof vi.fn>;
-  };
+  let authService: Mocked<AuthService>;
 
   beforeEach(() => {
-    authService = {
+    authService = createAuthServiceMock({
       isAuthenticated: vi.fn(() => true),
       hasCapability: vi.fn(() => false),
       hasRole: vi.fn(() => false)
-    };
+    });
     TestBed.configureTestingModule({
       providers: [{ provide: AuthService, useValue: authService }]
     });

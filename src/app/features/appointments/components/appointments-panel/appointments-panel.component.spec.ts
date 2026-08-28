@@ -1,5 +1,5 @@
 import { render } from '@testing-library/angular';
-import { of, throwError } from 'rxjs';
+import { of, throwError, Subject } from 'rxjs';
 import { Router } from '@angular/router';
 import { AppointmentsPanelComponent } from './appointments-panel.component';
 import { AppointmentsService } from '../../../../core/services/appointments.service';
@@ -8,6 +8,7 @@ import { NotificationService } from '../../../../core/services/notification.serv
 import { ModuleRulesService } from '../../../../core/services/module-rules.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Appointment, Profesional, Patient } from '../../../../core/models';
+import { createAuthServiceMock } from '../../../../../testing/auth-service.mock';
 
 function makeMocks(overrides: { clinicalModules?: unknown[] } = {}) {
   return {
@@ -22,7 +23,7 @@ function makeMocks(overrides: { clinicalModules?: unknown[] } = {}) {
     notification: { showError: vi.fn(), showInfo: vi.fn(), showSuccess: vi.fn() },
     router: { navigate: vi.fn() },
     moduleRulesService: { getClinicalModules: vi.fn(() => of(overrides.clinicalModules ?? [])) },
-    authService: { hasCapability: vi.fn(() => true), currentUser$: of({}) }
+    authService: createAuthServiceMock({ hasCapability: vi.fn(() => true), currentUser$: of({}) })
   };
 }
 
@@ -264,12 +265,12 @@ describe('AppointmentsPanelComponent', () => {
 
     it('evita doble submit mientras hay uno en vuelo', async () => {
       const mocks = makeMocks();
+      mocks.appointmentsService.addPaymentWithFeedback.mockReturnValue(new Subject<Appointment>());
       const { fixture } = await renderPanel(mocks);
       fixture.componentInstance.updatePaymentInput('a1', 500);
-      mocks.appointmentsService.addPaymentWithFeedback.mockReturnValue(of({} as Appointment).pipe());
 
       fixture.componentInstance.onAddPayment('a1');
-      expect(fixture.componentInstance.isAddingPayment('a1')).toBe(false);
+      fixture.componentInstance.onAddPayment('a1');
 
       expect(mocks.appointmentsService.addPaymentWithFeedback).toHaveBeenCalledTimes(1);
     });

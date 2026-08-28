@@ -10,6 +10,7 @@ import { Appointment } from '../../../../core/models';
 import { OdontogramaResponse } from '../../../../core/models/odontograma.model';
 import { PeriodontogramaDienteDelta, PeriodontogramaResponse } from '../../../../core/models/periodontograma.model';
 import { ClinicalModuleRule } from '../../../../core/models/module-rules.model';
+import { createAuthServiceMock } from '../../../../../testing/auth-service.mock';
 
 function appt(overrides: Partial<Appointment> = {}): Appointment {
   return { id: 'a1', fecha: '2026-08-10', estado: 'PENDIENTE', ...overrides } as Appointment;
@@ -41,7 +42,7 @@ function makeMocks() {
     odontogramaService: { getByAppointment: vi.fn((_id: string) => of(odontograma())) },
     periodontogramaService: { getByAppointment: vi.fn((_id: string) => of(periodontograma())) },
     moduleRulesService: { getClinicalModules: vi.fn(() => of([] as ClinicalModuleRule[])) },
-    authService: { hasCapability: vi.fn(() => true), currentUser$: of({}) },
+    authService: createAuthServiceMock({ hasCapability: vi.fn(() => true), currentUser$: of({}) }),
     router: { navigate: vi.fn() }
   };
 }

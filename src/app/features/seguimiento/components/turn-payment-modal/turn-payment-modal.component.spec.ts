@@ -5,6 +5,7 @@ import { AppointmentsService } from '../../../../core/services/appointments.serv
 import { ConfigurationService } from '../../../../core/services/configuration.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Appointment, Patient } from '../../../../core/models';
+import { createAuthServiceMock } from '../../../../../testing/auth-service.mock';
 
 function appt(overrides: Partial<Appointment> = {}): Appointment {
   return { id: 'a1', fecha: '2026-08-10', estado: 'PENDIENTE', ...overrides } as Appointment;
@@ -17,7 +18,7 @@ function makeMocks() {
       updateWithFeedback: vi.fn((_id: string, _data: unknown, _msg: string, _ctx: string) => of(appt()))
     },
     whatsappConfig: { buildWhatsAppLink: vi.fn(() => 'https://wa.me/123') },
-    authService: { hasCapability: vi.fn(() => true), currentUser$: of({}) }
+    authService: createAuthServiceMock({ hasCapability: vi.fn(() => true), currentUser$: of({}) })
   };
 }
 

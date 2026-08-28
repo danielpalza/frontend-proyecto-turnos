@@ -8,6 +8,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { EMPTY_ANAMNESIS } from '../../../../core/utils/anamnesis.util';
 import { Capability } from '../../../../core/auth/capabilities';
 import { OdontogramaPagoDelta } from '../../../../core/models/odontograma.model';
+import { createAuthServiceMock } from '../../../../../testing/auth-service.mock';
 
 function makeMocks(overrides: { canCobrar?: boolean; snapshot?: Partial<Record<string, unknown>> } = {}) {
   const snapshot = {
@@ -26,10 +27,10 @@ function makeMocks(overrides: { canCobrar?: boolean; snapshot?: Partial<Record<s
       saveTurnoCompleto: vi.fn((_pago?: OdontogramaPagoDelta, _observacionesTurno?: string) => of(void 0))
     },
     notification: { showSuccess: vi.fn(), showError: vi.fn() },
-    authService: {
+    authService: createAuthServiceMock({
       hasCapability: vi.fn((c: string) => (overrides.canCobrar ?? true) && c === Capability.TURNOS_COBRAR),
       currentUser$: of({})
-    },
+    }),
     router: { navigate: vi.fn() }
   };
 }

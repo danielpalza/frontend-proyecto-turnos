@@ -8,6 +8,8 @@ import { NotificationService } from './notification.service';
 import { AuthService } from './auth.service';
 import { API_CONFIG } from './api.config';
 import { Appointment } from '../models';
+import { createAuthServiceMock } from '../../../testing/auth-service.mock';
+import type { Mocked } from 'vitest';
 
 const apiUrl = `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.appointments}`;
 
@@ -29,13 +31,13 @@ describe('AppointmentsService', () => {
   let httpMock: HttpTestingController;
   let notification: { showError: ReturnType<typeof vi.fn>; showSuccess: ReturnType<typeof vi.fn> };
   let errorHandler: { getErrorMessage: ReturnType<typeof vi.fn>; isNetworkError: ReturnType<typeof vi.fn> };
-  let auth: { loggedOut$: Subject<void> };
+  let auth: Mocked<AuthService>;
   let service: AppointmentsService;
 
   beforeEach(() => {
     notification = { showError: vi.fn(), showSuccess: vi.fn() };
     errorHandler = { getErrorMessage: vi.fn(() => 'mensaje'), isNetworkError: vi.fn(() => false) };
-    auth = { loggedOut$: new Subject<void>() };
+    auth = createAuthServiceMock({ loggedOut$: new Subject<void>() });
 
     TestBed.configureTestingModule({
       providers: [

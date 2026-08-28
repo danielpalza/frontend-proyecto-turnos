@@ -6,12 +6,13 @@ import { ConfigurationService } from './configuration.service';
 import { AuthService } from './auth.service';
 import { API_CONFIG } from './api.config';
 import { Configuration } from '../models';
+import { createAuthServiceMock } from '../../../testing/auth-service.mock';
 
 const apiUrl = `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.configuration}`;
 const DEFAULT_TEMPLATE = 'Hola {paciente}, te hablamos de la clinica, te recordamos tu turno del {fecha} a las {hora} con {profesional}.';
 
 function makeAuthMock() {
-  return { currentUser$: new Subject<unknown>(), loggedOut$: new Subject<void>() };
+  return createAuthServiceMock({ currentUser$: new Subject<unknown>(), loggedOut$: new Subject<void>() });
 }
 
 describe('ConfigurationService', () => {

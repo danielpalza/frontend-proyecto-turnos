@@ -12,6 +12,7 @@ import { ConfigurationService } from '../../../../core/services/configuration.se
 import { CoberturasService } from '../../../coberturas/coberturas.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Appointment, AppointmentCreateDTO, Patient, Profesional } from '../../../../core/models';
+import { createAuthServiceMock } from '../../../../../testing/auth-service.mock';
 
 function makeMocks() {
   return {
@@ -43,11 +44,11 @@ function makeMocks() {
       buildWhatsAppLink: vi.fn(() => 'https://wa.me/123')
     },
     coberturasService: { listar: vi.fn(() => of([])) },
-    authService: {
+    authService: createAuthServiceMock({
       getCurrentUser: vi.fn(() => ({ organizationPais: 'AR' })),
       hasCapability: vi.fn(() => true),
       currentUser$: of({ organizationPais: 'AR' })
-    },
+    }),
     router: { navigate: vi.fn() }
   };
 }

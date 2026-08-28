@@ -8,6 +8,7 @@ import { ProfesionalService } from '../../../core/services/profesional.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { InvitationService } from '../../../core/services/invitation.service';
 import { SubscriptionService } from '../../../core/services/subscription.service';
+import { createAuthServiceMock } from '../../../../testing/auth-service.mock';
 
 function makeMocks(overrides: { configPatch?: { mensajeWhatsapp?: string } | null } = {}) {
   return {
@@ -22,12 +23,12 @@ function makeMocks(overrides: { configPatch?: { mensajeWhatsapp?: string } | nul
       isNetworkError: vi.fn(() => false)
     },
     profesionalService: { getProfesionales: vi.fn(() => of([])) },
-    authService: {
+    authService: createAuthServiceMock({
       hasCapability: vi.fn(() => true),
       hasRole: vi.fn(() => false),
       grantedModules: vi.fn(() => [] as string[]),
       currentUser$: of({})
-    },
+    }),
     invitationService: { findAll: vi.fn(() => of([])) },
     // La vista renderiza <app-suscripcion-panel>, que inyecta SubscriptionService. Sin este mock
     // se instancia el real, que se suscribe a auth.loggedOut$ (ausente en el mock) y revienta.

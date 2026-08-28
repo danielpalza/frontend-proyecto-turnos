@@ -9,6 +9,7 @@ import { ErrorHandlerService } from '../../../../core/services/error-handler.ser
 import { InvitationService } from '../../../../core/services/invitation.service';
 import { Profesional, ProfesionalCreateDTO } from '../../../../core/models';
 import { Capability } from '../../../../core/auth/capabilities';
+import { createAuthServiceMock } from '../../../../../testing/auth-service.mock';
 
 function profesional(overrides: Partial<Profesional> = {}): Profesional {
   return { id: 'p1', nombre: 'Ana', apellido: 'García', activo: true, ...overrides } as Profesional;
@@ -26,12 +27,12 @@ function makeMocks(overrides: { capabilities?: string[] } = {}) {
       delete: vi.fn(() => of(void 0)),
       toggleActive: vi.fn(() => of(profesional()))
     },
-    authService: {
+    authService: createAuthServiceMock({
       hasCapability: vi.fn((c: string) => capabilities.has(c)),
       hasRole: vi.fn(() => false),
       grantedModules: vi.fn(() => [] as string[]),
       currentUser$: of({})
-    },
+    }),
     notification: { showSuccess: vi.fn(), showError: vi.fn() },
     errorHandler: {
       getErrorMessage: vi.fn((_e: unknown, ctx: string) => `Error al ${ctx}`),

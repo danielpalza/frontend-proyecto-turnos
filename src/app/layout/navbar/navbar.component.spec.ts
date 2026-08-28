@@ -8,15 +8,16 @@ import { ClinicalAttentionService, LastAttention } from '../../core/services/cli
 import { NotificationService } from '../../core/services/notification.service';
 import { ModuleRulesService } from '../../core/services/module-rules.service';
 import { Capability } from '../../core/auth/capabilities';
+import { createAuthServiceMock } from '../../../testing/auth-service.mock';
 
 function makeMocks(overrides: { hasCapability?: (c: string) => boolean; clinicalModules?: unknown[] } = {}) {
   return {
-    auth: {
+    auth: createAuthServiceMock({
       hasCapability: vi.fn(overrides.hasCapability ?? (() => true)),
       hasRole: vi.fn(() => false),
       getCurrentUser: vi.fn(() => ({ organizationNombre: 'Clínica X', nombre: 'Ana', apellido: 'García' })),
       logout: vi.fn()
-    },
+    }),
     clinicalAttention: { getLast: vi.fn((): LastAttention | null => null) },
     notification: { showInfo: vi.fn() },
     moduleRulesService: { getClinicalModules: vi.fn(() => of(overrides.clinicalModules ?? [])) }

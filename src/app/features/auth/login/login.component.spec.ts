@@ -7,11 +7,12 @@ import { AuthService } from '../../../core/services/auth.service';
 import { Capability } from '../../../core/auth/capabilities';
 import { NotificationService } from '../../../core/services/notification.service';
 import { RegisterRequest } from '../../../core/models/auth.model';
+import { createAuthServiceMock } from '../../../../testing/auth-service.mock';
 
 function makeMocks(overrides: { isAuthenticated?: boolean } = {}) {
   return {
     router: { navigate: vi.fn(), navigateByUrl: vi.fn() },
-    auth: {
+    auth: createAuthServiceMock({
       isAuthenticated: vi.fn(() => overrides.isAuthenticated ?? false),
       hasRole: vi.fn(() => false),
       hasCapability: vi.fn((c: string) => c === Capability.TURNOS_VIEW),
@@ -19,7 +20,7 @@ function makeMocks(overrides: { isAuthenticated?: boolean } = {}) {
       register: vi.fn((_req: RegisterRequest) => of({ message: 'Registro exitoso' })),
       forgotPassword: vi.fn(() => of({ message: 'Te enviamos un email' })),
       resendVerification: vi.fn(() => of({ message: 'Reenviado' }))
-    },
+    }),
     notification: { showError: vi.fn(), showSuccess: vi.fn(), showInfo: vi.fn() }
   };
 }

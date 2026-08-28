@@ -5,6 +5,7 @@ import { HistoriaClinicaStateService } from '../../services/historia-clinica-sta
 import { AuthService } from '../../../../core/services/auth.service';
 import { HistoriaClinicaDeltaRequest, HistoriaClinicaResponse } from '../../../../core/models/historia-clinica.model';
 import { Capability } from '../../../../core/auth/capabilities';
+import { createAuthServiceMock } from '../../../../../testing/auth-service.mock';
 
 function makeMocks(overrides: { editable?: boolean; capabilities?: string[] } = {}) {
   const capabilities = new Set(overrides.capabilities ?? [Capability.TURNOS_MANAGE, Capability.SEGUIMIENTO_PACIENTES]);
@@ -15,7 +16,7 @@ function makeMocks(overrides: { editable?: boolean; capabilities?: string[] } = 
       saveDraft: vi.fn((_delta: HistoriaClinicaDeltaRequest) => of({} as HistoriaClinicaResponse)),
       sign: vi.fn((_delta: HistoriaClinicaDeltaRequest) => of({} as HistoriaClinicaResponse))
     },
-    authService: { hasCapability: vi.fn((c: string) => capabilities.has(c)) }
+    authService: createAuthServiceMock({ hasCapability: vi.fn((c: string) => capabilities.has(c)) })
   };
 }
 
