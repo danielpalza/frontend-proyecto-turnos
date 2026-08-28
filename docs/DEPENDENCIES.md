@@ -52,6 +52,19 @@ Fuente: `package.json` (raíz del repo), contrastado contra usos reales en `src/
 
 `ng e2e` no está configurado (Angular CLI no trae runner e2e por defecto); ver la nota sobre `POMS/` y Playwright en [ARCHITECTURE.md](./ARCHITECTURE.md#testing-e2e-poms).
 
+## Infraestructura de despliegue (no-npm, nueva 2026-08-26/28)
+
+No son paquetes de `package.json`, pero desde esta ronda el repo depende de infraestructura de deploy
+que antes no existía — detalle completo en [ARCHITECTURE.md § CI/CD y
+despliegue](./ARCHITECTURE.md#cicd-y-despliegue):
+
+| Archivo | Para qué |
+|---|---|
+| `.github/workflows/deploy.yml` | Pipeline de GitHub Actions: test (`npm run test:coverage`) + build (`npm run build`) + imagen Docker (Buildx) + push a GHCR + purga de versiones huérfanas + webhook de deploy a Coolify. Reemplaza al `Jenkinsfile` como vía real de deploy a producción (el `Jenkinsfile` sigue existiendo, sin cambios, solo build + disparo del job E2E). |
+| `Dockerfile.ci` | Imagen `nginx:alpine` liviana que empaqueta el `dist/turnos-app/browser` ya compilado por el runner (no recompila Angular dentro del contenedor) + `nginx.conf`. |
+| `Dockerfile.ci.dockerignore` | `.dockerignore` específico de `Dockerfile.ci` (BuildKit lo prioriza sobre el general) — a diferencia del general, no ignora `dist/`. |
+| `nginx.conf` | Sirve la SPA (fallback a `index.html`), cachea assets con hash 1 año, gzip, y hace de **reverse proxy de `/api/`** hacia el contenedor `backend:8080` interno de Docker — es lo que le permite a `api.config.ts` usar una URL relativa en producción en vez de pegarle a un backend externo. |
+
 ## Pendiente de completar por el desarrollador
 
 - No se pudo determinar desde el código si `@angular/cdk` está pensado para algo específico (no tiene ningún import). Confirmar si es deuda técnica (dependencia sin usar) o si hay planes de usarlo (p. ej. `CdkOverlay` para los diálogos, que hoy están implementados a mano).

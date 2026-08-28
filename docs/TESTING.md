@@ -1,7 +1,27 @@
 # Testing — turnos-app (frontend)
 
-> **Estado al 2026-08-18 — 868 tests en 72 archivos `*.spec.ts`. Los mismos 15 de siempre siguen en
-> rojo** (ver el bloque de abajo, sin cambios — no se tocó ese hueco en esta ronda). Subieron desde
+> **Estado al 2026-08-28 — los 15 tests en rojo se arreglaron. 894 tests, 100 % en verde**, verificado
+> corriendo `npm run test:coverage` de punta a punta en este entorno (`Test Files: 75 passed (75)`,
+> `Tests: 894 passed (894)`). El fix es el commit `7ffedb7` ("fix tests", 2026-08-28), parte de la misma
+> ronda de trabajo que agregó el deploy a producción (ver [ARCHITECTURE.md § CI/CD y
+> despliegue](./ARCHITECTURE.md#cicd-y-despliegue)) — probablemente el pipeline nuevo de GitHub Actions
+> (que corre `npm run test:coverage` antes de cada deploy, algo que Jenkins nunca hizo) fue lo que hizo
+> visible el hueco y forzó a arreglarlo. El fix coincide exactamente con lo que este documento ya
+> recetaba en la entrada 2026-08-17/18 de abajo: se agregó `hasRole: vi.fn(() => false)` a los mocks
+> manuales de `authService` en `auth.guard.spec.ts` (+ el describe `homeRedirect`), `navbar.component.spec.ts`
+> y `login.component.spec.ts`, y se reescribió la aserción de `http-error.interceptor.spec.ts` (403 sin
+> `requiredCapability`: ahora espera `notification.showError` + **sin** logout/redirect, en vez del
+> logout forzado que el propio código dejó de hacer el 2026-08-09). De paso, `login.component.spec.ts`
+> también migró sus asserts de redirección de `router.navigate(['/turnos'])` a
+> `router.navigateByUrl('/turnos')`, siguiendo lo que ya hacía el componente.
+> Nota sobre el conteo de archivos: la cifra anterior (868 tests / 72 archivos) no cuadra con lo que hay
+> en el repo — `git ls-tree` confirma que ya había 75 archivos `*.spec.ts` en el commit de sync anterior
+> (`89c81af`, mismo árbol que HEAD, sin archivos agregados/quitados en el rango). La cifra de "72" ya
+> era imprecisa antes de esta ronda; no se investiga más a fondo acá porque el foco de esta actualización
+> es CI/CD/deploy y el hueco de los 15 rojos, no una auditoría completa de la suite.
+>
+> Estado previo (2026-08-18) — 868 tests en 72 archivos `*.spec.ts`. Los mismos 15 de siempre seguían en
+> rojo (ver el bloque de abajo, sin cambios en esa ronda — recién se arreglaron en la entrada de arriba). Subieron desde
 > 846 (2026-08-17) por tests nuevos de la pantalla de pagos del panel superadmin, para cerrar el hueco
 > que documentaba [DEUDA_TECNICA.md § 9.2](./DEUDA_TECNICA.md#92-casi-cero-cobertura-de-tests-en-ambos-niveles):
 > `admin.service.spec.ts` (+11, archivo nuevo — antes `AdminService` no tenía ningún test propio),
@@ -254,14 +274,14 @@ ejecutan una a la otra. Ver [ARCHITECTURE.md § Testing e2e](./ARCHITECTURE.md#t
 
 | Hueco | Por qué | Qué haría falta |
 |---|---|---|
-| **El Jenkinsfile no corre ningún test** | Se escribió cuando el repo no tenía target `test` ni specs (comentario explícito en el pipeline: *"el proyecto todavia no tiene target test configurado"*) — quedó desactualizado con esta ronda. | Agregar un stage `Test` con `npm test` (rápido, feedback en cada push) y decidir si `npm run test:coverage` corre siempre o solo en la rama principal (es más lento: recompila con instrumentación). |
+| **El Jenkinsfile no corre ningún test** | Se escribió cuando el repo no tenía target `test` ni specs (comentario explícito en el pipeline: *"el proyecto todavia no tiene target test configurado"*) — quedó desactualizado con esta ronda. **Sigue sin stage `Test` al 2026-08-28** — no cambió en la ronda de deploy (ver [ARCHITECTURE.md § CI/CD y despliegue](./ARCHITECTURE.md#cicd-y-despliegue)). Ojo: esto ya no significa que se pueda desplegar a producción sin correr tests — `.github/workflows/deploy.yml` (GitHub Actions, nuevo) sí corre `npm run test:coverage` antes de cada build/deploy; es Jenkins específicamente el que sigue sin testear. | Agregar un stage `Test` con `npm test` (rápido, feedback en cada push) y decidir si `npm run test:coverage` corre siempre o solo en la rama principal (es más lento: recompila con instrumentación). |
 | **El gate de cobertura sigue acotado a `coverageInclude` (70 archivos), no a `src/app/` completo** | Ver § 6 — es deliberado: los ~11 archivos fuera de alcance ([PLAN_DE_TESTING.md § 13](./PLAN_DE_TESTING.md#13-fuera-de-alcance)) son wrappers triviales ya bien cubiertos por E2E; forzarlos al gate no sumaría valor real. | Si alguno de esos archivos gana lógica propia en el futuro, sacarlo de "fuera de alcance", escribirle spec y sumarlo a `coverageInclude`. |
 | **4 bugs de producción documentados durante Fases 6-7 siguen sin arreglar** | Convención del proyecto: "fijar el comportamiento actual con un test, documentar, no arreglar en silencio" — arreglarlos es una decisión de producto/negocio, no algo que un test deba forzar. Ver [DEUDA_TECNICA.md](./DEUDA_TECNICA.md) §§ 6, 7 y 4.3 reescrita. | Priorizar y arreglar cada uno con su propio PR: (1) toast de `ProfesionalesPanelComponent` siempre dice "creado"; (2) `AppointmentListOverflowComponent.ngAfterViewInit()` puede tirar `TypeError` con lista filtrada vacía; (3) el mismo componente deja un nodo de menú huérfano en `document.body` si se destruye con el dropdown abierto; (4) `ConfiguracionesViewComponent.saveWhatsappTemplate()` no llama `markForCheck()` en su rama de éxito. |
 | **Sin ESLint** | El repo no tiene `.eslintrc`/`eslint.config.*` ni el paquete instalado (ver [DEPENDENCIES.md](./DEPENDENCIES.md)) — los specs nuevos no pasan por ningún lint, solo por el estilo de Prettier declarado en `package.json`. | Fuera de alcance de esta ronda; si se agrega ESLint al repo, sumar `eslint-plugin-testing-library` para reglas específicas de specs (evita antipatrones como `container.querySelector` en vez de `getByTestId`). |
 | **`ng-mocks` y MSW evaluados y descartados por ahora** | Ver § 2. | Reconsiderar si un componente con árbol de dependencias grande hace doloroso el mock manual, o si se quiere compartir mocks de HTTP con Storybook/desarrollo local (hoy no existe Storybook en el repo). |
 | **`@testing-library/angular` en un release muy reciente de Angular** | Se instaló `@testing-library/angular@^19.4.2` contra Angular `^21.0.0`; el peer range (`>= 21.0.0`) ya lo declara compatible y `npm install` no reportó conflictos, pero es una combinación con poco tiempo de rodaje en el ecosistema. | Ninguna acción — solo prestar atención a este punto si aparecen fallos de tipo raros al actualizar cualquiera de los dos paquetes. |
 | ~~`features/admin/` (panel superadmin, 2026-08-09) casi sin specs~~ — **Resuelto (2026-08-26)** | Los cinco componentes + service de la feature tienen spec: `admin-pagos-panel` (16 casos), `admin-view` (3), `admin.service` (11), y los tres diálogos que faltaban — `admin-organization-plan-dialog` (9), `-modules-dialog` (8), `-users-dialog` (9, incluida la carrera de § 9.3a de [DEUDA_TECNICA.md § 9](./DEUDA_TECNICA.md#9-panel-superadmin-featuresadmin--sin-confirmación-en-acciones-destructivas-sin-tests-2026-08-09)). 55/55 en verde corriendo `features/admin/` completo. | — |
-| **15 tests en rojo ahora mismo, en 4 archivos, sin relación con pagos** | Ver el detalle completo en el encabezado de este documento (entrada 2026-08-17). Dos causas distintas, las dos originadas el 2026-08-09 y nunca corregidas: (1) el mock manual de `authService` en `auth.guard.spec.ts`/`navbar.component.spec.ts`/`login.component.spec.ts` no declara `hasRole`, que `resolveHomeRouteForUser()` empezó a usar ese mismo día (14 casos); (2) `http-error.interceptor.spec.ts:69` quedó afirmando el comportamiento de logout forzado que el propio commit reescribió a propósito para que no pasara más (1 caso). | Agregar `hasRole: vi.fn(() => false)` a los tres mocks manuales de `authService`, y actualizar la aserción de `http-error.interceptor.spec.ts:72-73` para reflejar que un 403 sin `requiredCapability` ya no fuerza logout (cambiar el `expect` a `not.toHaveBeenCalled()`, igual que el caso de la línea 60 de al lado). |
+| ~~**15 tests en rojo ahora mismo, en 4 archivos, sin relación con pagos**~~ — **Resuelto (2026-08-28, commit `7ffedb7`)** | Ver el detalle completo en el encabezado de este documento (entrada 2026-08-17). Dos causas distintas, las dos originadas el 2026-08-09 y nunca corregidas: (1) el mock manual de `authService` en `auth.guard.spec.ts`/`navbar.component.spec.ts`/`login.component.spec.ts` no declara `hasRole`, que `resolveHomeRouteForUser()` empezó a usar ese mismo día (14 casos); (2) `http-error.interceptor.spec.ts:69` quedó afirmando el comportamiento de logout forzado que el propio commit reescribió a propósito para que no pasara más (1 caso). | Se aplicó exactamente el fix que esta fila recetaba: `hasRole: vi.fn(() => false)` en los tres mocks manuales, y la aserción de `http-error.interceptor.spec.ts` actualizada a `showError` + sin logout/redirect. Verificado con `npm run test:coverage`: 894/894 tests en verde, 75/75 archivos. |
 
 ## 9. Historial
 
@@ -300,13 +320,28 @@ ejecutan una a la otra. Ver [ARCHITECTURE.md § Testing e2e](./ARCHITECTURE.md#t
   (`screen.queryByText`/`queryByTestId`) — técnica que sí demostró ser confiable y quedó como el
   patrón recomendado para casos similares (ver § 4 de este documento y el historial en
   [PLAN_DE_TESTING.md § 15](./PLAN_DE_TESTING.md#15-historial) para el detalle completo por tier).
+- **2026-08-28** — Fix de los 15 tests en rojo (commit `7ffedb7`, "fix tests"), documentado desde la
+  entrada 2026-08-17. `hasRole: vi.fn(() => false)` agregado a los mocks manuales de `authService` en
+  `auth.guard.spec.ts` (guard + `homeRedirect`), `navbar.component.spec.ts` y
+  `login.component.spec.ts`; `http-error.interceptor.spec.ts` actualizado para esperar
+  `notification.showError` sin logout/redirect en el 403 sin `requiredCapability`, en vez del logout
+  forzado que ya no ocurre en el código desde el 2026-08-09. `login.component.spec.ts` también migró
+  de `router.navigate(['/turnos'])` a `router.navigateByUrl('/turnos')`. Parte de la misma ronda que
+  agregó `.github/workflows/deploy.yml` (que corre `npm run test:coverage` antes de cada deploy — ver
+  [ARCHITECTURE.md § CI/CD y despliegue](./ARCHITECTURE.md#cicd-y-despliegue)). Verificado corriendo
+  `npm run test:coverage` de punta a punta: **894 tests, 75 archivos, 100 % en verde**, sin tests
+  nuevos rotos.
 
 ## Pendiente de completar por el desarrollador
 
-- **Agregar el stage `Test` al [Jenkinsfile](../Jenkinsfile)** — sigue siendo el principal pendiente:
+- ~~**Agregar el stage `Test` al [Jenkinsfile](../Jenkinsfile)** — sigue siendo el principal pendiente:
   hoy el pipeline solo hace `npm ci` + `npm run build`, sin ejecutar ningún test (§ 8). Ya no hay
   excusa de "no hay specs" — con 839 tests y un gate de cobertura funcionando localmente, este es el
-  hueco de mayor impacto que queda abierto.
+  hueco de mayor impacto que queda abierto.~~ — **Parcialmente resuelto (2026-08-28)**: el Jenkinsfile
+  en sí sigue sin stage `Test`, pero ya no es la única vía de CI del repo — `.github/workflows/deploy.yml`
+  (GitHub Actions) corre `npm run test:coverage` antes de cada build/deploy a producción, así que el
+  riesgo real ("se puede desplegar sin correr tests") está cerrado. Sigue quedando pendiente sumarle el
+  stage a Jenkins si se lo quiere mantener como pipeline de feedback rápido por push.
 - Arreglar (o decidir explícitamente no arreglar todavía) los 4 bugs de producción documentados en
   [DEUDA_TECNICA.md](./DEUDA_TECNICA.md) §§ 6, 7 y 4.3 — ver § 8 de este documento para el resumen y
   el detalle de cada uno.

@@ -24,7 +24,7 @@ No hay archivos `environment.ts`/`environment.prod.ts` de Angular. La URL base d
 const isProduction = window.location.hostname !== 'localhost';
 export const API_CONFIG = {
   baseUrl: isProduction
-    ? 'https://backend-turnos-jg3n.onrender.com/api'
+    ? '/api'
     : 'http://localhost:8080/api',
   endpoints: { patients: '/patients', profesionales: '/profesionales', appointments: '/appointments',
     auth: '/auth', configuration: '/configuration', coberturas: '/coberturas',
@@ -32,7 +32,70 @@ export const API_CONFIG = {
 };
 ```
 
+**Cambió el 2026-08-28** (commit `39908f4`, dentro de la migración de deploy — ver "CI/CD y despliegue"
+más abajo): antes `baseUrl` en producción apuntaba a un backend externo en Render
+(`https://backend-turnos-jg3n.onrender.com/api`). Ahora es una ruta **relativa** (`/api`) porque en
+producción el navegador ya no le habla directo al backend: le pega a `/api/*` en el mismo origen que
+sirve la SPA, y es `nginx.conf` (mismo contenedor, ver más abajo) el que hace de reverse proxy hacia el
+contenedor `backend` por la red interna de Docker. Mismo origen ⇒ sin CORS y sin exponer el backend a
+internet (el backend no publica puertos, solo el frontend tiene dominio público — confirmado en
+`bakend-proyecto-turnos/deploy/docker-compose.coolify.yml`, `SERVICE_FQDN_FRONTEND_80`). En dev
+(`localhost`) no cambió nada: sigue pegándole directo a `http://localhost:8080/api`.
+
 Todos los servicios HTTP (`core/services/*.ts` y los `*.service.ts` de `features/coberturas/`) construyen su URL a partir de `API_CONFIG.baseUrl + API_CONFIG.endpoints.<recurso>`.
+
+## CI/CD y despliegue
+
+Desde el 2026-08-26 al 2026-08-28 (commits `5295a6f` → `08989e5`) el repo pasó de no tener deploy
+automatizado a tener un pipeline real de build+test+deploy a producción. Conviven dos piezas de CI
+distintas, con roles que no se solapan del todo:
+
+- **`Jenkinsfile`** (raíz del repo, **sin cambios** en este rango de commits): pipeline liviano
+  `Checkout` → `Install` (`npm ci`) → `Build` (`npm run build`) → `Disparar E2E` (dispara el job
+  `frontend-proyecto-test` en Jenkins, solo en `main`). Sigue **sin stage de `Test`** — ver la nota al
+  pie de este documento y [TESTING.md § 8](./TESTING.md#8-huecos-conocidos). No construye imagen Docker
+  ni despliega nada: no se pudo confirmar desde el código si el webhook de Jenkins hacia este repo sigue
+  activo o quedó reemplazado en la práctica por GitHub Actions (eso vive en la configuración externa de
+  Jenkins, no en el repo).
+- **`.github/workflows/deploy.yml`** (GitHub Actions, **nuevo**): es la pieza que hoy efectivamente
+  construye y despliega a producción, en cada push a `main`/`master` (o manualmente,
+  `workflow_dispatch`). Sigue el mismo patrón que el workflow equivalente del backend
+  (`bakend-proyecto-turnos`), con una diferencia: **sí corre tests** antes del build. Pasos:
+  1. `npm ci` + `npm run test:coverage` (falla el job si algún test rompe o si no se cumple el gate de
+     cobertura del 75 % — ver [TESTING.md § 6](./TESTING.md#6-cobertura)).
+  2. `npm run build` → genera `dist/turnos-app/browser`.
+  3. Build de imagen Docker con **Buildx** (`docker/setup-buildx-action`) usando `Dockerfile.ci`, y push
+     a **GHCR** (`ghcr.io/${{ github.repository }}`, es decir `ghcr.io/danielpalza/frontend-proyecto-turnos`)
+     con tags `latest` + `sha` corto (`docker/metadata-action`).
+  4. Purga de versiones huérfanas del paquete en GHCR (`actions/delete-package-versions@v5`,
+     `delete-only-untagged-versions: true`, conserva las últimas 10) para no pasarse de los 500 MB
+     gratis del plan Free — el comentario en el workflow es explícito sobre por qué NO puede ser
+     `false` (borraría también versiones etiquetadas y dejaría el tag `latest` colgando).
+  5. `POST` al webhook de Coolify (`secrets.COOLIFY_WEBHOOK_URL` + `Authorization: Bearer
+     secrets.COOLIFY_TOKEN`) para disparar el deploy real; el step imprime el código HTTP y el cuerpo de
+     la respuesta y falla el job si no es 2xx.
+- **`Dockerfile.ci`** (nuevo, raíz del repo): **no compila Angular dentro de la imagen** — copia
+  `dist/turnos-app/browser` (ya generado por el runner en el paso 2 de arriba) sobre una imagen
+  `nginx:alpine`, junto con `nginx.conf`. El `Dockerfile` original (build completo dentro del contenedor)
+  queda intacto para uso local. `Dockerfile.ci.dockerignore` es el `.dockerignore` específico de este
+  archivo (BuildKit lo prioriza sobre `.dockerignore`): a diferencia del general, **no** ignora `dist/`,
+  porque acá sí necesita viajar en el contexto de build.
+- **`nginx.conf`** (nuevo, raíz del repo): sirve la SPA compilada (`try_files $uri $uri/ /index.html`
+  como fallback de rutas de Angular), cachea agresivo (`Cache-Control: public, immutable`, 1 año) los
+  assets con hash en el nombre pero **no** cachea `index.html` (`no-store, must-revalidate`, porque es lo
+  que apunta a los assets nuevos tras cada deploy), gzip para texto/JS/CSS/JSON/SVG/fuentes, cabeceras
+  `X-Content-Type-Options`/`X-Frame-Options`/`Referrer-Policy`, y — el punto central — hace de **reverse
+  proxy de `/api/`** hacia `http://backend:8080` (el contenedor del backend en la red interna de Docker
+  Compose, resuelto vía `resolver 127.0.0.11` para no morir si el backend todavía no levantó). Este
+  frontend es, en el `docker-compose.coolify.yml` del repo hermano, el **único** servicio con dominio
+  público (Traefik + Let's Encrypt vía la variable mágica `SERVICE_FQDN_FRONTEND_80` de Coolify); el
+  backend nunca queda expuesto a internet.
+
+**Conclusión sobre Jenkins vs. GitHub Actions**: el `Jenkinsfile` sigue vigente tal como está (build +
+disparo de E2E), pero **ya no es la vía de deploy a producción** — esa responsabilidad la tiene
+`.github/workflows/deploy.yml`. Son pipelines paralelos con objetivos distintos (Jenkins: feedback rápido
+de build + orquestar el E2E; GitHub Actions: build con gate de tests/cobertura + imagen Docker + deploy
+real a Coolify), no uno reemplazando literalmente al otro dentro del repo.
 
 ## Estructura de carpetas
 
@@ -126,5 +189,5 @@ La carpeta raíz `POMS/` contiene Page Object Models de Playwright (`login.page.
 ## Pendiente de completar por el desarrollador
 
 - No hay documentación en el código sobre el catálogo completo de roles (`AuthResponse.role`). Solo se verificó en código el uso de `'OWNER'` (`AuthService.hasRole('OWNER')`, usado en `ProfesionalesPanelComponent` para mostrar "Invitar usuario" y habilitar la creación de accesos). No se pudo determinar desde el frontend qué otros valores de `role` existen ni sus permisos — es información del backend.
-- El Jenkinsfile todavía no corre ningún test (`npm ci` + `npm run build` únicamente) pese a que la suite ya tiene 839 tests — ver [TESTING.md § 8](./TESTING.md#8-huecos-conocidos), es el hueco de mayor impacto que queda abierto.
+- ~~El Jenkinsfile todavía no corre ningún test (`npm ci` + `npm run build` únicamente) pese a que la suite ya tiene 839 tests — es el hueco de mayor impacto que queda abierto.~~ — **Parcialmente resuelto (2026-08-28)**: el `Jenkinsfile` en sí sigue sin stage `Test` (no cambió), pero desde `.github/workflows/deploy.yml` (ver "CI/CD y despliegue" arriba) **sí** corre `npm run test:coverage` antes de cada build/deploy a producción — el gap de "se puede desplegar sin correr tests" está cerrado en la práctica, aunque el pipeline de Jenkins específicamente siga sin testear. Ver [TESTING.md § 8](./TESTING.md#8-huecos-conocidos).
 - No hay `README`/config que explique la relación exacta entre este repo y `frontend-proyecto-tests` (dónde corre Playwright, cómo se referencian los Page Objects de `POMS/` desde el otro repo).
