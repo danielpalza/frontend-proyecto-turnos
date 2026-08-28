@@ -1,0 +1,10 @@
+# BuildKit usa <nombre-del-Dockerfile>.dockerignore si existe, y recien despues .dockerignore.
+# Este archivo aplica SOLO a Dockerfile.ci.
+#
+# Es identico al .dockerignore general salvo por una ausencia deliberada: NO ignora dist/.
+# El Dockerfile original compila adentro de la imagen, asi que alli mandar un dist local
+# seria contraproducente. Dockerfile.ci hace lo contrario: copia el dist que ya construyo
+# el runner, y necesita que este en el contexto de build.
+node_modules
+.angular
+.git
