@@ -179,6 +179,7 @@ export class ProfesionalesPanelComponent implements OnInit, OnDestroy {
         if (!this.errorHandler.isNetworkError(err as any)) {
           this.notification.showError(message);
         }
+        this.cdr.markForCheck();
       }
     });
   }

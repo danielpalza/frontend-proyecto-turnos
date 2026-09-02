@@ -2,7 +2,7 @@ name: Build & Deploy
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, test]
   workflow_dispatch:
 
 concurrency:
@@ -56,7 +56,8 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=latest
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' }}
+            type=raw,value=test,enable=${{ github.ref == 'refs/heads/test' }}
             type=sha,format=short
 
       - name: Build & push image
@@ -91,9 +92,21 @@ jobs:
         run: |
           # Sin -f: queremos VER el cuerpo de la respuesta cuando algo falla. Coolify explica
           # el motivo ahi (uuid inexistente, token sin permiso Deploy, metodo incorrecto).
+          if [ "${{ github.ref }}" = "refs/heads/test" ]; then
+            WEBHOOK="${{ secrets.COOLIFY_WEBHOOK_URL_TEST }}"
+            TOKEN="${{ secrets.COOLIFY_TOKEN_TEST }}"
+            TOKEN="${TOKEN:-${{ secrets.COOLIFY_TOKEN }}}"
+          else
+            WEBHOOK="${{ secrets.COOLIFY_WEBHOOK_URL }}"
+            TOKEN="${{ secrets.COOLIFY_TOKEN }}"
+          fi
+          if [ -z "$WEBHOOK" ] || [ -z "$TOKEN" ]; then
+            echo "::error::Falta webhook o token de Coolify para esta rama."
+            exit 1
+          fi
           codigo=$(curl -sS -o /tmp/coolify.txt -w '%{http_code}' -X POST \
-            "${{ secrets.COOLIFY_WEBHOOK_URL }}" \
-            -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}")
+            "$WEBHOOK" \
+            -H "Authorization: Bearer $TOKEN")
           echo "HTTP $codigo"
           cat /tmp/coolify.txt; echo
           if [ "$codigo" -lt 200 ] || [ "$codigo" -ge 300 ]; then

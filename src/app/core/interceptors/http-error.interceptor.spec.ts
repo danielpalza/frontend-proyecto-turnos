@@ -87,6 +87,13 @@ describe('httpErrorInterceptor', () => {
     expect(authService.logout).not.toHaveBeenCalled();
   });
 
+  it('403 con skipGlobalErrorHandler: no notifica ni cierra sesión', () => {
+    fireRequest('/api/turnos', 403, { requiredCapability: 'TURNOS:VIEW', message: 'Sin permiso' }, skipGlobalErrorHandler())();
+
+    expect(notification.showError).not.toHaveBeenCalled();
+    expect(authService.logout).not.toHaveBeenCalled();
+  });
+
   it('401 fuera de /auth/: logout + redirect a login', () => {
     fireRequest('/api/turnos', 401)();
 

@@ -217,24 +217,18 @@ describe('ProfesionalesPanelComponent', () => {
       expect(mocks.profesionalService.create).not.toHaveBeenCalled();
     });
 
-    it('DEUDA § 4.2 (sin resolver): el estado se actualiza correctamente, pero la rama error NO llama a cdr.markForCheck() (a diferencia de ngOnInit)', async () => {
+    it('error de guardado llama markForCheck para pintar el mensaje en zoneless', async () => {
       const mocks = makeMocks();
       mocks.profesionalService.create.mockReturnValue(throwError(() => ({ status: 409 })));
       const { fixture } = await renderPanel(mocks);
-      const cdr = fixture.debugElement.injector.get(ChangeDetectorRef);
+      const cdr = (fixture.componentInstance as unknown as { cdr: ChangeDetectorRef }).cdr;
       const markForCheckSpy = vi.spyOn(cdr, 'markForCheck');
 
       fixture.componentInstance.onSaveProfesional(dto);
 
-      // (1) El estado interno del componente SÍ se actualiza correctamente.
       expect(fixture.componentInstance.isSavingProfesional).toBe(false);
       expect(fixture.componentInstance.saveProfesionalError).toBe('Error al crear el profesional');
-
-      // (2) Pero, a diferencia de la suscripción de ngOnInit (que si llama markForCheck() en su
-      // rama next:), esta rama error: nunca se lo pide a Angular — es la causa raíz documentada en
-      // DEUDA_TECNICA.md § 4.2: sin ese aviso, una vista que no vuelva a chequearse por otro motivo
-      // se queda con el mensaje de error sin pintar en pantalla.
-      expect(markForCheckSpy).not.toHaveBeenCalled();
+      expect(markForCheckSpy).toHaveBeenCalled();
     });
   });
 

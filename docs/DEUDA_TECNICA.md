@@ -181,15 +181,11 @@ El agravante es que el patrón que UI_RULES documenta como canónico —`if (err
 que solo deja pasar los casos en que el interceptor sí notificó. Se lee como un guard y funciona como
 un amplificador.
 
-### 3.1 La rama de 403 ignora `skipGlobalErrorHandler`
+### 3.1 La rama de 403 ignora `skipGlobalErrorHandler` — RESUELTO (2026-08-29)
 
-[`http-error.interceptor.ts`](../src/app/core/interceptors/http-error.interceptor.ts) desvía el 403 a
-`handleCapabilityForbidden` y hace `return` **antes** de leer `SKIP_GLOBAL_ERROR_HANDLER`. Consecuencia:
-`skipGlobal` hoy no silencia los 403, y no hay forma de que un componente se haga cargo de ese caso.
-
-Es la deuda de mayor palanca de la sección: incluso los call sites que **sí** hacen lo correcto (los de
-§ 3.4) duplican ante un 403. Mover la lectura del contexto por encima del bloque de 403 arregla de una
-todos los sitios de § 3.2 *y* los 403 de los correctos.
+[`http-error.interceptor.ts`](../src/app/core/interceptors/http-error.interceptor.ts) lee
+`SKIP_GLOBAL_ERROR_HANDLER` **antes** de `handleCapabilityForbidden`. Con `skipGlobal` un 403 ya no
+dispara el toast global.
 
 ### 3.2 23 call sites duplican el toast del interceptor
 
@@ -280,7 +276,7 @@ aviso *anticipado* que la UI dice ofrecer estaba roto). Encontrado escribiendo T
 de cada mutación async de esos dos campos — las tres ramas del `switchMap` (sin profesional/fecha/hora,
 formato de hora inválido, inicio de la llamada) más el `subscribe` final (éxito y error).
 
-### 4.2 `ProfesionalesPanelComponent.onSaveProfesional()` — sin resolver
+### 4.2 `ProfesionalesPanelComponent.onSaveProfesional()` — RESUELTO (2026-08-29)
 
 Mismo patrón, esta vez en la rama `error:` de un `subscribe()`: cuando el guardado de un profesional
 falla (ej. matrícula duplicada, 409), `saveProfesionalError` se setea correctamente — confirmado en
@@ -294,11 +290,8 @@ llama `markForCheck()`, en la suscripción de `ngOnInit`) dispara un re-render q
 los cambios pendientes del propio diálogo — el camino de error no tiene ningún otro disparador cerca que
 lo salve por accidente.
 
-**No se arregló.** Cubierto por un test dedicado marcado `test.fail()` en vez de dejarlo fuera de la
-suite (`tests/configuraciones/profesionales.spec.ts` en `frontend-proyecto-tests`, *"PRO-008 (UI, bug
-conocido)"*): documenta el bug tal cual se comporta hoy — si algún día empieza a pasar solo, es señal de
-que se agregó el `markForCheck()` que falta, y hay que actualizar el test, no arreglarlo a ciegas. Mismo
-fix que 4.1: inyectar `ChangeDetectorRef` y llamar `markForCheck()` en la rama `error:`.
+**Resuelto:** `markForCheck()` en la rama `error:` de `onSaveProfesional`. El spec unitario ahora exige
+esa llamada.
 
 ### 4.3 Una tercera instancia, encontrada en la auditoría UT-070
 
@@ -340,12 +333,7 @@ A diferencia de § 4.1/4.2 (donde el mensaje de error simplemente nunca aparece)
 errático: puede aparecer a veces sí y a veces no, según qué más esté pasando en la página en ese momento
 — lo cual lo hace más difícil de notar/reportar que los otros dos casos.
 
-**No se arregló** — mismo criterio de toda esta lista: el spec
-(`configuraciones-view.component.spec.ts`) fija el comportamiento actual leyendo el estado del
-componente directamente, sin depender del DOM para esa aserción puntual.
-
-**Arreglo de raíz, cuando se priorice:** agregar `this.cdr.markForCheck()` en la rama `next:` de
-`saveWhatsappTemplate()` y dentro del callback del `setTimeout`, igual que ya hace `ngOnInit`.
+**Resuelto (2026-08-29):** `markForCheck()` en `next:`, en el `setTimeout` y en `error:`.
 
 **Revisados en la misma auditoría, sin poder confirmar si son bugs reales o no** (quedan para una
 próxima ronda, no vale la pena adivinar sin poder observar el DOM real bajo carga):

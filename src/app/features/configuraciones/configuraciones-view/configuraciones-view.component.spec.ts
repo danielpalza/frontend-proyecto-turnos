@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/angular';
+import { render } from '@testing-library/angular';
+import { ChangeDetectorRef } from '@angular/core';
 import { of, throwError } from 'rxjs';
 import { ConfiguracionesViewComponent } from './configuraciones-view.component';
 import { ConfigurationService } from '../../../core/services/configuration.service';
@@ -205,20 +206,16 @@ describe('ConfiguracionesViewComponent', () => {
       expect(mocks.notification.showError).not.toHaveBeenCalled();
     });
 
-    it('BUG (DEUDA § 4.3): el estado se actualiza correctamente, pero el mensaje "Configuracion guardada" no aparece en el DOM sin un detectChanges manual — a diferencia de ngOnInit, esta rama next: no llama a cdr.markForCheck()', async () => {
+    it('éxito llama markForCheck para pintar "Configuracion guardada" en zoneless', async () => {
       const mocks = makeMocks();
       const { fixture } = await renderView(mocks);
+      const cdr = (fixture.componentInstance as unknown as { cdr: ChangeDetectorRef }).cdr;
+      const markForCheckSpy = vi.spyOn(cdr, 'markForCheck');
 
       fixture.componentInstance.saveWhatsappTemplate();
 
-      // (1) El estado interno sí se actualiza correctamente.
       expect(fixture.componentInstance.whatsappSaved).toBe(true);
-      // (2) Pero el *ngIf="whatsappSaved" del template no se refleja sin un ciclo de detección manual:
-      // esa es la causa raíz documentada en DEUDA_TECNICA.md § 4.3 (tercera instancia del patrón).
-      expect(screen.queryByText('Configuracion guardada')).toBeNull();
-
-      fixture.detectChanges(false);
-      expect(screen.queryByText('Configuracion guardada')).toBeTruthy();
+      expect(markForCheckSpy).toHaveBeenCalled();
     });
   });
 });

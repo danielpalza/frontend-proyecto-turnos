@@ -128,13 +128,18 @@ export class ConfiguracionesViewComponent implements OnInit, OnDestroy {
     this.configurationService.saveMensajeWhatsapp(this.whatsappTemplate).subscribe({
       next: () => {
         this.whatsappSaved = true;
-        setTimeout(() => { this.whatsappSaved = false; }, 3000);
+        this.cdr.markForCheck();
+        setTimeout(() => {
+          this.whatsappSaved = false;
+          this.cdr.markForCheck();
+        }, 3000);
       },
       error: (err: unknown) => {
         const message = this.errorHandler.getErrorMessage(err, 'guardar la configuracion del mensaje');
         if (!this.errorHandler.isNetworkError(err as any)) {
           this.notification.showError(message);
         }
+        this.cdr.markForCheck();
       }
     });
   }

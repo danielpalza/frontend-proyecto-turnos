@@ -28,9 +28,12 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((error: HttpErrorResponse) => {
       // No redirigir a login para endpoints de autenticación (login, register, verify, forgot-password, reset-password)
       const isAuthEndpoint = req.url.includes('/auth/');
-      
+      const skipGlobalHandler = req.context.get(SKIP_GLOBAL_ERROR_HANDLER);
+
       if (error.status === 403 && !isAuthEndpoint) {
-        handleCapabilityForbidden(error, authService, notification, router);
+        if (!skipGlobalHandler) {
+          handleCapabilityForbidden(error, authService, notification, router);
+        }
         return throwError(() => error);
       }
 
@@ -58,9 +61,6 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
         return throwError(() => error);
       }
 
-      // Verificar si el componente quiere manejar el error específicamente
-      const skipGlobalHandler = req.context.get(SKIP_GLOBAL_ERROR_HANDLER);
-      
       // Si el componente maneja el error, solo loguear y re-lanzar
       if (skipGlobalHandler) {
         console.log(`[HTTP Error] Error manejado específicamente por componente: ${req.method} ${req.url}`);

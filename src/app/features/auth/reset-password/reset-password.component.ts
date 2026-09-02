@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -23,7 +23,8 @@ export class ResetPasswordComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -52,11 +53,13 @@ export class ResetPasswordComponent implements OnInit {
         this.loading = false;
         this.success = true;
         this.successMessage = res.message;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.loading = false;
         const body = err?.error;
         this.errorMessage = body?.message || 'Error al restablecer la contraseña.';
+        this.cdr.detectChanges();
       }
     });
   }
